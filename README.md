@@ -1,12 +1,18 @@
-# Q2E Reproduction
+# adaptive-q2e
 
-Faithful reproduction of **Q2E: Query-to-Event Decomposition for Zero-Shot Multilingual
-Text-to-Video Retrieval** (Dipta & Ferraro, IJCNLP-AACL 2025, arXiv:2506.10202).
+**Per-query adaptive routing for zero-shot multilingual text-to-video retrieval.** Q2E always
+decomposes every query and fuses all five similarity components at fixed cost; this project muxes
+Q2E's fusion tiers with an Adaptive-RAG-style complexity router that spends *per query* — visual-only
+for easy queries, full event decomposition only where it pays — targeting the accuracy–compute
+frontier rather than a single operating point. See `reports/` and the research-extension note below.
 
-Official code: https://github.com/dipta007/Q2E (cloned to `external/q2e_official`, commit
-`a1c09da`). This workspace reproduces the paper's **evaluation** using the authors'
-released pre-generated LLM/VLM/ASR artifacts (HF datasets) plus the actual retrieval
-encoders and fusion — the faithful, reproducible path given the hardware.
+The router is built on a **faithful reproduction of Q2E** (Dipta & Ferraro, IJCNLP-AACL 2025,
+arXiv:2506.10202) as its validated base — that reproduction is the bulk of what follows.
+
+Official Q2E code: https://github.com/dipta007/Q2E (cloned to `external/q2e_official`, commit
+`a1c09da`). We reproduce the paper's **evaluation** using the authors' released pre-generated
+LLM/VLM/ASR artifacts (HF datasets) plus the actual retrieval encoders and fusion — the faithful,
+reproducible path given the hardware.
 
 ## Hardware / tier
 - 2× NVIDIA A2 (15 GB each), 16 vCPU, 31 GB RAM. See `environment/`.
