@@ -1,0 +1,125 @@
+{
+  "missing_videos": 398,
+  "settings": {
+    "noASR": {
+      "full_pool": {
+        "Full": {
+          "NDCG": 76.21,
+          "R1": 10.17,
+          "R10": 70.84,
+          "MRR": 0.94,
+          "paper_NDCG": 80.04
+        },
+        "-Query": {
+          "NDCG": 74.58,
+          "R1": 10.16,
+          "R10": 69.14,
+          "MRR": 0.94,
+          "paper_NDCG": 78.78
+        },
+        "-Events": {
+          "NDCG": 74.28,
+          "R1": 9.95,
+          "R10": 68.58,
+          "MRR": 0.93,
+          "paper_NDCG": 79.02
+        },
+        "-Video": {
+          "NDCG": 64.83,
+          "R1": 9.28,
+          "R10": 58.0,
+          "MRR": 0.89,
+          "paper_NDCG": 64.83
+        }
+      },
+      "subset": {
+        "Full": {
+          "NDCG": 80.94,
+          "R1": 12.99,
+          "R10": 78.14,
+          "n_queries": 259
+        },
+        "-Query": {
+          "NDCG": 79.97,
+          "R1": 12.94,
+          "R10": 77.42,
+          "n_queries": 259
+        },
+        "-Events": {
+          "NDCG": 80.58,
+          "R1": 12.75,
+          "R10": 78.09,
+          "n_queries": 259
+        },
+        "-Video": {
+          "NDCG": 65.99,
+          "R1": 11.43,
+          "R10": 60.98,
+          "n_queries": 259
+        }
+      },
+      "n_videos_full": 2393,
+      "n_videos_subset": 1995
+    },
+    "ASR": {
+      "full_pool": {
+        "Full": {
+          "NDCG": 80.66,
+          "R1": 10.47,
+          "R10": 75.89,
+          "MRR": 0.96,
+          "paper_NDCG": 83.24
+        },
+        "-Query": {
+          "NDCG": 78.47,
+          "R1": 10.14,
+          "R10": 73.93,
+          "MRR": 0.94,
+          "paper_NDCG": 81.54
+        },
+        "-Events": {
+          "NDCG": 78.31,
+          "R1": 10.35,
+          "R10": 72.93,
+          "MRR": 0.95,
+          "paper_NDCG": 81.75
+        },
+        "-Video": {
+          "NDCG": 73.92,
+          "R1": 10.12,
+          "R10": 67.67,
+          "MRR": 0.93,
+          "paper_NDCG": 73.96
+        }
+      },
+      "subset": {
+        "Full": {
+          "NDCG": 84.7,
+          "R1": 13.39,
+          "R10": 82.26,
+          "n_queries": 259
+        },
+        "-Query": {
+          "NDCG": 82.77,
+          "R1": 13.08,
+          "R10": 80.72,
+          "n_queries": 259
+        },
+        "-Events": {
+          "NDCG": 83.75,
+          "R1": 13.31,
+          "R10": 81.14,
+          "n_queries": 259
+        },
+        "-Video": {
+          "NDCG": 75.24,
+          "R1": 12.61,
+          "R10": 70.52,
+          "n_queries": 259
+        }
+      },
+      "n_videos_full": 2393,
+      "n_videos_subset": 1995
+    }
+  }
+}

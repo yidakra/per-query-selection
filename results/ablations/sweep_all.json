@@ -1,0 +1,17 @@
+{
+  "vlm": {
+    "InternVL-1B": 50.9633,
+    "InternVL-8B": 64.5136,
+    "InternVL-38B": 64.8285
+  },
+  "llm": {
+    "LLaMA-1B": null,
+    "LLaMA-8B": 62.4659,
+    "LLaMA-3.3-70B": 64.8285
+  },
+  "frame": {
+    "Funiform-2": 46.8427,
+    "Funiform-16": 64.8285,
+    "Funiform-64": 68.1999
+  }
+}

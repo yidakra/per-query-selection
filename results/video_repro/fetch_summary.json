@@ -1,0 +1,41 @@
+{
+  "summary": {
+    "total": 2393,
+    "frames_ok": 1995,
+    "F": 16,
+    "counts": {
+      "ok": 1995,
+      "dl_fail": 148,
+      "cached": 0,
+      "NO_MEDIA": 102,
+      "HTTP403": 3,
+      "REMOVED": 87,
+      "AGE_RESTRICTED": 13,
+      "PRIVATE": 44,
+      "frame_fail": 1
+    },
+    "per_language": {
+      "korean": {
+        "ok": 456,
+        "fail": 40
+      },
+      "arabic": {
+        "ok": 373,
+        "fail": 74
+      },
+      "chinese": {
+        "ok": 379,
+        "fail": 105
+      },
+      "english": {
+        "ok": 423,
+        "fail": 73
+      },
+      "russian": {
+        "ok": 364,
+        "fail": 106
+      }
+    },
+    "elapsed_min": 253.0
+  }
+}

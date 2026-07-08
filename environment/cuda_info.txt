@@ -1,0 +1,4 @@
+no nvcc
+name, memory.total [MiB], driver_version
+NVIDIA A2, 15356 MiB, 595.71.05
+NVIDIA A2, 15356 MiB, 595.71.05

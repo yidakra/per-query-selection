@@ -1,0 +1,11 @@
+{
+  "tag": "multivent_textonly_ASR",
+  "paper_Q2E_minus_Video_ASR": 73.96,
+  "NDCG_by_fusion": {
+    "inv_entropy": 73.92,
+    "mean": 73.39,
+    "max": 71.39,
+    "exp_entropy": 71.0,
+    "rrf": 73.29
+  }
+}

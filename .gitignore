@@ -1,0 +1,20 @@
+# --- large / regenerable, NOT version-controlled (see README + repro_log.md to rebuild) ---
+# HF datasets saved-to-disk, encoder checkpoints, videos, manifests, hf_cache (~44 GB)
+data/
+# python virtualenv
+.venv-eval/
+# upstream official repo — cloned separately (has its own .git); see README (commit a1c09da)
+external/
+
+# --- caches & verbose logs (regenerable) ---
+*.pt
+*.npy
+runs/**/cache/
+*.log
+
+# --- python cruft ---
+__pycache__/
+*.pyc
+*.pyo
+.ipynb_checkpoints/
+.DS_Store

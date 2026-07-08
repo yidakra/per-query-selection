@@ -1,0 +1,233 @@
+{
+  "missing_videos": 398,
+  "settings": {
+    "noASR": {
+      "full_pool": {
+        "n_queries": 259,
+        "n_videos": 2393,
+        "sanity_Full_NDCG_agg_vs_perquery": [
+          76.214,
+          76.214
+        ],
+        "fixed_tiers": {
+          "A_visual": {
+            "NDCG": 67.71,
+            "R1": 9.83,
+            "R10": 60.81
+          },
+          "-Events": {
+            "NDCG": 74.28,
+            "R1": 9.95,
+            "R10": 68.58
+          },
+          "Full": {
+            "NDCG": 76.21,
+            "R1": 10.17,
+            "R10": 70.84
+          },
+          "-Query": {
+            "NDCG": 74.58,
+            "R1": 10.16,
+            "R10": 69.14
+          },
+          "-Video": {
+            "NDCG": 64.83,
+            "R1": 9.28,
+            "R10": 58.0
+          }
+        },
+        "oracle_ABC_ladder": {
+          "NDCG": 78.98,
+          "R1": 10.59,
+          "R10": 73.33,
+          "pick_share_%": {
+            "A_visual": 29.0,
+            "-Events": 34.7,
+            "Full": 36.3
+          }
+        },
+        "oracle_all_ablation_tiers": {
+          "NDCG": 79.44,
+          "R1": 10.54,
+          "R10": 74.19,
+          "pick_share_%": {
+            "Full": 52.5,
+            "-Query": 17.8,
+            "-Events": 18.1,
+            "-Video": 11.6
+          }
+        }
+      },
+      "subset": {
+        "n_queries": 259,
+        "n_videos": 1995,
+        "sanity_Full_NDCG_agg_vs_perquery": [
+          80.936,
+          80.936
+        ],
+        "fixed_tiers": {
+          "A_visual": {
+            "NDCG": 76.53,
+            "R1": 12.67,
+            "R10": 73.63
+          },
+          "-Events": {
+            "NDCG": 80.58,
+            "R1": 12.75,
+            "R10": 78.09
+          },
+          "Full": {
+            "NDCG": 80.94,
+            "R1": 12.99,
+            "R10": 78.14
+          },
+          "-Query": {
+            "NDCG": 79.97,
+            "R1": 12.94,
+            "R10": 77.42
+          },
+          "-Video": {
+            "NDCG": 65.99,
+            "R1": 11.43,
+            "R10": 60.98
+          }
+        },
+        "oracle_ABC_ladder": {
+          "NDCG": 83.89,
+          "R1": 13.46,
+          "R10": 81.04,
+          "pick_share_%": {
+            "A_visual": 45.9,
+            "-Events": 29.0,
+            "Full": 25.1
+          }
+        },
+        "oracle_all_ablation_tiers": {
+          "NDCG": 84.62,
+          "R1": 13.43,
+          "R10": 81.86,
+          "pick_share_%": {
+            "Full": 53.7,
+            "-Query": 17.8,
+            "-Events": 17.4,
+            "-Video": 11.2
+          }
+        }
+      }
+    },
+    "ASR": {
+      "full_pool": {
+        "n_queries": 259,
+        "n_videos": 2393,
+        "sanity_Full_NDCG_agg_vs_perquery": [
+          80.656,
+          80.656
+        ],
+        "fixed_tiers": {
+          "A_visual": {
+            "NDCG": 67.71,
+            "R1": 9.83,
+            "R10": 60.81
+          },
+          "-Events": {
+            "NDCG": 78.31,
+            "R1": 10.35,
+            "R10": 72.93
+          },
+          "Full": {
+            "NDCG": 80.66,
+            "R1": 10.47,
+            "R10": 75.89
+          },
+          "-Query": {
+            "NDCG": 78.47,
+            "R1": 10.14,
+            "R10": 73.93
+          },
+          "-Video": {
+            "NDCG": 73.92,
+            "R1": 10.12,
+            "R10": 67.67
+          }
+        },
+        "oracle_ABC_ladder": {
+          "NDCG": 82.7,
+          "R1": 10.64,
+          "R10": 77.94,
+          "pick_share_%": {
+            "A_visual": 20.5,
+            "-Events": 38.6,
+            "Full": 40.9
+          }
+        },
+        "oracle_all_ablation_tiers": {
+          "NDCG": 83.68,
+          "R1": 10.58,
+          "R10": 79.31,
+          "pick_share_%": {
+            "Full": 57.1,
+            "-Query": 15.8,
+            "-Events": 12.4,
+            "-Video": 14.7
+          }
+        }
+      },
+      "subset": {
+        "n_queries": 259,
+        "n_videos": 1995,
+        "sanity_Full_NDCG_agg_vs_perquery": [
+          84.703,
+          84.703
+        ],
+        "fixed_tiers": {
+          "A_visual": {
+            "NDCG": 76.53,
+            "R1": 12.67,
+            "R10": 73.63
+          },
+          "-Events": {
+            "NDCG": 83.75,
+            "R1": 13.31,
+            "R10": 81.14
+          },
+          "Full": {
+            "NDCG": 84.7,
+            "R1": 13.39,
+            "R10": 82.26
+          },
+          "-Query": {
+            "NDCG": 82.77,
+            "R1": 13.08,
+            "R10": 80.72
+          },
+          "-Video": {
+            "NDCG": 75.24,
+            "R1": 12.61,
+            "R10": 70.52
+          }
+        },
+        "oracle_ABC_ladder": {
+          "NDCG": 86.86,
+          "R1": 13.49,
+          "R10": 84.55,
+          "pick_share_%": {
+            "A_visual": 38.2,
+            "-Events": 32.8,
+            "Full": 29.0
+          }
+        },
+        "oracle_all_ablation_tiers": {
+          "NDCG": 87.48,
+          "R1": 13.53,
+          "R10": 85.17,
+          "pick_share_%": {
+            "Full": 58.3,
+            "-Query": 15.1,
+            "-Events": 12.7,
+            "-Video": 13.9
+          }
+        }
+      }
+    }
+  }
+}

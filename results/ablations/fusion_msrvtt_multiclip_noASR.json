@@ -1,0 +1,17 @@
+{
+  "tag": "msrvtt_multiclip_noASR",
+  "components": [
+    "query_vs_video",
+    "query_vs_captions",
+    "prequel_vs_captions",
+    "during_vs_captions",
+    "sequel_vs_captions"
+  ],
+  "NDCG_by_fusion": {
+    "inv_entropy": 61.50633692741394,
+    "mean": 60.0835919380188,
+    "max": 58.182114362716675,
+    "exp_entropy": 58.94082188606262,
+    "rrf": 51.01391673088074
+  }
+}

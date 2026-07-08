@@ -1,0 +1,405 @@
+{
+  "summary": {
+    "n_pilot": 30,
+    "frames_ok": 25,
+    "success_rate": 0.833,
+    "per_language": {
+      "arabic": {
+        "n": 6,
+        "dl_ok": 5,
+        "fr_ok": 5
+      },
+      "chinese": {
+        "n": 6,
+        "dl_ok": 6,
+        "fr_ok": 6
+      },
+      "english": {
+        "n": 6,
+        "dl_ok": 6,
+        "fr_ok": 6
+      },
+      "korean": {
+        "n": 6,
+        "dl_ok": 4,
+        "fr_ok": 4
+      },
+      "russian": {
+        "n": 6,
+        "dl_ok": 4,
+        "fr_ok": 4
+      }
+    },
+    "avg_npy_bytes": 7225472,
+    "avg_download_s": 4.1,
+    "dataset_total_videos": 2393,
+    "projected_full": {
+      "expected_available": 1994,
+      "projected_npy_gb": 14.4,
+      "projected_download_hours": 2.7
+    },
+    "max_frames": 12
+  },
+  "rows": [
+    {
+      "video_id": "698852263897857",
+      "lang": "arabic",
+      "url": "http://twitter.com/i/status/698852263897857",
+      "download_ok": false,
+      "download_err": "ERROR: [twitter] 698852263897857: No video could be found in this tweet",
+      "download_s": 1.8,
+      "mp4_bytes": 0,
+      "frames_ok": false,
+      "frames_info": null,
+      "npy_bytes": 0
+    },
+    {
+      "video_id": "WIKbqRVaq8U",
+      "lang": "arabic",
+      "url": "http://youtube.com/watch?v=WIKbqRVaq8U",
+      "download_ok": true,
+      "download_err": null,
+      "download_s": 4.1,
+      "mp4_bytes": 4870620,
+      "frames_ok": true,
+      "frames_info": "shape=(12, 1, 3, 224, 224) std=0.969",
+      "npy_bytes": 7225472
+    },
+    {
+      "video_id": "pQfLnhFTOwM",
+      "lang": "arabic",
+      "url": "http://youtube.com/watch?v=pQfLnhFTOwM",
+      "download_ok": true,
+      "download_err": null,
+      "download_s": 2.6,
+      "mp4_bytes": 3797417,
+      "frames_ok": true,
+      "frames_info": "shape=(12, 1, 3, 224, 224) std=0.999",
+      "npy_bytes": 7225472
+    },
+    {
+      "video_id": "OaRXG1JMGbE",
+      "lang": "arabic",
+      "url": "http://youtube.com/watch?v=OaRXG1JMGbE",
+      "download_ok": true,
+      "download_err": null,
+      "download_s": 3.4,
+      "mp4_bytes": 2327964,
+      "frames_ok": true,
+      "frames_info": "shape=(12, 1, 3, 224, 224) std=1.060",
+      "npy_bytes": 7225472
+    },
+    {
+      "video_id": "5d2S5wHC7wY",
+      "lang": "arabic",
+      "url": "http://youtube.com/watch?v=5d2S5wHC7wY",
+      "download_ok": true,
+      "download_err": null,
+      "download_s": 3.6,
+      "mp4_bytes": 1976616,
+      "frames_ok": true,
+      "frames_info": "shape=(12, 1, 3, 224, 224) std=0.809",
+      "npy_bytes": 7225472
+    },
+    {
+      "video_id": "Mh9mOiIY0m0",
+      "lang": "arabic",
+      "url": "http://youtube.com/watch?v=Mh9mOiIY0m0",
+      "download_ok": true,
+      "download_err": null,
+      "download_s": 3.3,
+      "mp4_bytes": 3115948,
+      "frames_ok": true,
+      "frames_info": "shape=(12, 1, 3, 224, 224) std=0.892",
+      "npy_bytes": 7225472
+    },
+    {
+      "video_id": "yslqhUjdNbg",
+      "lang": "chinese",
+      "url": "http://youtube.com/watch?v=yslqhUjdNbg",
+      "download_ok": true,
+      "download_err": null,
+      "download_s": 3.9,
+      "mp4_bytes": 2857779,
+      "frames_ok": true,
+      "frames_info": "shape=(12, 1, 3, 224, 224) std=0.837",
+      "npy_bytes": 7225472
+    },
+    {
+      "video_id": "79KZotq5KcQ",
+      "lang": "chinese",
+      "url": "http://youtube.com/watch?v=79KZotq5KcQ",
+      "download_ok": true,
+      "download_err": null,
+      "download_s": 3.2,
+      "mp4_bytes": 3693381,
+      "frames_ok": true,
+      "frames_info": "shape=(12, 1, 3, 224, 224) std=1.262",
+      "npy_bytes": 7225472
+    },
+    {
+      "video_id": "xRxWrFILWdo",
+      "lang": "chinese",
+      "url": "http://youtube.com/watch?v=xRxWrFILWdo",
+      "download_ok": true,
+      "download_err": null,
+      "download_s": 4.0,
+      "mp4_bytes": 6544463,
+      "frames_ok": true,
+      "frames_info": "shape=(12, 1, 3, 224, 224) std=1.097",
+      "npy_bytes": 7225472
+    },
+    {
+      "video_id": "SvXfgPUVeoY",
+      "lang": "chinese",
+      "url": "http://youtube.com/watch?v=SvXfgPUVeoY",
+      "download_ok": true,
+      "download_err": null,
+      "download_s": 3.6,
+      "mp4_bytes": 5832788,
+      "frames_ok": true,
+      "frames_info": "shape=(12, 1, 3, 224, 224) std=1.185",
+      "npy_bytes": 7225472
+    },
+    {
+      "video_id": "OWLSkdtg3ko",
+      "lang": "chinese",
+      "url": "http://youtube.com/watch?v=OWLSkdtg3ko",
+      "download_ok": true,
+      "download_err": null,
+      "download_s": 2.5,
+      "mp4_bytes": 1302182,
+      "frames_ok": true,
+      "frames_info": "shape=(12, 1, 3, 224, 224) std=1.183",
+      "npy_bytes": 7225472
+    },
+    {
+      "video_id": "QRnaO7FHU4U",
+      "lang": "chinese",
+      "url": "http://youtube.com/watch?v=QRnaO7FHU4U",
+      "download_ok": true,
+      "download_err": null,
+      "download_s": 3.8,
+      "mp4_bytes": 5234108,
+      "frames_ok": true,
+      "frames_info": "shape=(12, 1, 3, 224, 224) std=0.910",
+      "npy_bytes": 7225472
+    },
+    {
+      "video_id": "2obcml1lb3E",
+      "lang": "english",
+      "url": "http://youtube.com/watch?v=2obcml1lb3E",
+      "download_ok": true,
+      "download_err": null,
+      "download_s": 2.5,
+      "mp4_bytes": 1422549,
+      "frames_ok": true,
+      "frames_info": "shape=(12, 1, 3, 224, 224) std=1.174",
+      "npy_bytes": 7225472
+    },
+    {
+      "video_id": "vUbGfD5c6JU",
+      "lang": "english",
+      "url": "http://youtube.com/watch?v=vUbGfD5c6JU",
+      "download_ok": true,
+      "download_err": null,
+      "download_s": 22.7,
+      "mp4_bytes": 1012361,
+      "frames_ok": true,
+      "frames_info": "shape=(12, 1, 3, 224, 224) std=1.250",
+      "npy_bytes": 7225472
+    },
+    {
+      "video_id": "WXTrueWndD8",
+      "lang": "english",
+      "url": "http://youtube.com/watch?v=WXTrueWndD8",
+      "download_ok": true,
+      "download_err": null,
+      "download_s": 2.9,
+      "mp4_bytes": 950597,
+      "frames_ok": true,
+      "frames_info": "shape=(12, 1, 3, 224, 224) std=1.236",
+      "npy_bytes": 7225472
+    },
+    {
+      "video_id": "1lMX9eZMEIo",
+      "lang": "english",
+      "url": "http://youtube.com/watch?v=1lMX9eZMEIo",
+      "download_ok": true,
+      "download_err": null,
+      "download_s": 2.6,
+      "mp4_bytes": 2693850,
+      "frames_ok": true,
+      "frames_info": "shape=(12, 1, 3, 224, 224) std=0.902",
+      "npy_bytes": 7225472
+    },
+    {
+      "video_id": "rX-NofLZfNA",
+      "lang": "english",
+      "url": "http://youtube.com/watch?v=rX-NofLZfNA",
+      "download_ok": true,
+      "download_err": null,
+      "download_s": 2.2,
+      "mp4_bytes": 4896603,
+      "frames_ok": true,
+      "frames_info": "shape=(12, 1, 3, 224, 224) std=1.092",
+      "npy_bytes": 7225472
+    },
+    {
+      "video_id": "faK6magPCJU",
+      "lang": "english",
+      "url": "http://youtube.com/watch?v=faK6magPCJU",
+      "download_ok": true,
+      "download_err": null,
+      "download_s": 3.0,
+      "mp4_bytes": 5263690,
+      "frames_ok": true,
+      "frames_info": "shape=(12, 1, 3, 224, 224) std=0.952",
+      "npy_bytes": 7225472
+    },
+    {
+      "video_id": "t8lY-rjy7-Y",
+      "lang": "korean",
+      "url": "http://youtube.com/watch?v=t8lY-rjy7-Y",
+      "download_ok": true,
+      "download_err": null,
+      "download_s": 3.1,
+      "mp4_bytes": 6286908,
+      "frames_ok": true,
+      "frames_info": "shape=(12, 1, 3, 224, 224) std=1.073",
+      "npy_bytes": 7225472
+    },
+    {
+      "video_id": "CXe6_CDrdB8",
+      "lang": "korean",
+      "url": "http://youtube.com/watch?v=CXe6_CDrdB8",
+      "download_ok": true,
+      "download_err": null,
+      "download_s": 3.5,
+      "mp4_bytes": 4050311,
+      "frames_ok": true,
+      "frames_info": "shape=(12, 1, 3, 224, 224) std=1.084",
+      "npy_bytes": 7225472
+    },
+    {
+      "video_id": "uF3x63vtddc",
+      "lang": "korean",
+      "url": "http://youtube.com/watch?v=uF3x63vtddc",
+      "download_ok": false,
+      "download_err": "ERROR: unable to download video data: HTTP Error 403: Forbidden",
+      "download_s": 1.8,
+      "mp4_bytes": 0,
+      "frames_ok": false,
+      "frames_info": null,
+      "npy_bytes": 0
+    },
+    {
+      "video_id": "nln3QFJggKs",
+      "lang": "korean",
+      "url": "http://youtube.com/watch?v=nln3QFJggKs",
+      "download_ok": true,
+      "download_err": null,
+      "download_s": 3.0,
+      "mp4_bytes": 2503954,
+      "frames_ok": true,
+      "frames_info": "shape=(12, 1, 3, 224, 224) std=0.975",
+      "npy_bytes": 7225472
+    },
+    {
+      "video_id": "n6UmQ9Kw2GQ",
+      "lang": "korean",
+      "url": "http://youtube.com/watch?v=n6UmQ9Kw2GQ",
+      "download_ok": false,
+      "download_err": "ERROR: unable to download video data: HTTP Error 403: Forbidden",
+      "download_s": 1.9,
+      "mp4_bytes": 0,
+      "frames_ok": false,
+      "frames_info": null,
+      "npy_bytes": 0
+    },
+    {
+      "video_id": "uoagwCVoHGM",
+      "lang": "korean",
+      "url": "http://youtube.com/watch?v=uoagwCVoHGM",
+      "download_ok": true,
+      "download_err": null,
+      "download_s": 2.7,
+      "mp4_bytes": 2121014,
+      "frames_ok": true,
+      "frames_info": "shape=(12, 1, 3, 224, 224) std=0.996",
+      "npy_bytes": 7225472
+    },
+    {
+      "video_id": "145973",
+      "lang": "russian",
+      "url": "https://www.m24.ru/amp/videos/ChP/29052017/145973",
+      "download_ok": true,
+      "download_err": null,
+      "download_s": 6.2,
+      "mp4_bytes": 2665464,
+      "frames_ok": true,
+      "frames_info": "shape=(12, 1, 3, 224, 224) std=0.794",
+      "npy_bytes": 7225472
+    },
+    {
+      "video_id": "toDT1_Ash9M",
+      "lang": "russian",
+      "url": "http://youtube.com/watch?v=toDT1_Ash9M",
+      "download_ok": true,
+      "download_err": null,
+      "download_s": 3.7,
+      "mp4_bytes": 3143834,
+      "frames_ok": true,
+      "frames_info": "shape=(12, 1, 3, 224, 224) std=1.172",
+      "npy_bytes": 7225472
+    },
+    {
+      "video_id": "0fbeM1UGnwg",
+      "lang": "russian",
+      "url": "http://youtube.com/watch?v=0fbeM1UGnwg",
+      "download_ok": false,
+      "download_err": "REMOVED",
+      "download_s": 3.5,
+      "mp4_bytes": 0,
+      "frames_ok": false,
+      "frames_info": null,
+      "npy_bytes": 0
+    },
+    {
+      "video_id": "bG3XsHYxbLw",
+      "lang": "russian",
+      "url": "http://youtube.com/watch?v=bG3XsHYxbLw",
+      "download_ok": false,
+      "download_err": "ERROR: unable to download video data: HTTP Error 403: Forbidden",
+      "download_s": 9.2,
+      "mp4_bytes": 0,
+      "frames_ok": false,
+      "frames_info": null,
+      "npy_bytes": 0
+    },
+    {
+      "video_id": "o8Glwrw5y4c",
+      "lang": "russian",
+      "url": "http://youtube.com/watch?v=o8Glwrw5y4c",
+      "download_ok": true,
+      "download_err": null,
+      "download_s": 2.2,
+      "mp4_bytes": 1177828,
+      "frames_ok": true,
+      "frames_info": "shape=(12, 1, 3, 224, 224) std=0.687",
+      "npy_bytes": 7225472
+    },
+    {
+      "video_id": "RgYl5Jq4_E4",
+      "lang": "russian",
+      "url": "http://youtube.com/watch?v=RgYl5Jq4_E4",
+      "download_ok": true,
+      "download_err": null,
+      "download_s": 3.1,
+      "mp4_bytes": 166094,
+      "frames_ok": true,
+      "frames_info": "shape=(12, 1, 3, 224, 224) std=1.181",
+      "npy_bytes": 7225472
+    }
+  ]
+}

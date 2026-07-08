@@ -1,0 +1,24 @@
+{
+  "noASR": {
+    "full_text4": 64.8285,
+    "drop_query": 62.8857,
+    "drop_prequel": 64.9062,
+    "drop_during": 64.6676,
+    "drop_sequel": 64.4671,
+    "only_query": 60.962,
+    "only_prequel": 61.0021,
+    "only_during": 60.7602,
+    "only_sequel": 61.5582
+  },
+  "ASR": {
+    "full_text4": 73.9171,
+    "drop_query": 72.0039,
+    "drop_prequel": 73.5399,
+    "drop_during": 73.6022,
+    "drop_sequel": 73.4342,
+    "only_query": 70.096,
+    "only_prequel": 69.6771,
+    "only_during": 70.2736,
+    "only_sequel": 71.1625
+  }
+}
