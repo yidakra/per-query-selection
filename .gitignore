@@ -20,3 +20,8 @@ __pycache__/
 *.pyo
 .ipynb_checkpoints/
 .DS_Store
+
+# experiment tracking
+runs/wandb/
+wandb/
+.codecarbon.config
