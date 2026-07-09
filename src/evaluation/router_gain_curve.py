@@ -25,7 +25,8 @@ from sklearn.model_selection import cross_val_predict, KFold  # noqa: E402
 RNG = np.random.default_rng(0)
 NPERM, NBOOT = 10000, 5000
 FRACS = np.arange(0.05, 1.0, 0.05)
-OUT = "/home/ubuntu/q2e_repro/results/ablations/router_gain_curve.json"
+_ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))   # repo root, wherever it is checked out
+OUT = f"{_ROOT}/results/ablations/router_gain_curve.json"
 
 
 def mk():

@@ -21,8 +21,9 @@ from router_cascade_exp import conf_feats, CN  # noqa: E402
 import pandas as pd  # noqa: E402
 from sklearn.model_selection import cross_val_predict, KFold  # noqa: E402
 
-FIG = "/home/ubuntu/q2e_repro/reports/figures"
-OUT = "/home/ubuntu/q2e_repro/results/ablations/router_curves.json"
+_ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))   # repo root, wherever it is checked out
+FIG = f"{_ROOT}/reports/figures"
+OUT = f"{_ROOT}/results/ablations/router_curves.json"
 NBOOT = 2000
 CELLS = [("MultiVENT noASR", lambda: comps_multivent("noASR")),
          ("MultiVENT ASR", lambda: comps_multivent("ASR")),
@@ -104,7 +105,7 @@ for e in ("pdf", "png"):
 print(f"wrote {FIG}/router_frontier.{{pdf,png}}")
 
 # ---------------- Fig 2: heterogeneity ----------------
-het = json.load(open("/home/ubuntu/q2e_repro/results/ablations/router_hetero.json"))
+het = json.load(open(f"{_ROOT}/results/ablations/router_hetero.json"))
 sd = np.array([r["het_sd"] for r in het])
 orc = np.array([r["oracle_gap"] for r in het])
 gap = np.array([r["nested_gap"] for r in het])
