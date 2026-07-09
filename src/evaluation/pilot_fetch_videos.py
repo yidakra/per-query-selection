@@ -17,9 +17,10 @@ from collections import defaultdict, OrderedDict
 
 N_PER_LANG = int(sys.argv[1]) if len(sys.argv) > 1 else 6
 MAX_FRAMES = 12  # MultiCLIP default (cfg.max_frames); cache dir is per-frame-count
-REPO = "/home/ubuntu/q2e_repro/external/q2e_official"
-DS = "/home/ubuntu/q2e_repro/data/MultiVENT/Q2E_MultiVENT_LLAMA_3.3_70B_InternVL_38B_Funiform_16_noASR"
-OUT = "/home/ubuntu/q2e_repro/results/video_repro"
+_ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))   # repo root, wherever it is checked out
+REPO = f"{_ROOT}/external/q2e_official"
+DS = f"{_ROOT}/data/MultiVENT/Q2E_MultiVENT_LLAMA_3.3_70B_InternVL_38B_Funiform_16_noASR"
+OUT = f"{_ROOT}/results/video_repro"
 TMP_VIDEO_DIR = os.path.join(REPO, "data", "MultiVENT", "_pilot_videos_tmp")
 YTDLP = shutil.which("yt-dlp") or os.path.expanduser("~/q2e_repro/.venv-eval/bin/yt-dlp")
 

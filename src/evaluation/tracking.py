@@ -36,7 +36,8 @@ then backfill everything recorded so far with `wandb sync runs/wandb/offline-*`.
 """
 import os, sys, time, json, socket, subprocess, contextlib
 
-REPO = "/home/ubuntu/q2e_repro"
+_ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))   # repo root, wherever it is checked out
+REPO = _ROOT
 PROJECT = os.environ.get("WANDB_PROJECT", "adaptive-q2e")
 ENTITY = os.environ.get("WANDB_ENTITY", "natlang")   # wandb.ai/natlang/adaptive-q2e
 ENERGY_DIR = os.path.join(REPO, "results", "energy")

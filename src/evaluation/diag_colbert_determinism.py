@@ -19,7 +19,8 @@ HERE = os.path.dirname(os.path.abspath(__file__)); sys.path.insert(0, HERE)
 import run_eval as R  # noqa: E402
 import src.eval.text_embedder as _te  # noqa: E402
 
-REPO = "/home/ubuntu/q2e_repro"
+_ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))   # repo root, wherever it is checked out
+REPO = _ROOT
 DS = f"{REPO}/data/MultiVENT/Q2E_MultiVENT_LLAMA_3.3_70B_InternVL_38B_Funiform_16_noASR"
 SLOT = 0
 

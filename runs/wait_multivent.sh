@@ -1,5 +1,6 @@
 #!/bin/bash
-RUN=/home/ubuntu/q2e_repro/runs
+REPO="${REPO:-$(cd "$(dirname "${BASH_SOURCE[0]:-$0}")/.." && pwd)}"   # repo root, wherever it is checked out
+RUN=$REPO/runs
 target="$RUN/multivent_textonly_ASR/metrics.json"
 for i in $(seq 1 600); do
   if [ -f "$target" ]; then echo "READY multivent_textonly_ASR at $(date +%T)"; exit 0; fi

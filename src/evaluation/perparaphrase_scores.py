@@ -37,7 +37,8 @@ SETTINGS = {
     "noASR": ("multivent_textonly_noASR", "Q2E_MultiVENT_LLAMA_3.3_70B_InternVL_38B_Funiform_16_noASR"),
     "ASR": ("multivent_textonly_ASR", "Q2E_MultiVENT_LLAMA_3.3_70B_InternVL_38B_Funiform_16_ASR"),
 }
-REPO = "/home/ubuntu/q2e_repro"
+_ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))   # repo root, wherever it is checked out
+REPO = _ROOT
 
 
 def many_to_many_perparaphrase(args, queries, docs, tracker=None):

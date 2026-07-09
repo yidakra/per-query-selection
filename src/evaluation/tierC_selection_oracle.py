@@ -36,7 +36,8 @@ from oracle_router_headroom import canonical_order, fuse, per_query, LADDER  # n
 from tracking import track  # noqa: E402
 from datasets import load_from_disk  # noqa: E402
 
-REPO = "/home/ubuntu/q2e_repro"
+_ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))   # repo root, wherever it is checked out
+REPO = _ROOT
 RUNS = f"{REPO}/runs"
 EVENTS = ["prequel_vs_captions", "during_vs_captions", "sequel_vs_captions"]
 ALL5 = ["query_vs_video", "query_vs_captions"] + EVENTS

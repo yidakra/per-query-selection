@@ -33,7 +33,8 @@ HERE = os.path.dirname(os.path.abspath(__file__)); sys.path.insert(0, HERE)
 from tracking import track  # noqa: E402
 from datasets import load_from_disk  # noqa: E402
 
-REPO = "/home/ubuntu/q2e_repro"
+_ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))   # repo root, wherever it is checked out
+REPO = _ROOT
 DS = f"{REPO}/data/MultiVENT/Q2E_MultiVENT_LLAMA_3.3_70B_InternVL_38B_Funiform_16_noASR"
 TPL = f"{REPO}/external/q2e_official/src/data/prompts"
 EVENTS = ["prequel", "during", "sequel"]

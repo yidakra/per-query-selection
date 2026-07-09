@@ -21,9 +21,10 @@ Run from repo root with venv + GPU (CUDA_VISIBLE_DEVICES=1).
 import os, sys, json, time
 from types import SimpleNamespace
 
-REPO = "/home/ubuntu/q2e_repro/external/q2e_official"
-DS = "/home/ubuntu/q2e_repro/data/MultiVENT/Q2E_MultiVENT_LLAMA_3.3_70B_InternVL_38B_Funiform_16_noASR"
-RUN = "/home/ubuntu/q2e_repro/runs/multivent_video_multiclip"
+_ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))   # repo root, wherever it is checked out
+REPO = f"{_ROOT}/external/q2e_official"
+DS = f"{_ROOT}/data/MultiVENT/Q2E_MultiVENT_LLAMA_3.3_70B_InternVL_38B_Funiform_16_noASR"
+RUN = f"{_ROOT}/runs/multivent_video_multiclip"
 
 sys.path.insert(0, REPO)
 os.chdir(REPO)

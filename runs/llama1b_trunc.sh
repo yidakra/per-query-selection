@@ -6,18 +6,19 @@
 # Resumes from cached query_vs_captions.pt (query is NOT an event -> untouched -> faithful).
 # GPU1 only; GPU0/whisper untouched. On error -> FAILED marker (no further auto-retry).
 set -uo pipefail
-cd /home/ubuntu/q2e_repro
-export HF_HOME=/home/ubuntu/q2e_repro/data/hf_cache
+REPO="${REPO:-$(cd "$(dirname "${BASH_SOURCE[0]:-$0}")/.." && pwd)}"   # repo root, wherever it is checked out
+cd $REPO
+export HF_HOME=$REPO/data/hf_cache
 export CUDA_VISIBLE_DEVICES=1
 export PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True
 export Q2E_COLBERT_ENC_BS=128
 export Q2E_COLBERT_SEARCH_BS=512
 export Q2E_EVENT_MAXPARAS=32       # the divergence knob (cap paraphrases/event; 8B maxed at 35)
-LOG=/home/ubuntu/q2e_repro/runs/llama1b_trunc.log
-RUN=/home/ubuntu/q2e_repro/runs
+LOG=$REPO/runs/llama1b_trunc.log
+RUN=$REPO/runs
 rm -f "$RUN/LLAMA1B_TRUNC_DONE" "$RUN/LLAMA1B_TRUNC_FAILED"
 echo "=== llama1b TRUNC retry EVENT_MAXPARAS=32 ENC_BS=128 SEARCH_BS=512 $(date -u +%FT%TZ) ===" | tee -a "$LOG"
-source /home/ubuntu/q2e_repro/.venv-eval/bin/activate
+source $REPO/.venv-eval/bin/activate
 python -u src/evaluation/run_eval.py \
   --dataset_dir data/MultiVENT/Q2E_MultiVENT_LLAMA_1B_InternVL_38B_Funiform_16_noASR \
   --t2v_encoder multiclip --no_video \

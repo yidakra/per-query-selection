@@ -5,12 +5,13 @@
 # Both on GPU1; whisper owns GPU0 (systemd). Each step resumes from its component cache, so a
 # restart mid-run only loses the in-flight step, not the finished ones.
 set -u
-cd /home/ubuntu/q2e_repro
+REPO="${REPO:-$(cd "$(dirname "${BASH_SOURCE[0]:-$0}")/.." && pwd)}"   # repo root, wherever it is checked out
+cd $REPO
 source .venv-eval/bin/activate
-export HF_HOME=/home/ubuntu/q2e_repro/data/hf_cache
+export HF_HOME=$REPO/data/hf_cache
 export CUDA_VISIBLE_DEVICES=1
 export PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True
-RUN=/home/ubuntu/q2e_repro/runs
+RUN=$REPO/runs
 LOG="$RUN/repro_finish.log"
 
 echo "=== repro_finish started $(date -u +%FT%TZ) ===" | tee -a "$LOG"

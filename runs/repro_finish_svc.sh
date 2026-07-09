@@ -5,16 +5,17 @@
 # once BOTH deliverables exist; the unit's ConditionPathExists on that file stops it from
 # re-running on later boots. Always exits 0 (best-effort 1B must not wedge the service).
 set -u
-cd /home/ubuntu/q2e_repro
+REPO="${REPO:-$(cd "$(dirname "${BASH_SOURCE[0]:-$0}")/.." && pwd)}"   # repo root, wherever it is checked out
+cd $REPO
 source .venv-eval/bin/activate
-export HF_HOME=/home/ubuntu/q2e_repro/data/hf_cache
+export HF_HOME=$REPO/data/hf_cache
 export CUDA_VISIBLE_DEVICES=1
 export PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True
-RUN=/home/ubuntu/q2e_repro/runs
+RUN=$REPO/runs
 LOG="$RUN/repro_finish.log"
-TABLE5=/home/ubuntu/q2e_repro/results/ablations/table5_multivent_fullvideo.json
-QV=/home/ubuntu/q2e_repro/runs/multivent_video_multiclip/cache/query_vs_video.pt
-ONEB_CACHE=/home/ubuntu/q2e_repro/runs/mv_llm_llama1b_noASR/cache
+TABLE5=$REPO/results/ablations/table5_multivent_fullvideo.json
+QV=$REPO/runs/multivent_video_multiclip/cache/query_vs_video.pt
+ONEB_CACHE=$REPO/runs/mv_llm_llama1b_noASR/cache
 
 echo "=== repro_finish_svc (systemd) start $(date -u +%FT%TZ) ===" | tee -a "$LOG"
 

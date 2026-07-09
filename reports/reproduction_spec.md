@@ -95,7 +95,7 @@ top_p=0.95, max_tokens=2048, served by vLLM. Frame captioning uses
 | ASR transcript refinement | `refine_translation.jinja` |
 
 Prompts are preserved verbatim in the repo; copies snapshotted under
-`q2e_repro/configs/prompts/` (see repro_log). Example (event extraction) asks the LLM to
+`configs/prompts/` (see repro_log). Example (event extraction) asks the LLM to
 output `EXPLANATION:` then `EVENTS:` numbered list; prequel/sequel prompts inject world
 knowledge and require events "concrete enough to be visualized in a video"; the refine
 prompt fuses base query + event + place + time into a natural search query.

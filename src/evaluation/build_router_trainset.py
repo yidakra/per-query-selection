@@ -31,8 +31,9 @@ from oracle_router_headroom import (  # noqa: E402
 import torch  # noqa: E402
 from datasets import load_from_disk  # noqa: E402
 
-RUNS = "/home/ubuntu/q2e_repro/runs"
-OUT = "/home/ubuntu/q2e_repro/results/ablations/router_trainset.jsonl"
+_ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))   # repo root, wherever it is checked out
+RUNS = f"{_ROOT}/runs"
+OUT = f"{_ROOT}/results/ablations/router_trainset.jsonl"
 EPS = 0.01
 
 # tier name in pm  <->  role.  Ladder cost order (cheapest first): A(no captions,no events) <

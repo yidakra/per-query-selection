@@ -22,12 +22,15 @@ RNG = np.random.default_rng(0)
 FRACS = np.arange(0.05, 1.0, 0.05)
 A_COLS = ["A_margin12", "A_margin13", "A_z1", "A_entropy", "A_maxp", "A_top5mass", "A_std", "A_top1",
           "charlen", "wordlen"]
-RUNS = "/home/ubuntu/q2e_repro/runs"
-OUT = "/home/ubuntu/q2e_repro/results/ablations/router_hetero.json"
+_ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))   # repo root, wherever it is checked out
+RUNS = f"{_ROOT}/runs"
+OUT = f"{_ROOT}/results/ablations/router_hetero.json"
 
 MV = {"noASR": ("multivent_textonly_noASR", "Q2E_MultiVENT_LLAMA_3.3_70B_InternVL_38B_Funiform_16_noASR"),
       "ASR": ("multivent_textonly_ASR", "Q2E_MultiVENT_LLAMA_3.3_70B_InternVL_38B_Funiform_16_ASR")}
-MSRVTT_DS = "data/MSR-VTT-1kA/Q2E_MSRVTT-1kA_LLAMA_3.3_70B_InternVL_38B_Funiform_16_{s}"
+# Absolute, not cwd-relative: importing oracle_router_headroom chdirs into the upstream tree, so a
+# relative "data/..." here silently resolves against external/q2e_official/ instead of the repo root.
+MSRVTT_DS = f"{_ROOT}/data/MSR-VTT-1kA/Q2E_MSRVTT-1kA_LLAMA_3.3_70B_InternVL_38B_Funiform_16_{{s}}"
 
 
 def mk():
@@ -44,7 +47,7 @@ def gap_at(f, ghat, g):
 
 def comps_multivent(setting):
     text_tag, ds_name = MV[setting]
-    ds = load_from_disk(f"data/MultiVENT/{ds_name}")
+    ds = load_from_disk(f"{_ROOT}/data/MultiVENT/{ds_name}")
     queries, video_ids, target = canonical_order(ds)
     VID = os.path.join(RUNS, "multivent_video_multiclip")
     qv = torch.load(os.path.join(VID, "cache", "query_vs_video.pt"))

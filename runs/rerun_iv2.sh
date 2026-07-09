@@ -1,15 +1,16 @@
 #!/bin/bash
 set -u
-cd /home/ubuntu/q2e_repro
+REPO="${REPO:-$(cd "$(dirname "${BASH_SOURCE[0]:-$0}")/.." && pwd)}"   # repo root, wherever it is checked out
+cd $REPO
 source .venv-eval/bin/activate
-export HF_HOME=/home/ubuntu/q2e_repro/data/hf_cache
+export HF_HOME=$REPO/data/hf_cache
 export CUDA_VISIBLE_DEVICES=1
 export PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True
 export Q2E_COLBERT_ENC_BS=128
 export Q2E_COLBERT_SEARCH_BS=512
 export Q2E_IV2_VIDEO_BS=8
 export Q2E_IV2_TEXT_BS=32
-RUN=/home/ubuntu/q2e_repro/runs
+RUN=$REPO/runs
 for cfg in noASR ASR; do
   echo "[iv2rerun] === MSRVTT internvideo2 $cfg $(date +%T) ==="
   python -u src/evaluation/run_eval.py \

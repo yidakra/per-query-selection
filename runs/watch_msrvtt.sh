@@ -1,5 +1,6 @@
 #!/bin/bash
-cd /home/ubuntu/q2e_repro
+REPO="${REPO:-$(cd "$(dirname "${BASH_SOURCE[0]:-$0}")/.." && pwd)}"   # repo root, wherever it is checked out
+cd $REPO
 while true; do
   done_marker=$(grep -c ALL_MSRVTT_MULTICLIP_DONE runs/msrvtt_multiclip.log 2>/dev/null)
   no=$([ -f runs/msrvtt_multiclip_noASR/metrics.json ] && echo yes || echo no)
