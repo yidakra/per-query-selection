@@ -1,0 +1,860 @@
+{
+  "MultiVENT_multiclip_noASR_fullpool": {
+    "n": 259,
+    "fixed": {
+      "A_visual": {
+        "ndcg": 67.707,
+        "cost": 0.2,
+        "full_share": 0.0
+      },
+      "-Events": {
+        "ndcg": 74.283,
+        "cost": 0.4,
+        "full_share": 0.0
+      },
+      "Full": {
+        "ndcg": 76.214,
+        "cost": 1.0,
+        "full_share": 1.0
+      }
+    },
+    "oracle": [
+      {
+        "eps": 0.0,
+        "ndcg": 78.978,
+        "cost": 0.5598,
+        "full_share": 0.3629
+      },
+      {
+        "eps": 0.005,
+        "ndcg": 78.962,
+        "cost": 0.5375,
+        "full_share": 0.3359
+      },
+      {
+        "eps": 0.01,
+        "ndcg": 78.919,
+        "cost": 0.5081,
+        "full_share": 0.2934
+      },
+      {
+        "eps": 0.02,
+        "ndcg": 78.87,
+        "cost": 0.4903,
+        "full_share": 0.2703
+      },
+      {
+        "eps": 0.03,
+        "ndcg": 78.821,
+        "cost": 0.4849,
+        "full_share": 0.2664
+      },
+      {
+        "eps": 0.05,
+        "ndcg": 78.704,
+        "cost": 0.468,
+        "full_share": 0.2432
+      },
+      {
+        "eps": 0.08,
+        "ndcg": 77.049,
+        "cost": 0.3514,
+        "full_share": 0.1042
+      },
+      {
+        "eps": 0.12,
+        "ndcg": 75.984,
+        "cost": 0.3097,
+        "full_share": 0.0695
+      },
+      {
+        "eps": 0.2,
+        "ndcg": 73.55,
+        "cost": 0.251,
+        "full_share": 0.0232
+      }
+    ],
+    "router": [
+      {
+        "eps": 0.0,
+        "ndcg": 73.057,
+        "cost": 0.556,
+        "full_share": 0.3629,
+        "tier_acc": 0.3552
+      },
+      {
+        "eps": 0.005,
+        "ndcg": 73.522,
+        "cost": 0.5413,
+        "full_share": 0.3591,
+        "tier_acc": 0.3861
+      },
+      {
+        "eps": 0.01,
+        "ndcg": 72.977,
+        "cost": 0.4873,
+        "full_share": 0.2664,
+        "tier_acc": 0.3784
+      },
+      {
+        "eps": 0.02,
+        "ndcg": 73.074,
+        "cost": 0.4749,
+        "full_share": 0.251,
+        "tier_acc": 0.3514
+      },
+      {
+        "eps": 0.03,
+        "ndcg": 72.921,
+        "cost": 0.4625,
+        "full_share": 0.2355,
+        "tier_acc": 0.3745
+      },
+      {
+        "eps": 0.05,
+        "ndcg": 72.843,
+        "cost": 0.4456,
+        "full_share": 0.2085,
+        "tier_acc": 0.3205
+      },
+      {
+        "eps": 0.08,
+        "ndcg": 70.757,
+        "cost": 0.2888,
+        "full_share": 0.0386,
+        "tier_acc": 0.5097
+      },
+      {
+        "eps": 0.12,
+        "ndcg": 69.597,
+        "cost": 0.2425,
+        "full_share": 0.0116,
+        "tier_acc": 0.6486
+      },
+      {
+        "eps": 0.2,
+        "ndcg": 68.805,
+        "cost": 0.2108,
+        "full_share": 0.0,
+        "tier_acc": 0.7992
+      }
+    ],
+    "gold_per_query": 9.24,
+    "headline": null
+  },
+  "MultiVENT_multiclip_ASR_fullpool": {
+    "n": 259,
+    "fixed": {
+      "A_visual": {
+        "ndcg": 67.707,
+        "cost": 0.2,
+        "full_share": 0.0
+      },
+      "-Events": {
+        "ndcg": 78.313,
+        "cost": 0.4,
+        "full_share": 0.0
+      },
+      "Full": {
+        "ndcg": 80.656,
+        "cost": 1.0,
+        "full_share": 1.0
+      }
+    },
+    "oracle": [
+      {
+        "eps": 0.0,
+        "ndcg": 82.702,
+        "cost": 0.6046,
+        "full_share": 0.4093
+      },
+      {
+        "eps": 0.005,
+        "ndcg": 82.689,
+        "cost": 0.5822,
+        "full_share": 0.3784
+      },
+      {
+        "eps": 0.01,
+        "ndcg": 82.657,
+        "cost": 0.5575,
+        "full_share": 0.3398
+      },
+      {
+        "eps": 0.02,
+        "ndcg": 82.61,
+        "cost": 0.539,
+        "full_share": 0.3127
+      },
+      {
+        "eps": 0.03,
+        "ndcg": 82.555,
+        "cost": 0.5297,
+        "full_share": 0.3012
+      },
+      {
+        "eps": 0.05,
+        "ndcg": 82.492,
+        "cost": 0.5197,
+        "full_share": 0.2896
+      },
+      {
+        "eps": 0.08,
+        "ndcg": 80.757,
+        "cost": 0.3869,
+        "full_share": 0.1236
+      },
+      {
+        "eps": 0.12,
+        "ndcg": 79.513,
+        "cost": 0.3344,
+        "full_share": 0.0695
+      },
+      {
+        "eps": 0.2,
+        "ndcg": 76.124,
+        "cost": 0.2587,
+        "full_share": 0.0154
+      }
+    ],
+    "router": [
+      {
+        "eps": 0.0,
+        "ndcg": 78.218,
+        "cost": 0.6309,
+        "full_share": 0.4363,
+        "tier_acc": 0.4672
+      },
+      {
+        "eps": 0.005,
+        "ndcg": 77.66,
+        "cost": 0.6069,
+        "full_share": 0.4131,
+        "tier_acc": 0.4208
+      },
+      {
+        "eps": 0.01,
+        "ndcg": 77.922,
+        "cost": 0.5776,
+        "full_share": 0.3552,
+        "tier_acc": 0.4324
+      },
+      {
+        "eps": 0.02,
+        "ndcg": 77.243,
+        "cost": 0.5676,
+        "full_share": 0.3475,
+        "tier_acc": 0.4131
+      },
+      {
+        "eps": 0.03,
+        "ndcg": 77.15,
+        "cost": 0.5174,
+        "full_share": 0.278,
+        "tier_acc": 0.4247
+      },
+      {
+        "eps": 0.05,
+        "ndcg": 76.626,
+        "cost": 0.5019,
+        "full_share": 0.2625,
+        "tier_acc": 0.3938
+      },
+      {
+        "eps": 0.08,
+        "ndcg": 74.727,
+        "cost": 0.3421,
+        "full_share": 0.0579,
+        "tier_acc": 0.4672
+      },
+      {
+        "eps": 0.12,
+        "ndcg": 72.024,
+        "cost": 0.2734,
+        "full_share": 0.0039,
+        "tier_acc": 0.529
+      },
+      {
+        "eps": 0.2,
+        "ndcg": 69.144,
+        "cost": 0.2239,
+        "full_share": 0.0,
+        "tier_acc": 0.6834
+      }
+    ],
+    "gold_per_query": 9.24,
+    "headline": null
+  },
+  "MultiVENT_multiclip_noASR_subset": {
+    "n": 259,
+    "fixed": {
+      "A_visual": {
+        "ndcg": 76.529,
+        "cost": 0.2,
+        "full_share": 0.0
+      },
+      "-Events": {
+        "ndcg": 80.58,
+        "cost": 0.4,
+        "full_share": 0.0
+      },
+      "Full": {
+        "ndcg": 80.936,
+        "cost": 1.0,
+        "full_share": 1.0
+      }
+    },
+    "oracle": [
+      {
+        "eps": 0.0,
+        "ndcg": 83.885,
+        "cost": 0.4587,
+        "full_share": 0.251
+      },
+      {
+        "eps": 0.005,
+        "ndcg": 83.865,
+        "cost": 0.434,
+        "full_share": 0.2239
+      },
+      {
+        "eps": 0.01,
+        "ndcg": 83.814,
+        "cost": 0.4031,
+        "full_share": 0.1892
+      },
+      {
+        "eps": 0.02,
+        "ndcg": 83.748,
+        "cost": 0.3784,
+        "full_share": 0.1544
+      },
+      {
+        "eps": 0.03,
+        "ndcg": 83.694,
+        "cost": 0.3676,
+        "full_share": 0.1429
+      },
+      {
+        "eps": 0.05,
+        "ndcg": 83.581,
+        "cost": 0.3537,
+        "full_share": 0.1274
+      },
+      {
+        "eps": 0.08,
+        "ndcg": 82.826,
+        "cost": 0.3058,
+        "full_share": 0.0734
+      },
+      {
+        "eps": 0.12,
+        "ndcg": 81.691,
+        "cost": 0.2641,
+        "full_share": 0.0386
+      },
+      {
+        "eps": 0.2,
+        "ndcg": 80.265,
+        "cost": 0.234,
+        "full_share": 0.0193
+      }
+    ],
+    "router": [
+      {
+        "eps": 0.0,
+        "ndcg": 79.751,
+        "cost": 0.4301,
+        "full_share": 0.2278,
+        "tier_acc": 0.3938
+      },
+      {
+        "eps": 0.005,
+        "ndcg": 79.417,
+        "cost": 0.3768,
+        "full_share": 0.1544,
+        "tier_acc": 0.4556
+      },
+      {
+        "eps": 0.01,
+        "ndcg": 78.67,
+        "cost": 0.3135,
+        "full_share": 0.0965,
+        "tier_acc": 0.5135
+      },
+      {
+        "eps": 0.02,
+        "ndcg": 78.928,
+        "cost": 0.3019,
+        "full_share": 0.0734,
+        "tier_acc": 0.5328
+      },
+      {
+        "eps": 0.03,
+        "ndcg": 78.764,
+        "cost": 0.2888,
+        "full_share": 0.0656,
+        "tier_acc": 0.5792
+      },
+      {
+        "eps": 0.05,
+        "ndcg": 78.338,
+        "cost": 0.2672,
+        "full_share": 0.0425,
+        "tier_acc": 0.5869
+      },
+      {
+        "eps": 0.08,
+        "ndcg": 78.073,
+        "cost": 0.2332,
+        "full_share": 0.0193,
+        "tier_acc": 0.668
+      },
+      {
+        "eps": 0.12,
+        "ndcg": 77.545,
+        "cost": 0.21,
+        "full_share": 0.0,
+        "tier_acc": 0.7915
+      },
+      {
+        "eps": 0.2,
+        "ndcg": 77.39,
+        "cost": 0.2054,
+        "full_share": 0.0,
+        "tier_acc": 0.8919
+      }
+    ],
+    "gold_per_query": 7.7,
+    "headline": null
+  },
+  "MSRVTT_multiclip_noASR": {
+    "n": 995,
+    "fixed": {
+      "A_visual": {
+        "ndcg": 59.716,
+        "cost": 0.2,
+        "full_share": 0.0
+      },
+      "-Events": {
+        "ndcg": 60.944,
+        "cost": 0.4,
+        "full_share": 0.0
+      },
+      "Full": {
+        "ndcg": 61.506,
+        "cost": 1.0,
+        "full_share": 1.0
+      }
+    },
+    "oracle": [
+      {
+        "eps": 0.0,
+        "ndcg": 62.938,
+        "cost": 0.2818,
+        "full_share": 0.0884
+      },
+      {
+        "eps": 0.005,
+        "ndcg": 62.938,
+        "cost": 0.2818,
+        "full_share": 0.0884
+      },
+      {
+        "eps": 0.01,
+        "ndcg": 62.938,
+        "cost": 0.2818,
+        "full_share": 0.0884
+      },
+      {
+        "eps": 0.02,
+        "ndcg": 62.922,
+        "cost": 0.2766,
+        "full_share": 0.0814
+      },
+      {
+        "eps": 0.03,
+        "ndcg": 62.913,
+        "cost": 0.2746,
+        "full_share": 0.0794
+      },
+      {
+        "eps": 0.05,
+        "ndcg": 62.825,
+        "cost": 0.2637,
+        "full_share": 0.0673
+      },
+      {
+        "eps": 0.08,
+        "ndcg": 62.636,
+        "cost": 0.2488,
+        "full_share": 0.0503
+      },
+      {
+        "eps": 0.12,
+        "ndcg": 62.575,
+        "cost": 0.2458,
+        "full_share": 0.0472
+      },
+      {
+        "eps": 0.2,
+        "ndcg": 62.339,
+        "cost": 0.2372,
+        "full_share": 0.0382
+      }
+    ],
+    "router": [
+      {
+        "eps": 0.0,
+        "ndcg": 59.924,
+        "cost": 0.2649,
+        "full_share": 0.0704,
+        "tier_acc": 0.7749
+      },
+      {
+        "eps": 0.005,
+        "ndcg": 59.924,
+        "cost": 0.2649,
+        "full_share": 0.0704,
+        "tier_acc": 0.7749
+      },
+      {
+        "eps": 0.01,
+        "ndcg": 59.924,
+        "cost": 0.2649,
+        "full_share": 0.0704,
+        "tier_acc": 0.7749
+      },
+      {
+        "eps": 0.02,
+        "ndcg": 59.884,
+        "cost": 0.2621,
+        "full_share": 0.0673,
+        "tier_acc": 0.793
+      },
+      {
+        "eps": 0.03,
+        "ndcg": 59.927,
+        "cost": 0.2587,
+        "full_share": 0.0633,
+        "tier_acc": 0.791
+      },
+      {
+        "eps": 0.05,
+        "ndcg": 60.005,
+        "cost": 0.2507,
+        "full_share": 0.0543,
+        "tier_acc": 0.8171
+      },
+      {
+        "eps": 0.08,
+        "ndcg": 59.875,
+        "cost": 0.238,
+        "full_share": 0.0382,
+        "tier_acc": 0.8452
+      },
+      {
+        "eps": 0.12,
+        "ndcg": 59.99,
+        "cost": 0.238,
+        "full_share": 0.0392,
+        "tier_acc": 0.8583
+      },
+      {
+        "eps": 0.2,
+        "ndcg": 59.917,
+        "cost": 0.2289,
+        "full_share": 0.0302,
+        "tier_acc": 0.8874
+      }
+    ],
+    "gold_per_query": 1.01,
+    "headline": null
+  },
+  "MSRVTT_multiclip_ASR": {
+    "n": 995,
+    "fixed": {
+      "A_visual": {
+        "ndcg": 59.716,
+        "cost": 0.2,
+        "full_share": 0.0
+      },
+      "-Events": {
+        "ndcg": 61.954,
+        "cost": 0.4,
+        "full_share": 0.0
+      },
+      "Full": {
+        "ndcg": 63.614,
+        "cost": 1.0,
+        "full_share": 1.0
+      }
+    },
+    "oracle": [
+      {
+        "eps": 0.0,
+        "ndcg": 64.576,
+        "cost": 0.3095,
+        "full_share": 0.1236
+      },
+      {
+        "eps": 0.005,
+        "ndcg": 64.576,
+        "cost": 0.3095,
+        "full_share": 0.1236
+      },
+      {
+        "eps": 0.01,
+        "ndcg": 64.576,
+        "cost": 0.3095,
+        "full_share": 0.1236
+      },
+      {
+        "eps": 0.02,
+        "ndcg": 64.561,
+        "cost": 0.3031,
+        "full_share": 0.1156
+      },
+      {
+        "eps": 0.03,
+        "ndcg": 64.558,
+        "cost": 0.3025,
+        "full_share": 0.1146
+      },
+      {
+        "eps": 0.05,
+        "ndcg": 64.483,
+        "cost": 0.2927,
+        "full_share": 0.1025
+      },
+      {
+        "eps": 0.08,
+        "ndcg": 64.282,
+        "cost": 0.2766,
+        "full_share": 0.0834
+      },
+      {
+        "eps": 0.12,
+        "ndcg": 64.117,
+        "cost": 0.2683,
+        "full_share": 0.0734
+      },
+      {
+        "eps": 0.2,
+        "ndcg": 63.739,
+        "cost": 0.2523,
+        "full_share": 0.0543
+      }
+    ],
+    "router": [
+      {
+        "eps": 0.0,
+        "ndcg": 60.298,
+        "cost": 0.2981,
+        "full_share": 0.1146,
+        "tier_acc": 0.7286
+      },
+      {
+        "eps": 0.005,
+        "ndcg": 60.298,
+        "cost": 0.2981,
+        "full_share": 0.1146,
+        "tier_acc": 0.7286
+      },
+      {
+        "eps": 0.01,
+        "ndcg": 60.298,
+        "cost": 0.2981,
+        "full_share": 0.1146,
+        "tier_acc": 0.7286
+      },
+      {
+        "eps": 0.02,
+        "ndcg": 60.352,
+        "cost": 0.3041,
+        "full_share": 0.1196,
+        "tier_acc": 0.7246
+      },
+      {
+        "eps": 0.03,
+        "ndcg": 60.372,
+        "cost": 0.2949,
+        "full_share": 0.1095,
+        "tier_acc": 0.7367
+      },
+      {
+        "eps": 0.05,
+        "ndcg": 60.186,
+        "cost": 0.2812,
+        "full_share": 0.0935,
+        "tier_acc": 0.7578
+      },
+      {
+        "eps": 0.08,
+        "ndcg": 60.026,
+        "cost": 0.2605,
+        "full_share": 0.0663,
+        "tier_acc": 0.7899
+      },
+      {
+        "eps": 0.12,
+        "ndcg": 60.037,
+        "cost": 0.2492,
+        "full_share": 0.0543,
+        "tier_acc": 0.8161
+      },
+      {
+        "eps": 0.2,
+        "ndcg": 59.919,
+        "cost": 0.2293,
+        "full_share": 0.0302,
+        "tier_acc": 0.8553
+      }
+    ],
+    "gold_per_query": 1.01,
+    "headline": null
+  },
+  "MSRVTT_internvideo2_noASR": {
+    "n": 995,
+    "fixed": {
+      "A_visual": {
+        "ndcg": 65.997,
+        "cost": 0.2,
+        "full_share": 0.0
+      },
+      "-Events": {
+        "ndcg": 67.518,
+        "cost": 0.4,
+        "full_share": 0.0
+      },
+      "Full": {
+        "ndcg": 67.108,
+        "cost": 1.0,
+        "full_share": 1.0
+      }
+    },
+    "oracle": [
+      {
+        "eps": 0.0,
+        "ndcg": 69.915,
+        "cost": 0.2788,
+        "full_share": 0.0854
+      },
+      {
+        "eps": 0.005,
+        "ndcg": 69.915,
+        "cost": 0.2788,
+        "full_share": 0.0854
+      },
+      {
+        "eps": 0.01,
+        "ndcg": 69.915,
+        "cost": 0.2788,
+        "full_share": 0.0854
+      },
+      {
+        "eps": 0.02,
+        "ndcg": 69.899,
+        "cost": 0.2734,
+        "full_share": 0.0784
+      },
+      {
+        "eps": 0.03,
+        "ndcg": 69.888,
+        "cost": 0.2708,
+        "full_share": 0.0754
+      },
+      {
+        "eps": 0.05,
+        "ndcg": 69.823,
+        "cost": 0.2603,
+        "full_share": 0.0623
+      },
+      {
+        "eps": 0.08,
+        "ndcg": 69.742,
+        "cost": 0.2549,
+        "full_share": 0.0563
+      },
+      {
+        "eps": 0.12,
+        "ndcg": 69.668,
+        "cost": 0.2501,
+        "full_share": 0.0503
+      },
+      {
+        "eps": 0.2,
+        "ndcg": 69.339,
+        "cost": 0.2386,
+        "full_share": 0.0382
+      }
+    ],
+    "router": [
+      {
+        "eps": 0.0,
+        "ndcg": 66.184,
+        "cost": 0.2868,
+        "full_share": 0.0975,
+        "tier_acc": 0.7578
+      },
+      {
+        "eps": 0.005,
+        "ndcg": 66.184,
+        "cost": 0.2868,
+        "full_share": 0.0975,
+        "tier_acc": 0.7578
+      },
+      {
+        "eps": 0.01,
+        "ndcg": 66.184,
+        "cost": 0.2868,
+        "full_share": 0.0975,
+        "tier_acc": 0.7578
+      },
+      {
+        "eps": 0.02,
+        "ndcg": 66.109,
+        "cost": 0.2812,
+        "full_share": 0.0915,
+        "tier_acc": 0.7749
+      },
+      {
+        "eps": 0.03,
+        "ndcg": 66.496,
+        "cost": 0.2742,
+        "full_share": 0.0814,
+        "tier_acc": 0.7899
+      },
+      {
+        "eps": 0.05,
+        "ndcg": 66.093,
+        "cost": 0.2587,
+        "full_share": 0.0633,
+        "tier_acc": 0.804
+      },
+      {
+        "eps": 0.08,
+        "ndcg": 66.19,
+        "cost": 0.2507,
+        "full_share": 0.0553,
+        "tier_acc": 0.8261
+      },
+      {
+        "eps": 0.12,
+        "ndcg": 66.284,
+        "cost": 0.2418,
+        "full_share": 0.0432,
+        "tier_acc": 0.8402
+      },
+      {
+        "eps": 0.2,
+        "ndcg": 66.121,
+        "cost": 0.2316,
+        "full_share": 0.0322,
+        "tier_acc": 0.8693
+      }
+    ],
+    "gold_per_query": 1.01,
+    "headline": null
+  }
+}
