@@ -1,5 +1,6 @@
 #!/bin/bash
-f=/home/ubuntu/q2e_repro/data/models/InternVideo2/InternVideo2-stage2_1b-224p-f4.pt
+REPO="${REPO:-$(cd "$(dirname "${BASH_SOURCE[0]:-$0}")/.." && pwd)}"   # repo root, wherever it is checked out
+f=$REPO/data/models/InternVideo2/InternVideo2-stage2_1b-224p-f4.pt
 # wait until file is >= 2.8GB and wget finished
 while true; do
   sz=$(stat -c%s "$f" 2>/dev/null || echo 0)
@@ -7,7 +8,7 @@ while true; do
   sleep 15
 done
 # quick load-verification of state_dict keys
-cd /home/ubuntu/q2e_repro
+cd $REPO
 source .venv-eval/bin/activate
 python3 - <<'PY'
 import torch
@@ -19,4 +20,4 @@ print("has vision_encoder:", any("vision_encoder" in k for k in keys))
 print("has text_encoder:", any("text_encoder" in k for k in keys))
 print("sample:", keys[:3])
 PY
-echo "IV2_DOWNLOADED $(stat -c%s "$f")" >> /home/ubuntu/q2e_repro/data/raw/iv2_dl.log
+echo "IV2_DOWNLOADED $(stat -c%s "$f")" >> $REPO/data/raw/iv2_dl.log

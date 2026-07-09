@@ -4,14 +4,15 @@
 # The 38B/70B/Funiform_16 anchor point is already done (runs/multivent_textonly_noASR).
 # Each config ~7h ColBERT on GPU1. Downloads are done first so availability fails fast.
 set -u
-cd /home/ubuntu/q2e_repro
+REPO="${REPO:-$(cd "$(dirname "${BASH_SOURCE[0]:-$0}")/.." && pwd)}"   # repo root, wherever it is checked out
+cd $REPO
 source .venv-eval/bin/activate
-export HF_HOME=/home/ubuntu/q2e_repro/data/hf_cache
+export HF_HOME=$REPO/data/hf_cache
 export CUDA_VISIBLE_DEVICES=1
 export PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True
 export Q2E_COLBERT_ENC_BS=128
 export Q2E_COLBERT_SEARCH_BS=512
-RUN=/home/ubuntu/q2e_repro/runs
+RUN=$REPO/runs
 LOG="$RUN/ablation_sweep.log"
 
 # repo-id-suffix  ->  local-dir-name  ->  run-tag

@@ -33,7 +33,7 @@ Chronological log of decisions and commands. Times approximate (UTC), 2026-07-02
   - MultiVENT: 2394 rows, 2393 unique videos, 259 unique queries.
   - Schema: query, prequel[], during[], sequel[], frame_captions[], frame2video_caption,
     num_of_frames, video_id, metadata, (asr: original/translated_llm/translated_whisper/refined).
-- Symlinked `external/q2e_official/data -> /home/ubuntu/q2e_repro/data` so upstream relative
+- Symlinked `external/q2e_official/data -> /home/ubuntu/adaptive-q2e/data` so upstream relative
   paths resolve.
 - Downloaded MultiCLIP checkpoint `laion/CLIP-ViT-H-14-frozen-xlm-roberta-large-...` (~3.9GB)
   to `data/models/MultiCLIP/open_clip_pytorch_model.bin` (slow HF throughput).

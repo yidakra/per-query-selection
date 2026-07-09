@@ -16,10 +16,11 @@ Writes results/ablations/table5_multivent_fullvideo.json.
 import os, sys, json
 from collections import defaultdict
 
-REPO = "/home/ubuntu/q2e_repro/external/q2e_official"
-RUNS = "/home/ubuntu/q2e_repro/runs"
+_ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))   # repo root, wherever it is checked out
+REPO = f"{_ROOT}/external/q2e_official"
+RUNS = f"{_ROOT}/runs"
 VID_RUN = os.path.join(RUNS, "multivent_video_multiclip")
-OUT = "/home/ubuntu/q2e_repro/results/ablations/table5_multivent_fullvideo.json"
+OUT = f"{_ROOT}/results/ablations/table5_multivent_fullvideo.json"
 
 sys.path.insert(0, REPO)
 import torch  # noqa: E402

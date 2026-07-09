@@ -34,7 +34,8 @@ HERE = os.path.dirname(os.path.abspath(__file__)); sys.path.insert(0, HERE)
 from tracking import track                                            # noqa: E402
 import tierC_selection_oracle as O                                    # noqa: E402
 
-REPO = "/home/ubuntu/q2e_repro"
+_ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))   # repo root, wherever it is checked out
+REPO = _ROOT
 
 
 def fused_row_subset(rows, D):

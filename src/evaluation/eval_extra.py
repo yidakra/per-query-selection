@@ -17,7 +17,8 @@ os.chdir(OFFICIAL)
 from src.eval.evaluation import retrieval_score  # noqa: E402
 from src.eval.fusion_score import fusion_inverse_entropy, fusion_exp_entropy, fusion_reciprocal_rank  # noqa: E402
 
-RUNS = "/home/ubuntu/q2e_repro/runs"
+_ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))   # repo root, wherever it is checked out
+RUNS = f"{_ROOT}/runs"
 ALL5 = ["query_vs_video", "query_vs_captions", "prequel_vs_captions", "during_vs_captions", "sequel_vs_captions"]
 
 
@@ -79,8 +80,8 @@ def cmd_per_language(a):
         met = retrieval_score(sm[rows], target[rows])
         per[L] = {"n": len(idx), "NDCG": met["NDCG"], "R10": met["R10"], "MRR": met["MRR"], "MAP": met["MAP"]}
     out["per_language"] = per
-    os.makedirs("/home/ubuntu/q2e_repro/results/main_tables", exist_ok=True)
-    p = f"/home/ubuntu/q2e_repro/results/main_tables/per_language_{a.tag}.json"
+    os.makedirs(f"{_ROOT}/results/main_tables", exist_ok=True)
+    p = f"{_ROOT}/results/main_tables/per_language_{a.tag}.json"
     json.dump(out, open(p, "w"), indent=2)
     print(json.dumps(out, indent=2)); print("[written]", p)
 
@@ -98,7 +99,7 @@ def cmd_fusion(a):
         sm = fuse(comps, available, agg)
         res[agg] = retrieval_score(sm, target)["NDCG"]
     out = {"tag": a.tag, "components": available, "NDCG_by_fusion": res}
-    p = f"/home/ubuntu/q2e_repro/results/ablations/fusion_{a.tag}.json"
+    p = f"{_ROOT}/results/ablations/fusion_{a.tag}.json"
     os.makedirs(os.path.dirname(p), exist_ok=True)
     json.dump(out, open(p, "w"), indent=2)
     print(json.dumps(out, indent=2)); print("[written]", p)

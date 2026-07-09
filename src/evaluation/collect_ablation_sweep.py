@@ -19,8 +19,9 @@ os.chdir(OFF)
 from src.eval.evaluation import retrieval_score  # noqa: E402
 from src.eval.fusion_score import fusion_inverse_entropy  # noqa: E402
 
-RUNS = "/home/ubuntu/q2e_repro/runs"
-OUT = "/home/ubuntu/q2e_repro/results/ablations"
+_ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))   # repo root, wherever it is checked out
+RUNS = f"{_ROOT}/runs"
+OUT = f"{_ROOT}/results/ablations"
 TEXT4 = ["query_vs_captions", "prequel_vs_captions", "during_vs_captions", "sequel_vs_captions"]
 
 # tag -> (dataset local name, sweep, x-axis label)

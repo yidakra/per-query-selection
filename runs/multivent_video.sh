@@ -3,13 +3,14 @@
 # LLaMA-1B retry) to release GPU1, then encodes query_vs_video from the fetched frame caches
 # and fuses it with the cached text components (Table-5 ablation, noASR+ASR, options a & b).
 set -u
-cd /home/ubuntu/q2e_repro
+REPO="${REPO:-$(cd "$(dirname "${BASH_SOURCE[0]:-$0}")/.." && pwd)}"   # repo root, wherever it is checked out
+cd $REPO
 source .venv-eval/bin/activate
-export HF_HOME=/home/ubuntu/q2e_repro/data/hf_cache
+export HF_HOME=$REPO/data/hf_cache
 export CUDA_VISIBLE_DEVICES=1
 export PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True
 export Q2E_MC_VIDEO_BS=8
-RUN=/home/ubuntu/q2e_repro/runs
+RUN=$REPO/runs
 LOG="$RUN/multivent_video.log"
 
 echo "=== multivent_video queued $(date -u +%FT%TZ), waiting for ablation chain (LLaMA-1B retry) ===" | tee -a "$LOG"

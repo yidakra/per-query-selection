@@ -4,14 +4,15 @@
 # only prequel/during/sequel are recomputed, with a smaller ColBERT encode batch to fit 15 GB.
 # Waits for the main sweep (Funiform-64) to release GPU1 before starting.
 set -u
-cd /home/ubuntu/q2e_repro
+REPO="${REPO:-$(cd "$(dirname "${BASH_SOURCE[0]:-$0}")/.." && pwd)}"   # repo root, wherever it is checked out
+cd $REPO
 source .venv-eval/bin/activate
-export HF_HOME=/home/ubuntu/q2e_repro/data/hf_cache
+export HF_HOME=$REPO/data/hf_cache
 export CUDA_VISIBLE_DEVICES=1
 export PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True
 export Q2E_COLBERT_ENC_BS=32       # was 128 in the sweep -> OOM on 1B's long event text
 export Q2E_COLBERT_SEARCH_BS=256
-RUN=/home/ubuntu/q2e_repro/runs
+RUN=$REPO/runs
 LOG="$RUN/llama1b_retry.log"
 NAME=Q2E_MultiVENT_LLAMA_1B_InternVL_38B_Funiform_16_noASR
 TAG=mv_llm_llama1b_noASR

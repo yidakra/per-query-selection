@@ -38,7 +38,8 @@ HERE = os.path.dirname(os.path.abspath(__file__)); sys.path.insert(0, HERE)
 from tracking import track                                            # noqa: E402
 import tierC_selection_oracle as O                                    # noqa: E402
 
-REPO = "/home/ubuntu/q2e_repro"
+_ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))   # repo root, wherever it is checked out
+REPO = _ROOT
 N_SEEDS = 20
 TAUS = [0.10, 0.20, 0.30, 0.40, 0.50, 0.60, 0.70, 0.80]
 KS = [0, 1, 2, 3, 5]

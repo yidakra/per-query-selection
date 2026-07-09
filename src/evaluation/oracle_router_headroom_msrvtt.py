@@ -8,9 +8,10 @@ in the same canonical order), so no video alignment / pool policy needed.
 import os, sys, json
 from collections import defaultdict
 
-REPO = "/home/ubuntu/q2e_repro/external/q2e_official"
-RUNS = "/home/ubuntu/q2e_repro/runs"
-OUT = "/home/ubuntu/q2e_repro/results/ablations/oracle_router_headroom_msrvtt.json"
+_ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))   # repo root, wherever it is checked out
+REPO = f"{_ROOT}/external/q2e_official"
+RUNS = f"{_ROOT}/runs"
+OUT = f"{_ROOT}/results/ablations/oracle_router_headroom_msrvtt.json"
 
 sys.path.insert(0, REPO)
 import torch  # noqa: E402

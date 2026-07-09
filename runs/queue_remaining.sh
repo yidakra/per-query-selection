@@ -2,16 +2,17 @@
 # Sequential GPU1 job queue. Waits for the MSR-VTT MultiCLIP run to finish, then runs
 # MultiVENT text-only (both ASR settings) and MSR-VTT InternVideo2 (both ASR settings).
 set -u
-cd /home/ubuntu/q2e_repro
+REPO="${REPO:-$(cd "$(dirname "${BASH_SOURCE[0]:-$0}")/.." && pwd)}"   # repo root, wherever it is checked out
+cd $REPO
 source .venv-eval/bin/activate
-export HF_HOME=/home/ubuntu/q2e_repro/data/hf_cache
+export HF_HOME=$REPO/data/hf_cache
 export CUDA_VISIBLE_DEVICES=1
 export PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True
 export Q2E_COLBERT_ENC_BS=128
 export Q2E_COLBERT_SEARCH_BS=512
 export Q2E_MC_VIDEO_BS=32
 export Q2E_IV2_VIDEO_BS=8
-RUN=/home/ubuntu/q2e_repro/runs
+RUN=$REPO/runs
 
 # 1) wait for MSR-VTT multiclip to finish
 echo "[queue] waiting for MSR-VTT multiclip to finish..."
@@ -31,7 +32,7 @@ done
 # 3) MSR-VTT InternVideo2 (needs checkpoint) — wait for it if still downloading
 echo "[queue] waiting for InternVideo2 checkpoint..."
 for i in $(seq 1 120); do
-  if grep -q IV2_DOWNLOADED /home/ubuntu/q2e_repro/data/raw/iv2_dl.log 2>/dev/null; then break; fi
+  if grep -q IV2_DOWNLOADED $REPO/data/raw/iv2_dl.log 2>/dev/null; then break; fi
   sleep 20
 done
 for cfg in noASR ASR; do

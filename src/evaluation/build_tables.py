@@ -7,8 +7,9 @@ Table 5 component ablation, and writes:
 """
 import json, os, csv, glob
 
-RUNS = "/home/ubuntu/q2e_repro/runs"
-OUT = "/home/ubuntu/q2e_repro/results/main_tables"
+_ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))   # repo root, wherever it is checked out
+RUNS = f"{_ROOT}/runs"
+OUT = f"{_ROOT}/results/main_tables"
 os.makedirs(OUT, exist_ok=True)
 
 ALL5 = ["query_vs_video", "query_vs_captions", "prequel_vs_captions",

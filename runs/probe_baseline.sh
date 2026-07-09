@@ -1,5 +1,6 @@
 #!/bin/bash
-cd /home/ubuntu/q2e_repro
+REPO="${REPO:-$(cd "$(dirname "${BASH_SOURCE[0]:-$0}")/.." && pwd)}"   # repo root, wherever it is checked out
+cd $REPO
 source .venv-eval/bin/activate
 export CUDA_VISIBLE_DEVICES=1
 f=runs/msrvtt_multiclip_noASR/cache/query_vs_video.pt
