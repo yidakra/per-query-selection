@@ -68,9 +68,23 @@ Significance is a broad plateau over `f ≈ 0.35–0.90`, not a single lucky poi
   reaches 74.15 vs Fixed-B's 74.28. The win lives *strictly between* Fixed-A and Fixed-B, i.e. at
   budgets where B cannot be run on every query and the only fixed alternative is a cost-matched
   random mixture. This is a legitimate accuracy–compute frontier claim. It is **not** "we beat Q2E".
-- **The Full tier is never purchased.** ρ(B→Full) = +0.094 (p = .07) on MultiVENT noASR, and even the
-  *oracle* gap for B→Full is only +2.55. Event decomposition's per-query benefit is not predictable
-  from retrieval confidence. That is itself a finding, and it bounds the whole approach.
+- **The Full tier is never purchased.** The original phrasing here — *"ρ(B→Full) = +0.094 (p = .07);
+  event decomposition's benefit is not predictable from retrieval confidence"* — cited only the cell
+  that supported it. Both cells:
+
+  | | ρ(B→Full) | perm p | oracle B→Full gap |
+  |---|---|---|---|
+  | MultiVENT noASR | +0.094 | .070 | +2.55 |
+  | MultiVENT ASR | +0.137 | **.011** | +2.56 |
+
+  The ASR cell **is** significant. So B→Full gain is *weakly* predictable, not unpredictable, and
+  "not predictable" was an overclaim by omission.
+
+  The conclusion is unchanged, but the reason is different: what kills the escalation is the size of
+  the prize, not the inability to see it. The oracle gap is only ≈ +2.55 either way — and §4 shows
+  that figure is itself an in-sample quantity whose advantage does not survive a held-out label split
+  (optimism 3.36 / 3.76, out-of-sample −0.47 / −0.65). There is nothing there worth buying, which
+  still bounds the whole approach.
 - The router captures only 14–31% of oracle headroom — **but that fraction is not meaningful**, and
   §4 shows why. Its denominator is inflated by label noise.
 
