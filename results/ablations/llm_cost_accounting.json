@@ -1,0 +1,39 @@
+{
+  "gen_model": "LLaMA-3.3-70B",
+  "T": 259,
+  "chars_per_token_approx": 4.0,
+  "paraphrases_per_query": {
+    "mean": 24.046332046332047,
+    "max": 90
+  },
+  "llm_calls_per_query": {
+    "mean": 30.046332046332047,
+    "median": 21.0,
+    "max": 96,
+    "breakdown": "3 extract + 3 event-list + one refine per cartesian element"
+  },
+  "prompt_chars_per_query_mean": 32184.277992277992,
+  "generated_chars_per_query_mean": 3744.6023166023165,
+  "approx_prompt_tokens_per_query": 8046.069498069498,
+  "approx_generated_tokens_per_query": 936.1505791505791,
+  "exact_fields": [
+    "prequel/during/sequel prompt+generation chars"
+  ],
+  "estimated_fields": [
+    "extract_* and refine_event_query prompt/generation chars"
+  ],
+  "tier_online_cost": {
+    "A": {
+      "llm_calls": 0,
+      "sim_components": 1
+    },
+    "B": {
+      "llm_calls": 0,
+      "sim_components": 2
+    },
+    "Full": {
+      "llm_calls": 30.046332046332047,
+      "sim_components": 5
+    }
+  }
+}
