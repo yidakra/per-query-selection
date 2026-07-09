@@ -1,0 +1,44 @@
+{
+  "setting": "noASR",
+  "T": 259,
+  "seeds": 5,
+  "fixedFull_on_B": 59.86914873123169,
+  "oracles": {
+    "tiers": {
+      "log2_space": 1.584962500721156,
+      "in_sample_gain": 4.90911602973938,
+      "out_of_sample_gain": -5.64221978187561,
+      "optimism": 10.55133581161499,
+      "in_sd": 0.33551399268099547,
+      "out_sd": 0.2861670297064702
+    },
+    "all_or_nothing": {
+      "log2_space": 3.0,
+      "in_sample_gain": 2.466663122177124,
+      "out_of_sample_gain": -1.7347502708435059,
+      "optimism": 4.20141339302063,
+      "in_sd": 0.2882468423460637,
+      "out_sd": 0.311253941347634
+    },
+    "subset": {
+      "log2_space": 24.046332046332047,
+      "in_sample_gain": 3.073354959487915,
+      "out_of_sample_gain": -1.8120551109313965,
+      "optimism": 4.8854100704193115,
+      "in_sd": 0.3404506239553569,
+      "out_sd": 0.2980793103752464
+    }
+  },
+  "hypothesis_optimism_grows_with_log_space": "REFUTED",
+  "optimism_order_by_space": [
+    "tiers",
+    "all_or_nothing",
+    "subset"
+  ],
+  "optimism_order_observed": [
+    "all_or_nothing",
+    "subset",
+    "tiers"
+  ],
+  "note": "out_of_sample bounds oracles using only this query's own labels; a model pooling across queries is tested in tierC_learned_selector.py"
+}

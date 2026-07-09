@@ -1,0 +1,7 @@
+{
+  "component": "during_vs_captions",
+  "max_abs_diff": 0.12992477416992188,
+  "mean_abs_diff": 0.0010895825689658523,
+  "frac_gt_1e-3": 0.41006991267204285,
+  "n_valid_paraphrases": 2070
+}
