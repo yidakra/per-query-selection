@@ -1,0 +1,22 @@
+{
+  "setting": "noASR",
+  "T": 259,
+  "fixedB": 74.28327202796936,
+  "fixedFull": 76.18951797485352,
+  "oracle_all_or_nothing": 76.87425017356873,
+  "oracle_subset": 78.18642854690552,
+  "routing_gain": 0.68473219871521,
+  "selection_gain": 1.312178373336792,
+  "selection_share_pct": 65.7104224746736,
+  "mask_histogram": {
+    "(0, 0, 0)": 145,
+    "(0, 0, 1)": 32,
+    "(0, 1, 0)": 10,
+    "(0, 1, 1)": 24,
+    "(1, 0, 0)": 7,
+    "(1, 0, 1)": 9,
+    "(1, 1, 0)": 9,
+    "(1, 1, 1)": 23
+  },
+  "caveat": "both arms are label-fitted oracles; upper bounds, not achievable"
+}

@@ -30,12 +30,15 @@ DESIGN NOTES (this machine is shared -- read before trusting any number):
 
 W&B defaults to offline (writes to runs/wandb/) unless credentials exist or WANDB_MODE is set,
 so nothing leaves the box by accident -- this repo is private and pre-publication.
-Run `wandb login` once to enable online sync, then `wandb sync runs/wandb/offline-*`.
+Runs are stamped with entity=natlang, project=adaptive-q2e (wandb.ai/natlang/adaptive-q2e), so
+offline runs land in the right place when synced. Run `wandb login` once to enable online mode,
+then backfill everything recorded so far with `wandb sync runs/wandb/offline-*`.
 """
 import os, sys, time, json, socket, subprocess, contextlib
 
 REPO = "/home/ubuntu/q2e_repro"
 PROJECT = os.environ.get("WANDB_PROJECT", "adaptive-q2e")
+ENTITY = os.environ.get("WANDB_ENTITY", "natlang")   # wandb.ai/natlang/adaptive-q2e
 ENERGY_DIR = os.path.join(REPO, "results", "energy")
 
 
@@ -105,9 +108,9 @@ def track(name, config=None, gpu_ids=None, project=PROJECT, tags=None):
     try:
         import wandb
         os.environ.setdefault("WANDB_DIR", os.path.join(REPO, "runs"))
-        run = wandb.init(project=project, name=name, config=cfg, mode=mode,
+        run = wandb.init(project=project, entity=ENTITY, name=name, config=cfg, mode=mode,
                          tags=tags or [], reinit=True)
-        print(f"[wandb] mode={mode} run={name}", flush=True)
+        print(f"[wandb] mode={mode} entity={ENTITY} project={project} run={name}", flush=True)
     except Exception as e:
         print(f"[wandb] disabled ({e})", flush=True)
 
