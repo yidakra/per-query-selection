@@ -17,3 +17,7 @@ huggingface-hub==0.28.1
 faiss-cpu==1.9.0.post1
 wandb==0.19.6
 einops
+# router / tier-C analysis (TF-IDF+LogReg router, gradient-boosted selector)
+scikit-learn==1.7.2
+# energy accounting; src/evaluation/tracking.py raises without it unless CC_OPTIONAL=1
+codecarbon==3.2.8
