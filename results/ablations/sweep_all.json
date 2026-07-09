@@ -5,7 +5,7 @@
     "InternVL-38B": 64.8285
   },
   "llm": {
-    "LLaMA-1B": null,
+    "LLaMA-1B": 61.18,
     "LLaMA-8B": 62.4659,
     "LLaMA-3.3-70B": 64.8285
   },

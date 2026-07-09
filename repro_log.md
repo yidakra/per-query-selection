@@ -219,7 +219,7 @@ Baseline (query_vs_video only, video-only): subset 76.53, full_pool 67.71 (setti
 Scope: **MultiCLIP encoder only**; InternVideo2 MultiVENT not run (out of scope).
 Folded into reproduction_report.md §2–4/§7–8, paper_gap_analysis.md §D, reproduced_vs_reported.md.
 
-## 2026-07-08 — LLaMA-1B LLM-size sweep cell: divergence + in-progress
+## 2026-07-08 — LLaMA-1B LLM-size sweep cell: divergence + resolved
 
 Final open reproduction cell = the LLaMA-1B point of the LLM-size sweep (anchor 70B; 8B done).
 **Root cause of repeated stalls (diagnosed 3×):** the released `Q2E_MultiVENT_LLAMA_1B_*` artifact
@@ -230,6 +230,11 @@ default):** `Q2E_EVENT_MAXPARAS=32` caps paraphrases/event → per-call queries 
 proven-safe 9065 ⇒ peak memory ≤ the successful 8B run. Score max-pools over paraphrases, so keeping
 the first 32 is a mild approximation affecting only this one cell's absolute NDCG. Code: env gate in
 `src/evaluation/run_eval.py` (compile-checked; all other runs bit-for-bit faithful). Launcher
-`runs/llama1b_trunc.sh`. **Relaunched 2026-07-08 19:00Z (GPU1, whisper untouched); healthy** — first
-tick 542.85 s/it (was 14422), RSS 2.7 GB (was 26.6), swap 0; 4 event components × ~2h24m ETA. NDCG
-lands via completion watcher; sweep table + this cell to be finalized on completion.
+`runs/llama1b_trunc.sh`. Relaunched 2026-07-08 19:00Z (GPU1, whisper untouched); ran clean at
+~485 s/it, RSS 2.7 GB, swap 0; 4 event components × ~2h18m each.
+
+**DONE 2026-07-09 01:53Z** → `runs/mv_llm_llama1b_noASR/metrics.json` (79 records). Full 4-component
+Q2E − Video (inv_entropy) = **NDCG 61.18** (R1 9.21, R10 53.93, MAP 81.57). Completes the LLM-size
+ladder — monotonic in model size: **1B 61.18 → 8B 62.47 → 70B 64.83** (+1.29, +2.36). Written to
+`results/ablations/sweep_llm.md` and `sweep_all.json`. Final open reproduction cell closed; all
+LLM/VLM/frame size ablations now reproduced.

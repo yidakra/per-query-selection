@@ -11,6 +11,8 @@ external/
 *.npy
 runs/**/cache/
 *.log
+# scratch completion markers
+runs/*_DONE
 
 # --- python cruft ---
 __pycache__/
