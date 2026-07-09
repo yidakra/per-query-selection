@@ -147,6 +147,12 @@ claimed to beat Full, and cannot.
   are in-sample quantities and should be labelled as such. The gold-split protocol here costs one
   extra evaluation and converts an uninterpretable ceiling into an interpretable one.
 
+  **Now done** — see `router_findings.md` §4 (`router_oracle_goldsplit.py`). The routing ceilings
+  behave exactly as this study predicts: halving MultiVENT's gold set *raises* the A→B ceiling
+  (+5.04 → +6.77, +6.03 → +7.54), which recoverable headroom cannot do, and the oracle's ordering
+  fails to transfer across gold halves (optimism 8.35 / 8.71). The nested-CV gaps (+0.73 / +1.68)
+  are out-of-fold and unaffected; the "% of oracle captured" column is retired.
+
 ## Reproduce
 
 ```bash
