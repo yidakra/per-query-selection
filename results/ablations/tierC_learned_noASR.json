@@ -1,0 +1,37 @@
+{
+  "setting": "noASR",
+  "T": 259,
+  "fixedB": 74.28327202796936,
+  "fixedFull": 76.18951797485352,
+  "random_prune_mean": 74.56079840660095,
+  "random_prune_sd": 0.11970729570025009,
+  "heuristic_topk": 75.98754167556763,
+  "learned": 74.70294237136841,
+  "oracle_subset": 78.18642854690552,
+  "realised_pct_of_oracle": -74.44377451302286,
+  "learned_minus_full": -1.4865790493786335,
+  "ci95": [
+    -2.240423136949539,
+    -0.7425444215536119
+  ],
+  "tau_star_per_fold": [
+    0.1,
+    0.1,
+    0.1,
+    0.1,
+    0.1
+  ],
+  "k_star_per_fold": [
+    3,
+    3,
+    3,
+    3,
+    2
+  ],
+  "kept": {
+    "learned": 291,
+    "heuristic": 2178,
+    "oracle": 230,
+    "all": 6228
+  }
+}
