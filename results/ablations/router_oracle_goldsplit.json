@@ -1,0 +1,47 @@
+{
+  "seeds": 5,
+  "cells": {
+    "noASR": {
+      "T": 259,
+      "golds_per_query_full": 9.239381790161133,
+      "ceiling_full_golds": 5.035151811640235,
+      "A_to_B": {
+        "in_sample": 6.774531531518031,
+        "in_sd": 0.19760578685389607,
+        "out_of_sample": -1.5767775573785698,
+        "out_sd": 0.45296803531188135,
+        "optimism": 8.3513090888966,
+        "inflation_from_halving_golds": 1.739379719877796
+      },
+      "B_to_Full": {
+        "in_sample": 2.893401171479906,
+        "in_sd": 0.13671411399435762,
+        "out_of_sample": -0.4652574165044604,
+        "out_sd": 0.19254598601602338,
+        "optimism": 3.3586585879843667
+      }
+    },
+    "ASR": {
+      "T": 259,
+      "golds_per_query_full": 9.239381790161133,
+      "ceiling_full_golds": 6.031300202299729,
+      "A_to_B": {
+        "in_sample": 7.535029681953223,
+        "in_sd": 0.1923220848290817,
+        "out_of_sample": -1.1726679020061457,
+        "out_sd": 0.5006490744996834,
+        "optimism": 8.70769758395937,
+        "inflation_from_halving_golds": 1.5037294796534946
+      },
+      "B_to_Full": {
+        "in_sample": 3.105578003702937,
+        "in_sd": 0.15783853161803701,
+        "out_of_sample": -0.6525194489587688,
+        "out_sd": 0.17808286115642927,
+        "optimism": 3.7580974526617057
+      }
+    }
+  },
+  "msrvtt": "not testable: 1.01 golds/query, no second half to grade on",
+  "note": "nested-CV achieved gaps are out-of-fold and unaffected; only the oracle denominator (the 'captured %' column) moves"
+}
