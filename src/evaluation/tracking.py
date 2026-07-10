@@ -109,8 +109,14 @@ def track(name, config=None, gpu_ids=None, project=PROJECT, tags=None):
     try:
         import wandb
         os.environ.setdefault("WANDB_DIR", os.path.join(REPO, "runs"))
-        run = wandb.init(project=project, entity=ENTITY, name=name, config=cfg, mode=mode,
-                         tags=tags or [], reinit=True)
+        # reinit: wandb >= 0.19.10 deprecates the boolean in favour of a mode string. Prefer the
+        # string, fall back for older clients, so this works either side of the 0.28.0 upgrade.
+        try:
+            run = wandb.init(project=project, entity=ENTITY, name=name, config=cfg, mode=mode,
+                             tags=tags or [], reinit="finish_previous")
+        except (TypeError, ValueError):
+            run = wandb.init(project=project, entity=ENTITY, name=name, config=cfg, mode=mode,
+                             tags=tags or [], reinit=True)
         print(f"[wandb] mode={mode} entity={ENTITY} project={project} run={name}", flush=True)
     except Exception as e:
         print(f"[wandb] disabled ({e})", flush=True)

@@ -15,7 +15,9 @@ gitpython==3.1.44
 gdown==5.2.0
 huggingface-hub==0.28.1
 faiss-cpu==1.9.0.post1
-wandb==0.19.6
+# 0.28.0, not 0.19.6: the old client hard-rejects any API key whose length != 40,
+# so it cannot accept W&B's current `wandb_v1_...` keys (86 chars, underscore-delimited).
+wandb==0.28.0
 einops
 # router / tier-C analysis (TF-IDF+LogReg router, gradient-boosted selector)
 scikit-learn==1.7.2
