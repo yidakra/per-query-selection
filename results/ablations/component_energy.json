@@ -1,0 +1,165 @@
+{
+  "T": 259,
+  "V": 2393,
+  "mx_d": 17,
+  "doc_slot": 0,
+  "idle_watts": 21.106,
+  "measurements": [
+    {
+      "seconds": 96.6386489868164,
+      "joules_gross": 5479.581629759074,
+      "joules_net": 3439.9263042433263,
+      "mean_watts": 56.72857676348548,
+      "n_samples": 482,
+      "label": "query_vs_captions(real queries)",
+      "N": 259,
+      "rep": 0,
+      "strings": "queries",
+      "mean_chars": 172.71042471042472
+    },
+    {
+      "seconds": 96.58320713043213,
+      "joules_gross": 5486.787133424163,
+      "joules_net": 3448.301963729262,
+      "mean_watts": 56.834921161825726,
+      "n_samples": 482,
+      "label": "query_vs_captions(real queries)",
+      "N": 259,
+      "rep": 1,
+      "strings": "queries",
+      "mean_chars": 172.71042471042472
+    },
+    {
+      "seconds": 96.7068543434143,
+      "joules_gross": 5444.959230071545,
+      "joules_net": 3403.8643622994423,
+      "mean_watts": 56.38807883817428,
+      "n_samples": 482,
+      "label": "paraphrases N=259",
+      "N": 259,
+      "rep": 0,
+      "strings": "durings",
+      "mean_chars": 117.14671814671814
+    },
+    {
+      "seconds": 94.97898411750793,
+      "joules_gross": 5396.7711824707985,
+      "joules_net": 3392.1447436866756,
+      "mean_watts": 56.94975475687104,
+      "n_samples": 473,
+      "label": "paraphrases N=259",
+      "N": 259,
+      "rep": 1,
+      "strings": "durings",
+      "mean_chars": 117.14671814671814
+    },
+    {
+      "seconds": 109.74319839477539,
+      "joules_gross": 5969.012163831592,
+      "joules_net": 3652.7722185114626,
+      "mean_watts": 54.52205677655678,
+      "n_samples": 546,
+      "label": "paraphrases N=519",
+      "N": 519,
+      "rep": 0,
+      "strings": "durings",
+      "mean_chars": 113.70134874759152
+    },
+    {
+      "seconds": 110.28822565078735,
+      "joules_gross": 5970.421450942755,
+      "joules_net": 3642.6781603572367,
+      "mean_watts": 54.18777636363637,
+      "n_samples": 550,
+      "label": "paraphrases N=519",
+      "N": 519,
+      "rep": 1,
+      "strings": "durings",
+      "mean_chars": 113.70134874759152
+    },
+    {
+      "seconds": 135.68312454223633,
+      "joules_gross": 6976.8173269443505,
+      "joules_net": 4113.08930035591,
+      "mean_watts": 51.41076923076923,
+      "n_samples": 676,
+      "label": "paraphrases N=1038",
+      "N": 1038,
+      "rep": 0,
+      "strings": "durings",
+      "mean_chars": 116.23410404624278
+    },
+    {
+      "seconds": 133.41509914398193,
+      "joules_gross": 6925.324417984247,
+      "joules_net": 4109.465335451364,
+      "mean_watts": 51.975371428571435,
+      "n_samples": 665,
+      "label": "paraphrases N=1038",
+      "N": 1038,
+      "rep": 1,
+      "strings": "durings",
+      "mean_chars": 116.23410404624278
+    },
+    {
+      "seconds": 192.3743441104889,
+      "joules_gross": 9129.579598783732,
+      "joules_net": 5069.326691987753,
+      "mean_watts": 47.570556020942405,
+      "n_samples": 955,
+      "label": "paraphrases N=2076",
+      "N": 2076,
+      "rep": 0,
+      "strings": "durings",
+      "mean_chars": 116.51300578034682
+    },
+    {
+      "seconds": 190.5708785057068,
+      "joules_gross": 9107.9044118793,
+      "joules_net": 5085.715450137854,
+      "mean_watts": 47.822124341412014,
+      "n_samples": 949,
+      "label": "paraphrases N=2076",
+      "N": 2076,
+      "rep": 1,
+      "strings": "durings",
+      "mean_chars": 116.51300578034682
+    },
+    {
+      "seconds": 492.6568305492401,
+      "joules_gross": 20790.522065841316,
+      "joules_net": 10392.507000269054,
+      "mean_watts": 42.308876841243865,
+      "n_samples": 2444,
+      "label": "paraphrases N=7770 (upstream padded)",
+      "N": 7770,
+      "rep": 0,
+      "strings": "durings"
+    }
+  ],
+  "fit": {
+    "a_joules": 3166.679891143187,
+    "b_joules_per_string": 0.9124269751660141,
+    "fitted_on_N": [
+      259,
+      519,
+      1038
+    ],
+    "note": "per doc slot"
+  },
+  "heldout_check": {
+    "component": "during_vs_captions",
+    "N": 2070,
+    "predicted_Wh": 23.87273983486839,
+    "recorded_Wh": 35.62,
+    "pct_error": -32.97939406269401,
+    "recorded_by": "perparaphrase_scores.py (results/energy/runs.jsonl)"
+  },
+  "query_vs_captions_measured_joules_per_slot": 3444.1141339862943,
+  "ratios_event_over_qvc": {
+    "amortised_index_per_call": 1.48718206156581,
+    "marginal_index_amortised": 8.015444015444015,
+    "marginal_upstream_padded_mxq30": 29.999999999999996,
+    "cost_proxy_assumes": 1.0
+  }
+}
