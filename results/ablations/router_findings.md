@@ -11,6 +11,12 @@ Ladder (cost = number of similarity components scored; Full = 5 → normalized 1
 A's component is a **subset** of B's, which is a subset of Full's, so a cascade pays only for the
 components it ends up scoring. Escalation is free; there is no re-scoring penalty.
 
+> **The cost column is a component count, not energy.** `cost_model_findings.md` measures joules per
+> component and finds they differ by up to 68× — the proxy overstates A by 42× and B by 25× relative
+> to Full. The gaps reported below are **unaffected** (cost is affine in the escalated fraction `f`
+> under any per-component cost assignment, so cost-matched == `f`-matched in either unit), but the
+> figures' x-axis should not be read as energy. See §5.
+
 ## 1. Negative result: the routing signal is not in the query text
 
 `router_frontier.py`, `router_diag.py`. TF-IDF (word 1–2 gram + char_wb 3–5 gram) → logistic
@@ -85,6 +91,9 @@ Significance is a broad plateau over `f ≈ 0.35–0.90`, not a single lucky poi
   that figure is itself an in-sample quantity whose advantage does not survive a held-out label split
   (optimism 3.36 / 3.76, out-of-sample −0.47 / −0.65). There is nothing there worth buying, which
   still bounds the whole approach.
+
+  §5 adds an independent reason on the *price* rather than the prize: the Full tier costs a measured
+  **63.5× tier B**, not the 2.5× the component-count proxy implies.
 - The router captures only 14–31% of oracle headroom — **but that fraction is not meaningful**, and
   §4 shows why. Its denominator is inflated by label noise.
 
@@ -157,6 +166,39 @@ Report oracle headroom with a held-out label split whenever the dataset is multi
 extra evaluation. Where it is impossible (single-gold data), label the ceiling in-sample and do not
 build a "% captured" narrative on it.
 
+## 5. The cost axis is a component count, and components are not equal
+
+Full write-up: `cost_model_findings.md`. Measured marginal joules per query, MultiVENT noASR, GPU1:
+
+| component | measured | proxy |
+|---|---|---|
+| `query_vs_video` | 6.83 J | 1 unit |
+| `query_vs_captions` | 15.51 J | 1 unit |
+| one event component (as published, `mx_q=30`) | 465.34 J | 1 unit |
+
+Four of the five components share one code path and differ only in how many query-side strings they
+feed it (259 vs 7,770). Cost is affine in that count — `E(N) = 3167 + 0.912·N` J per doc slot,
+R² = 0.9994, verified by held-out extrapolation to N=7,770 within 1.3%.
+
+| tier | measured | normalised | proxy |
+|---|---|---|---|
+| A | 6.83 J | 0.0048 | 0.2 |
+| B | 22.35 J | 0.0158 | 0.4 |
+| Full | 1,418.36 J | 1.0 | 1.0 |
+
+**The gaps in §2 are invariant.** Cost of escalating a fraction `f` from A to B is
+`cost(A) + f·(cost(B) − cost(A))` — affine in `f` under any cost assignment — so a cost-matched
+baseline is an `f`-matched baseline in either unit. Nothing in §2, §3 or §4 moves.
+
+**Two things do move.** The B→Full escalation is now dead on price as well as prize (63.5× vs the
+proxy's 2.5×), and the reported savings against Full are revealed as a lower bound, since the proxy
+understates Full's cost — before even counting the ~30 LLaMA-70B generations per query that only
+Full pays.
+
+Along the way: tier A's query path runs the ViT-H **vision tower on a batch of black images** and
+discards the output (`vision_embedder.py:148`). Bypassing it makes tier A 8.3× cheaper (6.83 → 0.83
+J/query). We report the as-shipped figure, since that is what the published nDCG paid.
+
 ## Reproduce
 
 ```
@@ -165,6 +207,9 @@ CUDA_VISIBLE_DEVICES="" python src/evaluation/router_gain_curve.py  # permutatio
 CUDA_VISIBLE_DEVICES="" python src/evaluation/router_hetero.py      # all 6 cells (§3)
 CUDA_VISIBLE_DEVICES="" python src/evaluation/router_oracle_goldsplit.py  # ceiling audit (§4)
 CUDA_VISIBLE_DEVICES="" python src/evaluation/router_figs.py        # figures
+CUDA_VISIBLE_DEVICES=1  python src/evaluation/component_energy_bench.py --padded  # cost model (§5)
+CUDA_VISIBLE_DEVICES=1  python src/evaluation/component_energy_tierA.py           # cost model (§5)
 ```
 
-CPU-only; reads cached component tensors under `runs/<tag>/cache/`.
+CPU-only except the two `component_energy_*` scripts, which need GPU1. All read cached component
+tensors under `runs/<tag>/cache/`.

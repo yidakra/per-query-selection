@@ -1,0 +1,226 @@
+{
+  "T": 259,
+  "V": 2393,
+  "D": 1024,
+  "idle_watts": 22.0685,
+  "batch_size": 8,
+  "measurements": [
+    {
+      "seconds": 11.198768615722656,
+      "joules_gross": 637.800743286133,
+      "joules_net": 390.6607180900575,
+      "mean_watts": 57.55282142857142,
+      "n_samples": 56,
+      "label": "as_shipped",
+      "N": 64,
+      "rep": 0
+    },
+    {
+      "seconds": 11.261692762374878,
+      "joules_gross": 677.3447617387772,
+      "joules_net": 428.8160950123072,
+      "mean_watts": 60.235052631578945,
+      "n_samples": 57,
+      "label": "as_shipped",
+      "N": 64,
+      "rep": 1
+    },
+    {
+      "seconds": 11.341550588607788,
+      "joules_gross": 670.0495085114242,
+      "joules_net": 419.7584993467332,
+      "mean_watts": 59.63015789473685,
+      "n_samples": 57,
+      "label": "as_shipped",
+      "N": 64,
+      "rep": 2
+    },
+    {
+      "seconds": 22.738781213760376,
+      "joules_gross": 1359.703094357729,
+      "joules_net": 857.8923011418581,
+      "mean_watts": 60.03743859649123,
+      "n_samples": 114,
+      "label": "as_shipped",
+      "N": 128,
+      "rep": 0
+    },
+    {
+      "seconds": 22.78617763519287,
+      "joules_gross": 1363.2917173513174,
+      "joules_net": 860.4349562090636,
+      "mean_watts": 60.19244736842105,
+      "n_samples": 114,
+      "label": "as_shipped",
+      "N": 128,
+      "rep": 1
+    },
+    {
+      "seconds": 22.78074073791504,
+      "joules_gross": 1363.4263961366416,
+      "joules_net": 860.6896191619636,
+      "mean_watts": 60.200078947368425,
+      "n_samples": 114,
+      "label": "as_shipped",
+      "N": 128,
+      "rep": 2
+    },
+    {
+      "seconds": 46.13299059867859,
+      "joules_gross": 2773.285618983388,
+      "joules_net": 1755.1997159564494,
+      "mean_watts": 60.15734632034633,
+      "n_samples": 231,
+      "label": "as_shipped",
+      "N": 259,
+      "rep": 0
+    },
+    {
+      "seconds": 45.95943212509155,
+      "joules_gross": 2758.0307662655114,
+      "joules_net": 1743.7750384129286,
+      "mean_watts": 60.07863913043478,
+      "n_samples": 230,
+      "label": "as_shipped",
+      "N": 259,
+      "rep": 1
+    },
+    {
+      "seconds": 46.00675177574158,
+      "joules_gross": 2759.026720545173,
+      "joules_net": 1743.7267189822198,
+      "mean_watts": 60.0935,
+      "n_samples": 230,
+      "label": "as_shipped",
+      "N": 259,
+      "rep": 2
+    },
+    {
+      "seconds": 1.3568224906921387,
+      "joules_gross": 71.86639086818695,
+      "joules_net": 41.92335373234749,
+      "mean_watts": 60.110571428571426,
+      "n_samples": 7,
+      "label": "vision_bypassed",
+      "N": 64,
+      "rep": 0
+    },
+    {
+      "seconds": 1.3650753498077393,
+      "joules_gross": 73.3938490087986,
+      "joules_net": 43.268683651566505,
+      "mean_watts": 61.211999999999996,
+      "n_samples": 7,
+      "label": "vision_bypassed",
+      "N": 64,
+      "rep": 1
+    },
+    {
+      "seconds": 1.3648369312286377,
+      "joules_gross": 74.03505790543555,
+      "joules_net": 43.91515408861636,
+      "mean_watts": 61.54942857142857,
+      "n_samples": 7,
+      "label": "vision_bypassed",
+      "N": 64,
+      "rep": 2
+    },
+    {
+      "seconds": 2.730400323867798,
+      "joules_gross": 158.6345420936346,
+      "joules_net": 98.3787025463581,
+      "mean_watts": 60.87464285714286,
+      "n_samples": 14,
+      "label": "vision_bypassed",
+      "N": 128,
+      "rep": 0
+    },
+    {
+      "seconds": 2.7302744388580322,
+      "joules_gross": 158.09644632661343,
+      "joules_net": 97.84338487267495,
+      "mean_watts": 60.63807142857143,
+      "n_samples": 14,
+      "label": "vision_bypassed",
+      "N": 128,
+      "rep": 1
+    },
+    {
+      "seconds": 2.721383810043335,
+      "joules_gross": 158.57329750537872,
+      "joules_net": 98.51643889343738,
+      "mean_watts": 60.824071428571415,
+      "n_samples": 14,
+      "label": "vision_bypassed",
+      "N": 128,
+      "rep": 2
+    },
+    {
+      "seconds": 5.529080152511597,
+      "joules_gross": 327.7041971586942,
+      "joules_net": 205.68569181299205,
+      "mean_watts": 60.57742857142858,
+      "n_samples": 28,
+      "label": "vision_bypassed",
+      "N": 259,
+      "rep": 0
+    },
+    {
+      "seconds": 5.527524948120117,
+      "joules_gross": 326.8106247872114,
+      "joules_net": 204.82644046962258,
+      "mean_watts": 60.40128571428572,
+      "n_samples": 28,
+      "label": "vision_bypassed",
+      "N": 259,
+      "rep": 1
+    },
+    {
+      "seconds": 5.528813123703003,
+      "joules_gross": 325.9572808889151,
+      "joules_net": 203.94466846847536,
+      "mean_watts": 60.27842857142857,
+      "n_samples": 28,
+      "label": "vision_bypassed",
+      "N": 259,
+      "rep": 2
+    }
+  ],
+  "fits": {
+    "as_shipped": {
+      "joules_net": {
+        "a": -20.575818858753255,
+        "b": 6.833803423534635,
+        "r2": 0.9996282430886516
+      },
+      "joules_gross": {
+        "a": -22.720553484825857,
+        "b": 10.766034226562844,
+        "r2": 0.9998170893085722
+      },
+      "seconds": {
+        "a": -0.09718533774712095,
+        "b": 0.17818296680917173,
+        "r2": 0.999976835390823
+      }
+    },
+    "vision_bypassed": {
+      "joules_net": {
+        "a": -8.99932095759719,
+        "b": 0.8272700718067003,
+        "r2": 0.9996939683442866
+      },
+      "joules_gross": {
+        "a": -9.137788917146555,
+        "b": 1.2988261543216462,
+        "r2": 0.99987636089315
+      },
+      "seconds": {
+        "a": -0.0062744617690060605,
+        "b": 0.021367835716743125,
+        "r2": 0.9999959775032244
+      }
+    }
+  },
+  "note": "video embeddings are random (V,D): energy depends on shape, not value. No retrieval score is reported from this script."
+}

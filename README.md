@@ -70,16 +70,39 @@ where the trend predicts despite 1.01 gold/query.
 This is the differentiator from Adaptive-RAG. Relatedly, **17% of MultiVENT queries are actively
 hurt** by adding captions (vs 2–4% on MSR-VTT) — the quiet critique of Q2E's one-size-fits-all fusion.
 
-### 3. Q2E's Full tier costs ~30 LLM generations per query
+### 3. The cost proxy is wrong — and wrong in the safe direction
 
-Measured, not assumed ([`llm_cost_accounting.py`](src/evaluation/llm_cost_accounting.py)): mean 30.0
-LLaMA-3.3-70B generations per query (median 21, max 96), ≈8k prompt / ≈940 generated tokens. Tiers A
-and B issue **zero**. Gallery-side encoding is amortised offline and paid identically by every tier,
-so it does not enter per-query routing cost.
+The frontier plots use `cost = #components scored` (A = 0.2, B = 0.4, Full = 1.0), rating all five
+similarity components at unit cost. Both halves of that assumption were measured, not assumed.
 
-The frontier plots use `cost = #components scored` (A = 0.2, B = 0.4, Full = 1.0). That proxy
-therefore **understates** Full by orders of magnitude, which means the reported savings are
-**conservative**. The cascade's entire gain is obtained in the zero-LLM regime.
+**The LLM half** ([`llm_cost_accounting.py`](src/evaluation/llm_cost_accounting.py)): the Full tier
+issues mean 30.0 LLaMA-3.3-70B generations per query (median 21, max 96), ≈8k prompt / ≈940 generated
+tokens. Tiers A and B issue **zero**.
+
+**The similarity half** ([`cost_model_findings.md`](results/ablations/cost_model_findings.md)):
+components differ by up to **68×**. Four of the five share one code path and differ only in how many
+query-side strings they feed it — 259 for `query_vs_captions`, **7,770** for an event component
+(`mx_q=30` padding). Cost is affine in that count: `E(N) = 3167 + 0.912·N` J per doc slot,
+R² = 0.9994, confirmed by held-out extrapolation to N=7,770 within **1.3%**.
+
+| tier | measured (marginal, per query) | normalised | proxy |
+|---|---|---|---|
+| A | 6.83 J | 0.0048 | 0.2 |
+| B | 22.35 J | 0.0158 | 0.4 |
+| Full | 1,418.36 J | 1.0 | 1.0 |
+
+The proxy overstates A by 42× and B by 25× relative to Full — i.e. it **understates** Full, so the
+reported savings are a **lower bound**. Escalating B→Full really costs **63.5× tier B**, not 2.5×,
+which independently kills the Full escalation on price to go with §1's argument on prize.
+
+**The routing gaps are invariant to all of this.** Cost of escalating a fraction `f` from A to B is
+`cost(A) + f·(cost(B) − cost(A))` — affine in `f` under *any* per-component cost assignment — so
+cost-matched is `f`-matched in either unit. Nothing in §1, §2 or §5 moves; only the x-axis label does.
+The cascade's entire gain is obtained in the zero-LLM regime.
+
+Incidental, found while measuring: tier A's query path runs the ViT-H **vision tower on a batch of
+black images** and throws the output away (`vision_embedder.py:148`). Bypassing it makes tier A 8.3×
+cheaper. We report the as-shipped number, since that is what the published nDCG paid.
 
 ### 4. Tier C does not exist: oracle headroom over Q2E is label noise
 
@@ -149,8 +172,10 @@ CUDA_VISIBLE_DEVICES="" python src/evaluation/router_hetero.py           # all 6
 CUDA_VISIBLE_DEVICES="" python src/evaluation/router_oracle_goldsplit.py # ceiling audit (§5)
 CUDA_VISIBLE_DEVICES="" python src/evaluation/router_figs.py             # figures
 
-# cost model (§3) — CPU
+# cost model (§3) — LLM accounting on CPU, component energy on GPU1
 CUDA_VISIBLE_DEVICES="" python src/evaluation/llm_cost_accounting.py
+CUDA_VISIBLE_DEVICES=1  python src/evaluation/component_energy_bench.py --repeats 2 --padded
+CUDA_VISIBLE_DEVICES=1  python src/evaluation/component_energy_tierA.py
 
 # tier C (§4) — one GPU pass, then CPU
 CUDA_VISIBLE_DEVICES=1  python src/evaluation/perparaphrase_scores.py --setting noASR --event all
