@@ -115,6 +115,15 @@ despite 1.01 gold/query. The fraction of headroom the router *captures* stays ro
 Related: **17% of MultiVENT queries are actively hurt** by adding captions (vs 2–4% on MSR-VTT).
 That is what a router is for, and it is the quiet critique of Q2E's one-size-fits-all fusion.
 
+The heterogeneity thesis also predicts **where the router transfers** — see `transfer_findings.md`
+(`router_transfer.py`). Training the A→B ridge on one cell and deploying it unchanged on another
+transfers at within-cell strength across encoders (mCLIP ↔ IV2, mean ρ +0.14) and across the
+ASR/noASR setting (+0.15), but **flips sign across the MultiVENT ↔ MSR-VTT boundary** (−0.05): the
+transferable signal is bounded by the query-complexity *regime*, not the encoder. A single router
+pooled over five cells (leave-one-cell-out) deploys with significant positive gain to **5 of 6**
+cells, and *beats* local fitting on the four MSR-VTT cells whose own A→B signal is thin. The router
+is a portable mechanism, not a per-cell curve-fit.
+
 ## 4. The oracle ceilings are in-sample, and mostly label noise
 
 Added after the tier-C study (`tierC_findings.md`), which found that an oracle choosing paraphrase
