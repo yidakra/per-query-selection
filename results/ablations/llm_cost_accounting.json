@@ -35,5 +35,37 @@
       "llm_calls": 30.046332046332047,
       "sim_components": 5
     }
+  },
+  "energy_estimate": {
+    "disclaimer": "ESTIMATE, not a measurement -- the 70B ran offline. Similarity energy (sim_full_j) IS measured (cost_model_findings.md).",
+    "flops_per_query": 1257510810810810.8,
+    "flops_model": "2 * P(=70e9) * (prompt_tok + gen_tok)",
+    "method1_flops_joules": {
+      "A100_BF16_25pctMFU": 6448.773388773388,
+      "H100_BF16_35pctMFU": 2548.1475396369015,
+      "H100_FP8_40pctMFU": 1110.875274567854
+    },
+    "method2_per_output_token_joules": {
+      "H100_FP8_batched_0.39": 365.09872586872586,
+      "A100_2023_3.5": 3276.527027027027
+    },
+    "llm_joules_per_query": {
+      "low": 365.09872586872586,
+      "central_H100_BF16_35pctMFU": 2548.1475396369015,
+      "high": 6448.773388773388
+    },
+    "sim_full_j_measured": 1418.36,
+    "sim_b_j_measured": 22.35,
+    "full_end_to_end_joules": {
+      "low": 1783.4587258687257,
+      "central": 3966.507539636901,
+      "high": 7867.133388773388
+    },
+    "b_to_full_ratio": {
+      "similarity_only": 63.5,
+      "end_to_end_central": 177.5,
+      "end_to_end_low": 79.8,
+      "end_to_end_high": 352.0
+    }
   }
 }
