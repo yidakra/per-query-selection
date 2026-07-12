@@ -4,12 +4,12 @@
     "fixed": {
       "A_visual": {
         "ndcg": 67.707,
-        "cost": 0.2,
+        "cost": 0.0048,
         "full_share": 0.0
       },
       "-Events": {
         "ndcg": 74.283,
-        "cost": 0.4,
+        "cost": 0.0158,
         "full_share": 0.0
       },
       "Full": {
@@ -22,55 +22,55 @@
       {
         "eps": 0.0,
         "ndcg": 78.978,
-        "cost": 0.5598,
+        "cost": 0.3698,
         "full_share": 0.3629
       },
       {
         "eps": 0.005,
         "ndcg": 78.962,
-        "cost": 0.5375,
+        "cost": 0.3429,
         "full_share": 0.3359
       },
       {
         "eps": 0.01,
         "ndcg": 78.919,
-        "cost": 0.5081,
+        "cost": 0.3009,
         "full_share": 0.2934
       },
       {
         "eps": 0.02,
         "ndcg": 78.87,
-        "cost": 0.4903,
+        "cost": 0.2778,
         "full_share": 0.2703
       },
       {
         "eps": 0.03,
         "ndcg": 78.821,
-        "cost": 0.4849,
+        "cost": 0.2739,
         "full_share": 0.2664
       },
       {
         "eps": 0.05,
         "ndcg": 78.704,
-        "cost": 0.468,
+        "cost": 0.2509,
         "full_share": 0.2432
       },
       {
         "eps": 0.08,
         "ndcg": 77.049,
-        "cost": 0.3514,
+        "cost": 0.1123,
         "full_share": 0.1042
       },
       {
         "eps": 0.12,
         "ndcg": 75.984,
-        "cost": 0.3097,
+        "cost": 0.0769,
         "full_share": 0.0695
       },
       {
         "eps": 0.2,
         "ndcg": 73.55,
-        "cost": 0.251,
+        "cost": 0.0296,
         "full_share": 0.0232
       }
     ],
@@ -78,63 +78,63 @@
       {
         "eps": 0.0,
         "ndcg": 73.057,
-        "cost": 0.556,
+        "cost": 0.3696,
         "full_share": 0.3629,
         "tier_acc": 0.3552
       },
       {
         "eps": 0.005,
         "ndcg": 73.522,
-        "cost": 0.5413,
+        "cost": 0.3651,
         "full_share": 0.3591,
         "tier_acc": 0.3861
       },
       {
         "eps": 0.01,
         "ndcg": 72.977,
-        "cost": 0.4873,
+        "cost": 0.274,
         "full_share": 0.2664,
         "tier_acc": 0.3784
       },
       {
         "eps": 0.02,
         "ndcg": 73.074,
-        "cost": 0.4749,
+        "cost": 0.2586,
         "full_share": 0.251,
         "tier_acc": 0.3514
       },
       {
         "eps": 0.03,
         "ndcg": 72.921,
-        "cost": 0.4625,
+        "cost": 0.2433,
         "full_share": 0.2355,
         "tier_acc": 0.3745
       },
       {
         "eps": 0.05,
         "ndcg": 72.843,
-        "cost": 0.4456,
+        "cost": 0.2166,
         "full_share": 0.2085,
         "tier_acc": 0.3205
       },
       {
         "eps": 0.08,
         "ndcg": 70.757,
-        "cost": 0.2888,
+        "cost": 0.0464,
         "full_share": 0.0386,
         "tier_acc": 0.5097
       },
       {
         "eps": 0.12,
         "ndcg": 69.597,
-        "cost": 0.2425,
+        "cost": 0.0182,
         "full_share": 0.0116,
         "tier_acc": 0.6486
       },
       {
         "eps": 0.2,
         "ndcg": 68.805,
-        "cost": 0.2108,
+        "cost": 0.0054,
         "full_share": 0.0,
         "tier_acc": 0.7992
       }
@@ -147,12 +147,12 @@
     "fixed": {
       "A_visual": {
         "ndcg": 67.707,
-        "cost": 0.2,
+        "cost": 0.0048,
         "full_share": 0.0
       },
       "-Events": {
         "ndcg": 78.313,
-        "cost": 0.4,
+        "cost": 0.0158,
         "full_share": 0.0
       },
       "Full": {
@@ -165,55 +165,55 @@
       {
         "eps": 0.0,
         "ndcg": 82.702,
-        "cost": 0.6046,
+        "cost": 0.4163,
         "full_share": 0.4093
       },
       {
         "eps": 0.005,
         "ndcg": 82.689,
-        "cost": 0.5822,
+        "cost": 0.3857,
         "full_share": 0.3784
       },
       {
         "eps": 0.01,
         "ndcg": 82.657,
-        "cost": 0.5575,
+        "cost": 0.3476,
         "full_share": 0.3398
       },
       {
         "eps": 0.02,
         "ndcg": 82.61,
-        "cost": 0.539,
+        "cost": 0.3209,
         "full_share": 0.3127
       },
       {
         "eps": 0.03,
         "ndcg": 82.555,
-        "cost": 0.5297,
+        "cost": 0.3094,
         "full_share": 0.3012
       },
       {
         "eps": 0.05,
         "ndcg": 82.492,
-        "cost": 0.5197,
+        "cost": 0.2978,
         "full_share": 0.2896
       },
       {
         "eps": 0.08,
         "ndcg": 80.757,
-        "cost": 0.3869,
+        "cost": 0.1326,
         "full_share": 0.1236
       },
       {
         "eps": 0.12,
         "ndcg": 79.513,
-        "cost": 0.3344,
+        "cost": 0.0783,
         "full_share": 0.0695
       },
       {
         "eps": 0.2,
         "ndcg": 76.124,
-        "cost": 0.2587,
+        "cost": 0.0227,
         "full_share": 0.0154
       }
     ],
@@ -221,63 +221,63 @@
       {
         "eps": 0.0,
         "ndcg": 78.218,
-        "cost": 0.6309,
+        "cost": 0.4435,
         "full_share": 0.4363,
         "tier_acc": 0.4672
       },
       {
         "eps": 0.005,
         "ndcg": 77.66,
-        "cost": 0.6069,
+        "cost": 0.4201,
         "full_share": 0.4131,
         "tier_acc": 0.4208
       },
       {
         "eps": 0.01,
         "ndcg": 77.922,
-        "cost": 0.5776,
+        "cost": 0.3634,
         "full_share": 0.3552,
         "tier_acc": 0.4324
       },
       {
         "eps": 0.02,
         "ndcg": 77.243,
-        "cost": 0.5676,
+        "cost": 0.3555,
         "full_share": 0.3475,
         "tier_acc": 0.4131
       },
       {
         "eps": 0.03,
         "ndcg": 77.15,
-        "cost": 0.5174,
+        "cost": 0.2867,
         "full_share": 0.278,
         "tier_acc": 0.4247
       },
       {
         "eps": 0.05,
         "ndcg": 76.626,
-        "cost": 0.5019,
+        "cost": 0.2711,
         "full_share": 0.2625,
         "tier_acc": 0.3938
       },
       {
         "eps": 0.08,
         "ndcg": 74.727,
-        "cost": 0.3421,
+        "cost": 0.0677,
         "full_share": 0.0579,
         "tier_acc": 0.4672
       },
       {
         "eps": 0.12,
         "ndcg": 72.024,
-        "cost": 0.2734,
+        "cost": 0.0125,
         "full_share": 0.0039,
         "tier_acc": 0.529
       },
       {
         "eps": 0.2,
         "ndcg": 69.144,
-        "cost": 0.2239,
+        "cost": 0.0061,
         "full_share": 0.0,
         "tier_acc": 0.6834
       }
@@ -290,12 +290,12 @@
     "fixed": {
       "A_visual": {
         "ndcg": 76.529,
-        "cost": 0.2,
+        "cost": 0.0048,
         "full_share": 0.0
       },
       "-Events": {
         "ndcg": 80.58,
-        "cost": 0.4,
+        "cost": 0.0158,
         "full_share": 0.0
       },
       "Full": {
@@ -308,55 +308,55 @@
       {
         "eps": 0.0,
         "ndcg": 83.885,
-        "cost": 0.4587,
+        "cost": 0.2577,
         "full_share": 0.251
       },
       {
         "eps": 0.005,
         "ndcg": 83.865,
-        "cost": 0.434,
+        "cost": 0.2307,
         "full_share": 0.2239
       },
       {
         "eps": 0.01,
         "ndcg": 83.814,
-        "cost": 0.4031,
+        "cost": 0.1959,
         "full_share": 0.1892
       },
       {
         "eps": 0.02,
         "ndcg": 83.748,
-        "cost": 0.3784,
+        "cost": 0.1615,
         "full_share": 0.1544
       },
       {
         "eps": 0.03,
         "ndcg": 83.694,
-        "cost": 0.3676,
+        "cost": 0.1499,
         "full_share": 0.1429
       },
       {
         "eps": 0.05,
         "ndcg": 83.581,
-        "cost": 0.3537,
+        "cost": 0.1344,
         "full_share": 0.1274
       },
       {
         "eps": 0.08,
         "ndcg": 82.826,
-        "cost": 0.3058,
+        "cost": 0.0804,
         "full_share": 0.0734
       },
       {
         "eps": 0.12,
         "ndcg": 81.691,
-        "cost": 0.2641,
+        "cost": 0.0451,
         "full_share": 0.0386
       },
       {
         "eps": 0.2,
         "ndcg": 80.265,
-        "cost": 0.234,
+        "cost": 0.025,
         "full_share": 0.0193
       }
     ],
@@ -364,63 +364,63 @@
       {
         "eps": 0.0,
         "ndcg": 79.751,
-        "cost": 0.4301,
+        "cost": 0.2341,
         "full_share": 0.2278,
         "tier_acc": 0.3938
       },
       {
         "eps": 0.005,
         "ndcg": 79.417,
-        "cost": 0.3768,
+        "cost": 0.1614,
         "full_share": 0.1544,
         "tier_acc": 0.4556
       },
       {
         "eps": 0.01,
         "ndcg": 78.67,
-        "cost": 0.3135,
+        "cost": 0.1029,
         "full_share": 0.0965,
         "tier_acc": 0.5135
       },
       {
         "eps": 0.02,
         "ndcg": 78.928,
-        "cost": 0.3019,
+        "cost": 0.0802,
         "full_share": 0.0734,
         "tier_acc": 0.5328
       },
       {
         "eps": 0.03,
         "ndcg": 78.764,
-        "cost": 0.2888,
+        "cost": 0.0721,
         "full_share": 0.0656,
         "tier_acc": 0.5792
       },
       {
         "eps": 0.05,
         "ndcg": 78.338,
-        "cost": 0.2672,
+        "cost": 0.0489,
         "full_share": 0.0425,
         "tier_acc": 0.5869
       },
       {
         "eps": 0.08,
         "ndcg": 78.073,
-        "cost": 0.2332,
+        "cost": 0.025,
         "full_share": 0.0193,
         "tier_acc": 0.668
       },
       {
         "eps": 0.12,
         "ndcg": 77.545,
-        "cost": 0.21,
+        "cost": 0.0054,
         "full_share": 0.0,
         "tier_acc": 0.7915
       },
       {
         "eps": 0.2,
         "ndcg": 77.39,
-        "cost": 0.2054,
+        "cost": 0.0051,
         "full_share": 0.0,
         "tier_acc": 0.8919
       }
@@ -433,12 +433,12 @@
     "fixed": {
       "A_visual": {
         "ndcg": 59.716,
-        "cost": 0.2,
+        "cost": 0.0048,
         "full_share": 0.0
       },
       "-Events": {
         "ndcg": 60.944,
-        "cost": 0.4,
+        "cost": 0.0158,
         "full_share": 0.0
       },
       "Full": {
@@ -451,55 +451,55 @@
       {
         "eps": 0.0,
         "ndcg": 62.938,
-        "cost": 0.2818,
+        "cost": 0.0934,
         "full_share": 0.0884
       },
       {
         "eps": 0.005,
         "ndcg": 62.938,
-        "cost": 0.2818,
+        "cost": 0.0934,
         "full_share": 0.0884
       },
       {
         "eps": 0.01,
         "ndcg": 62.938,
-        "cost": 0.2818,
+        "cost": 0.0934,
         "full_share": 0.0884
       },
       {
         "eps": 0.02,
         "ndcg": 62.922,
-        "cost": 0.2766,
+        "cost": 0.0865,
         "full_share": 0.0814
       },
       {
         "eps": 0.03,
         "ndcg": 62.913,
-        "cost": 0.2746,
+        "cost": 0.0844,
         "full_share": 0.0794
       },
       {
         "eps": 0.05,
         "ndcg": 62.825,
-        "cost": 0.2637,
+        "cost": 0.0724,
         "full_share": 0.0673
       },
       {
         "eps": 0.08,
         "ndcg": 62.636,
-        "cost": 0.2488,
+        "cost": 0.0553,
         "full_share": 0.0503
       },
       {
         "eps": 0.12,
         "ndcg": 62.575,
-        "cost": 0.2458,
+        "cost": 0.0523,
         "full_share": 0.0472
       },
       {
         "eps": 0.2,
         "ndcg": 62.339,
-        "cost": 0.2372,
+        "cost": 0.0432,
         "full_share": 0.0382
       }
     ],
@@ -507,63 +507,63 @@
       {
         "eps": 0.0,
         "ndcg": 59.924,
-        "cost": 0.2649,
+        "cost": 0.0753,
         "full_share": 0.0704,
         "tier_acc": 0.7749
       },
       {
         "eps": 0.005,
         "ndcg": 59.924,
-        "cost": 0.2649,
+        "cost": 0.0753,
         "full_share": 0.0704,
         "tier_acc": 0.7749
       },
       {
         "eps": 0.01,
         "ndcg": 59.924,
-        "cost": 0.2649,
+        "cost": 0.0753,
         "full_share": 0.0704,
         "tier_acc": 0.7749
       },
       {
         "eps": 0.02,
         "ndcg": 59.884,
-        "cost": 0.2621,
+        "cost": 0.0723,
         "full_share": 0.0673,
         "tier_acc": 0.793
       },
       {
         "eps": 0.03,
         "ndcg": 59.927,
-        "cost": 0.2587,
+        "cost": 0.0683,
         "full_share": 0.0633,
         "tier_acc": 0.791
       },
       {
         "eps": 0.05,
         "ndcg": 60.005,
-        "cost": 0.2507,
+        "cost": 0.0592,
         "full_share": 0.0543,
         "tier_acc": 0.8171
       },
       {
         "eps": 0.08,
         "ndcg": 59.875,
-        "cost": 0.238,
+        "cost": 0.0432,
         "full_share": 0.0382,
         "tier_acc": 0.8452
       },
       {
         "eps": 0.12,
         "ndcg": 59.99,
-        "cost": 0.238,
+        "cost": 0.0442,
         "full_share": 0.0392,
         "tier_acc": 0.8583
       },
       {
         "eps": 0.2,
         "ndcg": 59.917,
-        "cost": 0.2289,
+        "cost": 0.0351,
         "full_share": 0.0302,
         "tier_acc": 0.8874
       }
@@ -576,12 +576,12 @@
     "fixed": {
       "A_visual": {
         "ndcg": 59.716,
-        "cost": 0.2,
+        "cost": 0.0048,
         "full_share": 0.0
       },
       "-Events": {
         "ndcg": 61.954,
-        "cost": 0.4,
+        "cost": 0.0158,
         "full_share": 0.0
       },
       "Full": {
@@ -594,55 +594,55 @@
       {
         "eps": 0.0,
         "ndcg": 64.576,
-        "cost": 0.3095,
+        "cost": 0.1284,
         "full_share": 0.1236
       },
       {
         "eps": 0.005,
         "ndcg": 64.576,
-        "cost": 0.3095,
+        "cost": 0.1284,
         "full_share": 0.1236
       },
       {
         "eps": 0.01,
         "ndcg": 64.576,
-        "cost": 0.3095,
+        "cost": 0.1284,
         "full_share": 0.1236
       },
       {
         "eps": 0.02,
         "ndcg": 64.561,
-        "cost": 0.3031,
+        "cost": 0.1204,
         "full_share": 0.1156
       },
       {
         "eps": 0.03,
         "ndcg": 64.558,
-        "cost": 0.3025,
+        "cost": 0.1194,
         "full_share": 0.1146
       },
       {
         "eps": 0.05,
         "ndcg": 64.483,
-        "cost": 0.2927,
+        "cost": 0.1074,
         "full_share": 0.1025
       },
       {
         "eps": 0.08,
         "ndcg": 64.282,
-        "cost": 0.2766,
+        "cost": 0.0884,
         "full_share": 0.0834
       },
       {
         "eps": 0.12,
         "ndcg": 64.117,
-        "cost": 0.2683,
+        "cost": 0.0784,
         "full_share": 0.0734
       },
       {
         "eps": 0.2,
         "ndcg": 63.739,
-        "cost": 0.2523,
+        "cost": 0.0593,
         "full_share": 0.0543
       }
     ],
@@ -650,63 +650,63 @@
       {
         "eps": 0.0,
         "ndcg": 60.298,
-        "cost": 0.2981,
+        "cost": 0.1192,
         "full_share": 0.1146,
         "tier_acc": 0.7286
       },
       {
         "eps": 0.005,
         "ndcg": 60.298,
-        "cost": 0.2981,
+        "cost": 0.1192,
         "full_share": 0.1146,
         "tier_acc": 0.7286
       },
       {
         "eps": 0.01,
         "ndcg": 60.298,
-        "cost": 0.2981,
+        "cost": 0.1192,
         "full_share": 0.1146,
         "tier_acc": 0.7286
       },
       {
         "eps": 0.02,
         "ndcg": 60.352,
-        "cost": 0.3041,
+        "cost": 0.1243,
         "full_share": 0.1196,
         "tier_acc": 0.7246
       },
       {
         "eps": 0.03,
         "ndcg": 60.372,
-        "cost": 0.2949,
+        "cost": 0.1142,
         "full_share": 0.1095,
         "tier_acc": 0.7367
       },
       {
         "eps": 0.05,
         "ndcg": 60.186,
-        "cost": 0.2812,
+        "cost": 0.0982,
         "full_share": 0.0935,
         "tier_acc": 0.7578
       },
       {
         "eps": 0.08,
         "ndcg": 60.026,
-        "cost": 0.2605,
+        "cost": 0.0712,
         "full_share": 0.0663,
         "tier_acc": 0.7899
       },
       {
         "eps": 0.12,
         "ndcg": 60.037,
-        "cost": 0.2492,
+        "cost": 0.0591,
         "full_share": 0.0543,
         "tier_acc": 0.8161
       },
       {
         "eps": 0.2,
         "ndcg": 59.919,
-        "cost": 0.2293,
+        "cost": 0.0351,
         "full_share": 0.0302,
         "tier_acc": 0.8553
       }
@@ -719,12 +719,12 @@
     "fixed": {
       "A_visual": {
         "ndcg": 65.997,
-        "cost": 0.2,
+        "cost": 0.0048,
         "full_share": 0.0
       },
       "-Events": {
         "ndcg": 67.518,
-        "cost": 0.4,
+        "cost": 0.0158,
         "full_share": 0.0
       },
       "Full": {
@@ -737,55 +737,55 @@
       {
         "eps": 0.0,
         "ndcg": 69.915,
-        "cost": 0.2788,
+        "cost": 0.0904,
         "full_share": 0.0854
       },
       {
         "eps": 0.005,
         "ndcg": 69.915,
-        "cost": 0.2788,
+        "cost": 0.0904,
         "full_share": 0.0854
       },
       {
         "eps": 0.01,
         "ndcg": 69.915,
-        "cost": 0.2788,
+        "cost": 0.0904,
         "full_share": 0.0854
       },
       {
         "eps": 0.02,
         "ndcg": 69.899,
-        "cost": 0.2734,
+        "cost": 0.0834,
         "full_share": 0.0784
       },
       {
         "eps": 0.03,
         "ndcg": 69.888,
-        "cost": 0.2708,
+        "cost": 0.0804,
         "full_share": 0.0754
       },
       {
         "eps": 0.05,
         "ndcg": 69.823,
-        "cost": 0.2603,
+        "cost": 0.0674,
         "full_share": 0.0623
       },
       {
         "eps": 0.08,
         "ndcg": 69.742,
-        "cost": 0.2549,
+        "cost": 0.0614,
         "full_share": 0.0563
       },
       {
         "eps": 0.12,
         "ndcg": 69.668,
-        "cost": 0.2501,
+        "cost": 0.0554,
         "full_share": 0.0503
       },
       {
         "eps": 0.2,
         "ndcg": 69.339,
-        "cost": 0.2386,
+        "cost": 0.0433,
         "full_share": 0.0382
       }
     ],
@@ -793,63 +793,63 @@
       {
         "eps": 0.0,
         "ndcg": 66.184,
-        "cost": 0.2868,
+        "cost": 0.1023,
         "full_share": 0.0975,
         "tier_acc": 0.7578
       },
       {
         "eps": 0.005,
         "ndcg": 66.184,
-        "cost": 0.2868,
+        "cost": 0.1023,
         "full_share": 0.0975,
         "tier_acc": 0.7578
       },
       {
         "eps": 0.01,
         "ndcg": 66.184,
-        "cost": 0.2868,
+        "cost": 0.1023,
         "full_share": 0.0975,
         "tier_acc": 0.7578
       },
       {
         "eps": 0.02,
         "ndcg": 66.109,
-        "cost": 0.2812,
+        "cost": 0.0963,
         "full_share": 0.0915,
         "tier_acc": 0.7749
       },
       {
         "eps": 0.03,
         "ndcg": 66.496,
-        "cost": 0.2742,
+        "cost": 0.0863,
         "full_share": 0.0814,
         "tier_acc": 0.7899
       },
       {
         "eps": 0.05,
         "ndcg": 66.093,
-        "cost": 0.2587,
+        "cost": 0.0683,
         "full_share": 0.0633,
         "tier_acc": 0.804
       },
       {
         "eps": 0.08,
         "ndcg": 66.19,
-        "cost": 0.2507,
+        "cost": 0.0602,
         "full_share": 0.0553,
         "tier_acc": 0.8261
       },
       {
         "eps": 0.12,
         "ndcg": 66.284,
-        "cost": 0.2418,
+        "cost": 0.0482,
         "full_share": 0.0432,
         "tier_acc": 0.8402
       },
       {
         "eps": 0.2,
         "ndcg": 66.121,
-        "cost": 0.2316,
+        "cost": 0.0371,
         "full_share": 0.0322,
         "tier_acc": 0.8693
       }

@@ -1,21 +1,25 @@
 # Adaptive routing over Q2E fusion tiers — findings
 
-Ladder (cost = number of similarity components scored; Full = 5 → normalized 1.0):
+Ladder (cost = **measured GPU energy per query**, J; normalized so Full = 1.0). Single source of
+truth `tier_cost.py`; measurement in `cost_model_findings.md`.
 
-| tier | components | cost |
-|---|---|---|
-| A (visual) | `query_vs_video` | 0.2 |
-| B (−Events) | `+ query_vs_captions` | 0.4 |
-| Full | all 5 (adds LLM event decomposition) | 1.0 |
+| tier | components | J/query | cost (Full = 1) |
+|---|---|---|---|
+| A (visual) | `query_vs_video` | 6.83 | 0.0048 |
+| B (−Events) | `+ query_vs_captions` | 22.35 | 0.0158 |
+| Full | all 5 (adds LLM event decomposition) | 1418.36 | 1.0 |
 
 A's component is a **subset** of B's, which is a subset of Full's, so a cascade pays only for the
 components it ends up scoring. Escalation is free; there is no re-scoring penalty.
 
-> **The cost column is a component count, not energy.** `cost_model_findings.md` measures joules per
-> component and finds they differ by up to 68× — the proxy overstates A by 42× and B by 25× relative
-> to Full. The gaps reported below are **unaffected** (cost is affine in the escalated fraction `f`
-> under any per-component cost assignment, so cost-matched == `f`-matched in either unit), but the
-> figures' x-axis should not be read as energy. See §5.
+> **The cost axis is measured energy, not a component count.** Earlier figures used
+> `cost = # similarity components scored` ({A,B,Full} = {0.2, 0.4, 1.0}); that proxy rated all five
+> components at unit cost, but they differ by up to 68× (`cost_model_findings.md`). Every frontier
+> figure and the tables below now use the measured marginal joules from `tier_cost.py`. The router's
+> whole operating range is the cheapest **0.5–1.6% of the Full budget**, not the 20–40% the proxy
+> implied. The gaps are **identical** either way — cost is affine in the escalated fraction `f`, so
+> cost-matched == `f`-matched in any unit; only the x-positions moved. Verified: regenerating the
+> frontier JSONs changed only the `cost` field, everything else byte-for-byte. See §5.
 
 ## 1. Negative result: the routing signal is not in the query text
 
@@ -70,9 +74,10 @@ Significance is a broad plateau over `f ≈ 0.35–0.90`, not a single lucky poi
 
 ### Caveats — do not overclaim
 
-- **The router never beats Fixed-B in absolute nDCG.** At cost 0.39 (≈ B's 0.40) MultiVENT noASR
-  reaches 74.15 vs Fixed-B's 74.28. The win lives *strictly between* Fixed-A and Fixed-B, i.e. at
-  budgets where B cannot be run on every query and the only fixed alternative is a cost-matched
+- **The router never beats Fixed-B in absolute nDCG.** At a budget just under tier B (cost 0.0152 ≈
+  B's 0.0158) MultiVENT noASR reaches 74.15 vs Fixed-B's 74.28. The win lives *strictly between*
+  Fixed-A and Fixed-B, i.e. at budgets where B cannot be run on every query and the only fixed
+  alternative is a cost-matched
   random mixture. This is a legitimate accuracy–compute frontier claim. It is **not** "we beat Q2E".
 - **The Full tier is never purchased.** The original phrasing here — *"ρ(B→Full) = +0.094 (p = .07);
   event decomposition's benefit is not predictable from retrieval confidence"* — cited only the cell
@@ -166,8 +171,10 @@ Report oracle headroom with a held-out label split whenever the dataset is multi
 extra evaluation. Where it is impossible (single-gold data), label the ceiling in-sample and do not
 build a "% captured" narrative on it.
 
-## 5. The cost axis is a component count, and components are not equal
+## 5. The cost axis is measured energy — how the proxy was retired
 
+The frontier figures and §2 tables now plot the **measured joules** below (via `tier_cost.py`),
+not the old component count. This section is the measurement and the proof that the swap was safe.
 Full write-up: `cost_model_findings.md`. Measured marginal joules per query, MultiVENT noASR, GPU1:
 
 | component | measured | proxy |
@@ -186,9 +193,12 @@ R² = 0.9994, verified by held-out extrapolation to N=7,770 within 1.3%.
 | B | 22.35 J | 0.0158 | 0.4 |
 | Full | 1,418.36 J | 1.0 | 1.0 |
 
-**The gaps in §2 are invariant.** Cost of escalating a fraction `f` from A to B is
-`cost(A) + f·(cost(B) − cost(A))` — affine in `f` under any cost assignment — so a cost-matched
-baseline is an `f`-matched baseline in either unit. Nothing in §2, §3 or §4 moves.
+**The gaps in §2 are invariant — and this was checked, not just argued.** Cost of escalating a
+fraction `f` from A to B is `cost(A) + f·(cost(B) − cost(A))` — affine in `f` under any cost
+assignment — so a cost-matched baseline is an `f`-matched baseline in either unit. Regenerating
+`router_gain_curve.json` and `router_curves.json` under the joules axis changed **only** the `cost`
+field of each point; `ndcg`, `chord`, `gap`, the CIs, permutation `p`, `nested_gap` (+0.73 / +1.68)
+and `oracle_gap` (+5.04 / +6.03) are byte-for-byte identical. Nothing in §2, §3 or §4 moves.
 
 **Two things do move.** The B→Full escalation is now dead on price as well as prize (63.5× vs the
 proxy's 2.5×), and the reported savings against Full are revealed as a lower bound, since the proxy

@@ -28,10 +28,9 @@ TRAINSET = os.path.join(ROOT, "results/ablations/router_trainset.jsonl")
 OUT_JSON = os.path.join(ROOT, "results/ablations/router_frontier.json")
 FIG_DIR = os.path.join(ROOT, "reports/figures")
 
-# A/B/C ladder, ordered cheap -> expensive. Cost = # similarity components scored.
-LADDER = ["A_visual", "-Events", "Full"]
-COST = {"A_visual": 1, "-Events": 2, "Full": 5}
-COST_NORM = {t: COST[t] / COST["Full"] for t in LADDER}
+# A/B/C ladder, ordered cheap -> expensive. Cost = measured J/query, normalized to Full=1.0
+# (retired proxy was # similarity components scored). See tier_cost.py.
+from tier_cost import COST_NORM, LADDER  # noqa: E402
 EPS_SWEEP = [0.0, 0.005, 0.01, 0.02, 0.03, 0.05, 0.08, 0.12, 0.20]
 SEED = 0
 
@@ -180,9 +179,11 @@ def make_figures(results):
             ax.scatter([f["cost"]], [f["ndcg"]], c=col, marker=mk,
                        s=180 if t == "Full" else 90, zorder=5, edgecolors="k", linewidths=0.5, label=lab)
         ax.set_title(f"{title}\n(n={sl['n']}, {sl['gold_per_query']} gold/query)", fontsize=10)
-        ax.set_xlabel("mean similarity components / query  (Full = 1.0)")
+        # measured joules span A=0.5% to Full=100% of the budget (200x): log x-axis to show all tiers.
+        ax.set_xscale("log")
+        ax.set_xlabel("mean cost / query  (measured J, normalized to Full = 1.0)")
         ax.set_ylabel("NDCG@10")
-        ax.grid(True, alpha=0.3)
+        ax.grid(True, alpha=0.3, which="both")
         ax.legend(fontsize=7.5, loc="lower right")
 
     # Headline: MultiVENT vs MSR-VTT side by side (the heterogeneity thesis)

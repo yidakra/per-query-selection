@@ -20,8 +20,7 @@ import pandas as pd
 
 _ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))   # repo root, wherever it is checked out
 RUNS = f"{_ROOT}/runs"
-LAD = {"A_visual": 1, "-Events": 2, "Full": 5}; CN = {t: LAD[t] / 5 for t in LAD}
-LADDER_TIERS = ["A_visual", "-Events", "Full"]
+from tier_cost import COST_NORM as CN, LADDER as LADDER_TIERS  # measured joules, normalized to Full=1.0
 SETTINGS = {"noASR": ("multivent_textonly_noASR", "Q2E_MultiVENT_LLAMA_3.3_70B_InternVL_38B_Funiform_16_noASR"),
             "ASR":   ("multivent_textonly_ASR",   "Q2E_MultiVENT_LLAMA_3.3_70B_InternVL_38B_Funiform_16_ASR")}
 
