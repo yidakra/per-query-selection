@@ -1,0 +1,7 @@
+{
+  "component": "prequel_vs_captions",
+  "max_abs_diff": 0.19747543334960938,
+  "mean_abs_diff": 0.002964932704344392,
+  "frac_gt_1e-3": 0.734870195388794,
+  "n_valid_paraphrases": 2082
+}

@@ -1,0 +1,19 @@
+{
+  "setting": "ASR",
+  "T": 259,
+  "seeds": 5,
+  "graded_on": "held-out gold half B",
+  "fixedB": 61.05268955230713,
+  "fixedFull": 62.79414415359497,
+  "oracle_A_on_B": 60.64103960990906,
+  "oracle_B_on_B": 65.42128920555115,
+  "sd": {
+    "fixedB": 0.9814384435955078,
+    "fixedFull": 0.9734516022207426,
+    "oracle_A_on_B": 0.9047298739858141,
+    "oracle_B_on_B": 1.0413897760398692
+  },
+  "transfer_gain_vs_full": -2.153104543685913,
+  "oracle_optimism": 4.78024959564209,
+  "verdict": "DOES NOT TRANSFER: the oracle is fitting label noise (H2b). There is no recoverable subset, and no selector can win."
+}

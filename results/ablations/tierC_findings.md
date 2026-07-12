@@ -6,7 +6,9 @@ right thing to do, and the apparent headroom above it is label noise.**
 This is a negative result. It is reported here in full because it also invalidates a class of
 "oracle headroom" numbers, including two of our own.
 
-All numbers: MultiVENT, noASR, T = 259 queries, V = 2393 videos, nDCG@10, exact unfrozen `fuse()`.
+§§1–7 below are MultiVENT, **noASR**, T = 259 queries, V = 2393 videos, nDCG@10, exact unfrozen
+`fuse()`. **§8 replicates every panel on the ASR setting** — the one cell where the fixed-tier
+B→Full prize is *largest*, and therefore the hardest case for this verdict. It survives.
 
 ---
 
@@ -153,6 +155,71 @@ claimed to beat Full, and cannot.
   fails to transfer across gold halves (optimism 8.35 / 8.71). The nested-CV gaps (+0.73 / +1.68)
   are out-of-fold and unaffected; the "% of oracle captured" column is retired.
 
+## 8. Replication on ASR — the harder case, same verdict
+
+Everything above is noASR. The ASR cell is the one where fixed-tier Full pulls furthest ahead of B
+(`router_hetero.json`: Full − B = **+2.34** on ASR vs +1.93 on noASR), so if a selection tier were
+ever going to earn its keep, it would be here. It does not. Every panel replicates.
+
+**§2 oracle — the mirage is identical.** The realizable greedy-frozen estimate again *exceeds the
+oracle it is frozen from* — the label-noise signature, on both settings:
+
+| | Fixed-B | Fixed-Full | oracle all-or-nothing | oracle subset | greedy-frozen | frozen > oracle? |
+|---|---|---|---|---|---|---|
+| noASR | 74.28 | 76.19 | 76.87 (+0.68) | 78.19 (+2.00) | **79.37** | **yes → mirage** |
+| ASR | 78.31 | 80.63 | 81.36 (+0.73) | 82.33 (+1.70) | **83.25** | **yes → mirage** |
+
+The load-bearing observation: **ASR's routable headroom is *smaller* (+1.70 vs +2.00), even though
+its fixed-tier prize is *larger* (+2.34 vs +1.93).** A stronger base tier (ASR Fixed-Full 80.63 vs
+76.19) leaves less for per-query selection to recover, not more. The apparent prize and the
+recoverable prize move in opposite directions — which is exactly what "the headroom is label noise,
+not signal" predicts. (Fraction of queries the oracle keeps none of is **44.79% on both** — it is a
+query-side property, unchanged by the doc-side ASR transcripts.)
+
+**§3 zerorow — not an artifact, again.** ASR omit vs zero-row: identical nDCG, `artifact_share = 0.0%`;
+prior-only reproduces Fixed-B to 78.313 vs 78.313.
+
+**§4 no selector reaches it — again worse than doing nothing.**
+
+| arm | noASR vs Full | ASR vs Full |
+|---|---|---|
+| random prune, cost-matched | −1.63 | −1.88 (78.75 ± 0.14) |
+| heuristic top-k by own max | −0.20 | −0.09 (80.54) |
+| **learned selector (nested CV)** | **−1.49** [−2.24, −0.74] | **−1.72** [−2.43, −1.00] |
+| oracle subset | +2.00 | +1.70 |
+
+The learned selector beats random pruning by **+0.16** (≈1 sd) on ASR — i.e. not at all — and
+realizes **−101.5%** of the oracle gain (noASR: −74%): it moves the wrong way.
+
+**§5 the oracle does not transfer across the label — again.** Gold-split, graded on held-out half B,
+5 splits:
+
+| arm | noASR | ASR |
+|---|---|---|
+| Fixed-Full | 59.87 | 62.79 |
+| oracle(B) on B — in-sample | 62.94 (+3.07) | 65.42 (+2.63) |
+| oracle(A) on B — out-of-sample | 58.06 (−1.81) | **60.64 (−2.15)** |
+| optimism | 4.89 | 4.78 |
+
+The out-of-sample oracle again lands **below Fixed-Full**: choosing a subset from a query's own
+labels and applying it to that query's *other* labels loses to keeping everything.
+
+**§6 optimism is not ordered by choice-space size — again.** ASR gold-split optimism by oracle:
+tiers (log₂ 1.58) **10.85** > all-or-nothing (log₂ 3.0) 5.04 > subset (log₂ 24.1) 4.78. The
+*smallest* space has the *largest* optimism, refuting the size hypothesis on both settings; what
+orders optimism is the spread in option quality (A trails Full by ~8 nDCG), not the space size.
+
+**One code fix was required for this cell.** ASR's source data has one query (row 1306, "EAST
+tokamak") whose event paraphrases are empty where noASR's has five, so it has zero valid paraphrases
+in every event. `tierC_learned_selector.build_features` assumed every (query, event) had ≥1 and
+crashed on the empty `torch.stack`; it now skips such (query, event) pairs, matching `allsel`, which
+already enumerated them identically. The paracache correctly marks those paraphrases invalid — the
+emptiness is in the ASR dataset, not the reconstruction.
+
+**Bottom line.** Tier C is dead on the full dataset, not half of it. The verdict was not an artifact
+of the noASR setting, and the setting with the most fixed-tier headroom to give back gives back the
+least under honest, label-split evaluation.
+
 ## Reproduce
 
 ```bash
@@ -163,4 +230,15 @@ CUDA_VISIBLE_DEVICES="" python src/evaluation/tierC_decompose.py       --setting
 CUDA_VISIBLE_DEVICES="" python src/evaluation/tierC_learned_selector.py --setting noASR
 CUDA_VISIBLE_DEVICES="" python src/evaluation/tierC_goldsplit_oracle.py --setting noASR
 CUDA_VISIBLE_DEVICES="" python src/evaluation/tierC_optimism_curve.py  --setting noASR
+```
+
+§8 (ASR) reruns the same ladder with `--setting ASR`; the paracache is regenerated once on GPU1
+(GPU0 hosts an unrelated whisper server — keep GPU work off it):
+
+```bash
+CUDA_VISIBLE_DEVICES=1 python src/evaluation/perparaphrase_scores.py --setting ASR --event all
+for s in tierC_selection_oracle diag_zerorow_prior tierC_decompose \
+         tierC_learned_selector tierC_goldsplit_oracle tierC_optimism_curve; do
+  CUDA_VISIBLE_DEVICES="" python src/evaluation/$s.py --setting ASR    # selection_oracle must run first
+done
 ```
