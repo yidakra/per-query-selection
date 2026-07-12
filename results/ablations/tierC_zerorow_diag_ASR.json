@@ -1,0 +1,11 @@
+{
+  "setting": "ASR",
+  "T": 259,
+  "fixedB": 78.312748670578,
+  "fixedFull": 80.63017725944519,
+  "prior_only": 78.31273956250635,
+  "oracle_zerorow": 83.24902317126165,
+  "oracle_omit": 83.24902317126165,
+  "pct_keep_any": 55.21235521235521,
+  "artifact_share_of_gain_pct": 0.0
+}

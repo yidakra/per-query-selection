@@ -62,6 +62,9 @@ def build_features(comps, P, valid, D, T):
         rb, top10b = rank(b), set(np.argsort(-b)[:10].tolist())
         for e in O.EVENTS:
             ps = torch.nonzero(valid[e][q]).flatten().tolist()
+            if not ps:
+                continue          # query with no valid paraphrases for this event (e.g. ASR row 1306):
+                                  # nothing to select from, contributes no rows. allsel skips it identically.
             mxs = np.array([float(P[e][q, p].max()) for p in ps])
             # which paraphrase wins the max-pool for at least one video?
             stack = torch.stack([P[e][q, p] for p in ps]).numpy()      # (n_p, V)
