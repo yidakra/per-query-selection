@@ -61,8 +61,8 @@ def curve(queries, target, comps):
         lo, hi = np.percentile(bs, [2.5, 97.5])
         pts.append(dict(f=float(f), cost=float(cost), ndcg=float(nd), chord=float(chord),
                         oracle=float(orc), lo=float(chord + lo), hi=float(chord + hi)))
-    fixed = dict(A=(0.2, float(ndA.mean() * 100)), B=(0.4, float(ndB.mean() * 100)),
-                 Full=(1.0, float(ndF.mean() * 100)))
+    fixed = dict(A=(CN["A_visual"], float(ndA.mean() * 100)), B=(CN["-Events"], float(ndB.mean() * 100)),
+                 Full=(CN["Full"], float(ndF.mean() * 100)))
     return pts, fixed, float(g.std() * 100)
 
 
@@ -90,16 +90,24 @@ for ax, (name, _) in zip(axes.ravel(), CELLS):
     ax.axhline(fx["B"][1], color="C3", lw=.7, alpha=.45)
     ax.set_title(f"{name}   sd(gain)={d['het_sd']:.1f}", fontsize=9.5)
     ax.grid(alpha=.25, lw=.5)
-    ax.set_xlim(0.18, 0.45)
+    # the router lives strictly between tier A and tier B; Fixed-Full sits at 1.0, off to the right.
+    ax.set_xlim(CN["A_visual"] * 0.55, CN["-Events"] * 1.30)
+    ax.axvline(CN["-Events"], color="C3", lw=.6, alpha=.35, ls=":")
 for ax in axes[-1]:
-    ax.set_xlabel("cost (similarity components scored, Full=1.0)")
+    ax.set_xlabel("cost (measured J/query, normalized to Full = 1.0)")
 for ax in axes[:, 0]:
     ax.set_ylabel("nDCG")
 axes[0, 0].legend(fontsize=7, loc="lower right", framealpha=.9)
 fig.suptitle("Per-query expected-gain routing beats the cost-matched fixed baseline in the low-budget regime\n"
              "(the cascade never buys the Full tier: event-decomposition gain is not predictable per query)",
              fontsize=10.5)
-fig.tight_layout(rect=[0, 0, 1, 0.94])
+# the whole frontier sits in the cheapest ~1.6% of the Full budget -- the measured-joules payoff
+fig.text(0.5, 0.005,
+         f"x-axis is MEASURED energy: tier B = {CN['-Events']*100:.2f}% of Full, tier A = {CN['A_visual']*100:.2f}% "
+         f"(Full = {int(round(1418.36))} J/query, off-axis at 1.0). "
+         "The component-count proxy overstated this range as 20-40% of Full.",
+         ha="center", fontsize=7.6, color="0.35")
+fig.tight_layout(rect=[0, 0.02, 1, 0.94])
 for e in ("pdf", "png"):
     fig.savefig(f"{FIG}/router_frontier.{e}", dpi=160, bbox_inches="tight")
 print(f"wrote {FIG}/router_frontier.{{pdf,png}}")

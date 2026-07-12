@@ -107,7 +107,8 @@ def cell(name, queries, target, comps):
     het = float(g.std() * 100)          # per-query heterogeneity of the A->B gain
     frac_neg = float((g < -1e-9).mean())  # queries HURT by adding captions
     print(f"\n### {name}  (n={n}, gold/q={gold_per_q:.2f})")
-    print(f"  Fixed-A {ndA.mean()*100:.2f}@0.20  Fixed-B {ndB.mean()*100:.2f}@0.40  Fixed-Full {ndF.mean()*100:.2f}@1.00")
+    print(f"  Fixed-A {ndA.mean()*100:.2f}@{CN['A_visual']:.4f}  Fixed-B {ndB.mean()*100:.2f}@{CN['-Events']:.4f}  "
+          f"Fixed-Full {ndF.mean()*100:.2f}@{CN['Full']:.2f}  (cost = J/query, Full=1.0)")
     print(f"  heterogeneity: sd(gain A->B) = {het:.2f} NDCG; {frac_neg:.0%} of queries HURT by captions")
     print(f"  rho(pred,true gain) = {rho:+.3f}  perm p = {p_rho:.4f}")
     print(f"  NESTED frontier gap = {gaps.mean():+.2f} +/- {gaps.std(ddof=1)/np.sqrt(len(gaps)):.2f} (sem)")
