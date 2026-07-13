@@ -79,6 +79,17 @@ Significance is a broad plateau over `f ≈ 0.35–0.90`, not a single lucky poi
 > the single-system effectiveness those benchmarks predict, so these magnitudes are not comparable to
 > iQPP's τ ≈ 0.65 ceiling.
 
+**Baselines the router is measured against** (`baselines_findings.md`, `router_baselines.py`). The
+learned multi-feature router beats routing on the best single classical QPP predictor — max score, SD,
+NQC (Shtok 2012), WIG (Zhou & Croft 2007), Clarity (Cronen-Townsend 2002) — on the routing objective
+(mean gap +0.78 vs +0.43) and on average τ (+0.092 vs +0.078). The real win is robustness: *which*
+single predictor is best flips across regimes (WIG on MultiVENT, NQC / max on MSR-VTT, with max going
+negative on MultiVENT), reproducing iQPP's "no predictor is consistently best" result — so the learned
+combination is the only signal positive on all six cells. A model-class ablation confirms the estimator
+choice: linear (ridge ≈ logistic) beats gradient boosting, random forest and SVR, all of which overfit
+the weak low-dimensional signal. Regression on the continuous gain is retained (it leads logistic on the
+realized gap).
+
 > **The `oracle` column is an in-sample quantity and the `captured` column is not a measure of
 > remaining headroom.** Both are kept above because they are what the experiment computed, but see
 > §4: the oracle orders queries by a gain measured on the same labels it is scored against, and
