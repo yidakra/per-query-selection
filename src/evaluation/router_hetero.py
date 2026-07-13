@@ -17,6 +17,7 @@ from sklearn.linear_model import RidgeCV  # noqa: E402
 from sklearn.preprocessing import StandardScaler  # noqa: E402
 from sklearn.pipeline import Pipeline  # noqa: E402
 from sklearn.model_selection import cross_val_predict, KFold  # noqa: E402
+from scipy.stats import kendalltau  # noqa: E402
 
 RNG = np.random.default_rng(0)
 FRACS = np.arange(0.05, 1.0, 0.05)
@@ -89,8 +90,16 @@ def cell(name, queries, target, comps):
 
     ghat = cross_val_predict(mk(), df[A_COLS].values, g, cv=KFold(5, shuffle=True, random_state=0))
     rho = np.corrcoef(ghat, g)[0, 1]
-    perm = np.array([np.corrcoef(RNG.permutation(ghat), g)[0, 1] for _ in range(2000)])
-    p_rho = (1 + (perm >= rho).sum()) / (1 + len(perm))
+    tau = float(kendalltau(ghat, g).statistic)   # QPP-standard rank correlation (iQPP, VQPP report tau)
+    # Pearson and Kendall on the SAME 2000 shuffles: shares the null, and keeps p_rho byte-identical
+    # to the pre-tau perm loop (same RNG draw order).
+    perm_r = np.empty(2000); perm_t = np.empty(2000)
+    for b in range(2000):
+        gp = RNG.permutation(ghat)
+        perm_r[b] = np.corrcoef(gp, g)[0, 1]
+        perm_t[b] = kendalltau(gp, g).statistic
+    p_rho = (1 + (perm_r >= rho).sum()) / (1 + len(perm_r))
+    p_tau = (1 + (perm_t >= tau).sum()) / (1 + len(perm_t))
 
     # nested, selection-bias-free frontier gap
     outer = KFold(n_splits=5, shuffle=True, random_state=1)
@@ -110,11 +119,11 @@ def cell(name, queries, target, comps):
     print(f"  Fixed-A {ndA.mean()*100:.2f}@{CN['A_visual']:.4f}  Fixed-B {ndB.mean()*100:.2f}@{CN['-Events']:.4f}  "
           f"Fixed-Full {ndF.mean()*100:.2f}@{CN['Full']:.2f}  (cost = J/query, Full=1.0)")
     print(f"  heterogeneity: sd(gain A->B) = {het:.2f} NDCG; {frac_neg:.0%} of queries HURT by captions")
-    print(f"  rho(pred,true gain) = {rho:+.3f}  perm p = {p_rho:.4f}")
+    print(f"  rho(pred,true gain) = {rho:+.3f} (perm p={p_rho:.4f})   tau = {tau:+.3f} (perm p={p_tau:.4f})")
     print(f"  NESTED frontier gap = {gaps.mean():+.2f} +/- {gaps.std(ddof=1)/np.sqrt(len(gaps)):.2f} (sem)")
     print(f"  ORACLE ceiling      = {orc:+.2f}   -> captured {100*gaps.mean()/orc if orc>0 else 0:.0f}%")
     return dict(cell=name, n=n, gold_per_q=gold_per_q, het_sd=het, frac_hurt=frac_neg,
-                rho=float(rho), p_rho=float(p_rho), nested_gap=float(gaps.mean()),
+                rho=float(rho), p_rho=float(p_rho), tau=tau, p_tau=float(p_tau), nested_gap=float(gaps.mean()),
                 nested_sem=float(gaps.std(ddof=1) / np.sqrt(len(gaps))), oracle_gap=float(orc),
                 fixedA=float(ndA.mean() * 100), fixedB=float(ndB.mean() * 100), fixedFull=float(ndF.mean() * 100))
 

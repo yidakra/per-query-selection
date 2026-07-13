@@ -56,16 +56,28 @@ Fixed-B in expectation, so **the chord is the honest baseline**, not Fixed-B alo
 Operating point `f` is chosen by **nested CV** (picked on training folds, scored held-out), so the
 headline number carries no selection bias.
 
-| cell | gold/q | sd(gain) | ρ(pred,true) | perm p | nested gap | oracle (in-sample) | "captured" |
+| cell | gold/q | sd(gain) | ρ (perm p) | τ (perm p) | nested gap | oracle (in-sample) | "captured" |
 |---|---|---|---|---|---|---|---|
-| MSR-VTT mCLIP noASR | 1.01 | 7.95 | +0.048 | .066 | +0.32 ± 0.10 | +1.46 | 22% |
-| MSR-VTT mCLIP ASR | 1.01 | 9.81 | +0.093 | .003 | +0.36 ± 0.10 | +2.15 | 17% |
-| MSR-VTT IV2 noASR | 1.01 | 11.24 | +0.044 | .087 | +0.54 ± 0.15 | +1.96 | 28% |
-| MSR-VTT IV2 ASR | 1.01 | 13.81 | +0.127 | .0005 | +0.96 ± 0.13 | +3.09 | 31% |
-| MultiVENT noASR | 9.24 | 15.22 | +0.164 | .0065 | +0.73 ± 0.22 | +5.04 | 14% |
-| MultiVENT ASR | 9.24 | 17.02 | +0.233 | .0005 | +1.68 ± 0.25 | +6.03 | 28% |
+| MSR-VTT mCLIP noASR | 1.01 | 7.95 | +0.048 (.066) | +0.014 (.280) | +0.32 ± 0.10 | +1.46 | 22% |
+| MSR-VTT mCLIP ASR | 1.01 | 9.81 | +0.093 (.003) | +0.057 (.012) | +0.36 ± 0.10 | +2.15 | 17% |
+| MSR-VTT IV2 noASR | 1.01 | 11.24 | +0.044 (.087) | +0.067 (.006) | +0.54 ± 0.15 | +1.96 | 28% |
+| MSR-VTT IV2 ASR | 1.01 | 13.81 | +0.127 (.0005) | +0.122 (.0005) | +0.96 ± 0.13 | +3.09 | 31% |
+| MultiVENT noASR | 9.24 | 15.22 | +0.164 (.0065) | +0.121 (.0035) | +0.73 ± 0.22 | +5.04 | 14% |
+| MultiVENT ASR | 9.24 | 17.02 | +0.233 (.0005) | +0.171 (.0005) | +1.68 ± 0.25 | +6.03 | 28% |
 
 Significance is a broad plateau over `f ≈ 0.35–0.90`, not a single lucky point.
+
+> **Both correlations are reported, following the QPP-benchmark convention.** iQPP (Poesina et al.,
+> 2023) and VQPP (Lutu et al., 2026) grade a query-performance predictor by its Pearson *r* **and**
+> Kendall *τ* against true effectiveness; our per-query gain predictor is a (differential) QPP model,
+> so we report the same pair. ρ is linear; τ is rank-only and outlier-robust, and both are computed
+> on the same OOF predictions with a shared 2000-shuffle permutation null. τ agrees with ρ on the
+> five stronger cells (all p < .05). The exception is the lowest-heterogeneity cell, MSR-VTT/mCLIP/
+> noASR, whose rank association is not significant (τ = +0.014, p = .28) though its linear ρ grazes it
+> — the honest reading is that its per-query signal is marginal, exactly as its low sd(gain) predicts.
+> **What we predict is a *differential* — nDCG_B − nDCG_A — not absolute AP**, a noisier target than
+> the single-system effectiveness those benchmarks predict, so these magnitudes are not comparable to
+> iQPP's τ ≈ 0.65 ceiling.
 
 > **The `oracle` column is an in-sample quantity and the `captured` column is not a measure of
 > remaining headroom.** Both are kept above because they are what the experiment computed, but see
