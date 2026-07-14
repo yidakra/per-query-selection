@@ -185,12 +185,44 @@ already-conservative "savings vs Full" from §5 understate the real gap by rough
 the "never buy Full" verdict holds on end-to-end energy, not just similarity FLOPs. This is an
 estimate and labelled as one throughout; the measured axis (§1–5) is unchanged.
 
+## 7. The router's own cost is negligible — the frontier is router-inclusive
+
+The frontier charges tier-A/B similarity energy but not the cost of the routing *decision* itself. The
+obvious reviewer question: at a 15.52 J A→B escalation, does the router's overhead eat the saving? It
+does not, by ~3½ orders of magnitude. `router_overhead.py`, measured on the real MultiVENT noASR score
+vectors (T=259, V=2393):
+
+| per-query decision step | wall-clock |
+|---|---|
+| feature extraction (`conf_feats`: softmax/sort/std over the V-dim gallery vector) | 343.0 µs |
+| ridge inference (standardize + dot, raw) | 2.1 µs |
+| — ridge inference via sklearn `.predict`, as-implemented upper bound | 185.6 µs |
+| **per-query router decision** | **345.1 µs** |
+
+At a single-core CPU-TDP estimate of 5–25 W (no RAPL on this host, same caveat as the CPU figures
+above), that is **~5.2 mJ/query** (1.7–8.6 mJ). The router pays it on *every* query, escalation only on
+the top-f — so charge it to all and compare:
+
+| router overhead vs | ratio |
+|---|---|
+| A→B marginal (15.52 J) | **0.033%** — the escalation is **~3,000×** the router |
+| one tier-A evaluation (6.83 J) | 0.076% |
+| Full (1,418 J) | 0.00036% |
+
+So the **router-inclusive** cost, `cost(A) + E_router + f·(cost(B) − cost(A))`, differs from the axis
+we plot by a constant ~5 mJ — 0.08% of tier A, invisible at figure resolution — and the *gap* is exactly
+unchanged, since a constant added to every operating point cancels (same invariance as §5). The feature
+extraction dominates (the ridge is ~2 µs of genuine FLOPs; the 186 µs sklearn number is Python dispatch,
+not intrinsic cost), and even charging the full as-measured `conf_feats` time is conservative — it is
+work a deployment could fuse into tier-A scoring. The routing decision is free relative to what it saves.
+
 ## Reproduce
 
 ```
 CUDA_VISIBLE_DEVICES=1 python src/evaluation/component_energy_bench.py --repeats 2 --padded
 CUDA_VISIBLE_DEVICES=1 python src/evaluation/component_energy_tierA.py
 CUDA_VISIBLE_DEVICES="" python src/evaluation/llm_cost_accounting.py
+CUDA_VISIBLE_DEVICES="" python src/evaluation/router_overhead.py
 ```
 
 GPU1 only — GPU0 hosts an unrelated whisper server whose idle draw (22.3 W, measured) would
