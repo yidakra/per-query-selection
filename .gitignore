@@ -26,3 +26,4 @@ __pycache__/
 runs/wandb/
 wandb/
 .codecarbon.config
+notes/
