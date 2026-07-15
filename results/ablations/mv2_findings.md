@@ -38,14 +38,30 @@ where the heterogeneity thesis predicts: bigger sd(gain) → bigger routing valu
 router captures half the caption-tier improvement by escalating only 24% of queries. The result is
 significant under permutation and its bootstrap CI excludes zero, on out-of-fold predictions.
 
+## Dense captions don't beat lexical here
+Swapping the TF-IDF caption score for a dense sentence embedder (all-MiniLM-L6-v2, cosine over the
+shipped Qwen captions, same RRF fusion) does *not* help:
+
+| Tier B scorer | nDCG@10 | Δ vs A | sd(gain) | help / hurt | τ | nested gap | CPT₅₀ |
+|---|---|---|---|---|---|---|---|
+| TF-IDF (lexical) | **0.36052** | +5.69 | 24.58 | 43% / 23% | +0.127 | +2.23 | 0.24 |
+| Dense (MiniLM) | 0.35442 | +5.08 | 22.89 | 43% / 21% | +0.117 | +1.96 | 0.25 |
+
+A small off-the-shelf embedder loses to TF-IDF on these captions — the captions are keyword-dense and
+lexical overlap with the query is a strong signal. The routing result is the same either way (τ ≈ 0.12,
+nested gap ≈ +2), which is the point: the router's job is ordering queries by A→B gain, and it does that
+regardless of which caption scorer produces the gain. A stronger dense tier (a retrieval-tuned or
+ColBERT-style scorer) is still the obvious upgrade, but "any dense model beats lexical" is false here.
+
 ## Scope and next step
 - This is the routing-**quality** result (does the router order queries by true A→B gain) on real
   MultiVENT 2.0. It is the strongest such result we have.
 - The **cost** axis here is not yet in joules: with lexical captions both tiers are cheap, so the A→B
   cost gap is small. The measured-energy frontier and the "never buy Full" story need the Full tier
   (LLaMA event decomposition), which is the next build (needs a GPU + the 4 GB features).
-- Upgrade path, in order: dense/ColBERT caption tier (stronger B), then the Full event tier, then the
-  measured-joules frontier on 2.0. The pipeline and harness are in place for all three.
+- Upgrade path, in order: a retrieval-tuned/ColBERT caption tier (a small general embedder does not
+  beat lexical here — see above), then the Full event tier, then the measured-joules frontier on 2.0.
+  The pipeline and harness are in place for all three.
 
 ## Reproduce
 ```bash
