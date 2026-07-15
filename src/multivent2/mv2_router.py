@@ -62,7 +62,11 @@ def main():
     ap.add_argument("--in", dest="inp", default=os.path.join(_ROOT, "results", "ablations", "mv2_ab.json"))
     ap.add_argument("--out", default=None)
     a = ap.parse_args()
-    out_path = a.out or a.inp.replace("mv2_ab", "mv2_router")
+    # never write back onto the input: derive a distinct default, whatever the input is named
+    default_out = a.inp.replace("mv2_ab", "mv2_router")
+    if default_out == a.inp:
+        default_out = a.inp.replace(".json", "_router.json")
+    out_path = a.out or default_out
     d = json.load(open(a.inp))
     order = d["feature_order"]
     qids = [q for q in d["features"] if q in d["per_query"]]

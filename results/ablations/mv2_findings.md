@@ -53,19 +53,69 @@ nested gap ≈ +2), which is the point: the router's job is ordering queries by 
 regardless of which caption scorer produces the gain. A stronger dense tier (a retrieval-tuned or
 ColBERT-style scorer) is still the obvious upgrade, but "any dense model beats lexical" is false here.
 
+## The Full event tier: barely helps, and can't be routed
+We built the Full tier on 2.0 — the LLM step of the cascade. For each query a local instruction model
+(qwen2.5:7b-instruct on GPU1; a 70B like the original Q2E used does not fit on a 15 GB A2, so this is a
+feasible stand-in and a lower bound) writes prequel / during / sequel visual descriptions of the event.
+Each is scored against the candidate captions and fused into tier B. `mv2_events.py` (generation, 213
+tokens/query over 2,544 queries) + `mv2_full.py` (fusion + sweep).
+
+**It barely helps, and only at a carefully tuned weight.** Fusing the events at full weight *hurts* (the
+speculative descriptions bury the CLIP+caption signal). Giving them a fair, down-weighted vote and
+sweeping the weight on the test set:
+
+| event weight w | Full nDCG@10 | Δ vs tier B |
+|---|---|---|
+| 0 (tier B) | 0.35403 | — |
+| 0.1 | 0.35587 | +0.18 |
+| **0.25 (best)** | **0.35960** | **+0.56** |
+| 0.5 | 0.35794 | +0.39 |
+| 1.0 | 0.34047 | −1.36 |
+| 2.0 | 0.28995 | −6.41 |
+
+Even at the weight picked *on the test set* (an optimistic ceiling), the event tier adds **+0.56 nDCG**,
+with low per-query heterogeneity (sd 7.54, 25% help / 20% hurt) — a quarter of the A→B tier's sd. This
+replicates the project's earlier "Tier C is dead" conclusion, now on the community benchmark our
+collaborators built.
+
+**And the tiny gain that exists cannot be routed.** Predicting per-query B→Full gain from tier-B
+features (out-of-fold ridge, same protocol):
+
+| metric | B→Full (Full tier) | A→B (caption tier), for contrast |
+|---|---|---|
+| Kendall τ (pred, true gain) | **+0.002** (perm p = .44, CI [−0.024, +0.031]) | +0.127 (p = .0005) |
+| nested frontier gap | **+0.15 ± 0.04** (ns) | +2.23 ± 0.18 |
+| APGR | 0.065 | 0.217 |
+
+τ is statistically zero and the nested gap is negligible: from tier-B confidence there is no signal for
+which queries the event tier will help — the same negative we found on the small cells, now at 10× scale.
+
+**This is the paper's point, shown in both directions on real data.** The A→B step gives a large,
+heterogeneous, *predictable* gain — route it, and the router captures +2.23 nDCG. The B→Full step gives
+a tiny, fragile, *unpredictable* gain for ~213 LLM tokens/query plus the event-scoring cost — so a good
+router declines it, and you should not buy the Full tier at all. The value of routing is not uniform
+across a cascade; it concentrates where the per-query gain is both large and predictable.
+
 ## Scope and next step
-- This is the routing-**quality** result (does the router order queries by true A→B gain) on real
-  MultiVENT 2.0. It is the strongest such result we have.
-- The **cost** axis here is not yet in joules: with lexical captions both tiers are cheap, so the A→B
-  cost gap is small. The measured-energy frontier and the "never buy Full" story need the Full tier
-  (LLaMA event decomposition), which is the next build (needs a GPU + the 4 GB features).
-- Upgrade path, in order: a retrieval-tuned/ColBERT caption tier (a small general embedder does not
-  beat lexical here — see above), then the Full event tier, then the measured-joules frontier on 2.0.
-  The pipeline and harness are in place for all three.
+- Both cascade steps are now measured on real MultiVENT 2.0: A→B (route it) and B→Full (don't). This is
+  the routing-**quality** result — whether the router orders queries by true gain — and it lands the way
+  the heterogeneity thesis predicts in both directions.
+- The **cost** axis is in tokens, not yet joules. The A→B tiers are both cheap (CLIP + caption cosine),
+  so that step's energy gap is small; the interesting cost is the Full tier's 213 LLM tokens/query, which
+  buys +0.56 unroutable nDCG. A measured-joules frontier (wrap the event generation + scoring in the
+  CodeCarbon harness, explicit gpu_ids) would put the "never buy Full" call in energy terms — the
+  remaining build.
+- Caveat carried forward: qwen2.5:7b is a lower bound on the Full tier vs the original 70B. A stronger
+  decomposer could lift the +0.56, but the routing null (τ≈0) is about *predictability from tier-B
+  features*, which a better generator does not obviously fix.
 
 ## Reproduce
 ```bash
-CUDA_VISIBLE_DEVICES="" python src/multivent2/mv2_ab.py       # tiers A, B -> mv2_ab.json
-CUDA_VISIBLE_DEVICES="" python src/multivent2/mv2_router.py   # router      -> mv2_router.json
+CUDA_VISIBLE_DEVICES="" python src/multivent2/mv2_ab.py                     # tiers A, B      -> mv2_ab.json
+CUDA_VISIBLE_DEVICES="" python src/multivent2/mv2_router.py                 # A->B router     -> mv2_router.json
+# Full tier (needs Ollama on GPU1 w/ qwen2.5:7b-instruct):
+CUDA_VISIBLE_DEVICES="" python src/multivent2/mv2_events.py                 # event decomp    -> events_qwen7b.jsonl
+CUDA_VISIBLE_DEVICES="" python src/multivent2/mv2_full.py                   # Full tier+sweep -> mv2_full.json
+CUDA_VISIBLE_DEVICES="" python src/multivent2/mv2_router.py --in results/ablations/mv2_full.json  # B->Full router
 ```
 Needs the gitignored `data/multivent2/` files (provided CLIP run, qrels, queries, Qwen captions).
