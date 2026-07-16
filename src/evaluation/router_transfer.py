@@ -19,8 +19,10 @@ the two query-text surface features, which are dataset-specific and were shown u
 router_diag.py). If transfer improves when the text features are dropped, they were overfitting the
 source cell.
 
-Metric: Spearman/Pearson rho(predicted gain, true gain) on the target cell (scale-free, no operating
-point to choose), plus the realized frontier gap at a fixed f=0.5 (mid-plateau) in NDCG points.
+Metric: Pearson rho AND Kendall tau (predicted gain, true gain) on the target cell -- the two
+standard QPP correlations (cf. iQPP, VQPP, which report Pearson + Kendall tau of predictor vs true
+AP). Both are scale-free with no operating point to choose; tau is the rank-only, outlier-robust
+one. Plus the realized frontier gap at a fixed f=0.5 (mid-plateau) in NDCG points.
 CPU-only; reads cached component tensors.
 """
 import os, sys, json, numpy as np, pandas as pd
@@ -29,6 +31,7 @@ from router_hetero import comps_multivent, comps_msrvtt, mk, gap_at, A_COLS, FRA
 from oracle_router_headroom import fuse, per_query, LADDER  # noqa: E402
 from router_cascade_exp import conf_feats  # noqa: E402
 from sklearn.model_selection import cross_val_predict, KFold  # noqa: E402
+from scipy.stats import kendalltau  # noqa: E402
 
 RNG = np.random.default_rng(0)
 FIXED_F = 0.5                          # mid-plateau operating point, common across cells
@@ -82,7 +85,8 @@ def main():
     out = {"fixed_f": FIXED_F, "cells": NAMES, "feature_sets": {}}
 
     for tag, cols in (("full_A_COLS", A_COLS), ("confidence_only", CONF_COLS)):
-        R = np.full((6, 6), np.nan)      # rho(pred, true) on target
+        R = np.full((6, 6), np.nan)      # Pearson rho(pred, true) on target
+        T = np.full((6, 6), np.nan)      # Kendall tau(pred, true) on target -- QPP-standard rank corr
         G = np.full((6, 6), np.nan)      # frontier gap @ f=0.5, NDCG points
         for i, tr in enumerate(NAMES):
             Xtr, gtr = data[tr][0][cols].values, data[tr][1]
@@ -93,6 +97,7 @@ def main():
                 else:
                     pred = mk().fit(Xtr, gtr).predict(Xte)
                 R[i, j] = np.corrcoef(pred, gte)[0, 1]
+                T[i, j] = float(kendalltau(pred, gte).statistic)
                 G[i, j] = gap_at(FIXED_F, pred, gte) * 100
 
         # leave-one-cell-out: pooled other five -> held-out
@@ -104,38 +109,53 @@ def main():
             model = mk().fit(Xtr, gtr)
             pred = model.predict(Xte)
             rho = float(np.corrcoef(pred, gte)[0, 1])
-            perm = np.array([np.corrcoef(RNG.permutation(pred), gte)[0, 1] for _ in range(2000)])
-            p = float((1 + (perm >= rho).sum()) / (1 + len(perm)))
+            tau = float(kendalltau(pred, gte).statistic)
+            # Pearson and Kendall share the same 2000 shuffles; keeps p (Pearson) byte-identical to
+            # the pre-tau perm loop (same RNG draw order).
+            perm_r = np.empty(2000); perm_t = np.empty(2000)
+            for b in range(2000):
+                pp = RNG.permutation(pred)
+                perm_r[b] = np.corrcoef(pp, gte)[0, 1]
+                perm_t[b] = kendalltau(pp, gte).statistic
+            p = float((1 + (perm_r >= rho).sum()) / (1 + len(perm_r)))
+            p_tau = float((1 + (perm_t >= tau).sum()) / (1 + len(perm_t)))
             gap = float(gap_at(FIXED_F, pred, gte) * 100)
-            withincell = float(R[j, j])
-            loco.append(dict(cell=te, rho=rho, p=p, gap=gap, within_cell_rho=withincell))
+            loco.append(dict(cell=te, rho=rho, p=p, tau=tau, p_tau=p_tau, gap=gap,
+                             within_cell_rho=float(R[j, j]), within_cell_tau=float(T[j, j])))
 
-        # regime summaries (off-diagonal only)
-        regimes = {}
+        # regime summaries (off-diagonal only), both correlations
+        regimes, regimes_t = {}, {}
         for i in range(6):
             for j in range(6):
                 if i == j:
                     continue
                 regimes.setdefault(group_of(i, j), []).append(R[i, j])
+                regimes_t.setdefault(group_of(i, j), []).append(T[i, j])
         regime_mean = {k: float(np.mean(v)) for k, v in regimes.items()}
+        regime_mean_tau = {k: float(np.mean(v)) for k, v in regimes_t.items()}
 
         out["feature_sets"][tag] = {
-            "rho_matrix": R.tolist(), "gap_matrix": G.tolist(),
+            "rho_matrix": R.tolist(), "tau_matrix": T.tolist(), "gap_matrix": G.tolist(),
             "diagonal_within_cell_rho": [float(R[i, i]) for i in range(6)],
+            "diagonal_within_cell_tau": [float(T[i, i]) for i in range(6)],
             "offdiag_mean_rho": float(np.nanmean(R[~np.eye(6, dtype=bool)])),
+            "offdiag_mean_tau": float(np.nanmean(T[~np.eye(6, dtype=bool)])),
             "regime_mean_rho": regime_mean,
+            "regime_mean_tau": regime_mean_tau,
             "loco": loco,
         }
         print(f"\n=== feature set: {tag} ===")
         print(f"  within-cell rho (diag): {[round(R[i,i],3) for i in range(6)]}")
-        print(f"  off-diagonal mean rho : {np.nanmean(R[~np.eye(6,dtype=bool)]):+.3f}")
-        for k, v in regime_mean.items():
-            print(f"    {k:24s}: mean transfer rho {v:+.3f}")
+        print(f"  within-cell tau (diag): {[round(T[i,i],3) for i in range(6)]}")
+        print(f"  off-diagonal mean: rho {np.nanmean(R[~np.eye(6,dtype=bool)]):+.3f}   "
+              f"tau {np.nanmean(T[~np.eye(6,dtype=bool)]):+.3f}")
+        for k in regime_mean:
+            print(f"    {k:24s}: transfer rho {regime_mean[k]:+.3f}   tau {regime_mean_tau[k]:+.3f}")
         print("  LEAVE-ONE-CELL-OUT (train pooled 5 -> held-out):")
         for L in loco:
             star = "*" if L["p"] < 0.05 else " "
-            print(f"    {L['cell']:18s} rho={L['rho']:+.3f} (within {L['within_cell_rho']:+.3f}) "
-                  f"gap@0.5={L['gap']:+.2f} p={L['p']:.4f}{star}")
+            print(f"    {L['cell']:18s} rho={L['rho']:+.3f}(p={L['p']:.3f}) tau={L['tau']:+.3f}(p={L['p_tau']:.3f}) "
+                  f"(within rho {L['within_cell_rho']:+.3f}) gap@0.5={L['gap']:+.2f}{star}")
 
     json.dump(out, open(OUT, "w"), indent=2)
     print(f"\nwrote {OUT}")
