@@ -1,0 +1,13 @@
+{
+  "model": "qwen2.5:7b-instruct",
+  "phys_gpu": 1,
+  "n": 40,
+  "idle_w": 21.447,
+  "gen_j_per_query_net": 143.46733338781596,
+  "gen_j_per_query_sd": 22.333141332059434,
+  "gen_j_per_query_gross": 238.4262574024975,
+  "gen_j_per_token_net": 1.4944513894564162,
+  "mean_gen_watts": 55.07828178877283,
+  "mean_wall_s": 4.42760871052742,
+  "mean_gen_tok": 96.0
+}

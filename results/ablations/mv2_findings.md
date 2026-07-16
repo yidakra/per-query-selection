@@ -96,18 +96,47 @@ a tiny, fragile, *unpredictable* gain for ~213 LLM tokens/query plus the event-s
 router declines it, and you should not buy the Full tier at all. The value of routing is not uniform
 across a cascade; it concentrates where the per-query gain is both large and predictable.
 
+## The energy frontier: the Full tier is dominated
+We measured what the Full tier actually costs. `tier_cost.py` priced the similarity components in joules
+but explicitly *excluded* the LLM generations — which on 2.0 are the dominant cost. `mv2_energy.py`
+fills that gap: NVML power on physical GPU1 at 5 Hz, integrated, minus a model-loaded idle baseline, over
+40 real queries (GPU0 Whisper never touched).
+
+- **qwen2.5:7b event decomposition = 143.5 ± 22.3 J/query** (net; 238 J gross), 1.49 J/token, 55 W,
+  4.4 s/query. That is **6.4× the entire tier-B similarity cost** (22.35 J in the old model) for one
+  cheap 7B decomposer; the original 70B would be far more.
+
+`mv2_frontier.py` puts accuracy against measured joules as the escalated fraction f sweeps 0→1:
+
+| f escalated | mean J/query | router nDCG@10 | random chord | oracle |
+|---|---|---|---|---|
+| 0 (all tier B) | 0.0 | 0.35430 | 0.35430 | 0.35430 |
+| 0.25 | 34.4 | 0.35691 | 0.35560 | **0.37275** |
+| 0.50 | 71.7 | 0.35840 | 0.35715 | 0.37278 |
+| 1.0 (all Full) | 143.5 | 0.35988 | 0.35988 | 0.35988 |
+
+Two things kill the Full tier on the energy–accuracy frontier:
+1. **The headroom exists but isn't reachable.** An oracle that escalates only the right ~22% reaches
+   nDCG 0.373 — **+1.84 over tier B**, and **+1.72 over blind (random) escalation at the same cost**;
+   escalating everyone erases it back to +0.56 because Full *hurts* the majority. The realizable router
+   captures **8% of that +1.72 routing headroom** (+0.13) — noise-level, consistent with τ p=.44. This is
+   the same oracle-collapses-under-a-real-predictor pattern the tier-C study found (+5.04 → +0.73).
+2. **Every realizable point is expensive.** Buying the full +0.56 costs **257 J per nDCG@10 point**
+   (655 kJ over the 2,544 queries), essentially all of it LLM generation. The router cannot spend that
+   energy selectively, so no fraction of Full-tier spend sits on an efficient frontier — the tier is
+   dominated. Route A→B (cheap, routable); do not buy Full.
+
 ## Scope and next step
 - Both cascade steps are now measured on real MultiVENT 2.0: A→B (route it) and B→Full (don't). This is
   the routing-**quality** result — whether the router orders queries by true gain — and it lands the way
   the heterogeneity thesis predicts in both directions.
-- The **cost** axis is in tokens, not yet joules. The A→B tiers are both cheap (CLIP + caption cosine),
-  so that step's energy gap is small; the interesting cost is the Full tier's 213 LLM tokens/query, which
-  buys +0.56 unroutable nDCG. A measured-joules frontier (wrap the event generation + scoring in the
-  CodeCarbon harness, explicit gpu_ids) would put the "never buy Full" call in energy terms — the
-  remaining build.
+- The **cost** axis is now in measured joules (above), not just tokens: the Full tier's 143.5 J/query of
+  LLM generation buys +0.56 unroutable nDCG, so it is dominated on the energy–accuracy frontier. The A→B
+  tiers are both cheap (CLIP + caption cosine, CPU in this harness), so that step's energy gap is small
+  and the routable gain there is nearly free.
 - Caveat carried forward: qwen2.5:7b is a lower bound on the Full tier vs the original 70B. A stronger
-  decomposer could lift the +0.56, but the routing null (τ≈0) is about *predictability from tier-B
-  features*, which a better generator does not obviously fix.
+  decomposer could lift the +0.56, but the routing null (τ≈0, 8% of oracle headroom) is about
+  *predictability from tier-B features*, which a better generator does not obviously fix.
 
 ## Reproduce
 ```bash
@@ -117,5 +146,7 @@ CUDA_VISIBLE_DEVICES="" python src/multivent2/mv2_router.py                 # A-
 CUDA_VISIBLE_DEVICES="" python src/multivent2/mv2_events.py                 # event decomp    -> events_qwen7b.jsonl
 CUDA_VISIBLE_DEVICES="" python src/multivent2/mv2_full.py                   # Full tier+sweep -> mv2_full.json
 CUDA_VISIBLE_DEVICES="" python src/multivent2/mv2_router.py --in results/ablations/mv2_full.json  # B->Full router
+CUDA_VISIBLE_DEVICES="" python src/multivent2/mv2_energy.py                 # measured J/query -> mv2_energy.json
+CUDA_VISIBLE_DEVICES="" python src/multivent2/mv2_frontier.py               # joules frontier  -> mv2_frontier.json
 ```
 Needs the gitignored `data/multivent2/` files (provided CLIP run, qrels, queries, Qwen captions).
