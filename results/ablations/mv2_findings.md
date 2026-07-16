@@ -126,6 +126,12 @@ Two things kill the Full tier on the energy–accuracy frontier:
    energy selectively, so no fraction of Full-tier spend sits on an efficient frontier — the tier is
    dominated. Route A→B (cheap, routable); do not buy Full.
 
+![Full-tier energy frontier](../../reports/figures/mv2_frontier.png)
+
+The frontier figure (`mv2_frontier_fig.py` → `reports/figures/mv2_frontier.{png,pdf}`) shows it directly:
+the oracle plateaus at nDCG 37.28 by escalating only the right ~22%, but the out-of-fold router hugs the
+random-escalation chord — it captures 8% of that headroom — while every point on it costs real joules.
+
 ## Scope and next step
 - Both cascade steps are now measured on real MultiVENT 2.0: A→B (route it) and B→Full (don't). This is
   the routing-**quality** result — whether the router orders queries by true gain — and it lands the way
