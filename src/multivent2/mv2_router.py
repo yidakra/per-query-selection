@@ -15,9 +15,8 @@ from sklearn.pipeline import Pipeline
 from sklearn.model_selection import cross_val_predict, KFold
 from scipy.stats import kendalltau
 
+import argparse
 _ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-AB = os.path.join(_ROOT, "results", "ablations", "mv2_ab.json")
-OUT = os.path.join(_ROOT, "results", "ablations", "mv2_router.json")
 RNG = np.random.default_rng(0)
 FRACS = np.arange(0.02, 1.0, 0.02)
 
@@ -59,7 +58,16 @@ def nested_gap(X, g):
 
 
 def main():
-    d = json.load(open(AB))
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--in", dest="inp", default=os.path.join(_ROOT, "results", "ablations", "mv2_ab.json"))
+    ap.add_argument("--out", default=None)
+    a = ap.parse_args()
+    # never write back onto the input: derive a distinct default, whatever the input is named
+    default_out = a.inp.replace("mv2_ab", "mv2_router")
+    if default_out == a.inp:
+        default_out = a.inp.replace(".json", "_router.json")
+    out_path = a.out or default_out
+    d = json.load(open(a.inp))
     order = d["feature_order"]
     qids = [q for q in d["features"] if q in d["per_query"]]
     X = np.array([d["features"][q] for q in qids])
@@ -80,12 +88,12 @@ def main():
            "tau": tau, "p_tau": p_tau, "tau_ci95": tau_ci,
            "nested_gap": ng, "nested_sem": ngs,
            "apgr": apgr(ghat, g), "cpt50": cpt(ghat, g, 0.5), "cpt80": cpt(ghat, g, 0.8)}
-    json.dump(out, open(OUT, "w"), indent=2)
+    json.dump(out, open(out_path, "w"), indent=2)
 
     print(f"tau(pred,true gain) = {tau:+.3f}  perm p={p_tau:.4f}  CI95=[{tau_ci[0]:+.3f},{tau_ci[1]:+.3f}]")
     print(f"NESTED frontier gap = {ng:+.2f} +/- {ngs:.2f} nDCG")
     print(f"APGR = {out['apgr']:.3f}   CPT50 = {out['cpt50']:.2f}   CPT80 = {out['cpt80']:.2f}")
-    print(f"wrote {OUT}")
+    print(f"wrote {out_path}")
 
 
 if __name__ == "__main__":
