@@ -153,6 +153,38 @@ a component is not a unit of anything.
   average doc-encode load. The *ratios* in §4 depend only on the within-slot slope `b`, which this
   bias does not touch.
 
+## 6. End-to-end: the LLM decomposition Full pays (estimate)
+
+Everything above is **measured** GPU similarity energy. It excludes the one thing only the Full tier
+buys: ~30 LLaMA-3.3-70B generations per query for the event decomposition (`llm_cost_accounting.py`:
+mean 30.0 calls, **8,046 prompt + 936 generated tokens/query**). The 70B ran offline, so this can only
+be **estimated** — but the estimate is worth having, because it is the largest cost in the pipeline.
+
+Two independent methods (`llm_cost_accounting.py`):
+
+- **FLOPs (primary).** A dense decoder forward is ~`2·P` FLOP per token processed (prefill and cached
+  decode alike), so `FLOP/query = 2·70e9·(8046+936) = 1.26e15`. Divide by effective delivered
+  efficiency (accelerator peak × MFU; peaks: A100 BF16 0.78, H100 BF16 1.41, H100 FP8 2.83 TFLOP/J).
+  The workload is prefill-dominated (8.6:1 prompt:gen), so MFU sits at the compute-bound end (~25–40%):
+  **1,111 J (H100 FP8) – 6,449 J (A100 BF16), central 2,548 J.**
+- **Per-output-token (cross-check).** Published measured energy per *generated* token: 0.39 J
+  (Llama-3-70B FP8, 8×H100 vLLM, batched) to 3.5 J (Llama-65B, A100/V100, Samsi et al. 2023) →
+  365–3,277 J. This brackets the FLOPs band **from below**, because it amortises little prefill while
+  we prefill 8× more than we generate.
+
+The estimate spans ~6×, but the conclusion does not:
+
+| | similarity only (measured) | + LLM decomposition (est.) |
+|---|---|---|
+| Full, J/query | 1,418 | **~3,967 central** (1,783–7,867) |
+| B → Full price | 63× tier B | **~177× tier B** (80–352×) |
+
+**The LLM decomposition is comparable to or larger than Full's entire similarity cost** (central
+1.8×), and tiers A and B pay **none** of it — the router never triggers a single generation. So the
+already-conservative "savings vs Full" from §5 understate the real gap by roughly another 2–5×, and
+the "never buy Full" verdict holds on end-to-end energy, not just similarity FLOPs. This is an
+estimate and labelled as one throughout; the measured axis (§1–5) is unchanged.
+
 ## Reproduce
 
 ```
