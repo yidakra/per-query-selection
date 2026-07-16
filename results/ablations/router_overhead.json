@@ -1,0 +1,26 @@
+{
+  "cell": "MultiVENT/noASR",
+  "T": 259,
+  "V": 2393,
+  "repeats": 200,
+  "t_feat_us": 342.99948297236045,
+  "t_pred_us": 2.1129563512841534,
+  "t_pred_sklearn_us": 185.59673988272914,
+  "t_decision_us": 345.1124393236446,
+  "cpu_w_range": [
+    5.0,
+    25.0
+  ],
+  "e_router_mJ": {
+    "lo": 1.7255621966182229,
+    "mid": 5.176686589854668,
+    "hi": 8.627810983091114
+  },
+  "J_A": 6.83,
+  "J_AtoB_marginal": 15.520000000000001,
+  "J_Full": 1418.36,
+  "overhead_vs_AtoB_pct": 0.03335493936762029,
+  "overhead_vs_A_pct": 0.07579336149128359,
+  "overhead_vs_Full_pct": 0.00036497691628744954,
+  "AtoB_over_router_factor": 2998.0567165136636
+}
