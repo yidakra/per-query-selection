@@ -132,6 +132,38 @@ The frontier figure (`mv2_frontier_fig.py` → `reports/figures/mv2_frontier.{pn
 the oracle plateaus at nDCG 37.28 by escalating only the right ~22%, but the out-of-fold router hugs the
 random-escalation chord — it captures 8% of that headroom — while every point on it costs real joules.
 
+## Does a bigger decomposer rescue the Full tier? (7B → 14B) — no
+The 7B result carries a caveat: the original Q2E Full tier used a 70B decomposer, so a stronger model
+might write event descriptions that help more *and* are easier to route. We tested it by doubling the
+decomposer to qwen2.5:14b-instruct (still the largest that fits GPU-resident on a 15 GB A2) and re-running
+the whole Full-tier pipeline. `events_qwen14b.jsonl` → `mv2_full_qwen14b.json` → `mv2_router_full_qwen14b.json`
+→ `mv2_energy_qwen14b.json` → `mv2_frontier_qwen14b.json`, figure `reports/figures/mv2_frontier_qwen14b.png`.
+
+| | 7B decomposer | 14B decomposer |
+|---|---|---|
+| Full nDCG@10 (best test-tuned weight) | +0.56 (w=0.25) | **+0.81** (w=0.5) |
+| per-query B→Full gain sd / help / hurt | 7.54 / 25% / 20% | 11.00 / 29% / 25% |
+| routability: Kendall τ (perm p) | +0.002 (p=.44) | **+0.035 (p=.0045)** |
+| nested frontier gap | +0.15 (ns) | **+0.39 ± 0.07** |
+| measured LLM cost | 143.5 J/query | **259.7 J/query** |
+| oracle headroom / router captures | +1.72 / 8% | +2.89 / 11% |
+| energy per nDCG@10 point gained | 257 J | **321 J** |
+
+Two things move, and they cut against each other. The bigger decomposer **does** help more (+0.81 vs +0.56)
+and, unlike the 7B, is **weakly but significantly routable** — τ goes from a flat null (p=.44) to +0.035
+(p=.0045), and the nested gap clears zero at +0.39. So the strong claim "B→Full is unroutable" softens: with
+a 2× decomposer there is a real, orderable signal. But it does **not** rescue the tier:
+
+1. **The signal is still ~6× weaker than A→B.** τ +0.035 vs +0.127; nested gap +0.39 vs +2.23. Even doubling
+   the decomposer, B→Full routing is worth a fraction of the caption tier it sits above.
+2. **Cost grows faster than benefit.** The 14B costs 1.8× the joules (259.7 vs 143.5 J/query), so each
+   nDCG@10 point bought gets *more* expensive, not less — 321 J/point vs 257. The tier is more dominated
+   on the energy frontier, not less.
+3. **The 7B→14B trend argues against the 70B fixing it.** A 2× size step moved routability from .002 to
+   .035 while the energy nearly doubled; to reach A→B's routing value the signal would need to grow ~6×
+   more, and a 70B would cost several times the 14B's joules. There is no size on this curve where the
+   Full tier becomes a good buy. The conclusion is now backed by a size *trend*, not a single small model.
+
 ## Scope and next step
 - Both cascade steps are now measured on real MultiVENT 2.0: A→B (route it) and B→Full (don't). This is
   the routing-**quality** result — whether the router orders queries by true gain — and it lands the way

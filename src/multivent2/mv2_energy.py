@@ -68,9 +68,9 @@ class PowerMeter:
         return float(np.median(p))
 
 
-def gen(query, num_predict=300):
-    r = requests.post(URL, timeout=180, json={
-        "model": MODEL, "stream": False, "format": "json",
+def gen(query, num_predict=300, model=MODEL):
+    r = requests.post(URL, timeout=300, json={
+        "model": model, "stream": False, "format": "json",
         "options": {"temperature": 0.3, "num_predict": num_predict, "seed": 0},
         "messages": [{"role": "system", "content": SYS}, {"role": "user", "content": f"Query: {query}"}]})
     r.raise_for_status()
@@ -81,6 +81,7 @@ def gen(query, num_predict=300):
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--n", type=int, default=40, help="queries to time")
+    ap.add_argument("--model", default=MODEL, help="Ollama decomposer model tag")
     ap.add_argument("--out", default=os.path.join(_ROOT, "results", "ablations", "mv2_energy.json"))
     a = ap.parse_args()
 
@@ -88,8 +89,8 @@ def main():
     qtexts = list(queries.values())[:a.n + 2]
     meter = PowerMeter()
 
-    print(f"warming {MODEL} on physical GPU{PHYS_GPU} ...", flush=True)
-    gen(qtexts[0]); gen(qtexts[1])                          # load + settle
+    print(f"warming {a.model} on physical GPU{PHYS_GPU} ...", flush=True)
+    gen(qtexts[0], model=a.model); gen(qtexts[1], model=a.model)   # load + settle
     idle_w = meter.idle_watts(8.0)                          # model-loaded idle baseline
     print(f"idle (model loaded, no generation): {idle_w:.2f} W")
 
@@ -97,7 +98,7 @@ def main():
     for i, q in enumerate(qtexts[2:2 + a.n], 1):
         with meter:
             t0 = time.time()
-            et, pt = gen(q)
+            et, pt = gen(q, model=a.model)
             wall = time.time() - t0
         gross, mean_w, ns = meter.joules()
         net = gross - idle_w * wall
@@ -112,14 +113,14 @@ def main():
     j_per_tok = float(net.sum() / gtok.sum())
     peak_w = float(np.mean([r["mean_w"] for r in rows]))
 
-    out = {"model": MODEL, "phys_gpu": PHYS_GPU, "n": len(rows), "idle_w": idle_w,
+    out = {"model": a.model, "phys_gpu": PHYS_GPU, "n": len(rows), "idle_w": idle_w,
            "gen_j_per_query_net": j_per_q, "gen_j_per_query_sd": j_per_q_sd,
            "gen_j_per_query_gross": float(grossj.mean()),
            "gen_j_per_token_net": j_per_tok, "mean_gen_watts": peak_w,
            "mean_wall_s": float(wall.mean()), "mean_gen_tok": float(gtok.mean())}
     json.dump(out, open(a.out, "w"), indent=2)
 
-    print(f"\nqwen2.5:7b event decomposition, measured on physical GPU{PHYS_GPU}:")
+    print(f"\n{a.model} event decomposition, measured on physical GPU{PHYS_GPU}:")
     print(f"  {j_per_q:.1f} +/- {j_per_q_sd:.1f} J/query net  ({grossj.mean():.1f} J gross)")
     print(f"  {j_per_tok:.3f} J/token   {peak_w:.0f} W mean draw   {wall.mean():.2f} s/query")
     print(f"  -> full test set (2544 q): {j_per_q * 2544 / 1000:.1f} kJ = {j_per_q * 2544 / 3.6e6:.3f} kWh")

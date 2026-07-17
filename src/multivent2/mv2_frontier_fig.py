@@ -23,7 +23,13 @@ FIG_DIR = os.path.join(_ROOT, "reports", "figures")
 
 
 def main():
-    d = json.load(open(os.path.join(ABL, "mv2_frontier.json")))
+    import argparse
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--in", dest="inp", default=os.path.join(ABL, "mv2_frontier.json"))
+    ap.add_argument("--stem", default="mv2_frontier", help="output figure basename")
+    ap.add_argument("--model", default="qwen2.5:7b", help="decomposer name for the title")
+    a = ap.parse_args()
+    d = json.load(open(a.inp))
     cost = np.array(d["cost_j_per_query"])
     router = 100 * np.array(d["ndcg_router"])
     random = 100 * np.array(d["ndcg_random"])
@@ -57,7 +63,7 @@ def main():
             fontsize=7.5, va="center", color="#555")
 
     ax.set_title("The Full event tier is dominated on the energy frontier\n"
-                 "(MultiVENT 2.0, 2,544 test queries; qwen2.5:7b on GPU1)", fontsize=10)
+                 f"(MultiVENT 2.0 test queries; {a.model} decomposer on GPU1)", fontsize=10)
     ax.set_xlabel(f"mean cost / query  (measured GPU joules; Full = {jll:.0f} J/query)")
     ax.set_ylabel("nDCG@10")
     ax.grid(True, alpha=0.3)
@@ -70,9 +76,9 @@ def main():
 
     fig.tight_layout()
     for ext in ("pdf", "png"):
-        fig.savefig(os.path.join(FIG_DIR, f"mv2_frontier.{ext}"), bbox_inches="tight", dpi=150)
+        fig.savefig(os.path.join(FIG_DIR, f"{a.stem}.{ext}"), bbox_inches="tight", dpi=150)
     plt.close(fig)
-    print(f"wrote {FIG_DIR}/mv2_frontier.{{pdf,png}}")
+    print(f"wrote {FIG_DIR}/{a.stem}.{{pdf,png}}")
 
 
 if __name__ == "__main__":
