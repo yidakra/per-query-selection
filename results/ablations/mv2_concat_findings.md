@@ -64,14 +64,29 @@ honest update is that **how you fold in the LLM expansion is a real design axis 
 concatenation is a free (same LLM cost) ~1.5–2× effectiveness improvement on the Full tier over the
 decompose-and-fuse default, with a small variance reduction as a side effect.
 
-## Open follow-up
+## Follow-up: does concatenation change the Full tier's routability and energy frontier?
 
-Concatenation lifts the Full-tier mean enough (+1.57 at 14B) that its **routability** should be
-re-checked: is the *concatenated* B→Full gain more predictable from tier-B features than the
-decomposed one was (τ was +0.002 (7B) / +0.035 (14B) for DECOMP)? And re-run the measured-joules
-energy frontier (`mv2_frontier.py`) on the concatenated Full tier — if +1.57 at ~165 J/point clears
-the random-escalation chord, the "Full tier is dominated" claim needs qualifying. Both are CPU +
-existing-artifact runs.
+Ran both CPU checks on the concatenated 14B Full tier (`mv2_router.py`, `mv2_frontier.py`):
+
+| B→Full step (14B) | Kendall τ (perm p) | nested gap | APGR | CPT₅₀ | energy / nDCG@10 pt | oracle headroom captured |
+|---|---|---|---|---|---|---|
+| DECOMP (decompose + fuse) | +0.035 (.0045) | +0.39 ± 0.07 | 0.082 | 0.18 | 321 J | 8% |
+| **CONCAT** (extend + concatenate) | **+0.042 (.0015)** | **+0.41 ± 0.11** | 0.090 | 0.26 | **166 J** | **13%** |
+
+- **Routability is marginally better, not worse.** The variance shrink did not cost predictability — CONCAT's B→Full gain is if anything slightly more orderable (τ +0.042 vs +0.035, though both are ~6× weaker than the A→B τ of +0.127). The worry that flattening heterogeneity would starve the router did not materialise at this scale.
+- **Energy frontier: less dominated, still expensive.** Concatenation halves the Full tier's cost-per-point (166 vs 321 J/nDCG@10), and the routed curve now sits above the random-escalation chord at every f — capturing **13%** of a +2.99 oracle headroom, vs 8% for decompose-and-fuse. But even fully escalated the tier buys +1.57 nDCG for 259.7 J/query, while A→B buys +5.69 nearly free, so Full stays off the efficient frontier.
+
+**Verdict update.** "Route A→B, don't buy Full" stands, but softens: concatenation is the right way to
+build the Full tier *if you build it* — ~2× the effectiveness and ~2× cheaper per point than the
+decompose-and-fuse default, with a small but real routable gain. The negative on Full is now "expensive
+and weakly routable," not "dominated and unroutable."
+
+## Reproduce follow-up
+```bash
+CUDA_VISIBLE_DEVICES="" python src/multivent2/mv2_router.py --in results/ablations/mv2_full_concat_qwen14b.json
+CUDA_VISIBLE_DEVICES="" python src/multivent2/mv2_frontier.py --full results/ablations/mv2_full_concat_qwen14b.json \
+    --energy results/ablations/mv2_energy_qwen14b.json --out results/ablations/mv2_frontier_concat_qwen14b.json
+```
 
 ## Reproduce
 ```bash

@@ -32,6 +32,7 @@ from mv2_io import load_qrels, load_run, load_queries  # noqa: E402
 from mv2_eval import ndcg10  # noqa: E402
 from mv2_ab import load_captions, per_query_ndcg  # noqa: E402
 from mv2_full import rrf_ranks, load_events, EVENTS  # noqa: E402
+from retrieve import conf_features, FEATURE_ORDER  # noqa: E402
 
 _ROOT = os.path.dirname(os.path.dirname(HERE))
 DATA = os.path.join(_ROOT, "data", "multivent2")
@@ -83,13 +84,16 @@ def main():
     concat_ev = enc([" ".join(ev(q, e) for e in EVENTS) for q in qids])
     concat_qev = enc([" ".join([queries[q]] + [ev(q, e) for e in EVENTS]) for q in qids])
 
-    base_q, ev_rrf_decomp, ev_rrf_concat, extq_run = {}, {}, {}, {}
+    base_q, ev_rrf_decomp, ev_rrf_concat, extq_run, feats = {}, {}, {}, {}, {}
     for qi, qid in enumerate(qids):
         cands = list(runA[qid])
         capm = cap_emb[np.array([row[c] for c in cands])]
         clip_rrf = rrf_ranks(cands, runA[qid])
         cap_rrf = rrf_ranks(cands, dict(zip(cands, (capm @ qvec[qi]).tolist())))
         base_q[qid] = {v: clip_rrf[v] + cap_rrf[v] for v in cands}
+        # tier-B confidence features -> legal at tier B, for the B->Full router (same as mv2_full.py)
+        cf = conf_features(np.array([base_q[qid][v] for v in cands]))
+        feats[qid] = [cf[k] for k in FEATURE_ORDER]
         # DECOMP: 3 events scored separately, max-pooled over the events (Q2E-style)
         ev_sim = np.max([capm @ evec[e][qi] for e in EVENTS], axis=0)
         ev_rrf_decomp[qid] = rrf_ranks(cands, dict(zip(cands, ev_sim.tolist())))
@@ -109,16 +113,24 @@ def main():
 
     results = {"ev_tag": ev_tag, "model": a.model, "ndcgB": ndB, "n_queries": len(qids), "variants": {}}
 
+    abl = os.path.join(_ROOT, "results", "ablations")
     for name, ev_rrf in [("DECOMP", ev_rrf_decomp), ("CONCAT", ev_rrf_concat)]:
         sweep = {w: ndcg10(qrels, full_run(ev_rrf, w)) for w in WSWEEP}
         w_best = max(WSWEEP[1:], key=lambda w: sweep[w])
-        stats = gain_stats(pqB, per_query_ndcg(qrels, full_run(ev_rrf, w_best)), qids)
+        pq_full = per_query_ndcg(qrels, full_run(ev_rrf, w_best))
+        stats = gain_stats(pqB, pq_full, qids)
         results["variants"][name] = {"w_best": w_best, "ndcg": sweep[w_best],
                                      "delta_vs_B": 100 * (sweep[w_best] - ndB),
                                      "sweep": {str(w): sweep[w] for w in WSWEEP}, "gain": stats}
         print(f"\n{name}: best w={w_best}  nDCG@10 = {sweep[w_best]:.5f}  delta {100*(sweep[w_best]-ndB):+.2f}")
         print(f"   per-query gain vs B: mean {stats['mean']:+.2f}  sd {stats['sd']:.2f}  "
               f"help {stats['help']:.0f}%  hurt {stats['hurt']:.0f}%")
+        # router-ready JSON (mv2_full.json schema) so mv2_router.py / mv2_frontier.py consume the B->Full step
+        common = [q for q in qids if q in pqB and q in pq_full and q in feats]
+        rj = {"scorer": f"{name.lower()}_full_{ev_tag}", "ndcgA": ndB, "ndcgB": sweep[w_best], "w_best": w_best,
+              "per_query": {q: {"ndA": pqB[q], "ndB": pq_full[q]} for q in common},
+              "features": {q: feats[q] for q in common}, "feature_order": FEATURE_ORDER}
+        json.dump(rj, open(os.path.join(abl, f"mv2_full_{name.lower()}_{ev_tag}.json"), "w"))
 
     ndE = ndcg10(qrels, extq_run)
     statsE = gain_stats(pqB, per_query_ndcg(qrels, extq_run), qids)
