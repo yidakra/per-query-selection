@@ -23,7 +23,7 @@ efficiency–effectiveness frontier.
 | **RQ2** | Which cheap-tier features predict per-query gain, and does gain-regression beat classical QPP? | Out-of-fold ridge on top-1 score, margins, entropy, softmax mass, A/B-disagreement orders queries by true gain; beats NQC/WIG/Clarity baselines. *(supported)* |
 | **RQ3** | What does routing buy on the **accuracy–compute** plane, in standard cost terms? | **Same accuracy for 24–58% less escalation cost**, or **+0.24 to +1.92 nDCG at equal cost**, in the sub-B budget region. *(supported)* |
 | **RQ4** | Does per-query gain **heterogeneity** drive how much routing wins? | `sd(per-query gain)` predicts the achieved gap at **Spearman ρ = +0.943** (n=6). This is the differentiator from Adaptive-RAG. *(supported)* |
-| **RQ5** *(open)* | Does query **extension + concatenation** (one enriched query) reduce the heterogeneity routing exploits — is robust fusion a **substitute for** or **complement to** routing? | Raised at 22 Jul supervision (SCALE finding: extension > decomposition; concatenation lowers per-query variance). **Not yet tested.** |
+| **RQ5** | Does query **extension + concatenation** (one enriched query) reduce the heterogeneity routing exploits — is robust fusion a **substitute for** or **complement to** routing? | **Complement, not substitute.** On MultiVENT 2.0, concatenating the LLM events beats decompose-and-fuse (**+1.57 vs +0.81 nDCG** at 14B, same weight) and is lower-variance at every matched weight — but only ~5–10% lower, so the router keeps its signal (concat B→Full τ +0.042 vs +0.035). *(supported)* |
 
 ## Results (all nDCG@10)
 
@@ -68,6 +68,16 @@ of queries.
   energy nearly doubles (143.5→259.7 J/q) — a size *trend* arguing 70B won't fix it either.
 - **"Tier C" (paraphrase selection) does not exist.** Oracle shows +2.00 headroom; three independent
   achievable estimates all *lose* (−1.49 to −1.81). Gold-split proves optimism +4.89 = label noise.
+
+**Positioning vs SOTA (MultiVENT 2.0 test, graded nDCG@10).** Our tiers are a deliberately *cheap
+visual/caption cascade*: tier A (CLIP) = 0.304 (matches the benchmark's mCLIP baseline), tier B
+(+captions) = 0.36. The strong systems — **MMMORRF 0.586** (SigLIP + PLAID-X dense over ASR + OCR,
+weighted RRF), **CLaMR 0.585** (late-interaction VLM), **OmniEmbed 0.753** (in-domain fine-tuned
+omni-backbone) — get their lift from **ASR + OCR retrieval channels our cascade never touches**, at
+far higher cost. So the honest framing is *not* "we beat SOTA": the router is a **method-agnostic
+frontier layer** that spends compute per query within a tier stack. It optimizes the accuracy–compute
+frontier in the ~0.30–0.38 band; demonstrating it over a strong fusion stack (bolt the router onto
+MMMORRF's modality tiers) is the next step, not a reproduction of Q2E's own numbers.
 
 ## What we borrowed vs. what is ours
 
