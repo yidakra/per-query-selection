@@ -82,16 +82,3 @@ predictors (Clarity/WIG/NQC) as routing baselines; router cost-quality metrics *
 invoked to decide, which no prior routing work does; (2) the **heterogeneity → routing-value law**
 (ρ=0.943); (3) a **measured-joules** cost model over LLM-decomposition tiers; (4) a set of **paired
 negative results** (Full tier, Tier C) established with nested-CV + gold-split rigor.
-
-## Open items from 22 Jul supervision → plan
-
-1. **Efficiency metrics = presentation gap, not a measurement gap.** Joules/query, latency
-   (`83.6 s + 0.049 s/string`), token counts, FLOPs, router overhead (345 µs/q), APGR and CPT already
-   exist. Action: short **lit review of efficiency metrics used in adaptive-retrieval/routing** work, then
-   restate our numbers in that vocabulary, in tables.
-2. **SOTA effectiveness.** Q2E is a dated base; the router is a **method-agnostic meta-layer**. Action:
-   demonstrate it over a **modern, strong tier stack** and, on MultiVENT 2.0, position against
-   MMMORRF/CLAMR rather than only reproducing Q2E's own numbers.
-3. **RQ5 (extension vs decomposition).** Test whether query extension + concatenation flattens the
-   per-query heterogeneity — if it survives, routing and robust fusion are complementary; if it
-   collapses, that bounds the approach. Directly follows the SCALE-project finding.
