@@ -33,7 +33,7 @@ decision alone, without feature extraction, put it at 345 µs.)
 | Full (+LLM expansion) | **9,425 ms** | 9,728 | 11,534 | 11,543 | **0.11 q/s** |
 
 **Tier B to Full is a 633× increase in mean latency and a 610× drop in throughput.** In joules the same
-step is 22.35 J → 282 J. Latency is the harsher axis of the two, which the energy-only framing hid.
+step is ~1 J → ~261 J (§4). Both axes punish escalation heavily; latency is the one an SLO sees.
 
 Concurrency does not rescue it: the Ollama server is compute-bound on one A2, so throughput is flat at
 0.111 / 0.117 / 0.114 q/s for 1 / 2 / 4 concurrent workers. Escalation cost cannot be batched away on
@@ -59,18 +59,31 @@ most useful thing the efficiency work added.
 
 ## 4. Energy, carbon, and cost per useful result
 
-| metric | tier B | Full |
-|---|---|---|
-| energy / query | 22.35 J | 282 J (259.7 J of it the LLM call) |
-| energy / query | — | 72.1 mWh |
-| gCO₂e / query | — | 0.034 |
-| gCO₂e over the 2,546-query test set | — | 87.2 |
-| relevant items in top-10 (mean) | 1.78 | 1.78 |
-| **joules per relevant item retrieved@10** | **12.6** | **158.5** |
+| metric | tier A | tier B | Full |
+|---|---|---|---|
+| energy / query | 0.011 J *(est.)* | 1.01 J *(est.)* | **260.7 J** (259.7 measured + ~1 est.) |
+| energy / query | — | — | 72.1 mWh |
+| gCO₂e / query | — | — | 0.034 |
+| gCO₂e over the 2,546-query test set | — | — | 87.2 |
+| relevant items in top-10 (mean) | 1.62 | 1.78 | 1.78 |
+| **joules per relevant item retrieved@10** | — | **0.57** | **146.5** |
+
+Two different kinds of number here, and the distinction matters. The **LLM stage is measured** — NVML
+at 5 Hz on the physical GPU, net of a model-loaded idle baseline. Tiers A and B never touch a GPU, and
+this host exposes no RAPL counters, so their energy **cannot be measured here**; it is estimated as
+measured latency × package TDP scaled by thread occupancy (135 W Xeon Silver 4314 × 8/16 threads =
+67.5 W), the same fallback CodeCarbon uses. Treat the A/B column as an order of magnitude, not a
+measurement.
 
 Carbon uses an assumed grid intensity of 0.475 kg CO₂e/kWh (IEA world average) — documented, not
-measured. Cost-per-correct-answer is the cleanest statement of the Full tier's problem: **12.6× the
-energy per relevant item surfaced, for no measurable change in how many are surfaced.**
+measured. Cost-per-correct-answer remains the cleanest statement of the Full tier's problem: **~260×
+the energy per relevant item surfaced, for no measurable change in how many are surfaced** (1.78 either
+way).
+
+> **Correction.** Earlier revisions of this file put tier B at 22.35 J/query and the ratio at 12.6×.
+> That 22.35 J was measured on the *original* Q2E pipeline (`cost_model_findings.md`), not on this
+> cascade, and was hardcoded at `mv2_efficiency.py:233`. It implied 1,500 W for a 14.9 ms CPU-only
+> stage. The corrected estimate makes the Full tier look considerably worse, not better.
 
 ## 5. Risk–coverage and AURC (routing as selective prediction)
 

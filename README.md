@@ -91,6 +91,11 @@ R² = 0.9994, confirmed by held-out extrapolation to N=7,770 within **1.3%**.
 | B | 22.35 J | 0.0158 | 0.4 |
 | Full | 1,418.36 J | 1.0 | 1.0 |
 
+> **Scope:** this cost model was measured on the **original Q2E pipeline** (ViT-H similarity,
+> `mx_q=30` padding, the paper's own corpora). It does **not** describe the MultiVENT 2.0 cascade,
+> whose measured latency and energy are in [`reports/efficiency_metrics.md`](reports/efficiency_metrics.md)
+> — there, tiers A and B are CPU-only and cost ~0.01 J and ~1 J per query. Do not mix the two tables.
+
 The proxy overstates A by 42× and B by 25× relative to Full — i.e. it **understates** Full, so the
 reported savings are a **lower bound**. Escalating B→Full really costs **63.5× tier B**, not 2.5×,
 which independently kills the Full escalation on price to go with §1's argument on prize.

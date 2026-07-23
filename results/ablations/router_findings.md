@@ -1,5 +1,11 @@
 # Adaptive routing over Q2E fusion tiers — findings
 
+> **Scope:** this cost model was measured on the **original Q2E pipeline** (ViT-H similarity,
+> `mx_q=30` padding, the paper's own corpora). It does **not** describe the MultiVENT 2.0 cascade,
+> whose measured latency and energy are in [`reports/efficiency_metrics.md`](reports/efficiency_metrics.md)
+> — there, tiers A and B are CPU-only and cost ~0.01 J and ~1 J per query. Do not mix the two tables.
+
+
 Ladder (cost = **measured GPU energy per query**, J; normalized so Full = 1.0). Single source of
 truth `tier_cost.py`; measurement in `cost_model_findings.md`.
 

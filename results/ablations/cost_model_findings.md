@@ -1,5 +1,11 @@
 # Is the component-count cost proxy right? — measured joules per component
 
+> **Scope:** this cost model was measured on the **original Q2E pipeline** (ViT-H similarity,
+> `mx_q=30` padding, the paper's own corpora). It does **not** describe the MultiVENT 2.0 cascade,
+> whose measured latency and energy are in [`reports/efficiency_metrics.md`](reports/efficiency_metrics.md)
+> — there, tiers A and B are CPU-only and cost ~0.01 J and ~1 J per query. Do not mix the two tables.
+
+
 Every frontier figure in this repo plots **cost = number of similarity components scored**,
 normalised so Full = 1.0 (A = 0.2, B = 0.4). That rates all five components at unit cost. This
 is the check that the assumption deserved, and it does not survive it.

@@ -1,5 +1,10 @@
 """Single source of truth for per-tier retrieval cost, in MEASURED joules per query.
 
+SCOPE: the ORIGINAL Q2E pipeline only. The MultiVENT 2.0 cascade is a different system with its own
+cost profile -- tiers A and B there are CPU-only and cost ~0.01 J and ~1 J per query. Its numbers live
+in `src/multivent2/mv2_efficiency.py` and `reports/efficiency_metrics.md`. Do not import these joules
+into MultiVENT 2.0 reporting.
+
 Supersedes the component-count proxy `{A_visual:1, -Events:2, Full:5}` -> normalized
 `{0.2, 0.4, 1.0}`, which rated all five similarity components at unit cost. They differ by
 up to **68x**. Costs here are the measured marginal GPU energy per query (NVML @5Hz on

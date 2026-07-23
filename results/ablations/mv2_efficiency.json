@@ -251,12 +251,18 @@
     "gco2e_full_testset_2546q": 87.24183279523778,
     "mean_rel_at10_A": 1.62,
     "mean_rel_at10_B": 1.78,
-    "j_per_relevant_at10_B": 12.5561797752809,
-    "j_per_relevant_at10_Full": 158.45617251112054
+    "cpu_tdp_w_assumed": 135.0,
+    "cpu_active_w_estimated": 67.5,
+    "j_tier_A_cpu_estimated": 0.011474019312299789,
+    "j_tier_B_cpu_estimated": 1.0062766671355348,
+    "j_tier_Full_total": 260.70826373693006,
+    "j_per_relevant_at10_B": 0.5653239703008622,
+    "j_per_relevant_at10_Full": 146.46531670614047
   },
   "caveats": [
     "tier A excludes the CLIP text encode and the 218K-video search: MultiVENT 2.0 ships a precomputed run, so tier A latency is a lower bound",
     "corpus-side caption embedding is an offline one-off, excluded from all tiers",
-    "gCO2e uses an assumed grid intensity, not a measured one"
+    "gCO2e uses an assumed grid intensity, not a measured one",
+    "tier A/B energy is a TDP-based estimate, not measured: this host exposes no RAPL counters and those tiers are CPU-only. Only the LLM stage energy is measured (NVML). Earlier revisions reused 22.35 J/query here, a figure measured on the original Q2E pipeline rather than on this cascade, which overstated tier B energy by roughly 30x"
   ]
 }
