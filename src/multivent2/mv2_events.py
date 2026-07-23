@@ -32,9 +32,9 @@ SYS = ("You expand a short news video search query into the event it describes, 
        "No commentary, JSON only.")
 
 
-def generate(qid, query):
-    r = requests.post(URL, timeout=180, json={
-        "model": MODEL, "stream": False, "format": "json",
+def generate(qid, query, model=MODEL):
+    r = requests.post(URL, timeout=300, json={
+        "model": model, "stream": False, "format": "json",
         "options": {"temperature": 0.3, "num_predict": 300, "seed": 0},
         "messages": [{"role": "system", "content": SYS},
                      {"role": "user", "content": f"Query: {query}"}]})
@@ -51,10 +51,14 @@ def generate(qid, query):
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("--out", default=os.path.join(DATA, "events_qwen7b.jsonl"))
+    ap.add_argument("--model", default=MODEL, help="Ollama decomposer model tag")
+    ap.add_argument("--out", default=None, help="defaults to events_<model-stem>.jsonl")
     ap.add_argument("--limit", type=int, default=None)
     ap.add_argument("--workers", type=int, default=6)
     a = ap.parse_args()
+    if a.out is None:
+        stem = a.model.replace("qwen2.5:", "qwen").replace("-instruct", "").replace(":", "_")
+        a.out = os.path.join(DATA, f"events_{stem}.jsonl")
 
     queries = load_queries(os.path.join(DATA, "multivent_2_test_queries.csv"))
     done = set()
@@ -68,11 +72,12 @@ def main():
     todo = [(q, queries[q]) for q in queries if q not in done]
     if a.limit:
         todo = todo[:a.limit]
-    print(f"queries {len(queries)} | already done {len(done)} | to do {len(todo)} | workers {a.workers}")
+    print(f"model {a.model} | queries {len(queries)} | already done {len(done)} | "
+          f"to do {len(todo)} | workers {a.workers} | out {os.path.basename(a.out)}")
 
     n_ok = n_err = ptok = gtok = 0
     with open(a.out, "a") as out, cf.ThreadPoolExecutor(max_workers=a.workers) as ex:
-        futs = {ex.submit(generate, q, t): q for q, t in todo}
+        futs = {ex.submit(generate, q, t, a.model): q for q, t in todo}
         for i, fut in enumerate(cf.as_completed(futs), 1):
             qid = futs[fut]
             try:

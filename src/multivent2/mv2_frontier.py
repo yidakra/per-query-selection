@@ -41,8 +41,14 @@ def curve(order, base, full, jll, fracs):
 
 
 def main():
-    d = json.load(open(os.path.join(ABL, "mv2_full.json")))
-    e = json.load(open(os.path.join(ABL, "mv2_energy.json")))
+    import argparse
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--full", default=os.path.join(ABL, "mv2_full.json"))
+    ap.add_argument("--energy", default=os.path.join(ABL, "mv2_energy.json"))
+    ap.add_argument("--out", default=os.path.join(ABL, "mv2_frontier.json"))
+    a = ap.parse_args()
+    d = json.load(open(a.full))
+    e = json.load(open(a.energy))
     jll = e["gen_j_per_query_net"]
 
     qids = [q for q in d["features"] if q in d["per_query"]]
@@ -78,9 +84,9 @@ def main():
            "fracs": fracs.tolist(), "cost_j_per_query": cost.tolist(),
            "ndcg_router": nd_r.tolist(), "ndcg_random": nd_rand.tolist(), "ndcg_oracle": nd_oracle.tolist(),
            "router_vs_random_area": area_gap}
-    json.dump(out, open(os.path.join(ABL, "mv2_frontier.json"), "w"), indent=2)
+    json.dump(out, open(a.out, "w"), indent=2)
 
-    print(f"measured LLM cost: {jll:.1f} J/query (qwen2.5:7b, GPU1)")
+    print(f"measured LLM cost: {jll:.1f} J/query ({e.get('model','?')}, GPU1)")
     print(f"tier B nDCG@10 {ndB:.5f}  ->  Full (all escalated) {ndF:.5f}   (+{100*(ndF-ndB):.2f})")
     print(f"energy per nDCG@10 point gained: {j_per_point:.0f} J/query  (= {j_per_point*n/1000:.0f} kJ over {n} q)")
     print(f"\nfrontier (mean J/query -> nDCG@10):")
@@ -91,8 +97,8 @@ def main():
     print(f"\noracle can lift nDCG to {nd_oracle[fi]:.5f} (+{100*head_oracle:.2f}) by escalating the best "
           f"{100*fracs[fi]:.0f}% only;")
     print(f"the realizable router captures {100*frac_captured:.0f}% of that headroom "
-          f"(+{100*head_router:.2f}) -- noise-level, consistent with tau p=.44.")
-    print(f"wrote {os.path.join(ABL, 'mv2_frontier.json')}")
+          f"(+{100*head_router:.2f}).")
+    print(f"wrote {a.out}")
 
 
 if __name__ == "__main__":

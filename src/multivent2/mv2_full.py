@@ -53,6 +53,7 @@ def main():
     ap.add_argument("--out", default=os.path.join(_ROOT, "results", "ablations", "mv2_full.json"))
     a = ap.parse_args()
 
+    ev_tag = os.path.basename(a.events).replace("events_", "").replace(".jsonl", "")  # e.g. qwen14b
     from sentence_transformers import SentenceTransformer
     qrels, _ = load_qrels(os.path.join(DATA, "multivent_2_test_judgments.jsonl"))
     queries = load_queries(os.path.join(DATA, "multivent_2_test_queries.csv"))
@@ -125,7 +126,7 @@ def main():
           f"({(ptok+gtok)/max(1,len(qids)):.0f} tok/query)")
 
     # router-ready: gain = ndFull - ndB, "ndA"->tier B base, "ndB"->Full, features legal at tier B
-    json.dump({"scorer": "full_event_qwen7b", "ndcgA": ndB, "ndcgB": ndF, "w_best": w_best,
+    json.dump({"scorer": f"full_event_{ev_tag}", "ndcgA": ndB, "ndcgB": ndF, "w_best": w_best,
                "weight_sweep": {str(w): sweep[w] for w in WSWEEP},
                "llm_prompt_tok": ptok, "llm_gen_tok": gtok, "n_queries": len(qids),
                "per_query": {q: {"ndA": pqB[q], "ndB": pqF[q]} for q in common},
