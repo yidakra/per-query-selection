@@ -84,6 +84,46 @@ def rel_at_10(qrels_q, ranked):
     return sum(1 for v in ranked[:10] if qrels_q.get(v, 0) > 0)
 
 
+CAVEATS = [
+    "tier A excludes the CLIP text encode and the 218K-video search: MultiVENT 2.0 ships a "
+    "precomputed run, so tier A latency is a lower bound",
+    "corpus-side caption embedding is an offline one-off, excluded from all tiers",
+    "gCO2e uses an assumed grid intensity, not a measured one",
+    "tier A/B energy is a TDP-based estimate, not measured: this host exposes no RAPL counters and "
+    "those tiers are CPU-only. Only the LLM stage energy is measured (NVML). Earlier revisions "
+    "reused 22.35 J/query here, a figure measured on the original Q2E pipeline rather than on this "
+    "cascade, which overstated tier B energy by roughly 30x",
+]
+
+
+def derive(tierA_ms, tierB_ms, rel_a, rel_b, a):
+    """Energy, carbon and cost-per-useful-result from measured timings.
+
+    Tiers A and B never touch a GPU, so their energy is CPU-side. This host exposes no RAPL counters,
+    so it cannot be measured and is estimated from package TDP scaled by thread occupancy -- the same
+    fallback CodeCarbon uses. The LLM stage is the only measured energy figure here (NVML).
+    """
+    e = json.load(open(a.energy)) if os.path.exists(a.energy) else {}
+    j_llm = e.get("gen_j_per_query_net", float("nan"))
+    kwh = j_llm / 3.6e6
+    cpu_w = a.cpu_tdp_w * min(1.0, a.threads / max(1, os.cpu_count() or a.threads))
+    jA, jB = tierA_ms / 1000.0 * cpu_w, tierB_ms / 1000.0 * cpu_w
+    return {
+        "energy_source": os.path.basename(a.energy), "j_llm_per_query": j_llm,
+        "kwh_per_query": kwh, "gco2e_per_query": kwh * a.co2_kg_per_kwh * 1000.0,
+        "co2_kg_per_kwh_assumed": a.co2_kg_per_kwh,
+        "kwh_full_testset_2546q": kwh * 2546,
+        "gco2e_full_testset_2546q": kwh * 2546 * a.co2_kg_per_kwh * 1000,
+        "mean_rel_at10_A": rel_a, "mean_rel_at10_B": rel_b,
+        "cpu_tdp_w_assumed": a.cpu_tdp_w, "cpu_active_w_estimated": cpu_w,
+        "j_tier_A_cpu_estimated": jA, "j_tier_B_cpu_estimated": jB,
+        "j_tier_Full_total": jB + j_llm,
+        # cost per useful item: joules spent per relevant video actually surfaced in the top 10
+        "j_per_relevant_at10_B": jB / max(1e-9, rel_b),
+        "j_per_relevant_at10_Full": (jB + j_llm) / max(1e-9, rel_b),
+    }
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--n", type=int, default=300, help="queries timed for the CPU tiers")
@@ -97,8 +137,24 @@ def main():
     ap.add_argument("--co2-kg-per-kwh", type=float, default=0.475,
                     help="grid carbon intensity; default = IEA world average (documented, not measured)")
     ap.add_argument("--energy", default=os.path.join(ABL, "mv2_energy_qwen14b.json"))
+    ap.add_argument("--cpu-tdp-w", type=float, default=135.0,
+                    help="CPU package TDP for the tier A/B energy estimate; default = Xeon Silver 4314")
     ap.add_argument("--out", default=os.path.join(ABL, "mv2_efficiency.json"))
+    ap.add_argument("--derived-only", action="store_true",
+                    help="recompute the energy/derived block from an existing --out, reusing its "
+                         "measured timings instead of re-timing the pipeline")
     a = ap.parse_args()
+
+    if a.derived_only:
+        prev = json.load(open(a.out))
+        prev["derived"] = derive(prev["tiers_ms"]["A_rank_only"]["mean_ms"],
+                                 prev["tiers_ms"]["B"]["mean_ms"],
+                                 prev["derived"]["mean_rel_at10_A"],
+                                 prev["derived"]["mean_rel_at10_B"], a)
+        prev["caveats"] = CAVEATS
+        json.dump(prev, open(a.out, "w"), indent=2)
+        print(json.dumps(prev["derived"], indent=1))
+        return
 
     import torch
     torch.set_num_threads(a.threads)
@@ -220,19 +276,7 @@ def main():
         v = np.concatenate([tierF[:k], tierB[k:]])
         mix[str(f)] = pct(v) | {"qps_serial": float(1.0 / v.mean())}
 
-    e = json.load(open(a.energy)) if os.path.exists(a.energy) else {}
-    j_llm = e.get("gen_j_per_query_net", float("nan"))
-    kwh = j_llm / 3.6e6
-    derived = {
-        "energy_source": os.path.basename(a.energy), "j_llm_per_query": j_llm,
-        "kwh_per_query": kwh, "gco2e_per_query": kwh * a.co2_kg_per_kwh * 1000.0,
-        "co2_kg_per_kwh_assumed": a.co2_kg_per_kwh,
-        "kwh_full_testset_2546q": kwh * 2546, "gco2e_full_testset_2546q": kwh * 2546 * a.co2_kg_per_kwh * 1000,
-        "mean_rel_at10_A": float(np.mean(relA)), "mean_rel_at10_B": float(np.mean(relB)),
-        # cost per useful item: joules spent per relevant video actually surfaced in the top 10
-        "j_per_relevant_at10_B": float(22.35 / max(1e-9, np.mean(relB))),
-        "j_per_relevant_at10_Full": float((22.35 + j_llm) / max(1e-9, np.mean(relB))),
-    }
+    derived = derive(tierA.mean(), tierB.mean(), float(np.mean(relA)), float(np.mean(relB)), a)
 
     out = {"config": {"n": len(qids), "n_llm": a.n_llm, "model": a.model, "emb": a.emb,
                       "torch_threads": a.threads, "w_event": a.w_event,
@@ -240,11 +284,7 @@ def main():
            "stages_ms": stages, "tiers_ms": tiers, "throughput_llm": thr,
            "serial_qps": {"A_rank_only": float(1 / tierA.mean()), "B": float(1 / tierB.mean()),
                           "Full": float(1 / tierF.mean())},
-           "routed_mixture_by_f": mix, "derived": derived,
-           "caveats": ["tier A excludes the CLIP text encode and the 218K-video search: MultiVENT 2.0 "
-                       "ships a precomputed run, so tier A latency is a lower bound",
-                       "corpus-side caption embedding is an offline one-off, excluded from all tiers",
-                       "gCO2e uses an assumed grid intensity, not a measured one"]}
+           "routed_mixture_by_f": mix, "derived": derived, "caveats": CAVEATS}
     json.dump(out, open(a.out, "w"), indent=2)
 
     print("\nper-stage latency (ms):")
