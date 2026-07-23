@@ -61,28 +61,30 @@ ranked lists alongside the CLIP run, so MMMORRF-style weighted RRF over the thre
 The largest routing gap in the project, and the router declines OCR entirely — the same router that also
 declines the LLM expansion tier, which is a point in favour of it not inventing reasons to spend.
 
-**Tiers and measured cost.** Nested, so escalation is free; cost measured, not assumed.
+**Tiers and cost.** Nested, so escalation is free.
 
 | tier | components | LLM calls/q | energy | mean latency | p99 | throughput |
 |---|---|---|---|---|---|---|
-| A (visual) | `query_vs_video` | 0 | 6.83 J | 0.17 ms | 0.24 ms | 5,883 q/s |
-| B (+captions) | `+ query_vs_captions` | 0 | 22.35 J | 14.9 ms | 26.5 ms | 67.1 q/s |
-| Full (+events) | `+ {prequel,during,sequel}` | ~30 | 282 J | 9,425 ms | 11,543 ms | 0.11 q/s |
+| A (visual) | `query_vs_video` | 0 | 0.011 J *(est.)* | 0.17 ms | 0.24 ms | 5,883 q/s |
+| B (+captions) | `+ query_vs_captions` | 0 | 1.01 J *(est.)* | 14.9 ms | 26.5 ms | 67.1 q/s |
+| Full (+events) | `+ {prequel,during,sequel}` | ~30 | **260.7 J** | 9,425 ms | 11,543 ms | 0.11 q/s |
 
-Cost law `E(N) = 3167 + 0.912·N` J, R²=0.9994 (held-out extrapolation within 1.3%), so every routing gap
-is unit-invariant.
+Latency is measured throughout. Energy is measured for the LLM stage (NVML, net of a model-loaded idle
+baseline); tiers A and B are CPU-only and this host has no RAPL counters, so their energy is a TDP-based
+estimate and is marked as such.
 
 **Efficiency — the tail is the argument.** Escalating just **10%** of queries multiplies p99 by **435×**
 (26.5 ms → 11.5 s) while the mean rises 67×, so under any p99 SLO the escalation budget is set by the
 tail rather than the average. Concurrency does not help: throughput is flat at ~0.11 q/s for 1/2/4
-workers, compute-bound on one A2. Cost per useful result: **12.6 J vs 158.5 J per relevant item@10**, at
+workers, compute-bound on one A2. Cost per useful result: **0.57 J vs 146.5 J per relevant item@10**, at
 identical mean relevant@10 (1.78). Risk–coverage/AURC: the A→B router closes **22.0%** of the excess
 risk a perfect router would remove, B→Full only **6.3%**.
 
 **Paired negatives — the *shape* of the frontier, not failures.**
 
 - **The LLM expansion tier is correctly declined.** B→Full τ = +0.002 (p=.44), gap +0.15 (ns); price is
-  63–177× tier B. On MSR-VTT/IV2/noASR it is literally Pareto-dominated. The decomposer size curve is
+  ~260× tier B in energy and 633× in latency. On MSR-VTT/IV2/noASR it is literally Pareto-dominated
+  (67.11 < Fixed-B 67.52). The decomposer size curve is
   monotone in both axes — 3B +0.50 nDCG / 72.5 J, 7B +0.56 / 143.5 J, 14B +0.81 / 259.7 J — so a 70B
   would not rescue it.
 - **"Tier C" (paraphrase selection) does not exist.** Oracle shows +2.00 headroom; three independent
@@ -114,3 +116,33 @@ to decide, which no prior routing work does; (2) the finding that **uniform fusi
 channel can be worse than ignoring it**, and that routing repairs it; (3) the **heterogeneity →
 routing-value law** (ρ=0.943); (4) a **measured joules-and-latency** cost model with the tail argument
 for routing; (5) a set of **paired negative results** established with nested-CV and gold-split rigor.
+
+## What the paper would claim
+
+1. Channel usefulness in multimodal retrieval is strongly query-dependent, to the point that uniform
+   fusion of a genuinely informative channel is worse than ignoring it.
+2. Which queries benefit is predictable from the cheap channel's own score distribution, at negligible
+   cost (1.04 ms/query, 0.01% of the decision being made).
+3. The size of that predictability, and therefore the value of routing, is governed by the spread of
+   per-query gain — which can be estimated in advance.
+
+## Decisions I would like your opinion on
+
+**Should we pivot from expansion-tier routing to channel routing?** Three reasons to:
+
+- The effect is much larger — +3.07 nested gap, against +2.23 for the caption tier and ~0 for the
+  expansion tier.
+- The channels ship with the benchmark as ranked lists, so it reproduces on CPU at no extra
+  retrieval cost.
+- It is what the strong systems on this benchmark already do, so the contribution sits on their path
+  rather than beside it.
+
+Honest caveat: our absolute numbers are low (0.30–0.37) because we use the benchmark's cheap provided
+channels. The routing claim is about the policy, not the leaderboard. The benchmark also ships the raw
+ASR and OCR text, so building a stronger channel and re-testing routing on top of it is a concrete next
+step rather than a hope.
+
+**Which efficiency metrics should lead?** We now have latency distributions, throughput under
+concurrency, energy per query, cost per relevant item, and risk–coverage/AURC. My instinct is that the
+p99 tail curve is the one that carries the argument and the rest are supporting; tell me if a different
+one lands better for this venue.
