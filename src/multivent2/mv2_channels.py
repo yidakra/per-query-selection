@@ -121,12 +121,19 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--out", default=os.path.join(ABL, "mv2_channels.json"))
     ap.add_argument("--sweep", action="store_true", help="sweep per-channel RRF weights")
+    ap.add_argument("--channel", action="append", default=[], metavar="NAME=FILE",
+                    help="add or override a channel, e.g. asr=asr_dense_multilingual-e5-base.json")
     a = ap.parse_args()
+
+    channels = dict(CHANNELS)
+    for spec in a.channel:
+        name, _, fn = spec.partition("=")
+        channels[name] = fn
 
     qrels, _ = load_qrels(os.path.join(DATA, "multivent_2_test_judgments.jsonl"))
     queries = load_queries(os.path.join(DATA, "multivent_2_test_queries.csv"))
     runs = {}
-    for name, fn in CHANNELS.items():
+    for name, fn in channels.items():
         p = os.path.join(DATA, fn)
         if not os.path.exists(p):
             print(f"MISSING {fn} -- download from hltcoe/MultiVENT2.0 ranked_lists/")
