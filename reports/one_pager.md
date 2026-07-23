@@ -1,94 +1,116 @@
 # Adaptive Q2E — one-page summary
 
-**Per-query adaptive routing over LLM query-expansion cost tiers for zero-shot multilingual
-text-to-video retrieval.** One clean claim: *spend expensive LLM compute only on the queries that
-benefit, decided from signals the cheap tier already produced, and trace the whole accuracy–compute
-frontier instead of one operating point.*
+**Per-query routing over sources of retrieval evidence that differ in cost and reliability.** One
+claim: pay for an expensive evidence source only on the queries it helps, decided from what the cheap
+source already produced — and that decision improves accuracy, not just cost.
 
-## Motivation
+All numbers on MultiVENT 2.0 (2,546 test queries, graded judgments, nDCG@10) unless stated.
 
-LLM query expansion/decomposition (Q2E and successors) reliably improves retrieval but pays a large,
-**fixed** cost on **every** query — ~30 LLaMA-3.3-70B generations/query and a measured **1,418 J/query**
-for the full tier, a **68×** cost spread over the cheap tier. The benefit, though, is highly uneven:
-across our data **17–23% of queries are actively *hurt*** by the expensive signal, and many others gain
-nothing. Paying full price uniformly is wasteful. If we can predict *per query* whether escalation will
-pay — using only cheap-tier features already computed — we spend compute where it helps and move the
-efficiency–effectiveness frontier.
+## Research question
 
-## Research questions and the evidence we have
+**When a retrieval system can draw on several sources of evidence that differ wildly in cost and
+reliability, can it decide _per query_ which ones to pay for — using only what the cheapest source has
+already produced — and does deciding beat both using the cheap source alone and using everything?**
 
-| RQ | Question | Evidence (status) |
-|---|---|---|
-| **RQ1** | Is escalation benefit predictable from the **query text** (Adaptive-RAG's premise) or from the query×corpus **retrieval interaction**? | **Not in the text.** A TF-IDF+LogReg router over the query string scores at/below the majority-class prior. Signal lives in the cheap tier's **retrieval confidence**. *(supported)* |
-| **RQ2** | Which cheap-tier features predict per-query gain, and does gain-regression beat classical QPP? | Out-of-fold ridge on top-1 score, margins, entropy, softmax mass, A/B-disagreement orders queries by true gain; beats NQC/WIG/Clarity baselines. *(supported)* |
-| **RQ3** | What does routing buy on the **accuracy–compute** plane, in standard cost terms? | **Same accuracy for 24–58% less escalation cost**, or **+0.24 to +1.92 nDCG at equal cost**, in the sub-B budget region. *(supported)* |
-| **RQ4** | Does per-query gain **heterogeneity** drive how much routing wins? | `sd(per-query gain)` predicts the achieved gap at **Spearman ρ = +0.943** (n=6). This is the differentiator from Adaptive-RAG. *(supported)* |
-| **RQ5** | Does query **extension + concatenation** (one enriched query) reduce the heterogeneity routing exploits — is robust fusion a **substitute for** or **complement to** routing? | **Complement, not substitute.** On MultiVENT 2.0, concatenating the LLM events beats decompose-and-fuse (**+1.57 vs +0.81 nDCG** at 14B, same weight) and is lower-variance at every matched weight — but only ~5–10% lower, so the router keeps its signal (concat B→Full τ +0.042 vs +0.035). *(supported)* |
+## Motivation, in one table
 
-## Results (all nDCG@10)
+Multimodal video retrieval scores a query against several channels: frames, speech transcripts,
+on-screen text, captions, LLM expansions. Nearly every system fuses them the same way for every query.
+That assumes every channel is worth having for every query.
 
-**Tiers, nested so escalation is free — cost is measured, not assumed.**
+| policy | nDCG@10 |
+|---|---|
+| visual channel alone | 0.3036 |
+| visual + speech channel, fused for **every** query (best of 16 weight settings) | **0.2796** |
+| visual + speech, fused only for the queries a router selects | **0.3221** |
+| oracle (fuse only where it truly helps) | 0.3653 |
 
-| tier | components | LLM calls/q | measured cost |
+Fusing the speech channel everywhere **loses 2.4 points**. Not a weighting problem — no weight in the
+sweep beats visual-only. It helps 27% of queries and hurts 35%, with a per-query spread (sd 24.1) about
+ten times its own mean effect. Deciding per query turns the same channel from a liability into **+1.84**
+over visual-only and **+4.25** over fusing it everywhere.
+
+So the motivation is not "routing saves compute". For heterogeneous evidence, **deciding what to spend
+on is inseparable from getting a good answer** — uniform fusion is at once the expensive option and the
+worse one.
+
+## Research questions and evidence
+
+| RQ | Question | Evidence | Status |
 |---|---|---|---|
-| A (visual) | `query_vs_video` | 0 | 6.83 J |
-| B (+captions) | `+ query_vs_captions` | 0 | 22.35 J |
-| Full (+events) | `+ {prequel,during,sequel}_vs_captions` | ~30 | 1,418 J |
+| **RQ1** | Where does the routing signal live — in the **query text** (Adaptive-RAG's premise) or in the query×corpus **retrieval interaction**? | TF-IDF+LogReg over the query string scores at/below the majority-class prior. Signal is in the cheap channel's score distribution (top-1, margins, entropy, softmax mass, disagreement), which is free. | supported, **partly refutes** Adaptive-RAG |
+| **RQ2** | Is per-query escalation gain predictable from those cheap features, and does it beat classical QPP? | Out-of-fold ridge orders queries by true gain: τ = **+0.217** (channels, p=.0005), **+0.127** (captions, p=.0005). Beats Clarity/WIG/NQC as routing baselines. Router overhead 1.04 ms. | supported |
+| **RQ3** | What does routing buy on the **accuracy–cost** plane? | Nested-CV gap vs cost-matched random: **+3.07 ± 0.38** (channels), **+2.23 ± 0.18** (captions). Equal-accuracy cost cuts of 24–58% across cells; +0.24 to +1.92 nDCG at equal cost. | supported |
+| **RQ4** | Does per-query gain **heterogeneity** govern how much routing wins? | `sd(per-query gain)` predicts the achieved gap at Spearman **ρ = +0.943** (n=6 cells). Tells you whether routing will pay *before* building it. | supported — the differentiator from Adaptive-RAG |
+| **RQ5** | Does query **extension + concatenation** reduce the heterogeneity routing exploits — substitute or complement? | Concatenation beats decompose-and-fuse (**+1.57 vs +0.81** at 14B, same weight) and is lower-variance at every matched weight, but only ~5–10% lower, so the router keeps its signal (τ +0.042 vs +0.035). | supported — **complement**, not substitute |
 
-Cost law: `E(N) = 3167 + 0.912·N` J, R²=0.9994 (held-out extrapolation within 1.3%). Escalating a
-fraction `f` is affine in `f` under *any* per-component cost, so every routing gap below is unit-invariant.
+## Results
 
-**Routing quality — the router orders queries by true gain (out-of-fold, permutation-tested).**
+**Routing across modality channels (the headline).** The benchmark ships speech and on-screen-text
+ranked lists alongside the CLIP run, so MMMORRF-style weighted RRF over the three costs nothing extra.
 
-| cell | ρ(pred,true) | perm p | nested gap vs cost-matched random |
-|---|---|---|---|
-| MultiVENT noASR | +0.164 | .0065 | **+0.73 ± 0.22** |
-| MultiVENT ASR | +0.233 | .0005 | **+1.68 ± 0.25** |
-| **MultiVENT 2.0** (2,546 test q, graded multi-gold) | τ=+0.127 | .0005 | **+2.23 ± 0.18** (APGR 0.217, CPT₅₀ 0.24) |
-
-MultiVENT 2.0 (the community benchmark our JHU collaborators built): tier A = 0.30364 (matches the
-official evaluator to the last digit), tier B = 0.36052 (+5.69), `sd(gain)` = 24.58, **43% helped / 23%
-hurt**. CPT₅₀ = 0.24 → the router captures half the caption-tier improvement by escalating only **24%**
-of queries.
-
-**Pareto reframe — the effectiveness hook.**
-
-| cell | Fixed-A | Fixed-B | +nDCG at equal cost | cost cut at equal accuracy |
+| channel / cell | nDCG@10 | help / hurt | τ | nested gap |
 |---|---|---|---|---|
-| MultiVENT/mCLIP/noASR | 67.71 | 74.28 | **+1.23** | 32% |
-| MultiVENT/mCLIP/ASR | 67.71 | 78.31 | **+1.92** | 24% |
-| MSR-VTT/IV2/ASR | 66.00 | 68.86 | +1.06 | **58%** |
+| visual | 0.3036 | — | — | — |
+| speech (ASR) | 0.2667 | — | — | — |
+| on-screen text (OCR) | 0.1223 | — | — | — |
+| visual → +speech, routed | **0.3221** @ f=0.55 | 27% / 35% | +0.217 | **+3.07 ± 0.38** |
+| visual → +OCR, routed | 0.3036 @ f=0.00 | — | — | router declines it outright |
+| oracle best-single-channel per query | 0.4402 | — | — | — |
 
-**Paired negatives — these are the *shape* of the frontier (why it stops at B), not failures.**
+The largest routing gap in the project, and the router declines OCR entirely — the same router that also
+declines the LLM expansion tier, which is a point in favour of it not inventing reasons to spend.
 
-- **Full tier is correctly declined.** B→Full oracle gap is small (~+2.55) and does **not** survive a
-  held-out gold-split (optimism +8.4); price is **63–177× tier B**. On MSR-VTT/IV2/noASR Full is
-  *literally* Pareto-dominated (67.11 < Fixed-B 67.52). On MultiVENT 2.0 the null replicates: B→Full
-  τ=+0.002 (p=.44), gap +0.15 (ns); a **7B→14B** decomposer moves routability only .002→.035 while
-  energy nearly doubles (143.5→259.7 J/q) — a size *trend* arguing 70B won't fix it either.
+**Tiers and measured cost.** Nested, so escalation is free; cost measured, not assumed.
+
+| tier | components | LLM calls/q | energy | mean latency | p99 | throughput |
+|---|---|---|---|---|---|---|
+| A (visual) | `query_vs_video` | 0 | 6.83 J | 0.17 ms | 0.24 ms | 5,883 q/s |
+| B (+captions) | `+ query_vs_captions` | 0 | 22.35 J | 14.9 ms | 26.5 ms | 67.1 q/s |
+| Full (+events) | `+ {prequel,during,sequel}` | ~30 | 282 J | 9,425 ms | 11,543 ms | 0.11 q/s |
+
+Cost law `E(N) = 3167 + 0.912·N` J, R²=0.9994 (held-out extrapolation within 1.3%), so every routing gap
+is unit-invariant.
+
+**Efficiency — the tail is the argument.** Escalating just **10%** of queries multiplies p99 by **435×**
+(26.5 ms → 11.5 s) while the mean rises 67×, so under any p99 SLO the escalation budget is set by the
+tail rather than the average. Concurrency does not help: throughput is flat at ~0.11 q/s for 1/2/4
+workers, compute-bound on one A2. Cost per useful result: **12.6 J vs 158.5 J per relevant item@10**, at
+identical mean relevant@10 (1.78). Risk–coverage/AURC: the A→B router closes **22.0%** of the excess
+risk a perfect router would remove, B→Full only **6.3%**.
+
+**Paired negatives — the *shape* of the frontier, not failures.**
+
+- **The LLM expansion tier is correctly declined.** B→Full τ = +0.002 (p=.44), gap +0.15 (ns); price is
+  63–177× tier B. On MSR-VTT/IV2/noASR it is literally Pareto-dominated. The decomposer size curve is
+  monotone in both axes — 3B +0.50 nDCG / 72.5 J, 7B +0.56 / 143.5 J, 14B +0.81 / 259.7 J — so a 70B
+  would not rescue it.
 - **"Tier C" (paraphrase selection) does not exist.** Oracle shows +2.00 headroom; three independent
-  achievable estimates all *lose* (−1.49 to −1.81). Gold-split proves optimism +4.89 = label noise.
+  achievable estimates all lose (−1.49 to −1.81); a gold-split proves the headroom is label noise
+  (optimism +4.89).
 
-**Positioning vs SOTA (MultiVENT 2.0 test, graded nDCG@10).** Our tiers are a deliberately *cheap
-visual/caption cascade*: tier A (CLIP) = 0.304 (matches the benchmark's mCLIP baseline), tier B
-(+captions) = 0.36. The strong systems — **MMMORRF 0.586** (SigLIP + PLAID-X dense over ASR + OCR,
-weighted RRF), **CLaMR 0.585** (late-interaction VLM), **OmniEmbed 0.753** (in-domain fine-tuned
-omni-backbone) — get their lift from **ASR + OCR retrieval channels our cascade never touches**, at
-far higher cost. So the honest framing is *not* "we beat SOTA": the router is a **method-agnostic
-frontier layer** that spends compute per query within a tier stack. It optimizes the accuracy–compute
-frontier in the ~0.30–0.38 band; demonstrating it over a strong fusion stack (bolt the router onto
-MMMORRF's modality tiers) is the next step, not a reproduction of Q2E's own numbers.
+## Positioning vs SOTA
+
+Our tiers are a deliberately cheap visual/caption cascade: A = 0.304 (matches the benchmark's mCLIP
+baseline to the last digit), B = 0.361. The strong systems — **MMMORRF 0.586**, **CLaMR 0.585**,
+**OmniEmbed 0.753** — get their lift from dense retrieval over speech and on-screen text, at far higher
+cost. The honest framing is not "we beat SOTA": the router is a **method-agnostic frontier layer**, and
+the channel result puts it directly on the path those systems are already on — *how* to weight the
+channels, per query, rather than globally. MMMORRF's weights are global; ours says they should not be.
+Next step: build a dense channel over the raw transcripts the benchmark also ships, and re-test routing
+on top of it.
 
 ## What we borrowed vs. what is ours
 
 **Borrowed:** Q2E decomposition + inverse-entropy fusion + tier structure (Dipta & Ferraro, AACL 2025,
-[arXiv:2506.10202](https://arxiv.org/abs/2506.10202)); the query-complexity-routing *premise*
-(Adaptive-RAG) — which we test and **partly refute** (signal is not in the query text); classical QPP
-predictors (Clarity/WIG/NQC) as routing baselines; router cost-quality metrics **APGR, CPT₅₀/₈₀**
-(RouteLLM/RouterBench); **MultiVENT 2.0** benchmark and the SOTA baselines to position against
-(**MMMORRF**, **CLAMR**); measured GPU joules via NVML/CodeCarbon.
+[arXiv:2506.10202](https://arxiv.org/abs/2506.10202)); the query-complexity-routing premise
+(Adaptive-RAG), which we test and partly refute; classical QPP predictors (Clarity/WIG/NQC) as routing
+baselines; router cost-quality metrics APGR, CPT₅₀/₈₀ (RouteLLM/RouterBench); risk–coverage/AURC from
+selective prediction; MultiVENT 2.0 and its shipped modality channels; measured GPU joules via
+NVML/CodeCarbon.
 
-**Ours:** (1) **cheap-tier-features-*only* escalation-gain regression** — the expensive tier is never
-invoked to decide, which no prior routing work does; (2) the **heterogeneity → routing-value law**
-(ρ=0.943); (3) a **measured-joules** cost model over LLM-decomposition tiers; (4) a set of **paired
-negative results** (Full tier, Tier C) established with nested-CV + gold-split rigor.
+**Ours:** (1) **cheap-features-only escalation-gain regression** — the expensive source is never invoked
+to decide, which no prior routing work does; (2) the finding that **uniform fusion of an informative
+channel can be worse than ignoring it**, and that routing repairs it; (3) the **heterogeneity →
+routing-value law** (ρ=0.943); (4) a **measured joules-and-latency** cost model with the tail argument
+for routing; (5) a set of **paired negative results** established with nested-CV and gold-split rigor.
