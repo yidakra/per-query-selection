@@ -95,6 +95,13 @@ expensive endpoint to beat the cheap one, which the weak channel never did, so o
 were undefined. Ran with `src/multivent2/mv2_router.py --in <cell>.json`; outputs in
 `mv2_router_visual_to_asr_dense_m3.json` and the OCR/all variants.
 
+The selective-prediction view agrees. Treating a cheap-tier answer as an abstention from the channel,
+the dense A→B router closes 31.6% of the excess risk a perfect router would remove (E-AURC 12.4 against
+18.2 for random escalation). That is close to the 35.2% on the shipped ASR channel and well above the
+6.3% the LLM expansion tier manages. Note this A→B is the channel step, a different cell from the
+tier-cascade A→B (visual→+captions, 22.0%) quoted elsewhere. Ran with `mv2_riskcov.py`; output in
+`mv2_riskcov_dense.json`.
+
 The best-single-channel oracle at 0.4777, against 0.3134 for the best fixed channel, says there is a
 lot left on the table for a per-query policy.
 

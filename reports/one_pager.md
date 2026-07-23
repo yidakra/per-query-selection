@@ -67,7 +67,9 @@ retriever built over the same transcripts are tested.
 The dense speech channel is the strongest single channel here, above visual, and routing still adds
 **+5.09** over visual-only and **+1.37** over the best fixed fusion weight. Its nested-CV gap against
 cost-matched random is **+2.45 ± 0.32**, and CPT50/CPT80 come out at 0.21/0.36, defined for the first
-time because the strong channel's escalation endpoint finally beats the cheap one. Routing is not a
+time because the strong channel's escalation endpoint finally beats the cheap one. In the risk–coverage
+view its router closes **31.6%** of the excess risk a perfect router would remove, against 6.3% for the
+LLM tier. Routing is not a
 crutch for weak channels, then. A genuinely good channel still has per-query structure worth exploiting.
 The gain over uniform fusion does shrink as the channel improves, +4.25 on the shipped list down to
 +1.37 on the dense one. That is what the spread framing predicts: a better channel helps more queries,
