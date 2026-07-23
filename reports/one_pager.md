@@ -42,7 +42,7 @@ and only a per-query decision fixes both.
 |---|---|---|---|
 | **RQ1** | Where does the routing signal live — in the **query text** (Adaptive-RAG's premise) or in the query×corpus **retrieval interaction**? | TF-IDF+LogReg over the query string scores at/below the majority-class prior. Signal is in the cheap channel's score distribution (top-1, margins, entropy, softmax mass, disagreement), which is free. | supported, **partly refutes** Adaptive-RAG |
 | **RQ2** | Is per-query escalation gain predictable from those cheap features, and does it beat classical QPP? | Out-of-fold ridge orders queries by true gain: τ = **+0.217** (shipped speech list), **+0.170** (strong dense speech channel), **+0.127** (captions), all p=.0005. Predictability holds even on the strong channel. Beats Clarity/WIG/NQC as routing baselines. Router overhead 1.04 ms. | supported |
-| **RQ3** | What does routing buy on the **accuracy–cost** plane? | Nested-CV gap vs cost-matched random: **+3.07 ± 0.38** (channels), **+2.23 ± 0.18** (captions). Equal-accuracy cost cuts of 24–58% across cells; +0.24 to +1.92 nDCG at equal cost. | supported |
+| **RQ3** | What does routing buy on the **accuracy–cost** plane? | Nested-CV gap vs cost-matched random: **+3.07 ± 0.38** (shipped speech), **+2.45 ± 0.32** (dense speech), **+2.23 ± 0.18** (captions). Equal-accuracy cost cuts of 24–58% across cells; +0.24 to +1.92 nDCG at equal cost. | supported |
 | **RQ4** | Does per-query gain **heterogeneity** govern how much routing wins? | `sd(per-query gain)` predicts the achieved gap at Spearman **ρ = +0.943** (n=6 cells). Tells you whether routing will pay *before* building it. | supported — the differentiator from Adaptive-RAG |
 | **RQ5** | Does query **extension + concatenation** reduce the heterogeneity routing exploits — substitute or complement? | Concatenation beats decompose-and-fuse (**+1.57 vs +0.81** at 14B, same weight) and is lower-variance at every matched weight, but only ~5–10% lower, so the router keeps its signal (τ +0.042 vs +0.035). | supported — **complement**, not substitute |
 
@@ -65,11 +65,13 @@ retriever built over the same transcripts are tested.
 | oracle best-single-channel per query (dense) | 0.4777 | — | — | — |
 
 The dense speech channel is the strongest single channel here, above visual, and routing still adds
-**+5.09** over visual-only and **+1.37** over the best fixed fusion weight. Routing is not a crutch for
-weak channels, then. A genuinely good channel still has per-query structure worth exploiting. The gain
-over uniform fusion does shrink as the channel improves, +4.25 on the shipped list down to +1.37 on the
-dense one. That is what the spread framing predicts: a better channel helps more queries, so there is
-less left for selectivity to recover.
+**+5.09** over visual-only and **+1.37** over the best fixed fusion weight. Its nested-CV gap against
+cost-matched random is **+2.45 ± 0.32**, and CPT50/CPT80 come out at 0.21/0.36, defined for the first
+time because the strong channel's escalation endpoint finally beats the cheap one. Routing is not a
+crutch for weak channels, then. A genuinely good channel still has per-query structure worth exploiting.
+The gain over uniform fusion does shrink as the channel improves, +4.25 on the shipped list down to
++1.37 on the dense one. That is what the spread framing predicts: a better channel helps more queries,
+so there is less left for selectivity to recover.
 
 OCR is the opposite pole. Uniform fusion loses 5.9 points and the router declines it at f=0.00, the same
 call it makes on the LLM expansion tier. A router that only ever found reasons to spend would be

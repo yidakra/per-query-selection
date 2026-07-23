@@ -67,6 +67,9 @@ multilingual one. On this benchmark that distinction decides the whole result.
 | per-query gain: mean / sd | −2.40 / 24.1 | +3.72 / 23.1 |
 | helps / hurts | 27% / 35% | 34% / 28% |
 | predictability, Kendall τ (perm p) | +0.217 (.0005) | +0.170 (.0005) |
+| nested-CV frontier gap (± SEM) | +3.07 ± 0.38 | +2.45 ± 0.32 |
+| APGR | 0.332 | 0.272 |
+| CPT50 / CPT80 | undefined | 0.21 / 0.36 |
 | oracle, best single channel per query | 0.4402 | 0.4777 |
 
 The routing gain against visual-only nearly triples. The story behind it changes, though, so the
@@ -84,6 +87,13 @@ What holds in both cases is the claim about spread rather than sign. Per-query g
 a mean of 3.72, about six times the average effect, and the channel helps 34% of queries while hurting
 28%. Routing converts that spread into a gain whether the mean is positive or negative. This is also the
 version that matches the ρ=0.943 heterogeneity law in `router_findings.md`.
+
+The nested-CV frontier gap against cost-matched random is +2.45 ± 0.32 on the dense channel, below the
++3.07 ± 0.38 on the weak one, and the shrinkage tracks the drop in gain-vs-uniform. One metric improves
+on the strong channel: CPT50 and CPT80 are now 0.21 and 0.36, defined for the first time. They need the
+expensive endpoint to beat the cheap one, which the weak channel never did, so on the shipped list they
+were undefined. Ran with `src/multivent2/mv2_router.py --in <cell>.json`; outputs in
+`mv2_router_visual_to_asr_dense_m3.json` and the OCR/all variants.
 
 The best-single-channel oracle at 0.4777, against 0.3134 for the best fixed channel, says there is a
 lot left on the table for a per-query policy.
