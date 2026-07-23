@@ -123,6 +123,8 @@ def main():
     ap.add_argument("--sweep", action="store_true", help="sweep per-channel RRF weights")
     ap.add_argument("--channel", action="append", default=[], metavar="NAME=FILE",
                     help="add or override a channel, e.g. asr=asr_dense_multilingual-e5-base.json")
+    ap.add_argument("--cell-tag", default="", help="suffix for the per-cell router JSONs, so a run "
+                    "with substituted channels does not overwrite the shipped-channel cells")
     a = ap.parse_args()
 
     channels = dict(CHANNELS)
@@ -183,7 +185,7 @@ def main():
     for name, w in targets.items():
         if any(k not in runs for k, v in w.items() if v > 0):
             continue
-        p = os.path.join(ABL, f"mv2_chan_{name}.json")
+        p = os.path.join(ABL, f"mv2_chan_{name}{a.cell_tag}.json")
         cells[name] = router_json(qrels, vis, fuse(runs, w, qids), qids, p, f"channel_{name}")
         routed[name] = routed_curve(p)
         r = routed[name]
