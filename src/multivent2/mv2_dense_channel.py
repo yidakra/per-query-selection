@@ -40,6 +40,7 @@ def windows(text, size, overlap):
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--which", choices=["asr", "ocr"], default="asr")
+    ap.add_argument("--text", default=None, help="override the text JSONL (e.g. asr_text_en.jsonl)")
     ap.add_argument("--model", default="intfloat/multilingual-e5-base")
     ap.add_argument("--gpu", type=int, default=1, help="physical GPU index")
     ap.add_argument("--batch", type=int, default=64)
@@ -61,7 +62,8 @@ def main():
     e5 = "e5" in a.model.lower()          # e5 needs its asymmetric prefixes to work at all
 
     docs = []
-    with open(os.path.join(DATA, f"{a.which}_text.jsonl")) as f:
+    text_path = a.text or os.path.join(DATA, f"{a.which}_text.jsonl")
+    with open(text_path) as f:
         for line in f:
             d = json.loads(line)
             if d["text"].strip():
