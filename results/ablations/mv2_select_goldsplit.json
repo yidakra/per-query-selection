@@ -1,0 +1,29 @@
+{
+  "channels": {
+    "visual": "10pyscene_clip.json",
+    "asr": "whisperASR_clip.json",
+    "ocr": "10pyscene_paddleOCR_clip.json"
+  },
+  "policies": [
+    "asr",
+    "ocr",
+    "visual",
+    "asr+ocr",
+    "asr+visual",
+    "ocr+visual",
+    "asr+ocr+visual"
+  ],
+  "seeds": 5,
+  "n_queries": 2546,
+  "splittable": 1760,
+  "oracle_full": 0.4669330569609898,
+  "fixed_full": 0.30363779663917667,
+  "in_sample": 0.3788345232123832,
+  "in_sd": 0.0017295473092160838,
+  "out_of_sample": 0.23254575005356942,
+  "out_sd": 0.0019131897251515315,
+  "fixed_on_A": 0.24531911444206442,
+  "fixed_sd": 0.0024915215326775358,
+  "optimism": 14.628877315881377,
+  "oos_vs_fixed": -1.2773364388494994
+}
