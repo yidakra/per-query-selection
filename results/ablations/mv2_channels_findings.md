@@ -1,4 +1,10 @@
-# Routing across modality channels: uniform fusion loses, per-query fusion wins
+# Routing across modality channels: channel value is per-query, weak or strong
+
+This doc covers the **shipped provided channels**. The ASR list here is the benchmark's weak
+CLIP-text scoring of the transcripts; a real dense retriever over the same transcripts is a separate
+result in `mv2_dense_channel_findings.md`, and it flips ASR's sign without changing the routing
+conclusion. Read the two together: the invariant is the per-query spread, not whether a channel's
+average effect is positive or negative.
 
 Our cascade is a cheap visual+caption stack (nDCG@10 0.30–0.37), while the strong systems on MultiVENT
 2.0 (MMMORRF 0.586, CLaMR 0.585) get their lift from speech and on-screen-text channels we were not
@@ -20,10 +26,13 @@ MMMORRF-style weighted RRF over visual + ASR + OCR is reproducible here on CPU a
 | visual + OCR | 0.24448 |
 | ASR + OCR | 0.14173 |
 
-**Every fusion is worse than the visual channel alone.** This is not a weighting failure — the sweep
-over ASR ∈ {0.5, 1, 1.5, 2} × OCR ∈ {0, 0.25, 0.5, 1} never beats 0.30364; the best point (ASR 0.5,
-OCR 0) is 0.27955. Uniform RRF hands a fixed share of the vote to a channel that, for most queries, has
-nothing useful to say, and the noise it injects costs more than the signal it adds.
+**With these shipped lists, every fusion is worse than the visual channel alone.** This is not a
+weighting failure — the sweep over ASR ∈ {0.5, 1, 1.5, 2} × OCR ∈ {0, 0.25, 0.5, 1} never beats
+0.30364; the best point (ASR 0.5, OCR 0) is 0.27955. Uniform RRF hands a fixed share of the vote to a
+channel that, for most queries, has nothing useful to say, and the noise it injects costs more than the
+signal it adds. (Swap the weak ASR list for the dense retriever and this table changes: uniform
+visual+ASR then reaches 0.3408, above visual alone. The per-query spread and the routing gain on top
+survive the swap. See `mv2_dense_channel_findings.md`.)
 
 ## 2. The reason: channel usefulness is a per-query property
 
@@ -83,6 +92,8 @@ negative — the Full tier is expensive, barely helps, and is close to unroutabl
   not global.
 
 Caveat to keep stating: the absolute numbers are low because these are the benchmark's cheap provided
-channels, not MMMORRF's retrievers. The benchmark also ships the raw ASR and OCR text
-(`features/test/whisper_asr.zip`, `paddle_ocr.zip`), so building a stronger text channel and re-running
-this routing test on top of it is a concrete next experiment, not a hope.
+channels, not MMMORRF's retrievers. We have since built a stronger one. A bge-m3 dense retriever over
+the raw transcripts (`features/test/whisper_asr.zip`) scores 0.3134, above visual, and we re-ran this
+routing test on top of it. Routing still pays (+5.09 over visual-only, +1.37 over the best fixed weight,
+τ +0.170), so the conclusion here does not depend on the channel being weak. Details, and the
+cross-lingual reason the first encoder failed, are in `mv2_dense_channel_findings.md`.

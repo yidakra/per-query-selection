@@ -66,22 +66,41 @@ multilingual one. On this benchmark that distinction decides the whole result.
 | gain vs uniform | +4.25 | +1.37 |
 | per-query gain: mean / sd | −2.40 / 24.1 | +3.72 / 23.1 |
 | helps / hurts | 27% / 35% | 34% / 28% |
+| predictability, Kendall τ (perm p) | +0.217 (.0005) | +0.170 (.0005) |
+| nested-CV frontier gap (± SEM) | +3.07 ± 0.38 | +2.45 ± 0.32 |
+| APGR | 0.332 | 0.272 |
+| CPT50 / CPT80 | undefined | 0.21 / 0.36 |
 | oracle, best single channel per query | 0.4402 | 0.4777 |
 
-The routing gain against visual-only nearly triples. But the story behind it changes, and the one-pager
-needs updating for that. With the shipped channel, uniform fusion *lost* 2.4 points and routing was
-repairing a channel that was net-harmful. With bge-m3, uniform fusion helps by 3.7 and routing adds
-1.37 on top of the best weight setting we could find.
+The routing gain against visual-only nearly triples. The story behind it changes, though, so the
+one-pager needed a rewrite. With the shipped channel, uniform fusion lost 2.4 points and routing was
+repairing a channel that hurt on average. With bge-m3, uniform fusion helps by 3.7, and routing adds
+1.37 on top of the best fixed weight. The out-of-fold predictor still orders queries by true gain at
+τ = +0.170 (p = .0005), only a little below the +0.217 on the weak channel, so a good channel does not
+wash out the routing signal.
 
-So "uniform fusion of an informative channel can be worse than ignoring it" no longer describes ASR.
-It still describes OCR exactly: uniform fusion loses 5.92 there and the router declines the channel
-outright at f=0.00, same as it declined the LLM expansion tier.
+"Uniform fusion of an informative channel can be worse than ignoring it" no longer describes ASR. It
+still describes OCR: uniform fusion loses 5.92 there and the router declines the channel at f=0.00, the
+same call it makes on the LLM expansion tier.
 
-The claim that survives both cases is the one about spread, not sign. Per-query gain has sd 23.1 while
-its mean is 3.72, roughly six times its own average effect, and the channel helps 34% of queries while
-hurting 28%. That heterogeneity is what routing converts into a gain, whether the mean happens to be
-positive or negative. It is also the version that matches the ρ=0.943 heterogeneity law from
-`router_findings.md`.
+What holds in both cases is the claim about spread rather than sign. Per-query gain has sd 23.1 against
+a mean of 3.72, about six times the average effect, and the channel helps 34% of queries while hurting
+28%. Routing converts that spread into a gain whether the mean is positive or negative. This is also the
+version that matches the ρ=0.943 heterogeneity law in `router_findings.md`.
+
+The nested-CV frontier gap against cost-matched random is +2.45 ± 0.32 on the dense channel, below the
++3.07 ± 0.38 on the weak one, and the shrinkage tracks the drop in gain-vs-uniform. One metric improves
+on the strong channel: CPT50 and CPT80 are now 0.21 and 0.36, defined for the first time. They need the
+expensive endpoint to beat the cheap one, which the weak channel never did, so on the shipped list they
+were undefined. Ran with `src/multivent2/mv2_router.py --in <cell>.json`; outputs in
+`mv2_router_visual_to_asr_dense_m3.json` and the OCR/all variants.
+
+The selective-prediction view agrees. Treating a cheap-tier answer as an abstention from the channel,
+the dense A→B router closes 31.6% of the excess risk a perfect router would remove (E-AURC 12.4 against
+18.2 for random escalation). That is close to the 35.2% on the shipped ASR channel and well above the
+6.3% the LLM expansion tier manages. Note this A→B is the channel step, a different cell from the
+tier-cascade A→B (visual→+captions, 22.0%) quoted elsewhere. Ran with `mv2_riskcov.py`; output in
+`mv2_riskcov_dense.json`.
 
 The best-single-channel oracle at 0.4777, against 0.3134 for the best fixed channel, says there is a
 lot left on the table for a per-query policy.
