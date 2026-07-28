@@ -1,0 +1,29 @@
+{
+  "channels": {
+    "visual": "10pyscene_clip.json",
+    "asr": "asr_dense_bge-m3.json",
+    "ocr": "ocr_dense_bge-m3.json"
+  },
+  "policies": [
+    "asr",
+    "ocr",
+    "visual",
+    "asr+ocr",
+    "asr+visual",
+    "ocr+visual",
+    "asr+ocr+visual"
+  ],
+  "seeds": 5,
+  "n_queries": 2546,
+  "splittable": 1760,
+  "oracle_full": 0.5249152964758269,
+  "fixed_full": 0.3371516020519485,
+  "in_sample": 0.4168985387528695,
+  "in_sd": 0.00428819804225025,
+  "out_of_sample": 0.25729842539381836,
+  "out_sd": 0.003160458962600181,
+  "fixed_on_A": 0.25237469704406124,
+  "fixed_sd": 0.0015767291493493177,
+  "optimism": 15.960011335905111,
+  "oos_vs_fixed": 0.4923728349757128
+}
