@@ -1,4 +1,4 @@
-# Adaptive Q2E — one-page summary
+# Adaptive Q2E: one-page summary
 
 **Claim: in multimodal video retrieval, which evidence to trust is a per-query decision, and a
 1-ms model reading scores the system already computed makes that decision well.** All numbers are
@@ -59,6 +59,3 @@ contribution is the decision layer those systems lack, and their channels drop i
 The gap-closing experiment is already running: NLLB-translating all 71K non-English transcripts to
 English, then re-scoring with the same dense encoder, the translate half of MMMORRF's recipe on our
 hardware. Results in ~2 days.
-
-Open question for you: with the selection result in, we would make per-query evidence selection the
-paper's headline and demote the cost story to supporting material. Objections welcome.
