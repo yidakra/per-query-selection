@@ -1,0 +1,100 @@
+{
+  "channels": {
+    "visual": "10pyscene_clip.json",
+    "asr": "asr_dense_bge-m3.json",
+    "ocr": "10pyscene_paddleOCR_clip.json"
+  },
+  "policies": [
+    "asr",
+    "ocr",
+    "visual",
+    "asr+ocr",
+    "asr+visual",
+    "ocr+visual",
+    "asr+ocr+visual"
+  ],
+  "n_queries": 2546,
+  "policy_means": {
+    "asr": 0.31380412182068373,
+    "ocr": 0.12226372458879763,
+    "visual": 0.30363779663917684,
+    "asr+ocr": 0.18786454164802405,
+    "asr+visual": 0.33715160205194816,
+    "ocr+visual": 0.18204096235955505,
+    "asr+ocr+visual": 0.27756175686195944
+  },
+  "best_fixed": "asr+visual",
+  "selected_oof": 0.4171406403877446,
+  "p_perm": 0.0004997501249375312,
+  "oracle_best_policy": 0.5180726523047243,
+  "nested_gap": 8.086094742729639,
+  "nested_sem": 0.6454808201696358,
+  "folds": [
+    {
+      "achieved": 0.41530795485603456,
+      "fixed": 0.35112148294504364,
+      "fixed_policy": 4
+    },
+    {
+      "achieved": 0.4254717018090055,
+      "fixed": 0.35784618615204195,
+      "fixed_policy": 4
+    },
+    {
+      "achieved": 0.4276179599112336,
+      "fixed": 0.32941369142140775,
+      "fixed_policy": 4
+    },
+    {
+      "achieved": 0.42181673314046925,
+      "fixed": 0.33507613872135616,
+      "fixed_policy": 4
+    },
+    {
+      "achieved": 0.3998209519409866,
+      "fixed": 0.312273065281398,
+      "fixed_policy": 4
+    }
+  ],
+  "picks": {
+    "asr": 986,
+    "ocr": 31,
+    "visual": 815,
+    "asr+ocr": 10,
+    "asr+visual": 644,
+    "ocr+visual": 25,
+    "asr+ocr+visual": 35
+  },
+  "feature_order": [
+    "asr:margin12",
+    "asr:margin13",
+    "asr:z1",
+    "asr:entropy",
+    "asr:maxp",
+    "asr:top5mass",
+    "asr:std",
+    "asr:top1",
+    "ocr:margin12",
+    "ocr:margin13",
+    "ocr:z1",
+    "ocr:entropy",
+    "ocr:maxp",
+    "ocr:top5mass",
+    "ocr:std",
+    "ocr:top1",
+    "visual:margin12",
+    "visual:margin13",
+    "visual:z1",
+    "visual:entropy",
+    "visual:maxp",
+    "visual:top5mass",
+    "visual:std",
+    "visual:top1",
+    "overlap10:asr+ocr",
+    "overlap100:asr+ocr",
+    "overlap10:asr+visual",
+    "overlap100:asr+visual",
+    "overlap10:ocr+visual",
+    "overlap100:ocr+visual"
+  ]
+}

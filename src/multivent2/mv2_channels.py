@@ -119,13 +119,15 @@ def router_json(qrels, cheap_run, exp_run, qids, path, scorer):
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("--out", default=os.path.join(ABL, "mv2_channels.json"))
+    ap.add_argument("--out", default=None, help="default: mv2_channels<cell-tag>.json")
     ap.add_argument("--sweep", action="store_true", help="sweep per-channel RRF weights")
     ap.add_argument("--channel", action="append", default=[], metavar="NAME=FILE",
                     help="add or override a channel, e.g. asr=asr_dense_multilingual-e5-base.json")
     ap.add_argument("--cell-tag", default="", help="suffix for the per-cell router JSONs, so a run "
                     "with substituted channels does not overwrite the shipped-channel cells")
     a = ap.parse_args()
+    if a.out is None:
+        a.out = os.path.join(ABL, f"mv2_channels{a.cell_tag}.json")
 
     channels = dict(CHANNELS)
     for spec in a.channel:
