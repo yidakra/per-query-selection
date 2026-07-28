@@ -1,8 +1,24 @@
-# Adaptive Q2E — one-page summary
+# Adaptive Q2E: one-page summary
 
 **Claim: in multimodal video retrieval, which evidence to trust is a per-query decision, and a
 1-ms model reading scores the system already computed makes that decision well.** All numbers are
 MultiVENT 2.0 test (2,546 queries, graded multi-gold judgments, nDCG@10).
+
+## Research questions
+
+**RQ1.** Can a retrieval system tell, per query and before spending anything, which of its evidence
+sources will help? Answer: yes, from the cheap sources' own score distributions; and no from the
+query text alone, which refutes Adaptive-RAG's premise in this setting.
+
+**RQ2.** Does acting on that prediction beat every fixed policy, including the best fusion of
+everything? Answer: by +8.09 ± 0.65 nDCG on the strong-channel cell, +6.20 ± 0.29 on the shipped
+channels, measured leak-free.
+
+**RQ3.** When does per-query selection pay, and can that be known in advance? Answer: the payoff
+tracks the spread of per-query gain (ρ = 0.943 across six cells), and it vanishes for the LLM
+expansion tier, whose gain no feature we tried can rank.
+
+## How we got here
 
 We started by importing Adaptive-RAG's premise into Q2E's LLM-expansion cascade. It half-failed in a
 useful way. Query text predicts nothing about which queries need the expensive tier; the cheap tier's
@@ -43,6 +59,3 @@ contribution is the decision layer those systems lack, and their channels drop i
 The gap-closing experiment is already running: NLLB-translating all 71K non-English transcripts to
 English, then re-scoring with the same dense encoder, the translate half of MMMORRF's recipe on our
 hardware. Results in ~2 days.
-
-Open question for you: with the selection result in, we would make per-query evidence selection the
-paper's headline and demote the cost story to supporting material. Objections welcome.
