@@ -4,8 +4,8 @@ The pairwise cells ask "escalate or not" for one channel at a time. This asks th
 given visual, ASR and OCR, pick the channel *subset* to trust for each query. The selector is a
 multi-target ridge over 30 cheap features (each channel's confidence features plus pairwise top-10/100
 candidate overlap), predicting per-query nDCG for all 7 unit-weight RRF policies, argmax out-of-fold.
-Every channel here is cheap, so this is an accuracy claim rather than a cost claim: the decision reads
-only score distributions that are computed either way. `mv2_channel_select.py`.
+Every channel here is cheap, so the claim is about accuracy. The decision reads only score
+distributions that are computed either way. `mv2_channel_select.py`.
 
 The headline number is nested: the best fixed policy is chosen on the training fold too, so neither
 side of the comparison peeks. Permutation p is the floor of 2000 shuffles in all three cells.
@@ -17,12 +17,12 @@ side of the comparison peeks. Permutation p is the floor of 2000 shuffles in all
 | dense ASR + dense OCR | asr+visual, 0.33715 | 0.41502 | +7.83 ± 1.01 | .0005 |
 
 These are the largest gaps in the project. The previous best was +3.07 (pairwise channel routing);
-the best fixed *or routed* number on these channels was 0.3545. What the picks histogram shows is
-per-query channel *choice*, not blanket fusion: in the dense cell the selector takes a single channel
-for 71% of queries (asr 986, visual 815) and the asr+visual fusion for 25% (644). Fusing everything
-everywhere is exactly what it learns not to do.
+the best fixed *or routed* number on these channels was 0.3545. The picks histogram is the telling
+part: in the dense cell the selector takes a single channel for 71% of queries (asr 986, visual 815)
+and the asr+visual fusion for 25% (644). Fusing everything everywhere is exactly what it learns not
+to do.
 
-## The per-query-best oracle is label noise; the selector is not
+## The per-query-best oracle does not survive a gold split
 
 The selection cells report an oracle of 0.4669 (shipped) / 0.5181 (dense). Before anyone divides by
 it: the section-5 gold-split test says it is mostly fitting capacity. Pick each query's best policy on
@@ -40,12 +40,12 @@ are the oracle memorising which videos this half of the labels happens to mark r
 tier-C optimism result at larger scale, and it again tracks the spread in option quality rather than
 the option count.
 
-The learned selector is immune by construction. Its features never touch labels, its predictions are
-out-of-fold, and the nested gap picks the fixed baseline on train. A pooled learner beating a
-per-query oracle fed noisy labels is the same non-paradox as section 5: +6 to +8 of the gap is real,
-the oracle's extra 10 points were never there. "% of oracle captured" stays retired.
+The learned selector is immune by construction: its features never touch labels and every prediction
+is out-of-fold. The nested protocol even picks its fixed baseline on train. A pooled learner beating a
+per-query oracle fed noisy labels is the same non-paradox as section 5. The +6 to +8 is real; the
+oracle's extra 10 points were never there. "% of oracle captured" stays retired.
 
-## Dense OCR: the modality is weak, not the encoder
+## Dense OCR barely helps, and the reason is the modality
 
 bge-m3 over the raw on-screen text scores 0.13295 against 0.1223 for the shipped CLIP-tower list.
 Compare ASR, where the same swap bought 4.7 points (0.2666 to 0.3134). The encoder-decides-everything
