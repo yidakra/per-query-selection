@@ -75,13 +75,13 @@ def features(runs, qids):
     return np.array(rows), order
 
 
-def nested_selection(X, Y):
+def nested_selection(X, Y, model=mk):
     """Outer 5-fold: fit the selector on train, pick the best fixed policy on train, compare on test.
     Returns (gap mean, gap sem, per-fold detail)."""
     outer = KFold(5, shuffle=True, random_state=1)
     gaps, folds = [], []
     for tr, te in outer.split(X):
-        m = mk().fit(X[tr], Y[tr])
+        m = model().fit(X[tr], Y[tr])
         sel = np.argmax(m.predict(X[te]), axis=1)
         achieved = Y[te, sel].mean()
         fixed_j = int(np.argmax(Y[tr].mean(axis=0)))
@@ -91,24 +91,16 @@ def nested_selection(X, Y):
     return float(np.mean(gaps)), float(np.std(gaps, ddof=1) / np.sqrt(len(gaps))), folds
 
 
-def main():
-    ap = argparse.ArgumentParser()
-    ap.add_argument("--channel", action="append", default=[], metavar="NAME=FILE",
-                    help="add or override a channel, e.g. asr=asr_dense_bge-m3.json")
-    ap.add_argument("--cell-tag", default="", help="suffix for the output JSON")
-    ap.add_argument("--out", default=None)
-    a = ap.parse_args()
-    out_path = a.out or os.path.join(ABL, f"mv2_channel_select{a.cell_tag}.json")
-
+def load_cell(channel_overrides=()):
+    """Everything a selection experiment needs for one cell: policies, targets Y, features X."""
     channels = dict(CHANNELS)
-    for spec in a.channel:
+    for spec in channel_overrides:
         name, _, fn = spec.partition("=")
         channels[name] = fn
 
     qrels, _ = load_qrels(os.path.join(DATA, "multivent_2_test_judgments.jsonl"))
     runs = {n: load_run(os.path.join(DATA, fn)) for n, fn in channels.items()}
     qids = sorted(set.intersection(set(qrels), *[set(r) for r in runs.values()]))
-    print(f"channels: {sorted(runs)}  queries: {len(qids)}")
 
     names = sorted(runs)
     policies = []
@@ -121,9 +113,22 @@ def main():
         pq[pol] = per_query_ndcg(qrels, fuse(runs, w, qids))
     qids = [q for q in qids if all(q in pq[p] for p in policies)]
     Y = np.array([[pq[p][q] for p in policies] for q in qids])
-    print(f"policy means: " + "  ".join(f"{p}={Y[:, j].mean():.4f}" for j, p in enumerate(policies)))
-
     X, feat_order = features(runs, qids)
+    return channels, names, policies, qids, X, Y, feat_order
+
+
+def main():
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--channel", action="append", default=[], metavar="NAME=FILE",
+                    help="add or override a channel, e.g. asr=asr_dense_bge-m3.json")
+    ap.add_argument("--cell-tag", default="", help="suffix for the output JSON")
+    ap.add_argument("--out", default=None)
+    a = ap.parse_args()
+    out_path = a.out or os.path.join(ABL, f"mv2_channel_select{a.cell_tag}.json")
+
+    channels, names, policies, qids, X, Y, feat_order = load_cell(a.channel)
+    print(f"channels: {names}  queries: {len(qids)}")
+    print(f"policy means: " + "  ".join(f"{p}={Y[:, j].mean():.4f}" for j, p in enumerate(policies)))
     print(f"features: {X.shape[1]} ({len(names)} channels x {len(FEATURE_ORDER)} + overlaps)")
 
     # pooled out-of-fold selection: diagnostics, histogram, permutation test
