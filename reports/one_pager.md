@@ -48,6 +48,42 @@ other half wipes out 15 of the oracle's 16 points, so we report no "% of oracle 
 selector's gap is immune to that leak by construction: its features never see a label and every
 prediction is out-of-fold.
 
+### RQ2 in full: routing vs. classical QPP baselines
+
+The natural baseline for a per-query router is Query Performance Prediction (QPP): score the cheap
+channel's result and escalate when it looks weak. We run eleven standard QPP predictors as routers on
+the pairwise escalation cells, each computed from the cheap visual channel's score vector, oriented
+out-of-fold, and used to escalate the queries it flags. The learned cheap-feature ridge beats every one
+of them on both the routed nDCG@10 and the ordering (Kendall τ) in the two ASR cells. On OCR the channel
+is too weak for any router to help, so all methods sit at the cheap baseline.
+
+| Category | Method | ASR-shipped nDCG@10 | τ | ASR-dense nDCG@10 | τ | OCR nDCG@10 | τ |
+|---|---|---|---|---|---|---|---|
+| Original | visual only (cheap) | 0.3036 | — | 0.3036 | — | 0.3036 | — |
+| | uniform fusion (best w) | 0.2795 | — | 0.3408 | — | 0.2445 | — |
+| Post-retrieval | max | 0.3075 | −0.124 | 0.3436 | −0.112 | 0.3036 | −0.087 |
+| | clarity | 0.3149 | −0.158 | 0.3407 | −0.097 | 0.3036 | −0.122 |
+| | NQC | 0.3183 | −0.177 | 0.3519 | −0.156 | 0.3036 | −0.148 |
+| | NQC_norm | 0.3166 | −0.162 | 0.3514 | −0.147 | 0.3036 | −0.136 |
+| | σ_max | 0.3167 | −0.169 | 0.3507 | −0.154 | 0.3036 | −0.144 |
+| | σ_50% | 0.3155 | −0.187 | 0.3461 | −0.121 | 0.3034 | −0.144 |
+| | SMV | 0.3157 | −0.172 | 0.3502 | −0.156 | 0.3036 | −0.146 |
+| | SMV_norm | 0.3188 | −0.184 | 0.3525 | −0.162 | 0.3036 | −0.154 |
+| | WIG | 0.3186 | −0.210 | 0.3518 | −0.149 | 0.3036 | −0.165 |
+| | WIG_norm | 0.3112 | −0.153 | 0.3472 | −0.147 | 0.3039 | −0.132 |
+| | RSD | 0.3165 | −0.161 | 0.3497 | −0.146 | 0.3036 | −0.135 |
+| **Ours** | **cheap-feature gain ridge** | **0.3205** | **+0.217** | **0.3536** | **+0.170** | 0.3033 | +0.162 |
+| Oracle | route by true gain | 0.3653 | +1.000 | 0.3910 | +1.000 | 0.3305 | +1.000 |
+
+nDCG@10 is the routed outcome (escalate where predicted gain > 0); τ is Kendall correlation of the raw
+predictor with true gain. QPP τ are negative because a confident cheap channel signals less to gain from
+escalating, so the router uses the oriented version and nDCG@10 is the fair comparison. Pre-retrieval QPP
+(IDF, ICTF, clarity-style corpus statistics) is absent by necessity: it needs term statistics over the
+documents, which do not exist for video frames. That absence is the multimodal point, not a missing row.
+QSD_post and BERT-QPP need document embeddings and a trained model and are still to run. Predictor
+formulas follow the standard families and will be pinned to github.com/Narabzad/QPP-4-RAG for the
+camera-ready.
+
 Negative results we stand behind, briefly. The LLM expansion tier is correctly declined by its own
 router (and a 14B decomposer stays Pareto-dominated, so a 70B would not rescue it). Paraphrase
 selection ("tier C") does not exist once gold-split audited. On-screen text is weak evidence however
