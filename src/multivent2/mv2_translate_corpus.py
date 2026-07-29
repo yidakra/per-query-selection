@@ -23,27 +23,29 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 _ROOT = os.path.dirname(os.path.dirname(HERE))
 DATA = os.path.join(_ROOT, "data", "multivent2")
 
-# dominant-script -> NLLB source code. Only the scripts that actually occur here.
-SCRIPT_RANGES = [
-    ("kor_Hang", [(0xAC00, 0xD7A3), (0x1100, 0x11FF), (0x3130, 0x318F)]),
-    ("arb_Arab", [(0x0600, 0x06FF), (0x0750, 0x077F), (0x08A0, 0x08FF)]),
-    ("rus_Cyrl", [(0x0400, 0x04FF)]),
-    ("zho_Hans", [(0x4E00, 0x9FFF), (0x3400, 0x4DBF)]),   # CJK; 7 JA docs fold in harmlessly
+# dominant-script -> NLLB source code. Only the scripts that actually occur here. Compiled character
+# classes so routing is a C-level regex count, not a per-char Python loop (the latter takes ~10 min over
+# the 109k-doc corpus and re-runs on every restart).
+SCRIPT_RE = [
+    ("kor_Hang", re.compile(r"[가-힣ᄀ-ᇿ㄰-㆏]")),
+    ("arb_Arab", re.compile(r"[؀-ۿݐ-ݿࢠ-ࣿ]")),
+    ("rus_Cyrl", re.compile(r"[Ѐ-ӿ]")),
+    ("zho_Hans", re.compile(r"[一-鿿㐀-䶿]")),   # CJK; 7 JA docs fold in harmlessly
 ]
 
 
 def route_lang(text):
-    """Dominant non-Latin script -> NLLB src code, or None to leave the text as English."""
-    counts = {code: 0 for code, _ in SCRIPT_RANGES}
-    for ch in text:
-        o = ord(ch)
-        for code, ranges in SCRIPT_RANGES:
-            if any(lo <= o <= hi for lo, hi in ranges):
-                counts[code] += 1
-                break
-    code = max(counts, key=counts.get)
+    """Dominant non-Latin script -> NLLB src code, or None to leave the text as English. Script is
+    uniform within a transcript, so a prefix sample decides it."""
+    s = text[:2000]
+    denom = max(1, len(s) - s.count(" "))
+    best, best_n = None, 0
+    for code, rx in SCRIPT_RE:
+        n = len(rx.findall(s))
+        if n > best_n:
+            best, best_n = code, n
     # require a real presence of the script, not a stray loanword in an English transcript
-    return code if counts[code] >= 0.10 * max(1, len(text.replace(" ", ""))) else None
+    return best if best_n >= 0.10 * denom else None
 
 
 def pieces(text, size=380):
