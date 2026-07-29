@@ -1,0 +1,43 @@
+{
+  "channels": {
+    "visual": "10pyscene_clip.json",
+    "asr": "whisperASR_clip.json",
+    "ocr": "10pyscene_paddleOCR_clip.json"
+  },
+  "policies": [
+    "asr",
+    "ocr",
+    "visual",
+    "asr+ocr",
+    "asr+visual",
+    "ocr+visual",
+    "asr+ocr+visual"
+  ],
+  "n_queries": 2546,
+  "best_fixed": "visual",
+  "best_fixed_ndcg": 0.30363779663917684,
+  "heuristics": {
+    "random_policy": 0.21559858086218822,
+    "pick_by_z1": 0.2625955353279694,
+    "pick_by_top5mass": 0.23817180186863762,
+    "pick_by_maxp": 0.24339793600478762,
+    "pick_by_entropy": 0.20693561482048145
+  },
+  "models": {
+    "ridge": {
+      "selected_oof": 0.36639941025671247,
+      "nested_gap": 6.197583197690454,
+      "nested_sem": 0.2893713061489181
+    },
+    "gbdt": {
+      "selected_oof": 0.3505316789752148,
+      "nested_gap": 4.457736785298571,
+      "nested_sem": 0.38314810492059187
+    },
+    "mlp": {
+      "selected_oof": 0.33963443372462204,
+      "nested_gap": 4.332741944082381,
+      "nested_sem": 0.5690704468837109
+    }
+  }
+}

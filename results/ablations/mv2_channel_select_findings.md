@@ -56,6 +56,39 @@ cell OCR-containing policies are picked for 352 queries. Neither moves the aggre
 to the selector changes 0.41714 into 0.41502, a wash. OCR keeps its role as the channel uniform
 fusion should fear (fusing it uniformly still loses 5.9 points) and routing should mostly skip.
 
+## No shortcut reproduces it, and no heavier model beats it
+
+Two questions a reviewer would ask, answered on both cells (`mv2_select_baselines.py`). First, the
+afternoon baselines: pick the channel whose own confidence feature is highest, or pick a policy at
+random. Best heuristic (pick by z1): 0.2626 shipped, 0.3207 dense. Both lose to the best *fixed*
+policy, never mind the selector. Confidence features carry the signal only in combination and with
+training; no single-feature shortcut gets there.
+
+Second, the model ablation, identical protocol throughout:
+
+| model | shipped: selected / nested | dense: selected / nested |
+|---|---|---|
+| ridge | **0.3664** / +6.20 ± 0.29 | **0.4171** / +8.09 ± 0.65 |
+| GBDT | 0.3505 / +4.46 ± 0.38 | 0.4032 / +6.88 ± 0.87 |
+| MLP | 0.3396 / +4.33 ± 0.57 | 0.4009 / +5.88 ± 0.66 |
+
+The 1-ms linear model wins both cells. The heavier models overfit the 30 features slightly. That
+settles the efficiency story in the right direction: nothing is being traded away for the speed.
+
+## Where K-way selection does not pay, measured
+
+The same protocol on the original MultiVENT and four MSR-VTT cells, with Q2E's component subsets
+(A, B, Full, -Query, -Video) as the policy set and cascade-legal features from the two cheap
+components only (`router_kway_select.py`). Selection never beats the best fixed tier there: nested
+gaps run -0.73 to +0.21 across all six cells, and the picks pile onto the dominant tier.
+
+This is the boundary of the claim, and it is the one the heterogeneity law predicts. The original
+policies form a nested quality ladder where one tier dominates and the margins between adjacent
+tiers are the B-to-Full differences already shown unpredictable. The MultiVENT 2.0 channels are
+genuinely alternative evidence sources with 20-plus-point per-query spreads. Per-query choice
+converts spread across alternatives; it has nothing to convert on a ladder. Selection is a tool for
+heterogeneous evidence, and these six cells say so with data rather than a caveat.
+
 ## Scope and loose ends
 
 - Policies are unit-weight RRF subsets. Per-policy weight tuning would grow the policy set and
@@ -63,7 +96,8 @@ fusion should fear (fusing it uniformly still loses 5.9 points) and routing shou
 - The features deliberately use every channel's score distribution. For channel selection that is
   legal by design; it would not be legal for a cost cascade, where the expensive tier's scores do not
   exist before the decision.
-- A classification head (predict the argmax directly) and richer disagreement features are untried.
+- A classification head (predict the argmax directly) and richer disagreement features are untried;
+  GBDT and MLP regressors are tried and lose to the ridge.
 - The selector's absolute numbers still sit on cheap channels. MMMORRF-class dense retrieval per
   channel plus this selector is the obvious composition, and nothing in the protocol changes.
 
