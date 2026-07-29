@@ -1,0 +1,43 @@
+{
+  "channels": {
+    "visual": "10pyscene_clip.json",
+    "asr": "asr_dense_bge-m3.json",
+    "ocr": "10pyscene_paddleOCR_clip.json"
+  },
+  "policies": [
+    "asr",
+    "ocr",
+    "visual",
+    "asr+ocr",
+    "asr+visual",
+    "ocr+visual",
+    "asr+ocr+visual"
+  ],
+  "n_queries": 2546,
+  "best_fixed": "asr+visual",
+  "best_fixed_ndcg": 0.33715160205194816,
+  "heuristics": {
+    "random_policy": 0.2463320722814493,
+    "pick_by_z1": 0.3206654259907617,
+    "pick_by_top5mass": 0.30408500597295063,
+    "pick_by_maxp": 0.3165173717575515,
+    "pick_by_entropy": 0.265617692105842
+  },
+  "models": {
+    "ridge": {
+      "selected_oof": 0.4171406403877446,
+      "nested_gap": 8.086094742729639,
+      "nested_sem": 0.6454808201696358
+    },
+    "gbdt": {
+      "selected_oof": 0.4032405315557907,
+      "nested_gap": 6.882237200583553,
+      "nested_sem": 0.872245169875397
+    },
+    "mlp": {
+      "selected_oof": 0.40089920766382414,
+      "nested_gap": 5.884539301052804,
+      "nested_sem": 0.6577609498473067
+    }
+  }
+}
