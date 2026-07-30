@@ -18,6 +18,35 @@ channels, measured leak-free.
 tracks the spread of per-query gain (ρ = 0.943 across six cells), and it vanishes for the LLM
 expansion tier, whose gain no feature we tried can rank.
 
+**RQ4.** What makes prediction-based routing different when the documents are video rather than text?
+Answer: three things, and each is measured rather than asserted. This is the axis that separates us from
+the QPP-for-selection literature, which is entirely text.
+
+*The predictor and the retriever can read different modalities.* A pre-retrieval predictor scores the
+query against a corpus index. In text that index covers the same corpus the retriever searches, so the
+prediction is about the thing being decided. Our retriever searches 218K videos, and the only index we
+can build is over their ASR transcripts, which describe a different channel than the visual one the
+router is deciding about. All ten pre-retrieval predictors land at τ ≈ 0 (table under RQ2), against
+|τ| ≈ 0.21 for the score-only post-retrieval family. In text RAG the same cheap predictors are
+competitive, so this is a property of the setting rather than of the predictors.
+
+*Some predictors do not exist here.* Clarity builds a language model from the retrieved documents and
+compares it to the collection. Video frames have no terms, so for the visual channel Clarity is
+undefined rather than weak. We report it as unavailable, because a number would imply the comparison
+was possible.
+
+*Whether a channel applies is a property of the document, not the query.* A silent protest clip has no
+speech to transcribe and a studio segment is almost all speech, so the speech channel's usefulness
+varies with what was filmed. In query-variant selection every variant applies to every document, and
+the only variation is quality. That difference is what produces the per-query gain spread RQ3 turns
+into accuracy: sd 23.1 against a mean of 3.72 on the dense speech channel.
+
+A fourth item is being measured now. Retrieval and generation may want different channels, because a
+channel can rank well while carrying nothing a generator can read. Our strongest cheap retriever is the
+visual one, which emits embeddings; our weakest is OCR, which emits directly usable text. If ranking
+ability and grounding ability come apart, routing tuned for nDCG is the wrong objective for multimodal
+RAG, which would be a sharper version of the utility gap reported for text.
+
 ## How we got here
 
 We started by importing Adaptive-RAG's premise into Q2E's LLM-expansion cascade. It half-failed in a

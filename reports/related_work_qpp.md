@@ -19,17 +19,20 @@ state-of-the-art QPP by having an LLM generate per-document relevance judgments,
 pass over the candidate list.
 
 Our work shares the premise that a per-query choice can be predicted cheaply, but the setting is
-multimodal, and that changes the problem in a way the text-RAG formulation does not confront. Classical
-pre-retrieval QPP predicts difficulty from corpus term statistics such as IDF, ICTF, and clarity, all of
-which presume a lexical index over the documents. Our documents are videos. The visual channel has no
-term statistics at all, and the only text is derived from ASR and OCR, which is noisy, frequently absent
-(a silent clip has no speech to transcribe), and multilingual, so the collection frequency of a query
-term is either undefined or unreliable. A pre-retrieval predictor in the classical sense is therefore
-unavailable for the modality that carries most of the signal. The cheapest usable signal is instead the
-score distribution of the cheap visual channel once it has run, namely its top score, its margins, and
-its entropy. This also resolves an apparent tension with prior reports that pre-retrieval QPP suffices
-in text: our features are pre-expensive-retrieval yet post-cheap-retrieval, and in the multimodal
-setting there is no free query-only predictor to fall back on.
+multimodal, and that changes the problem in a way the text formulation does not confront. We implement
+their predictor suite over our channels and find that the pre-retrieval family, which is competitive in
+their study, collapses to τ ≈ 0 here, while the score-only post-retrieval family reaches |τ| ≈ 0.21.
+The reason is structural rather than a matter of tuning. A pre-retrieval predictor scores the query
+against a corpus index, and in text that index covers the same corpus the retriever searches. Our
+retriever searches videos. The only index we can build is over their ASR transcripts, so the statistics
+describe a different channel than the one the router is deciding about, and the transcripts are
+themselves noisy, frequently absent, and multilingual. Clarity is the sharper case: it builds a
+language model from the retrieved documents, so for a channel whose documents are frames it is undefined
+rather than weak, and we report it as unavailable instead of substituting an approximation. What remains
+computable is the cheap channel's own score distribution, which is why our features sit after the cheap
+retrieval and before the expensive one. Prior reports that cheap pre-retrieval prediction suffices are
+therefore not contradicted so much as bounded: they hold where predictor and retriever read the same
+modality.
 
 Beyond the domain, we differ in what is chosen and how. Arabzadeh et al. select among query
 reformulations; we route among heterogeneous evidence sources, the modality channels (speech, on-screen
@@ -52,7 +55,16 @@ though it would return if a generation tier were added.
   for the dense-retriever numbers if we want a stronger or more conservative anchor.
 - Their benchmark is 56 judged queries; if a reviewer leans on our 2,546-query scale as a strength,
   this contrast is worth a half-sentence.
-- Clarity/WIG/NQC appear in *both* their predictor set and our routing baselines, so "we beat classical
-  QPP as routing baselines" (RQ2) is a direct, same-vocabulary comparison — worth making explicit.
-- If we add QPP-GenRE as an actual baseline (an LLM over the candidate list), the para can gain a
-  sentence quantifying the cost gap against our ~1 ms cheap-feature router.
+- Do NOT write that we beat classical QPP. Once the formulas were pinned to their repo, NQC matched our
+  router on the binary escalate decision (0.3211 vs 0.3205 shipped, 0.3532 vs 0.3536 dense, |τ| 0.215 vs
+  0.217). The defensible claim is that a scalar predictor cannot express a k-way policy choice, so the
+  selector is the contribution and the pairwise cell is the baseline it clears.
+- Their predictor set and our baselines share Clarity/WIG/NQC, so the comparison is same-vocabulary.
+  Worth stating, now that it is a tie rather than a win.
+- Their benchmark is 56 judged queries against our 2,546. Useful contrast if a reviewer questions power,
+  but the RAG arm will run on ~400, so do not overclaim scale across both axes at once.
+- QPP-GenRE as a live baseline would let us quantify the cost gap against our 1 ms router, since it needs
+  an LLM pass over the candidate list. Still to do, along with QSD_post and BERT-QPP.
+- The utility-gap sentence at the end of the second paragraph is a promise until the RAG arm reports. If
+  ranking and grounding do come apart on our channels, that paragraph should lead with it rather than
+  treat it as a caveat.
