@@ -27,7 +27,8 @@ import numpy as np                                # noqa: E402
 HERE = os.path.dirname(os.path.abspath(__file__)); sys.path.insert(0, HERE)
 from mv2_io import load_run, load_queries         # noqa: E402
 from scipy.stats import kendalltau                # noqa: E402
-from sklearn.model_selection import KFold         # noqa: E402
+from sklearn.model_selection import KFold, GroupKFold  # noqa: E402
+from mv2_qsd import event_groups                  # noqa: E402
 
 _ROOT = os.path.dirname(os.path.dirname(HERE))
 DATA = os.path.join(_ROOT, "data", "multivent2")
@@ -59,6 +60,10 @@ def main():
     ap.add_argument("--max-len", type=int, default=256)
     ap.add_argument("--threads", type=int, default=12)
     ap.add_argument("--limit", type=int, default=0, help="debug: only this many queries")
+    ap.add_argument("--group-cv", action="store_true",
+                    help="split by event group, not by query. Needed here for the same reason as QSD: "
+                         "near-duplicate event queries often retrieve the SAME top document, so a plain "
+                         "split lets the model memorise event -> gain across folds")
     ap.add_argument("--out", default=os.path.join(ABL, "mv2_bertqpp.json"))
     a = ap.parse_args()
 
@@ -97,14 +102,28 @@ def main():
         print(f"{cell}: {len(qids)} queries, {n_missing} without a caption for their top doc",
               flush=True)
 
+        if a.group_cv:
+            from mv2_io import load_qrels
+            qrels, _ = load_qrels(os.path.join(DATA, "multivent_2_test_judgments.jsonl"))
+            grp = event_groups(qids, qrels)
+            splits = list(GroupKFold(5).split(np.arange(len(qids)), groups=grp))
+            print(f"  {len(set(grp))} event groups (grouped CV)", flush=True)
+        else:
+            splits = list(KFold(5, shuffle=True, random_state=0).split(np.arange(len(qids))))
+
         pred = np.zeros(len(qids))
         t0 = time.time()
-        for fi, (tr, te) in enumerate(KFold(5, shuffle=True, random_state=0).split(qids)):
+        for fi, (tr, te) in enumerate(splits):
             ex = [InputExample(texts=[queries[qids[i]], texts[i]], label=float(g[i])) for i in tr]
             dl = DataLoader(ex, shuffle=True, batch_size=a.batch)
             m = CrossEncoder(a.model, num_labels=1, max_length=a.max_len, device="cpu")
+            # CrossEncoder defaults to BCEWithLogitsLoss when num_labels == 1, which expects targets in
+            # [0, 1]. Our target is an escalation gain in roughly [-1, 1], so the default objective is
+            # invalid: an earlier run reached tau +0.240 yet escalated every query, because the ranking
+            # carried signal while the zero-crossing was meaningless. Their setup avoids this because a
+            # ranking metric is already in [0, 1]. Regress the gain with MSE instead.
             m.fit(train_dataloader=dl, epochs=a.epochs, warmup_steps=max(10, len(dl) // 10),
-                  show_progress_bar=False)
+                  loss_fct=torch.nn.MSELoss(), show_progress_bar=False)
             pred[te] = m.predict([[queries[qids[i]], texts[i]] for i in te],
                                  batch_size=32, show_progress_bar=False)
             print(f"  fold {fi+1}/5 done ({(time.time()-t0)/60:.1f} min elapsed)", flush=True)
@@ -112,12 +131,24 @@ def main():
 
         tau = float(kendalltau(pred, g).statistic)
         routed = float(np.where(pred > 0, ndB, ndA).mean())
-        out[cell] = {"tau": tau, "routed_ndcg10": routed, "n": len(qids),
+        # a regression head's zero-crossing may still be off even under MSE, so report the best
+        # escalation fraction too: it separates ranking quality from calibration
+        order = np.argsort(-pred)
+        best_v, best_f = routed, 0.0
+        for f in np.arange(0.02, 1.0, 0.02):
+            k = int(round(f * len(qids)))
+            mask = np.zeros(len(qids), bool); mask[order[:k]] = True
+            v = float(np.where(mask, ndB, ndA).mean())
+            if v > best_v:
+                best_v, best_f = v, float(f)
+        out[cell] = {"tau": tau, "routed_ndcg10": routed,
+                     "routed_best_f": best_v, "best_f": best_f, "n": len(qids),
                      "cheap": float(ndA.mean()), "uniform": float(ndB.mean()),
-                     "model": a.model, "epochs": a.epochs,
+                     "model": a.model, "epochs": a.epochs, "group_cv": bool(a.group_cv),
                      "pred": {q: float(p) for q, p in zip(qids, pred)}}
         json.dump(out, open(a.out, "w"), indent=2)
-        print(f"{cell}: tau={tau:+.3f}  routed nDCG@10={routed:.4f}  "
+        print(f"{cell}: tau={tau:+.3f}  routed nDCG@10={routed:.4f} (thresh>0)  "
+              f"{best_v:.4f} @f={best_f:.2f} (best)  "
               f"(cheap {ndA.mean():.4f}, uniform {ndB.mean():.4f})", flush=True)
 
     print(f"wrote {a.out}", flush=True)

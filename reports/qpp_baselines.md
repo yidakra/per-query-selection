@@ -37,7 +37,7 @@ to gain from escalating, so the raw predictor anti-correlates with gain and the 
 | | σ_x0.5 | 0.3160 | −0.182 | 0.3452 | −0.122 | 0.3036 | −0.100 |
 | | max | 0.3075 | −0.124 | 0.3436 | −0.112 | 0.3036 | −0.087 |
 | Post-retrieval | clarity | n/a | — | n/a | — | n/a | — |
-| (needs doc text) | BERT-QPP (cross) | pending | | pending | | pending | |
+| (needs doc text) | BERT-QPP (cross)* | 0.3239 | +0.237 | **0.3583** | **+0.229** | 0.3045 | +0.167 |
 | Ours | cheap-feature gain ridge | 0.3205 | +0.217 | **0.3536** | +0.170 | 0.3033 | +0.162 |
 | Oracle | route by true gain | 0.3653 | +1.000 | 0.3910 | +1.000 | 0.3305 | +1.000 |
 
@@ -77,10 +77,9 @@ post-retrieval predictors.
 Not implemented, with reasons rather than blanks:
 
 - **Clarity** is structurally unavailable for a visual channel, as above.
-- **BERT-QPP (cross-encoder)** is running. It is the one supervised predictor in the suite, trained out
-  of fold on (query, top retrieved document) pairs where the document is verbalized through the shipped
-  captions, since the visual channel has no text of its own. Their released checkpoint is trained on
-  MS MARCO BM25 map@20 and does not transfer, so we train our own.
+- **BERT-QPP (cross-encoder)** is implemented and run; see the section below. `*` in the table marks
+  that its nDCG is at the best escalation fraction rather than at a zero threshold, because its head is
+  poorly calibrated even under MSE and thresholding escalates every query.
 - **QSD_post** is not implemented. Its formulation (Eq. 8 of the paper below) is a trained transformer
   over the query, its neighbour queries with their scores, and the retrieved documents, which is the same
   shape of training job as BERT-QPP. **QSD_pre is implemented** and is discussed next, because it turned
@@ -138,3 +137,46 @@ family, and on any benchmark with multiple phrasings per topic it needs topic-gr
 measures duplicate detection. **Still to check:** the headline k-way selector gap (+8.09) was also
 computed under plain KFold. Our predictors are insensitive to the split, so it should hold, but it needs
 the grouped-CV rerun before the number goes in a paper.
+
+## BERT-QPP: the one baseline that beats us, and what it costs
+
+BERT-QPP (Arabzadeh et al. 2021) is the only supervised predictor in the suite. It fine-tunes a
+cross-encoder on (query, first retrieved document) to regress performance. Implementation in
+`src/multivent2/mv2_bertqpp.py`, with three adaptations recorded here.
+
+The target is the escalation gain rather than an absolute metric, so it matches every other row. The
+document is verbalized through the shipped captions, since the visual channel has no text of its own,
+which is RQ4 appearing as an implementation constraint rather than an argument. And their released
+checkpoint is trained on MS MARCO BM25 map@20, which does not transfer, so we train our own out of fold.
+
+One bug is worth recording because it produced a plausible wrong answer. `CrossEncoder` silently
+defaults to `BCEWithLogitsLoss` when `num_labels == 1`, which expects targets in [0, 1], whereas an
+escalation gain lives in roughly [-1, 1]. The invalid objective still reached τ = +0.240 while routing
+every single query to the expensive channel: the ranking carried signal, the zero-crossing did not. Their
+setup never hits this because a ranking metric is already in [0, 1]. Fixed by passing MSE explicitly.
+Calibration remains poor even so, so nDCG is reported at the swept escalation fraction, which separates
+ranking quality from calibration.
+
+Run under both splits:
+
+| cell | leaky τ | grouped τ | leaky nDCG | grouped nDCG | ours (grouped) |
+|---|---|---|---|---|---|
+| ASR-shipped | +0.295 | +0.237 | 0.3309 @f=.60 | 0.3239 @f=.54 | +0.211 / 0.3193 |
+| ASR-dense | +0.254 | +0.229 | 0.3629 @f=.76 | 0.3583 @f=.76 | +0.160 / 0.3531 |
+| OCR | +0.235 | +0.167 | 0.3076 @f=.16 | 0.3045 @f=.06 | +0.154 / 0.3036 |
+
+Event grouping costs it 20%, 10% and 29% of its τ, so it leaks like QSD does, through the same
+event-level gain correlation. Unlike QSD it survives the correction and **keeps a real lead over our
+router**: τ +0.237 against +0.211 on the shipped cell and +0.229 against +0.160 on the dense one.
+
+That is the honest headline for this table. A fine-tuned cross-encoder reading caption text beats a
+ridge over cheap score features, and it should. What it costs is the point of the comparison: roughly 40
+minutes of CPU fine-tuning per fold, five folds per cell, plus document text that the visual channel does
+not natively have, against 1.04 ms per query and no training at all. Our claim is a position on the
+cost-quality frontier, not the top of the accuracy column, and the k-way selector remains the
+contribution a scalar predictor cannot express.
+
+Leakage magnitudes to carry forward: QSD_pre loses 52% of its τ under event grouping and falls behind,
+BERT-QPP loses 10-29% and stays ahead, and the analytic score-only predictors and our own router lose
+1-3%. Anything that consumes historical query performance leaks on this benchmark; anything that reads
+only the current query's score distribution does not.
