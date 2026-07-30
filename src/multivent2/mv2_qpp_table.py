@@ -48,16 +48,25 @@ def mk():
                      ("m", RidgeCV(alphas=np.logspace(-2, 3, 12)))])
 
 
-def route(raw, g, ndA, ndB):
+def route(raw, g, ndA, ndB, cv=None):
     """Single-feature OOF ridge -> escalate where predicted gain > 0. Returns (routed nDCG, raw tau)."""
     raw = np.asarray(raw, dtype=np.float64).reshape(-1, 1)
     if np.allclose(raw.std(), 0):
         return float(ndA.mean()), 0.0
-    pred = cross_val_predict(mk(), raw, g, cv=KFold(5, shuffle=True, random_state=0))
+    if cv is None:
+        cv = KFold(5, shuffle=True, random_state=0)
+    pred = cross_val_predict(mk(), raw, g, cv=cv)
     return float(np.where(pred > 0, ndB, ndA).mean()), float(kendalltau(raw.ravel(), g).statistic)
 
 
 def main():
+    import argparse
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--group-cv", action="store_true",
+                    help="orient every predictor on event-grouped folds, so a near-duplicate phrasing "
+                         "of the same event cannot sit on both sides of a fold boundary")
+    ap.add_argument("--tag", default="", help="suffix for the output files")
+    a = ap.parse_args()
     visual = load_run(os.path.join(DATA, "10pyscene_clip.json"))
     queries = load_queries(os.path.join(DATA, "multivent_2_test_queries.csv"))
 
@@ -86,6 +95,17 @@ def main():
         g = ndB - ndA
         feats = np.array([d["features"][q] for q in qids])
 
+        if a.group_cv:
+            from sklearn.model_selection import GroupKFold
+            from mv2_io import load_qrels
+            from mv2_qsd import event_groups
+            qrels, _ = load_qrels(os.path.join(DATA, "multivent_2_test_judgments.jsonl"))
+            grp = event_groups(qids, qrels)
+            cv = list(GroupKFold(5).split(np.arange(len(qids)), groups=grp))
+            print(f"{label}: {len(set(grp))} event groups", flush=True)
+        else:
+            cv = None
+
         # score-only predictors from the cheap visual channel
         post = {n: [] for n in SCORE_ONLY}
         for q in qids:
@@ -93,7 +113,7 @@ def main():
             for n, v in score_only_suite(list(visual[q].values()), nq).items():
                 post[n].append(v)
 
-        rows = {n: route(post[n], g, ndA, ndB) for n in SCORE_ONLY}
+        rows = {n: route(post[n], g, ndA, ndB, cv) for n in SCORE_ONLY}
 
         # pre-retrieval predictors over the ASR lexical index (query-side only, no retrieval at all)
         pre_rows = {}
@@ -103,9 +123,10 @@ def main():
                 s = pre_retrieval_suite(queries[q].lower().split(), idx)
                 for n in PRE_RETRIEVAL:
                     pre[n].append(s[n])
-            pre_rows = {n: route(pre[n], g, ndA, ndB) for n in PRE_RETRIEVAL}
+            pre_rows = {n: route(pre[n], g, ndA, ndB, cv) for n in PRE_RETRIEVAL}
 
-        ours_pred = cross_val_predict(mk(), feats, g, cv=KFold(5, shuffle=True, random_state=0))
+        ours_pred = cross_val_predict(mk(), feats, g,
+                                     cv=cv or KFold(5, shuffle=True, random_state=0))
         ours = (float(np.where(ours_pred > 0, ndB, ndA).mean()),
                 float(kendalltau(ours_pred, g).statistic))
         oracle = (float(np.where(g > 0, ndB, ndA).mean()), 1.0)
@@ -115,7 +136,7 @@ def main():
         print(f"{label}: n={len(qids)} cheap={ndA.mean():.4f} uniform={ndB.mean():.4f} "
               f"ours={ours[0]:.4f} (tau {ours[1]:+.3f})", flush=True)
 
-    json.dump(results, open(os.path.join(ABL, "mv2_qpp_table.json"), "w"), indent=2)
+    json.dump(results, open(os.path.join(ABL, f"mv2_qpp_table{a.tag}.json"), "w"), indent=2)
 
     labels = [c[0] for c in CELLS]
     def fmt(v):
@@ -142,7 +163,7 @@ def main():
     L.append("| Oracle | route by true gain | " +
              " | ".join(fmt(results[l]["oracle"]) for l in labels) + " |")
     md = "\n".join(L)
-    open(os.path.join(ABL, "mv2_qpp_table.md"), "w").write(md + "\n")
+    open(os.path.join(ABL, f"mv2_qpp_table{a.tag}.md"), "w").write(md + "\n")
     print("\n" + md)
 
 

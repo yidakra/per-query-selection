@@ -16,30 +16,36 @@ to gain from escalating, so the raw predictor anti-correlates with gain and the 
 |---|---|---|---|---|---|---|---|
 | Original | visual only (cheap) | 0.3036 | — | 0.3036 | — | 0.3036 | — |
 | | uniform fusion (best w) | 0.2795 | — | 0.3408 | — | 0.2445 | — |
-| Pre-retrieval | IDF_avg | 0.3037 | −0.033 | 0.3408 | −0.008 | 0.3036 | +0.022 |
+| Pre-retrieval | IDF_avg | 0.3031 | −0.033 | 0.3408 | −0.008 | 0.3036 | +0.022 |
 | (ASR text index) | IDF_max | 0.3036 | −0.008 | 0.3408 | +0.024 | 0.3036 | +0.006 |
-| | IDF_sum | 0.3034 | +0.057 | 0.3403 | +0.044 | 0.3036 | +0.009 |
+| | IDF_sum | 0.3039 | +0.057 | 0.3400 | +0.044 | 0.3036 | +0.009 |
 | | IDF_std | 0.3036 | +0.016 | 0.3408 | +0.021 | 0.3036 | −0.020 |
 | | SCQ_avg | 0.3036 | −0.000 | 0.3408 | −0.013 | 0.3036 | +0.024 |
-| | SCQ_max | 0.3032 | +0.064 | 0.3406 | +0.037 | 0.3036 | +0.034 |
-| | SCQ_sum | 0.3038 | +0.067 | 0.3408 | +0.040 | 0.3036 | +0.004 |
-| | avgICTF | 0.3037 | −0.032 | 0.3408 | −0.007 | 0.3036 | +0.027 |
-| | SCS_1 | 0.3033 | −0.040 | 0.3408 | −0.014 | 0.3036 | +0.029 |
-| | SCS_2 | 0.3034 | −0.043 | 0.3408 | −0.016 | 0.3036 | +0.027 |
-| Post-retrieval | WIG_norm | 0.3151 | −0.168 | 0.3421 | −0.106 | 0.3036 | −0.100 |
-| (score-only) | WIG | 0.3036 | +0.006 | 0.3408 | +0.012 | 0.3033 | +0.051 |
-| | NQC_norm | 0.3176 | −0.204 | 0.3534 | −0.154 | 0.3036 | −0.162 |
-| | **NQC** | **0.3211** | −0.215 | 0.3532 | −0.163 | 0.3039 | −0.174 |
-| | SMV_norm | 0.3173 | −0.198 | 0.3518 | −0.145 | 0.3034 | −0.159 |
-| | SMV | 0.3198 | −0.208 | 0.3514 | −0.151 | 0.3037 | −0.169 |
-| | RSD | 0.3135 | −0.127 | 0.3404 | −0.069 | 0.3034 | −0.099 |
-| | σ_max | 0.3179 | −0.196 | 0.3502 | −0.144 | 0.3036 | −0.149 |
-| | σ_x0.5 | 0.3160 | −0.182 | 0.3452 | −0.122 | 0.3036 | −0.100 |
-| | max | 0.3075 | −0.124 | 0.3436 | −0.112 | 0.3036 | −0.087 |
+| | SCQ_max | 0.3033 | +0.064 | 0.3408 | +0.037 | 0.3036 | +0.034 |
+| | SCQ_sum | 0.3029 | +0.067 | 0.3408 | +0.040 | 0.3036 | +0.004 |
+| | avgICTF | 0.3034 | −0.032 | 0.3408 | −0.007 | 0.3036 | +0.027 |
+| | SCS_1 | 0.3026 | −0.040 | 0.3408 | −0.014 | 0.3036 | +0.029 |
+| | SCS_2 | 0.3027 | −0.043 | 0.3408 | −0.016 | 0.3036 | +0.027 |
+| Post-retrieval | WIG_norm | 0.3154 | −0.168 | 0.3411 | −0.106 | 0.3036 | −0.100 |
+| (score-only) | WIG | 0.3036 | +0.006 | 0.3408 | +0.012 | 0.3032 | +0.051 |
+| | NQC_norm | 0.3172 | −0.204 | **0.3541** | −0.154 | 0.3035 | −0.162 |
+| | **NQC** | **0.3205** | −0.215 | 0.3527 | −0.163 | 0.3040 | −0.174 |
+| | SMV_norm | 0.3170 | −0.198 | 0.3527 | −0.145 | 0.3034 | −0.159 |
+| | SMV | 0.3197 | −0.208 | 0.3509 | −0.151 | 0.3038 | −0.169 |
+| | RSD | 0.3120 | −0.127 | 0.3388 | −0.069 | 0.3033 | −0.099 |
+| | σ_max | 0.3168 | −0.196 | 0.3507 | −0.144 | 0.3036 | −0.149 |
+| | σ_x0.5 | 0.3152 | −0.182 | 0.3446 | −0.122 | 0.3036 | −0.100 |
+| | max | 0.3070 | −0.124 | 0.3430 | −0.112 | 0.3036 | −0.087 |
 | Post-retrieval | clarity | n/a | — | n/a | — | n/a | — |
-| (needs doc text) | BERT-QPP (cross)* | 0.3239 | +0.237 | **0.3583** | **+0.229** | 0.3045 | +0.167 |
-| Ours | cheap-feature gain ridge | 0.3205 | +0.217 | **0.3536** | +0.170 | 0.3033 | +0.162 |
+| (needs doc text) | BERT-QPP (cross)* | **0.3239** | **+0.237** | **0.3583** | **+0.229** | 0.3045 | +0.167 |
+| Ours | cheap-feature gain ridge | 0.3193 | +0.211 | 0.3531 | +0.160 | 0.3036 | +0.154 |
 | Oracle | route by true gain | 0.3653 | +1.000 | 0.3910 | +1.000 | 0.3305 | +1.000 |
+
+Every row is oriented on **event-grouped folds** (536 groups; see the leakage section below). The
+plain-KFold version of the same table is kept at `results/ablations/mv2_qpp_table.{md,json}`, the grouped
+one at `mv2_qpp_table_grouped.{md,json}`. The analytic predictors move by at most 0.002 nDCG between the
+two, and τ is computed on the raw predictor so it does not move at all — only the two predictors that
+learn from other queries' labels are affected.
 
 ## What the table says
 
@@ -55,10 +61,12 @@ analogue in text retrieval, where predictor and retriever read the same corpus. 
 marked n/a rather than scored: it needs an RM1 language model over the retrieved documents, and the
 visual channel's documents are frames. Reporting a number would imply the comparison was possible.
 
-**Our learned router ties with the best single predictor on this binary decision.** NQC reaches 0.3211 on
-ASR-shipped against our 0.3205, and 0.3532 on ASR-dense against our 0.3536. Sweeping the escalation
-fraction instead of thresholding at zero keeps them within 0.003 either way (NQC 0.3220 / 0.3532, ours
-0.3217 / 0.3555), and |τ| is 0.215 against 0.217. Eight features buy nothing over one well-implemented
+**Our learned router ties with the best single predictor on this binary decision.** NQC reaches 0.3205 on
+ASR-shipped against our 0.3193, and NQC_norm 0.3541 on ASR-dense against our 0.3531, so the scalar
+predictor is marginally ahead on both. Sweeping the escalation fraction instead of thresholding at zero
+splits the result and keeps them within 0.001 (NQC 0.3219 @f=.46 against ours 0.3212 @f=.56 on shipped;
+NQC_norm 0.3542 @f=.82 against ours 0.3548 @f=.72 on dense), and |τ| is 0.215 against 0.211. Eight
+features buy nothing over one well-implemented
 predictor when the only question is whether to escalate. The gain from learning appears when the decision
 is *which* of several policies to use: a scalar predictor can rank queries by confidence but cannot name
 a channel, which is why the k-way selector is the contribution and this cell is the baseline it clears.
@@ -134,9 +142,25 @@ and our router are tied, and both beat QSD_pre.
 
 Worth reporting as a methodological result in its own right. Historical-query interpolation is a growing
 family, and on any benchmark with multiple phrasings per topic it needs topic-grouped evaluation or it
-measures duplicate detection. **Still to check:** the headline k-way selector gap (+8.09) was also
-computed under plain KFold. Our predictors are insensitive to the split, so it should hold, but it needs
-the grouped-CV rerun before the number goes in a paper.
+measures duplicate detection.
+
+### The headline gap under the honest split
+
+The k-way selector gap was first measured under plain KFold too, so it was rerun on the same 536 event
+groups (`mv2_channel_select.py --group-cv`). Both sides of the comparison stay nested: the selector is
+fit on the training groups and the best fixed policy is chosen on them as well.
+
+| cell | plain KFold | event-grouped | selected nDCG@10 (grouped) | best fixed |
+|---|---|---|---|---|
+| shipped channels | +6.20 ± 0.29 | **+5.64 ± 0.93** | 0.3600 | visual 0.3036 |
+| dense ASR (headline) | +8.09 ± 0.65 | **+7.59 ± 1.01** | 0.4131 | asr+visual 0.3372 |
+| dense ASR + dense OCR | +7.83 ± 1.01 | **+7.68 ± 1.29** | 0.4139 | asr+visual 0.3372 |
+
+The gap costs 9%, 6% and 2%, permutation p = .0005 in all three, and the qualitative claims are
+untouched: the selector still beats the best fixed policy by more than seven points on the headline
+cell, and it still resolves to a single channel for most queries (72% grouped against 71% before). The
+fold-to-fold spread roughly triples, which is what 536 groups instead of 2,546 queries buys — the honest
+error bar is wider, and the effect clears it comfortably. Report the grouped numbers.
 
 ## BERT-QPP: the one baseline that beats us, and what it costs
 

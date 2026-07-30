@@ -11,8 +11,8 @@ sources will help? Answer: yes, from the cheap sources' own score distributions;
 query text alone, which refutes Adaptive-RAG's premise in this setting.
 
 **RQ2.** Does acting on that prediction beat every fixed policy, including the best fusion of
-everything? Answer: by +8.09 ± 0.65 nDCG on the strong-channel cell, +6.20 ± 0.29 on the shipped
-channels, measured leak-free.
+everything? Answer: by +7.59 ± 1.01 nDCG on the strong-channel cell, +5.64 ± 0.93 on the shipped
+channels, measured leak-free and split by event so near-duplicate queries cannot cross folds.
 
 **RQ3.** When does per-query selection pay, and can that be known in advance? Answer: the payoff
 tracks the spread of per-query gain (ρ = 0.943 across six cells), and it vanishes for the LLM
@@ -52,43 +52,47 @@ system on this benchmark fuses with one global weighting. Ours says the weightin
 | visual channel alone | 0.3036 |
 | best uniform fusion (best weights we found) | 0.3408 |
 | pairwise routing: fuse dense ASR or don't | 0.3545 |
-| per-query channel selection over 7 policies | **0.4171** |
+| per-query channel selection over 7 policies | **0.4131** |
 
 The selector is a multi-target ridge over 30 cheap features (each channel's score-confidence shape,
 plus how much the channels' top candidates overlap). Out-of-fold, it beats the best fixed policy
-chosen on the training fold by **+8.09 ± 0.65** nDCG (+6.20 ± 0.29 with the benchmark's shipped
-channels; permutation p = .0005 in every cell). For 71% of queries it picks a single channel. Fusing
-everything on every query, the field's default, loses to it by ten points. Where routing pays is also
+chosen on the training fold by **+7.59 ± 1.01** nDCG (+5.64 ± 0.93 with the benchmark's shipped
+channels; permutation p = .0005 in every cell). For 72% of queries it picks a single channel. Fusing
+everything on every query with unit weights, the field's default, loses to it by 13.6 points, and even
+the best weighted fusion we could find loses by 7.2. Where routing pays is also
 predictable before building anything: the spread of per-query gain predicts the achieved routing gap
 at ρ = 0.943 across our six original cells, and the channel cells land on the same line.
 
 Ceilings get audited here. Picking each query's best policy on half its golds and grading on the
 other half wipes out 15 of the oracle's 16 points, so we report no "% of oracle captured". The
 selector's gap is immune to that leak by construction: its features never see a label and every
-prediction is out-of-fold.
+prediction is out-of-fold. Folds are also split by event, not by query, because the benchmark carries
+several phrasings of the same event and a plain split puts near-duplicates on both sides of the
+boundary. That correction costs the selector 6% of its gap and costs the strongest historical-query
+baseline half of its correlation; the taxonomy is in `qpp_baselines.md`.
 
 ### RQ2 in full: routing vs. QPP baselines
 
 Twenty QPP predictors implemented to the `QPP-4-RAG` definitions and run as routers, each oriented by an
 out-of-fold ridge then used to escalate the queries it flags. Decision metric is routed nDCG@10, ordering
-metric is Kendall τ against true gain. Summary rows below; all twenty, plus coverage notes, in
-`reports/qpp_baselines.md`.
+metric is Kendall τ against true gain. Folds are event-grouped. Summary rows below; all twenty, plus
+coverage notes, in `reports/qpp_baselines.md`.
 
 | Category | Method | ASR-shipped | τ | ASR-dense | τ |
 |---|---|---|---|---|---|
 | Original | visual only (cheap) | 0.3036 | — | 0.3036 | — |
 | | uniform fusion (best w) | 0.2795 | — | 0.3408 | — |
-| Pre-retrieval (10) | best of family | 0.3038 | +0.067 | 0.3408 | +0.044 |
-| Post-retrieval (10) | best of family (NQC) | **0.3211** | −0.215 | 0.3532 | −0.163 |
+| Pre-retrieval (10) | best of family | 0.3039 | +0.067 | 0.3408 | +0.044 |
+| Post-retrieval (10) | best of family (NQC) | **0.3205** | −0.215 | **0.3541** | −0.154 |
 | | clarity | n/a | — | n/a | — |
-| Ours | cheap-feature gain ridge | 0.3205 | +0.217 | **0.3536** | +0.170 |
+| Ours | cheap-feature gain ridge | 0.3193 | +0.211 | 0.3531 | +0.160 |
 | Oracle | route by true gain | 0.3653 | +1.000 | 0.3910 | +1.000 |
 
 Three readings, one of them against us. **Pre-retrieval QPP fails here**: all ten sit at τ ≈ 0 and route
 to within 0.0005 of doing nothing, which is the sharpest evidence for RQ1 and the measured core of RQ4.
-**Score-only post-retrieval works**, at |τ| ≈ 0.21. **Our router ties with NQC on this binary decision**
-(0.3205 vs 0.3211, and 0.3536 vs 0.3532; |τ| 0.217 vs 0.215), so eight features buy nothing over one good
-predictor when the only question is whether to escalate. Learning earns its keep on the k-way choice,
+**Score-only post-retrieval works**, at |τ| ≈ 0.21. **Our router ties with NQC on this binary decision**,
+and if anything trails it (0.3193 vs 0.3205, and 0.3531 vs 0.3541; |τ| 0.211 vs 0.215), so eight features
+buy nothing over one good predictor when the only question is whether to escalate. Learning earns its keep on the k-way choice,
 which a scalar cannot express: that is why the selector above is the contribution and this cell is the
 baseline it clears. An earlier revision claimed we beat every predictor; that was an artifact of our own
 implementations, now corrected against the reference.
