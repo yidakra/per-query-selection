@@ -48,41 +48,69 @@ other half wipes out 15 of the oracle's 16 points, so we report no "% of oracle 
 selector's gap is immune to that leak by construction: its features never see a label and every
 prediction is out-of-fold.
 
-### RQ2 in full: routing vs. classical QPP baselines
+### RQ2 in full: routing vs. QPP baselines
 
-The natural baseline for a per-query router is Query Performance Prediction (QPP): score the cheap
-channel's result and escalate when it looks weak. We run eleven standard QPP predictors as routers on
-the pairwise escalation cells, each computed from the cheap visual channel's score vector, oriented
-out-of-fold, and used to escalate the queries it flags. The learned cheap-feature ridge beats every one
-of them on both the routed nDCG@10 and the ordering (Kendall τ) in the two ASR cells. On OCR the channel
-is too weak for any router to help, so all methods sit at the cheap baseline.
+The natural baseline for a per-query router is Query Performance Prediction. We implement twenty
+predictors to the definitions in `QPP-4-RAG` (Arabzadeh et al. 2026), each computed for a query, oriented
+by a single-feature out-of-fold ridge, then used to escalate the queries it flags. Decision metric is the
+routed nDCG@10; ordering metric is Kendall τ of the raw predictor against true gain.
 
-| Category | Method | ASR-shipped nDCG@10 | τ | ASR-dense nDCG@10 | τ | OCR nDCG@10 | τ |
+| Category | Method | ASR-shipped | τ | ASR-dense | τ | OCR | τ |
 |---|---|---|---|---|---|---|---|
 | Original | visual only (cheap) | 0.3036 | — | 0.3036 | — | 0.3036 | — |
 | | uniform fusion (best w) | 0.2795 | — | 0.3408 | — | 0.2445 | — |
-| Post-retrieval | max | 0.3075 | −0.124 | 0.3436 | −0.112 | 0.3036 | −0.087 |
-| | clarity | 0.3149 | −0.158 | 0.3407 | −0.097 | 0.3036 | −0.122 |
-| | NQC | 0.3183 | −0.177 | 0.3519 | −0.156 | 0.3036 | −0.148 |
-| | NQC_norm | 0.3166 | −0.162 | 0.3514 | −0.147 | 0.3036 | −0.136 |
-| | σ_max | 0.3167 | −0.169 | 0.3507 | −0.154 | 0.3036 | −0.144 |
-| | σ_50% | 0.3155 | −0.187 | 0.3461 | −0.121 | 0.3034 | −0.144 |
-| | SMV | 0.3157 | −0.172 | 0.3502 | −0.156 | 0.3036 | −0.146 |
-| | SMV_norm | 0.3188 | −0.184 | 0.3525 | −0.162 | 0.3036 | −0.154 |
-| | WIG | 0.3186 | −0.210 | 0.3518 | −0.149 | 0.3036 | −0.165 |
-| | WIG_norm | 0.3112 | −0.153 | 0.3472 | −0.147 | 0.3039 | −0.132 |
-| | RSD | 0.3165 | −0.161 | 0.3497 | −0.146 | 0.3036 | −0.135 |
-| **Ours** | **cheap-feature gain ridge** | **0.3205** | **+0.217** | **0.3536** | **+0.170** | 0.3033 | +0.162 |
+| Pre-retrieval | IDF_avg | 0.3037 | −0.033 | 0.3408 | −0.008 | 0.3036 | +0.022 |
+| (ASR text index) | IDF_max | 0.3036 | −0.008 | 0.3408 | +0.024 | 0.3036 | +0.006 |
+| | IDF_sum | 0.3034 | +0.057 | 0.3403 | +0.044 | 0.3036 | +0.009 |
+| | IDF_std | 0.3036 | +0.016 | 0.3408 | +0.021 | 0.3036 | −0.020 |
+| | SCQ_avg | 0.3036 | −0.000 | 0.3408 | −0.013 | 0.3036 | +0.024 |
+| | SCQ_max | 0.3032 | +0.064 | 0.3406 | +0.037 | 0.3036 | +0.034 |
+| | SCQ_sum | 0.3038 | +0.067 | 0.3408 | +0.040 | 0.3036 | +0.004 |
+| | avgICTF | 0.3037 | −0.032 | 0.3408 | −0.007 | 0.3036 | +0.027 |
+| | SCS_1 | 0.3033 | −0.040 | 0.3408 | −0.014 | 0.3036 | +0.029 |
+| | SCS_2 | 0.3034 | −0.043 | 0.3408 | −0.016 | 0.3036 | +0.027 |
+| Post-retrieval | WIG_norm | 0.3151 | −0.168 | 0.3421 | −0.106 | 0.3036 | −0.100 |
+| (score-only) | WIG | 0.3036 | +0.006 | 0.3408 | +0.012 | 0.3033 | +0.051 |
+| | NQC_norm | 0.3176 | −0.204 | 0.3534 | −0.154 | 0.3036 | −0.162 |
+| | **NQC** | **0.3211** | −0.215 | 0.3532 | −0.163 | 0.3039 | −0.174 |
+| | SMV_norm | 0.3173 | −0.198 | 0.3518 | −0.145 | 0.3034 | −0.159 |
+| | SMV | 0.3198 | −0.208 | 0.3514 | −0.151 | 0.3037 | −0.169 |
+| | RSD | 0.3135 | −0.127 | 0.3404 | −0.069 | 0.3034 | −0.099 |
+| | σ_max | 0.3179 | −0.196 | 0.3502 | −0.144 | 0.3036 | −0.149 |
+| | σ_x0.5 | 0.3160 | −0.182 | 0.3452 | −0.122 | 0.3036 | −0.100 |
+| | max | 0.3075 | −0.124 | 0.3436 | −0.112 | 0.3036 | −0.087 |
+| Post-retrieval | clarity | n/a | — | n/a | — | n/a | — |
+| (needs doc text) | | | | | | | |
+| Ours | cheap-feature gain ridge | 0.3205 | +0.217 | **0.3536** | +0.170 | 0.3033 | +0.162 |
 | Oracle | route by true gain | 0.3653 | +1.000 | 0.3910 | +1.000 | 0.3305 | +1.000 |
 
-nDCG@10 is the routed outcome (escalate where predicted gain > 0); τ is Kendall correlation of the raw
-predictor with true gain. QPP τ are negative because a confident cheap channel signals less to gain from
-escalating, so the router uses the oriented version and nDCG@10 is the fair comparison. Pre-retrieval QPP
-(IDF, ICTF, clarity-style corpus statistics) is absent by necessity: it needs term statistics over the
-documents, which do not exist for video frames. That absence is the multimodal point, not a missing row.
-QSD_post and BERT-QPP need document embeddings and a trained model and are still to run. Predictor
-formulas follow the standard families and will be pinned to github.com/Narabzad/QPP-4-RAG for the
-camera-ready.
+Three things this table says, one of them against us.
+
+**Pre-retrieval QPP does not work here.** Every predictor lands at τ ≈ 0 and routes to within 0.0005 of
+either doing nothing or fusing everything. This is the sharpest evidence for RQ1: query-side statistics
+carry no usable signal about which channel will help. It also diverges from Arabzadeh et al., who find
+cheap pre-retrieval predictors competitive in text RAG, and the reason is structural. A pre-retrieval
+predictor measures a query against a corpus index, but the channel being routed here is *visual*. The
+only index we can build is over the ASR transcripts, so the statistics describe a different modality
+than the decision. That mismatch has no analogue in text retrieval, where predictor and retriever read
+the same corpus.
+
+**Post-retrieval score-only predictors do work**, reaching |τ| ≈ 0.21. Clarity is the exception and is
+marked n/a rather than zero: it needs an RM1 language model over the retrieved documents, and the
+visual channel's documents are frames. The unavailability is structural, so reporting a number would
+misrepresent it.
+
+**Our learned router ties with the best single predictor for this binary decision.** NQC reaches 0.3211
+on ASR-shipped against our 0.3205, and 0.3532 on ASR-dense against our 0.3536; sweeping the escalation
+fraction instead of thresholding at zero keeps them within 0.003 either way (NQC 0.3220 / 0.3532, ours
+0.3217 / 0.3555), and |τ| is 0.215 against 0.217. Eight features buy nothing over one well-implemented
+predictor when the only question is whether to escalate. The gain from learning appears once the
+decision is *which* of several policies to use: a scalar predictor can rank queries by confidence but
+cannot name a channel, which is why the k-way selector above is the contribution and this cell is the
+baseline it has to clear. An earlier revision of this table reported our router beating every predictor;
+that was an artifact of our own predictor implementations, corrected here against `QPP-4-RAG`.
+
+QSD_post and BERT-QPP are still to run and need document embeddings and a trained model respectively.
 
 Negative results we stand behind, briefly. The LLM expansion tier is correctly declined by its own
 router (and a 14B decomposer stays Pareto-dominated, so a 70B would not rescue it). Paraphrase
