@@ -81,7 +81,60 @@ Not implemented, with reasons rather than blanks:
   of fold on (query, top retrieved document) pairs where the document is verbalized through the shipped
   captions, since the visual channel has no text of its own. Their released checkpoint is trained on
   MS MARCO BM25 map@20 and does not transfer, so we train our own.
-- **QSD_post** is deliberately absent. The reference repository contains only scripts that consume
-  precomputed QSDQPP outputs, not an implementation, and the method comes from a separate paper we have
-  not obtained. Guessing at the formula is what produced the five errors above, so it stays unimplemented
-  until we have the definition.
+- **QSD_post** is not implemented. Its formulation (Eq. 8 of the paper below) is a trained transformer
+  over the query, its neighbour queries with their scores, and the retrieved documents, which is the same
+  shape of training job as BERT-QPP. **QSD_pre is implemented** and is discussed next, because it turned
+  out to matter more than its table row.
+
+## QSD-QPP and duplicate-topic leakage
+
+The reference repository ships only consumers of precomputed QSD outputs, so we implemented QSD-QPP from
+Bigdeli et al., *Estimating Query Performance Using Neural Query Space Proximity* (ACM TIST 2025).
+QSD-QPP_Pre embeds queries into a "Query Space", takes the historical queries nearest the new one, and
+interpolates their known effectiveness with inverse-distance weights, `ω = 1/(1+ψ)` (their Eqs. 5–7).
+Implementation in `src/multivent2/mv2_qsd.py`. Two documented deviations: we take the k nearest rather
+than everything inside a distance threshold γ, since a fixed γ transfers badly across embedding spaces,
+and we normalise the weights, since Eq. 5 as written scales with neighbour count.
+
+This predictor is interesting for RQ4 before any number is computed. Every other pre-retrieval predictor
+needs corpus term statistics, which do not exist for a visual channel. QSD_pre needs no index at all,
+only historical queries with known effectiveness, so it *is* available in a multimodal setting. The
+boundary is therefore not pre-retrieval versus post-retrieval but whether a predictor needs
+document-side language statistics.
+
+Run with standard 5-fold CV over queries it beats everything, including our router:
+
+| split | QSD_pre | ours (cheap-feature ridge) | NQC |
+|---|---|---|---|
+| plain KFold, ASR-shipped | **τ +0.343** (k=5) | +0.217 | +0.214 |
+| plain KFold, ASR-dense | **τ +0.291** (k=5) | +0.170 | +0.162 |
+| plain KFold, OCR | **τ +0.273** (k=5) | +0.162 | +0.174 |
+| event-grouped, ASR-shipped | τ +0.164 (k=100) | **+0.211** | +0.213 |
+| event-grouped, ASR-dense | τ +0.152 (k=100) | **+0.160** | +0.159 |
+| event-grouped, OCR | τ +0.095 (k=100) | +0.154 | **+0.170** |
+
+The advantage is an artifact. MultiVENT 2.0 carries several phrasings of the same event, and a plain
+split puts those duplicates in different folds, so the interpolation reads its answer off a near-copy
+whose gain is already known. Measured: a query's nearest neighbour shares **60%** of its relevant
+documents on average (Jaccard 0.605, and 68.7% share at least one), against **0.0018** for a random
+query, a 300-fold enrichment. Examples are unambiguous, with identical relevant sets:
+
+- "New York Times coverage Hurricane Irma" → "2017 Hurricane Irma" (Jaccard 1.000)
+- "Istanbul mosque hosting calligraphy event" → "2021 Hagia Sophia calligraphy exhibition" (1.000)
+
+Two signatures confirm it. Neighbour overlap decays with k exactly as τ does (0.605, 0.418, 0.130, 0.036
+at k = 1, 5, 25, 100 against τ 0.343 down to 0.218), and the best k *reverses* under the honest split:
+with duplicates available small k wins because the duplicate is the answer, and without them k=100 wins
+because many neighbours are needed to average out noise.
+
+Grouping queries into 536 event components by shared relevant documents and splitting on those
+components removes it. QSD_pre loses 52% of its τ. Our router and NQC barely move (0.217 → 0.211, 0.214
+→ 0.213) because they read the cheap channel's score distribution rather than neighbours' labels, so
+duplicate topics give them nothing. Under the honest split the earlier conclusion stands unchanged: NQC
+and our router are tied, and both beat QSD_pre.
+
+Worth reporting as a methodological result in its own right. Historical-query interpolation is a growing
+family, and on any benchmark with multiple phrasings per topic it needs topic-grouped evaluation or it
+measures duplicate detection. **Still to check:** the headline k-way selector gap (+8.09) was also
+computed under plain KFold. Our predictors are insensitive to the split, so it should hold, but it needs
+the grouped-CV rerun before the number goes in a paper.
