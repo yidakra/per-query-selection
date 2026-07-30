@@ -144,6 +144,14 @@ Worth reporting as a methodological result in its own right. Historical-query in
 family, and on any benchmark with multiple phrasings per topic it needs topic-grouped evaluation or it
 measures duplicate detection.
 
+The scope of the correction is worth stating precisely, because it is narrower than it first looks. The
+six cells behind the heterogeneity law (MultiVENT v1, MSR-VTT) were checked with the same construction
+and every query there is already its own event group — 259/259 and 995/995, so GroupKFold reduces to
+KFold and those numbers stand unchanged (`src/evaluation/router_event_groups.py`). MultiVENT v1 gives
+each event ~9.24 relevant videos but only one query; MultiVENT 2.0 gives it several phrasings. The
+leakage is a property of that one benchmark's query construction, not of the routing method, and it is
+worth a sentence in the setup section rather than a caveat on the results.
+
 ### The headline gap under the honest split
 
 The k-way selector gap was first measured under plain KFold too, so it was rerun on the same 536 event

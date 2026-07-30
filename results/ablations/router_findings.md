@@ -136,6 +136,16 @@ realized gap).
 Across all six cells, `sd(per-query A→B gain)` predicts both the oracle headroom and the achieved
 gap with **Spearman ρ = +0.943** (n = 6; one-tailed critical value at α = .05 is 0.829).
 
+> **Checked against the MultiVENT 2.0 leakage finding, and unaffected.** On MultiVENT 2.0 several
+> queries phrase the same event and share relevant documents, so every number there is now computed on
+> 536 event groups rather than 2,546 queries (`reports/qpp_baselines.md`). These six cells were measured
+> under a plain KFold split, so the same question applies. `router_event_groups.py` links queries that
+> share any relevant video and counts connected components: **every query is its own component in all
+> six cells** — 259/259 on MultiVENT v1, 995/995 on each MSR-VTT cell. GroupKFold therefore reduces to
+> KFold and nothing here needs rerunning. MultiVENT v1 pairs one query with ~9.24 relevant videos but
+> gives each event a single query, and MSR-VTT is effectively single-gold; only MultiVENT 2.0 carries
+> several phrasings of one event. The leakage is a property of that benchmark, not of the method.
+
 Crucially the driver is heterogeneity, *not dataset identity*: MSR-VTT/internvideo2/ASR has
 sd = 13.81, close to MultiVENT's 15.22, and its gap (+0.96) lands where the trend predicts —
 despite 1.01 gold/query. The fraction of headroom the router *captures* stays roughly flat

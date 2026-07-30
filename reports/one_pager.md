@@ -61,7 +61,9 @@ channels; permutation p = .0005 in every cell). For 72% of queries it picks a si
 everything on every query with unit weights, the field's default, loses to it by 13.6 points, and even
 the best weighted fusion we could find loses by 7.2. Where routing pays is also
 predictable before building anything: the spread of per-query gain predicts the achieved routing gap
-at ρ = 0.943 across our six original cells, and the channel cells land on the same line.
+at ρ = 0.943 across our six original cells, and the channel cells land on the same line. Those six need
+no event grouping: no two of their queries share a relevant video, so every query is already its own
+event (`router_event_groups.py`).
 
 Ceilings get audited here. Picking each query's best policy on half its golds and grading on the
 other half wipes out 15 of the oracle's 16 points, so we report no "% of oracle captured". The
