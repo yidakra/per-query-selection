@@ -55,10 +55,15 @@ though it would return if a generation tier were added.
   for the dense-retriever numbers if we want a stronger or more conservative anchor.
 - Their benchmark is 56 judged queries; if a reviewer leans on our 2,546-query scale as a strength,
   this contrast is worth a half-sentence.
-- Do NOT write that we beat classical QPP. Once the formulas were pinned to their repo, NQC matched our
-  router on the binary escalate decision (0.3211 vs 0.3205 shipped, 0.3532 vs 0.3536 dense, |τ| 0.215 vs
-  0.217). The defensible claim is that a scalar predictor cannot express a k-way policy choice, so the
-  selector is the contribution and the pairwise cell is the baseline it clears.
+- Do NOT write that we beat classical QPP. Once the formulas were pinned to their repo and the folds were
+  grouped by event, NQC edges our router on the binary escalate decision (0.3205 vs 0.3193 shipped,
+  NQC_norm 0.3541 vs 0.3531 dense, |τ| 0.215 vs 0.211). The defensible claim is that a scalar predictor
+  cannot express a k-way policy choice, so the selector is the contribution and the pairwise cell is the
+  baseline it clears.
+- Every headline number is now event-grouped. Say so in the experimental setup: MultiVENT 2.0 carries
+  several phrasings per event, and a query-level split lets any predictor that learns from other queries'
+  labels read its answer off a near-duplicate. This is a methods contribution in its own right and the
+  reviewers most likely to care are the QPP ones.
 - Their predictor set and our baselines share Clarity/WIG/NQC, so the comparison is same-vocabulary.
   Worth stating, now that it is a tie rather than a win.
 - Their benchmark is 56 judged queries against our 2,546. Useful contrast if a reviewer questions power,

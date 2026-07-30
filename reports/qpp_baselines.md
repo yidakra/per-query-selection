@@ -183,15 +183,21 @@ ranking quality from calibration.
 
 Run under both splits:
 
-| cell | leaky τ | grouped τ | leaky nDCG | grouped nDCG | ours (grouped) |
+| cell | leaky τ | grouped τ | leaky nDCG | grouped nDCG | ours: τ / nDCG @ same f (grouped) |
 |---|---|---|---|---|---|
-| ASR-shipped | +0.295 | +0.237 | 0.3309 @f=.60 | 0.3239 @f=.54 | +0.211 / 0.3193 |
-| ASR-dense | +0.254 | +0.229 | 0.3629 @f=.76 | 0.3583 @f=.76 | +0.160 / 0.3531 |
-| OCR | +0.235 | +0.167 | 0.3076 @f=.16 | 0.3045 @f=.06 | +0.154 / 0.3036 |
+| ASR-shipped | +0.295 | +0.237 | 0.3309 @f=.60 | 0.3239 @f=.54 | +0.211 / 0.3212 @f=.56 |
+| ASR-dense | +0.254 | +0.229 | 0.3629 @f=.76 | 0.3583 @f=.76 | +0.160 / 0.3548 @f=.72 |
+| OCR | +0.235 | +0.167 | 0.3076 @f=.16 | 0.3045 @f=.06 | +0.154 / 0.3038 @f=.10 |
+
+Both sides of the nDCG columns sweep the escalation fraction and report its maximum, so both are
+optimistic by the same amount: f is chosen on the evaluation set, which the out-of-fold predictions are
+not. They are comparable to each other and should not be compared against the thresholded numbers in the
+main table. Our thresholded values are 0.3193 / 0.3531 / 0.3036.
 
 Event grouping costs it 20%, 10% and 29% of its τ, so it leaks like QSD does, through the same
 event-level gain correlation. Unlike QSD it survives the correction and **keeps a real lead over our
-router**: τ +0.237 against +0.211 on the shipped cell and +0.229 against +0.160 on the dense one.
+router**: τ +0.237 against +0.211 on the shipped cell and +0.229 against +0.160 on the dense one, and it
+stays ahead on routed nDCG at a matched escalation fraction in all three cells.
 
 That is the honest headline for this table. A fine-tuned cross-encoder reading caption text beats a
 ridge over cheap score features, and it should. What it costs is the point of the comparison: roughly 40

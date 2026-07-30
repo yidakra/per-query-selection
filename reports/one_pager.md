@@ -51,7 +51,7 @@ system on this benchmark fuses with one global weighting. Ours says the weightin
 |---|---|
 | visual channel alone | 0.3036 |
 | best uniform fusion (best weights we found) | 0.3408 |
-| pairwise routing: fuse dense ASR or don't | 0.3545 |
+| pairwise routing: fuse dense ASR or don't | 0.3531 |
 | per-query channel selection over 7 policies | **0.4131** |
 
 The selector is a multi-target ridge over 30 cheap features (each channel's score-confidence shape,
