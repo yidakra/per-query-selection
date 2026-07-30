@@ -1,0 +1,82 @@
+# Translating the speech channel: what it bought, and where
+
+The question was narrow. MMMORRF (0.586) and OmniEmbed (0.753) sit well above our channels, and part of
+their recipe is translate-distill dense retrieval per channel. We retrieved speech in the original
+language with a multilingual encoder instead. So: how much of the gap is the translation step alone?
+
+All 109,488 ASR transcripts went through NLLB-200-1.3B to English (20.3 h on one A2), then back through
+the same bge-m3 encoder (65 min, 209,381 windows). Everything else held fixed — same encoder, same
+fusion, same queries. `mv2_translate_corpus.py`, `mv2_per_language.py`.
+
+## Aggregate
+
+| policy | nDCG@10 |
+|---|---|
+| visual only | 0.3036 |
+| dense ASR, original language | 0.3134 |
+| dense ASR, translated | **0.3332** |
+| visual + ASR fused, original | 0.3372 |
+| visual + ASR fused, translated | **0.3452** |
+
+Two points on the speech channel, one on the fusion. Real, and much smaller than the distance to
+MMMORRF. Translation is not what separates us from them.
+
+## Per language
+
+Queries are English; the language belongs to the video. And 22.5% of queries have relevant videos in
+more than one language, so tagging each query with a single language throws information away. Instead
+the judgments are restricted one language at a time: keep the judgments whose `video_language` is L,
+keep the queries that still have something relevant to find, score the unchanged ranked lists against
+that reduced qrels. A query can appear in several rows. That is correct — it really does have relevant
+material in each.
+
+| language | queries | visual | ASR orig | ASR +MT | Δ channel | fused orig | fused +MT | Δ fused |
+|---|---|---|---|---|---|---|---|---|
+| english | 790 | 0.4755 | 0.4349 | 0.3739 | **−0.0610** | 0.4823 | 0.4454 | −0.0369 |
+| chinese | 729 | 0.1222 | 0.1835 | 0.1957 | +0.0122 | 0.1699 | 0.1744 | +0.0045 |
+| korean | 627 | 0.1045 | 0.2238 | 0.2619 | +0.0381 | 0.2106 | 0.2424 | +0.0318 |
+| russian | 563 | 0.2809 | 0.3415 | 0.3870 | +0.0454 | 0.3742 | 0.3989 | +0.0247 |
+| arabic | 345 | 0.3446 | 0.1509 | 0.2564 | **+0.1055** | 0.2349 | 0.2809 | +0.0461 |
+| spanish | 205 | 0.2783 | 0.4865 | 0.4576 | −0.0288 | 0.3974 | 0.4125 | +0.0152 |
+
+Japanese (7), Ukrainian (6), Cantonese (1) and Malay (1) are in the JSON and too thin to read.
+
+**Arabic is where the translation earns its keep.** 0.1509 to 0.2564, a 70% relative jump, and it moves
+Arabic from the worst-served language on the speech channel to mid-table. Russian and Korean gain
+usefully too.
+
+**Chinese barely moves.** +0.0122 on the channel, +0.0045 fused, on the second-largest language in the
+set. Whatever is wrong with Chinese here is not a retrieval-language problem, so translate-distill will
+not fix it either. Chinese also has the weakest visual channel of any language (0.1222). My read is that
+the ASR itself is the bottleneck, and that is worth checking directly before anyone spends more compute
+on the retrieval side.
+
+**English gets worse, and that is not a bug.** English documents were passed through untouched — 35.3%
+of the corpus comes out byte-identical, and spot checks confirm English transcripts are unchanged. The
+drop is contention. Once Russian and Arabic and Korean transcripts read as English, they compete for
+English queries and push English relevant documents down the same ranked list. The per-language subtask
+restricts the qrels to English relevant documents, so that reshuffling shows up as a loss. Spanish loses
+for the same reason and to a smaller degree, being closer to English already.
+
+So the aggregate +0.02 is a net of two opposing movements, not a uniform lift.
+
+## What this implies
+
+Translating the whole corpus is the wrong unit of decision. It helps Arabic a lot, Russian and Korean
+somewhat, Chinese barely, and it costs English. A system that translated only the documents that benefit
+would keep the +0.1055 on Arabic and give back none of the −0.0610 on English.
+
+That is the same argument this project makes about channels, one level down: the choice is per item, and
+a global setting averages a real gain against a real loss and reports the difference. We have not built
+the per-document version, and I would not claim it without measuring it. But the shape of the table is
+hard to read any other way.
+
+## Caveats
+
+- Fusion weights come from each cell's own sweep (original: asr 1.0; translated: asr 2.0), chosen on the
+  full test set. Both fused columns are therefore best-case fixed policies, which is how the one-pager
+  reports uniform fusion elsewhere. The channel columns have no such tuning.
+- NLLB-200-1.3B, greedy decoding, no distillation. MMMORRF's translate-distill trains the retriever on
+  translated pairs, which is a stronger recipe than translate-then-encode. This measures the cheap half.
+- Per-language nDCG on a restricted qrels is not comparable to the aggregate number, since the ideal DCG
+  differs. Compare within a column.

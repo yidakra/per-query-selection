@@ -108,6 +108,14 @@ it is scored; dense retrieval that lifted ASR by 4.7 points moves OCR by 0.1.
 Scope, honestly: our channels are deliberately cheap, so absolute numbers sit below MMMORRF (0.586)
 and OmniEmbed (0.753), which buy their lift with translate-distill dense retrieval per channel. The
 contribution is the decision layer those systems lack, and their channels drop into it unchanged.
-The gap-closing experiment is already running: NLLB-translating all 71K non-English transcripts to
-English, then re-scoring with the same dense encoder, the translate half of MMMORRF's recipe on our
-hardware. Results in ~2 days.
+
+We ran the translate half of that recipe to size the gap: all 109,488 ASR transcripts through NLLB to
+English, re-encoded with the same bge-m3, everything else fixed. The speech channel goes 0.3134 → 0.3332
+and the fusion 0.3372 → 0.3452. Translation is not what separates us from MMMORRF. What the per-language
+split shows is more interesting than the aggregate: Arabic gains +0.1055 on the channel (0.1509 → 0.2564,
+a 70% jump), Russian +0.045 and Korean +0.038, Chinese only +0.012 — and English *loses* 0.061, because
+translated non-English documents now compete for English queries and crowd English relevant videos out of
+the same list. English transcripts were passed through untouched, so this is contention, not damage.
+Translating the whole corpus averages a large real gain against a real loss. The unit of decision should
+be the document, which is this paper's argument one level down. Full table in
+`results/ablations/mv2_translate_findings.md`.
