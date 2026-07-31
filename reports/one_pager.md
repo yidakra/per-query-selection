@@ -119,3 +119,9 @@ the same list. English transcripts were passed through untouched, so this is con
 Translating the whole corpus averages a large real gain against a real loss. The unit of decision should
 be the document, which is this paper's argument one level down. Full table in
 `results/ablations/mv2_translate_findings.md`.
+
+The translated channel also answers the standing objection that routing only pays while the channels
+are weak. Rerunning the selector on it, everything else held fixed, the nested gap goes **+7.59 → +8.01
+± 1.01** (best fixed 0.3372 → 0.3428, selected 0.4131 → 0.4229, p = .0005). A better channel raises both
+sides and the decision layer keeps its margin, which is what should happen if routing exploits variation
+in which channel suits which query rather than the average weakness of one of them.

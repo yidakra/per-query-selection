@@ -71,6 +71,28 @@ a global setting averages a real gain against a real loss and reports the differ
 the per-document version, and I would not claim it without measuring it. But the shape of the table is
 hard to read any other way.
 
+## Does a better channel make routing redundant?
+
+The obvious objection to this project is that per-query routing only pays while the channels are weak,
+and that anyone who invests in the channels gets the gain for free. Translation is a clean test of it:
+same selector, same 30 features, same event-grouped folds, one channel replaced by a better version of
+itself.
+
+| cell | best fixed policy | selected, out-of-fold | nested gap | single-channel picks |
+|---|---|---|---|---|
+| dense ASR, original language | 0.3372 (asr+visual) | 0.4131 | +7.59 ± 1.01 | 72% |
+| dense ASR, translated | 0.3428 (asr+visual) | 0.4229 | **+8.01 ± 1.01** | 76% |
+
+The gap does not shrink. It grows slightly, and permutation p stays at .0005. Improving a channel
+raises the fixed baseline by 0.6 nDCG and the routed system by 1.0, so the decision layer keeps what it
+had and adds a little. That is what you would expect if routing is exploiting *variation* in which
+channel suits which query rather than the average weakness of any one channel: making speech better
+does not make it better for the queries it was already wrong for. The share of queries answered from a
+single channel rises with it (72% to 76%), which points the same way.
+
+This is not proof that the gain survives arbitrarily strong channels — MMMORRF's are still far above
+ours, and only they can settle that. It does rule out the cheapest version of the objection.
+
 ## Caveats
 
 - Fusion weights come from each cell's own sweep (original: asr 1.0; translated: asr 2.0), chosen on the

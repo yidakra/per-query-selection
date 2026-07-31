@@ -43,12 +43,20 @@ TEXT_SOURCE = {"captions": "qwen_captions_test.jsonl",
                "asr": "asr_text.jsonl",
                "ocr": "ocr_text.jsonl"}
 
-# policy -> (ranked-list file, channels whose text grounds the report under --evidence own)
+# policy -> (ranked-list file, channels whose text grounds the report under --evidence own).
+# `None` means the channels vary per query and come from a picks file, which is how the router works.
+# The routed and best-fixed runs are written by mv2_routed_run.py from the selector's out-of-fold
+# decisions, so nothing here sees a label the nDCG numbers do not already allow.
 POLICIES = {
     "visual":    ("10pyscene_clip.json",              ["captions"]),
     "asr_dense": ("asr_dense_bge-m3.json",            ["asr"]),
     "ocr":       ("10pyscene_paddleOCR_clip.json",    ["ocr"]),
+    "bestfixed": ("bestfixed_dense_m3.json",          ["captions", "asr"]),
+    "routed":    ("routed_dense_m3.json",             None),
 }
+PICKS = {"routed": "routed_dense_m3_picks.json"}
+# selector channel names -> the text that channel can actually hand a generator
+CHANNEL_TEXT = {"visual": "captions", "asr": "asr", "ocr": "ocr"}
 ALL_CHANNELS = ["captions", "asr", "ocr"]
 MAX_DOC_CHARS = 1500          # per document, keeps the context bounded on a 14b model
 TOPK = 5                      # documents fed to the generator, matching QPP-4-RAG's RAG setting
@@ -233,6 +241,14 @@ def phase_generate(a, cl, model):
             runs[pol] = load_run(p)
         else:
             print(f"  WARNING missing run {fn} for policy {pol}", flush=True)
+    # per-query channel picks, for policies whose evidence is not fixed in advance
+    picks = {}
+    for pol, fn in PICKS.items():
+        p = os.path.join(DATA, fn)
+        if os.path.exists(p):
+            picks[pol] = json.load(open(p))
+        elif pol in runs:
+            sys.exit(f"policy {pol} needs {fn}: run mv2_routed_run.py first")
     out_path = os.path.join(RAG, f"reports_n{a.n}_{a.evidence}.jsonl")
     done = {(r["qid"], r["policy"]) for r in jsonl_done(out_path, key="key").values()} \
         if os.path.exists(out_path) else set()
@@ -253,7 +269,15 @@ def phase_generate(a, cl, model):
                 if (q, pol) in done or q not in run:
                     continue
                 top = sorted(run[q], key=lambda d: -run[q][d])[:TOPK]
-                chans = POLICIES[pol][1] if a.evidence == "own" else ALL_CHANNELS
+                if a.evidence != "own":
+                    chans = ALL_CHANNELS
+                elif POLICIES[pol][1] is not None:
+                    chans = POLICIES[pol][1]
+                else:
+                    # the router chose this query's channels; ground it on exactly those, so a policy
+                    # is never credited with evidence it did not retrieve
+                    chans = [CHANNEL_TEXT[c] for c in picks[pol].get(q, "").split("+")
+                             if c in CHANNEL_TEXT]
                 segs = evidence_for(top, texts, chans)
                 if not segs:
                     fh.write(json.dumps({"qid": q, "policy": pol, "report": "",
