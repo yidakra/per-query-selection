@@ -1,0 +1,204 @@
+{
+  "n_queries": 2546,
+  "policies": [
+    "asr",
+    "ocr",
+    "visual",
+    "asr+ocr",
+    "asr+visual",
+    "ocr+visual",
+    "asr+ocr+visual"
+  ],
+  "channels": {
+    "visual": "10pyscene_clip.json",
+    "asr": "asr_dense_bge-m3.json",
+    "ocr": "10pyscene_paddleOCR_clip.json"
+  },
+  "n_event_groups": 536,
+  "pre_predictors": [
+    "IDF_avg",
+    "IDF_max",
+    "IDF_std",
+    "IDF_sum",
+    "SCQ_avg",
+    "SCQ_max",
+    "SCQ_sum",
+    "SCS_1",
+    "SCS_2",
+    "avgICTF"
+  ],
+  "cross_channel_spread": {
+    "IDF_avg": 0.2609012484570767,
+    "IDF_max": 0.19299717203594782,
+    "IDF_std": 0.33087349960702533,
+    "IDF_sum": 0.2609012484824152,
+    "SCQ_avg": 0.17312839350336479,
+    "SCQ_max": 0.09084813303796661,
+    "SCQ_sum": 0.17312839350571863,
+    "SCS_1": 0.2432357722943405,
+    "SCS_2": 0.22296039037248186,
+    "avgICTF": 0.20003011008918298
+  },
+  "sets": {
+    "conf30 (paper baseline)": {
+      "nested_gap": 7.591914140522979,
+      "nested_sem": 1.0125261842769535,
+      "n_features": 30,
+      "folds": [
+        {
+          "achieved": 0.43052007225682,
+          "fixed": 0.35087111876461813,
+          "fixed_policy": 4
+        },
+        {
+          "achieved": 0.3918658949447125,
+          "fixed": 0.2955981277564036,
+          "fixed_policy": 4
+        },
+        {
+          "achieved": 0.39897557589618665,
+          "fixed": 0.34594126356868043,
+          "fixed_policy": 4
+        },
+        {
+          "achieved": 0.44282933586764966,
+          "fixed": 0.3440761140552115,
+          "fixed_policy": 4
+        },
+        {
+          "achieved": 0.40113588445664533,
+          "fixed": 0.34924443225095153,
+          "fixed_policy": 4
+        }
+      ]
+    },
+    "pre @ asr only (current table)": {
+      "nested_gap": 0.43204275375724466,
+      "nested_sem": 0.3791264353648348,
+      "n_features": 10,
+      "folds": [
+        {
+          "achieved": 0.3501509960600619,
+          "fixed": 0.35087111876461813,
+          "fixed_policy": 4
+        },
+        {
+          "achieved": 0.30776537961170236,
+          "fixed": 0.2955981277564036,
+          "fixed_policy": 4
+        },
+        {
+          "achieved": 0.3383512583287691,
+          "fixed": 0.34594126356868043,
+          "fixed_policy": 4
+        },
+        {
+          "achieved": 0.3558805697484202,
+          "fixed": 0.3440761140552115,
+          "fixed_policy": 4
+        },
+        {
+          "achieved": 0.35518499033477385,
+          "fixed": 0.34924443225095153,
+          "fixed_policy": 4
+        }
+      ]
+    },
+    "pre @ asr+ocr (text channels)": {
+      "nested_gap": 0.8589218366317762,
+      "nested_sem": 0.522453558170891,
+      "n_features": 20,
+      "folds": [
+        {
+          "achieved": 0.3684690773037164,
+          "fixed": 0.35087111876461813,
+          "fixed_policy": 4
+        },
+        {
+          "achieved": 0.3053125167813825,
+          "fixed": 0.2955981277564036,
+          "fixed_policy": 4
+        },
+        {
+          "achieved": 0.33857367303001684,
+          "fixed": 0.34594126356868043,
+          "fixed_policy": 4
+        },
+        {
+          "achieved": 0.3653726788383649,
+          "fixed": 0.3440761140552115,
+          "fixed_policy": 4
+        },
+        {
+          "achieved": 0.35094920227397336,
+          "fixed": 0.34924443225095153,
+          "fixed_policy": 4
+        }
+      ]
+    },
+    "pre @ asr+ocr+cap (all, surrogate)": {
+      "nested_gap": 0.8088185091673351,
+      "nested_sem": 0.5704859800214233,
+      "n_features": 30,
+      "folds": [
+        {
+          "achieved": 0.3603322653902641,
+          "fixed": 0.35087111876461813,
+          "fixed_policy": 4
+        },
+        {
+          "achieved": 0.30890116690522,
+          "fixed": 0.2955981277564036,
+          "fixed_policy": 4
+        },
+        {
+          "achieved": 0.3342991511120122,
+          "fixed": 0.34594126356868043,
+          "fixed_policy": 4
+        },
+        {
+          "achieved": 0.36728485949158884,
+          "fixed": 0.3440761140552115,
+          "fixed_policy": 4
+        },
+        {
+          "achieved": 0.3553545389551468,
+          "fixed": 0.34924443225095153,
+          "fixed_policy": 4
+        }
+      ]
+    },
+    "conf30 + pre @ all": {
+      "nested_gap": 7.5616259703889686,
+      "nested_sem": 0.888537842422632,
+      "n_features": 60,
+      "folds": [
+        {
+          "achieved": 0.43554240682588946,
+          "fixed": 0.35087111876461813,
+          "fixed_policy": 4
+        },
+        {
+          "achieved": 0.3870277334124366,
+          "fixed": 0.2955981277564036,
+          "fixed_policy": 4
+        },
+        {
+          "achieved": 0.3989146524382237,
+          "fixed": 0.34594126356868043,
+          "fixed_policy": 4
+        },
+        {
+          "achieved": 0.4377077101852446,
+          "fixed": 0.3440761140552115,
+          "fixed_policy": 4
+        },
+        {
+          "achieved": 0.40461985205351914,
+          "fixed": 0.34924443225095153,
+          "fixed_policy": 4
+        }
+      ]
+    }
+  }
+}

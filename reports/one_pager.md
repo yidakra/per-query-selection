@@ -22,11 +22,13 @@ expansion tier, whose gain no feature we tried can rank.
 things, each measured, and this is the axis separating us from a QPP-for-selection literature that is
 entirely text.
 
-1. *Predictor and retriever can read different modalities.* Pre-retrieval QPP scores the query against a
-   corpus index; in text that is the corpus the retriever searches. Ours searches video, so the only
-   index available covers ASR transcripts and describes a different channel than the router is deciding
-   about. All ten pre-retrieval predictors land at **τ ≈ 0**, against **|τ| ≈ 0.21** for score-only
-   post-retrieval. The same predictors are competitive in text RAG, so this is the setting, not them.
+1. *Query-collection statistics cannot pick an evidence source.* Pre-retrieval QPP scores the query
+   against a corpus index, and it is competitive for choosing among query variants. Here all ten
+   predictors land at **τ ≈ 0**, against **|τ| ≈ 0.21** for score-only post-retrieval. This is not an
+   artefact of giving them one index: with a separate index per channel, including the shipped captions
+   as a text surrogate for the visual channel, they reach **+0.86 ± 0.52** nDCG against **+7.59 ± 1.01**
+   for the channels' own score distributions, and add nothing when stacked on top (+7.56 ± 0.89). How a
+   query sits against a collection says how hard it looks, not which source will answer it.
 2. *Some predictors do not exist here.* Clarity needs a language model over the retrieved documents.
    Frames have no terms, so it is undefined rather than weak, and we report it unavailable.
 3. *Channel applicability is a property of the document.* A silent clip has no speech to transcribe. In

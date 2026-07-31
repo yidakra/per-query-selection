@@ -28,24 +28,33 @@ evidence channels a video carries, its speech, its on-screen text, and the frame
 sounds like a change of domain and it is really a change of structure, because it decides what a
 predictor is even able to see.
 
-**Why the pre-retrieval result does not carry over, and what that tells us.** Their pre-retrieval family
-is competitive. Ours collapses: all ten predictors land at τ ≈ 0 and route to within 0.0005 nDCG of
-doing nothing at all, while the score-only post-retrieval family reaches |τ| ≈ 0.21. The gap is not
-tuning. A pre-retrieval predictor reads query terms against a corpus index, and in variant selection the
-options *are* different query texts, so the feature moves as the choice moves. That is the whole signal.
-When the options are channels the query text never changes, so an IDF or SCS value is one number per
-query no matter which channel is under consideration. It can say this query looks hard. It cannot say
-prefer speech to frames here, because it takes the same value for both.
+**Why the pre-retrieval result does not carry over.** Their pre-retrieval family is competitive. Ours
+collapses: all ten predictors land at τ ≈ 0 and route to within 0.0005 nDCG of doing nothing, while the
+score-only post-retrieval family reaches |τ| ≈ 0.21. The first thing to rule out is our own setup. A
+pre-retrieval predictor reads query terms against a corpus index, and we built one index, over the
+speech transcripts, so every predictor returned a single number per query regardless of which channel
+was under consideration. That would explain the null on its own and would say nothing about the method.
 
-The obvious repair is a term index per channel, which would restore the variation. It works for speech
-and for on-screen text. It cannot work for the frames, which carry no terms at all, and the frame
-channel is the one our selector picks alone for 802 of 2,546 queries and the strongest single channel we
-have at 0.3036. Clarity fails the same way and more visibly: it needs a language model over the
-retrieved documents, so for a channel whose documents are images it is undefined rather than weak, and
-we report it unavailable instead of substituting something that looks like a number. So the finding that
-cheap pre-retrieval prediction suffices is not wrong. It is bounded, and the boundary is worth naming:
-pre-retrieval QPP discriminates between options only when the options differ in the query text, and in
-multimodal selection they do not.
+So we gave it every index the benchmark allows: the transcripts, the on-screen text, and the shipped
+captions as a text surrogate for the visual channel, which retrieves over frame embeddings and has no
+term index of its own. The features do vary across the three, with a mean relative range from 0.09
+(SCQ_max) to 0.33 (IDF_std), so the repair works as a repair. It buys almost nothing. Against the
++7.59 ± 1.01 nDCG that the channels' own score distributions deliver on the same event-grouped folds,
+the per-channel pre-retrieval features reach +0.43 ± 0.38 from the speech index alone, +0.86 ± 0.52 with
+on-screen text added, and +0.81 ± 0.57 once the visual surrogate joins them. None of those is
+distinguishable from routing nothing. Stacked on top of the score features they give +7.56 ± 0.89,
+which is the baseline back again (`mv2_qpp_prechannel.py`).
+
+That is a stronger result than the indexing story we first reached for, and it points elsewhere. Corpus
+term statistics describe how hard a query looks against a collection. Which *evidence source* will
+answer it is not a property of the query's vocabulary, and no amount of per-channel indexing makes it
+one. Variant selection is different in exactly the way that matters: the options there are competing
+texts, and how a text sits against the collection is precisely what those predictors were built to
+measure. Clarity is the limit case and it does not even get a surrogate, since it needs a language model
+over the retrieved documents; for a channel whose documents are images it is undefined rather than weak,
+and we report it unavailable rather than substituting something that looks like a number. The finding
+that cheap pre-retrieval prediction suffices is not wrong, then. It is bounded, and the boundary is that
+the options have to differ in ways query-collection statistics can see.
 
 **The utility gap, when the modalities are not interchangeable.** Their gap is a divergence between two
 objectives measured on the same text. Ours has a physical cause underneath it. The frame channel
@@ -95,13 +104,15 @@ good predictor matches us, and we say so.
 - Their 56 topics against our 2,546 queries is a fair power contrast, but the RAG arm runs on ~400, so
   do not claim scale on both axes in the same breath.
 - The "802 of 2,546" figure is from the dense-m3 grouped selector picks. Recompute if that cell changes.
-- **Experiment this section is currently promising and has not run:** per-channel pre-retrieval
-  predictors. We build the lexical index over ASR only (`mv2_qpp_table.py`), so our pre-retrieval values
-  are one scalar per query, which is exactly the structural point. Building a second index over the OCR
-  text would give the argument its own measurement: even with per-channel variation restored for the two
-  text channels, the selector still cannot see the frame channel, which is the one most often picked.
-  Cheap, CPU-only, and it converts the paragraph from reasoning to evidence. Worth doing before this
-  section is defended.
+- The per-channel pre-retrieval experiment has now run (`mv2_qpp_prechannel.py`, results in
+  `results/ablations/mv2_qpp_prechannel.json`). An earlier draft of this section argued the null was
+  structural, that a query-side feature is constant across channels because the query never changes.
+  That is wrong once you build an index per channel, and the measured version is better: the features do
+  vary and still buy +0.86 ± 0.52 at best. Do not resurrect the constant-feature argument.
+- The caption index is a surrogate and the paper must say so in one sentence. The visual channel searches
+  CLIP embeddings over frames; the captions describe the same videos in text. Reviewers who know
+  MultiVENT 2.0 will notice, and the honest framing is that we handed pre-retrieval QPP a proxy it does
+  not normally get and it still did not help.
 - QPP-GenRE as a live baseline would quantify the cost gap against our 1 ms router, since it needs an LLM
   pass over the candidate list. Still to do.
 - The utility-gap paragraph is written as work in progress on purpose. When the RAG arm reports, if
