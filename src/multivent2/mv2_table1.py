@@ -45,7 +45,8 @@ CELLS = ["ASR-shipped", "ASR-dense", "OCR"]
 # ~19 h on one GPU, so a row-per-predictor version is not affordable and only the section-best rows
 # will be filled. Stated here so the blanks in the table are a known cost, not an oversight.
 COVERAGE = {"nDCG@10": "complete", "tau": "complete",
-            "Recall@100": "not computed -- needs the A/B runs rebuilt and re-scored (CPU)",
+            "Recall@100": "complete where mv2_recall_sidecar.py reproduced the cell's stored nDCG "
+                          "exactly (2/3 cells; OCR is off by 0.0019 and left unwritten)",
             "N_all": "not computed -- judge pass per selected run (~GPU-hours each)",
             "N_strict": "not computed -- judge pass per selected run (~GPU-hours each)"}
 
@@ -105,10 +106,17 @@ def main():
         return tuple(v) if v else None
 
     rows = []
+    def orec(c):
+        rc, ru = table[c].get("recall_cheap"), table[c].get("recall_uniform")
+        if rc is None:
+            return None
+        return ru if table[c]["uniform"] >= table[c]["cheap"] else rc
     rows.append(("Original", "best fixed policy (no selection)",
-                 {c: (original[c], None) for c in cells}))
-    rows.append(("", "visual only", {c: (table[c]["cheap"], None) for c in cells}))
-    rows.append(("", "uniform fusion (best w)", {c: (table[c]["uniform"], None) for c in cells}))
+                 {c: (original[c], None, orec(c)) for c in cells}))
+    rows.append(("", "visual only", {c: (table[c]["cheap"], None, table[c].get("recall_cheap"))
+                                     for c in cells}))
+    rows.append(("", "uniform fusion (best w)",
+                 {c: (table[c]["uniform"], None, table[c].get("recall_uniform")) for c in cells}))
     for i, (their, ours) in enumerate(PRE):
         rows.append(("Pre-retrieval" if i == 0 else "", their,
                      {c: get("pre", ours, c) for c in cells}))
@@ -132,11 +140,12 @@ def main():
             best[(sec, c)] = max(vs) if vs else None
 
     def cellstr(v, sec, c):
-        if v is None:                       # both sub-columns, or the row loses its column alignment
-            return "*n.i.* | —"
+        if v is None:                       # every sub-column, or the row loses its alignment
+            return "*n.i.* | — | —"
         if v == "n/a":
-            return "n/a | —"
-        nd, tau = v
+            return "n/a | — | —"
+        nd, tau = v[0], v[1]
+        rec = v[2] if len(v) > 2 else None
         s = f"{nd:.4f}"
         # EPS, not zero. A predictor that degenerates to "always escalate" lands on the fixed policy
         # give or take float noise, and a 3e-5 difference marked as an improvement would misreport the
@@ -145,10 +154,11 @@ def main():
             s = f"<u>{s}</u>"
         if best.get((sec, c)) is not None and abs(nd - best[(sec, c)]) < 1e-12:
             s = f"**{s}**"
-        return s + (f" | {tau:+.3f}" if tau is not None else " | —")
+        return (s + (f" | {tau:+.3f}" if tau is not None else " | —")
+                  + (f" | {rec:.4f}" if rec is not None else " | —"))
 
-    L = ["| Category | Method | " + " | ".join(f"{c} nDCG@10 | τ" for c in cells) + " |",
-         "|" + "---|" * (2 + 2 * len(cells))]
+    L = ["| Category | Method | " + " | ".join(f"{c} nDCG@10 | τ | R@100" for c in cells) + " |",
+         "|" + "---|" * (2 + 3 * len(cells))]
     sec = "Original"
     for cat, name, vals in rows:
         if cat:

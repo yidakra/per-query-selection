@@ -48,15 +48,22 @@ def mk():
                      ("m", RidgeCV(alphas=np.logspace(-2, 3, 12)))])
 
 
-def route(raw, g, ndA, ndB, cv=None):
-    """Single-feature OOF ridge -> escalate where predicted gain > 0. Returns (routed nDCG, raw tau)."""
+def route(raw, g, ndA, ndB, cv=None, recA=None, recB=None):
+    """Single-feature OOF ridge -> escalate where predicted gain > 0.
+
+    Returns (routed nDCG, raw tau, routed Recall@100). The recall is the SAME decision scored under a
+    second metric, not a second decision: their Table 1 reports each selector under four metrics, and a
+    selector re-optimised per metric would not be the same selector. None where the sidecar has no
+    verified recall for the cell."""
     raw = np.asarray(raw, dtype=np.float64).reshape(-1, 1)
     if np.allclose(raw.std(), 0):
-        return float(ndA.mean()), 0.0
+        return float(ndA.mean()), 0.0, (float(recA.mean()) if recA is not None else None)
     if cv is None:
         cv = KFold(5, shuffle=True, random_state=0)
     pred = cross_val_predict(mk(), raw, g, cv=cv)
-    return float(np.where(pred > 0, ndB, ndA).mean()), float(kendalltau(raw.ravel(), g).statistic)
+    esc = pred > 0
+    rec = float(np.where(esc, recB, recA).mean()) if recA is not None else None
+    return float(np.where(esc, ndB, ndA).mean()), float(kendalltau(raw.ravel(), g).statistic), rec
 
 
 def main():
@@ -95,6 +102,16 @@ def main():
         g = ndB - ndA
         feats = np.array([d["features"][q] for q in qids])
 
+        # verified per-query Recall@100 for this cell's A and B runs, if the sidecar reproduced the
+        # cell's stored nDCG exactly. Absent -> the recall column stays empty for the cell.
+        recA = recB = None
+        sc_path = os.path.join(ABL, "mv2_recall_sidecar.json")
+        if os.path.exists(sc_path):
+            sc = json.load(open(sc_path)).get(label)
+            if sc and all(q in sc["per_query"] for q in qids):
+                recA = np.array([sc["per_query"][q][0] for q in qids])
+                recB = np.array([sc["per_query"][q][1] for q in qids])
+
         if a.group_cv:
             from sklearn.model_selection import GroupKFold
             from mv2_io import load_qrels
@@ -113,7 +130,7 @@ def main():
             for n, v in score_only_suite(list(visual[q].values()), nq).items():
                 post[n].append(v)
 
-        rows = {n: route(post[n], g, ndA, ndB, cv) for n in SCORE_ONLY}
+        rows = {n: route(post[n], g, ndA, ndB, cv, recA, recB) for n in SCORE_ONLY}
 
         # pre-retrieval predictors over the ASR lexical index (query-side only, no retrieval at all)
         pre_rows = {}
@@ -123,15 +140,19 @@ def main():
                 s = pre_retrieval_suite(queries[q].lower().split(), idx)
                 for n in PRE_RETRIEVAL:
                     pre[n].append(s[n])
-            pre_rows = {n: route(pre[n], g, ndA, ndB, cv) for n in PRE_RETRIEVAL}
+            pre_rows = {n: route(pre[n], g, ndA, ndB, cv, recA, recB) for n in PRE_RETRIEVAL}
 
         ours_pred = cross_val_predict(mk(), feats, g,
                                      cv=cv or KFold(5, shuffle=True, random_state=0))
         ours = (float(np.where(ours_pred > 0, ndB, ndA).mean()),
-                float(kendalltau(ours_pred, g).statistic))
-        oracle = (float(np.where(g > 0, ndB, ndA).mean()), 1.0)
+                float(kendalltau(ours_pred, g).statistic),
+                float(np.where(ours_pred > 0, recB, recA).mean()) if recA is not None else None)
+        oracle = (float(np.where(g > 0, ndB, ndA).mean()), 1.0,
+                  float(np.where(g > 0, recB, recA).mean()) if recA is not None else None)
 
         results[label] = {"n": len(qids), "cheap": float(ndA.mean()), "uniform": float(ndB.mean()),
+                          "recall_cheap": float(recA.mean()) if recA is not None else None,
+                          "recall_uniform": float(recB.mean()) if recB is not None else None,
                           "post": rows, "pre": pre_rows, "ours": ours, "oracle": oracle}
         print(f"{label}: n={len(qids)} cheap={ndA.mean():.4f} uniform={ndB.mean():.4f} "
               f"ours={ours[0]:.4f} (tau {ours[1]:+.3f})", flush=True)
@@ -140,7 +161,7 @@ def main():
 
     labels = [c[0] for c in CELLS]
     def fmt(v):
-        return f"{v[0]:.4f} | {v[1]:+.3f}"
+        return f"{v[0]:.4f} | {v[1]:+.3f}"    # markdown here stays nDCG|tau; recall lives in Table 1
     L = []
     L.append("| Category | Method | " + " | ".join(f"{l} nDCG@10 | τ" for l in labels) + " |")
     L.append("|" + "---|" * (2 + 2 * len(labels)))
