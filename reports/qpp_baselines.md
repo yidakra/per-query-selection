@@ -51,11 +51,26 @@ learn from other queries' labels are affected.
 
 **Pre-retrieval QPP does not work here.** Every one of the ten predictors lands at τ ≈ 0 and routes to
 within 0.0005 of either doing nothing or fusing everything. This is the sharpest evidence for RQ1, and it
-diverges from Arabzadeh et al., who find cheap pre-retrieval predictors competitive in text RAG. The
-reason is structural rather than a tuning failure. A pre-retrieval predictor scores the query against a
-corpus index, but the channel being routed here is visual, and the only index we can build is over the
-ASR transcripts. The statistics describe a different modality than the decision. That mismatch has no
-analogue in text retrieval, where predictor and retriever read the same corpus. See RQ4.
+diverges from Arabzadeh et al., who find cheap pre-retrieval predictors competitive in text RAG.
+
+The rows above are computed against a single lexical index, over the ASR transcripts, which on its own
+cannot separate "no signal here" from "we only built one index". `mv2_qpp_prechannel.py` settles it by
+building an index per channel — transcripts, on-screen text, and the shipped captions as a text
+surrogate for the visual channel, which retrieves over frame embeddings and has no index of its own. The
+features do vary across the three (mean relative range 0.09 to 0.33), so the repair works as a repair,
+and it buys almost nothing: +0.43 ± 0.38 nDCG from the speech index alone, +0.86 ± 0.52 adding on-screen
+text, +0.81 ± 0.57 once the surrogate joins, against +7.59 ± 1.01 for the channels' own score
+distributions on the same event-grouped folds. Stacked on top of those score features they give
++7.56 ± 0.89, which is the baseline unchanged.
+
+So the null is not an indexing artifact. Corpus term statistics describe how hard a query looks against a
+collection; which *evidence source* will answer it is not a property of the query's vocabulary. Variant
+selection differs in exactly the way that matters, since there the options are competing texts and how a
+text sits against the collection is what these predictors were built to measure. See RQ4.
+
+An earlier draft of this section argued the null was structural, that a query-side feature is constant
+across channels because the query never changes. That is wrong once per-channel indices exist. Do not
+reinstate it.
 
 **Score-only post-retrieval predictors do work**, reaching |τ| ≈ 0.21. Clarity is the exception and is
 marked n/a rather than scored: it needs an RM1 language model over the retrieved documents, and the
