@@ -117,10 +117,14 @@ so a 70B would not rescue it. Paraphrase selection ("tier C") does not exist onc
 On-screen text is weak evidence however it is scored — dense retrieval that lifted ASR by 4.7 points
 moves OCR by 0.1.
 
-## Material that needs a home
+## The second paper
 
 Story B has no room for the efficiency work: measured joules per tier, the router at 1.04 ms against
-the 9.4 s call it gates, escalating 10% of queries multiplying p99 by 435×, and the risk-coverage /
-AURC framing. Same for the heterogeneity result, where sd(per-query gain) predicts the achieved routing
-gap at ρ = 0.943 across six cells. Both are real and both are now support at best. Companion
-submission, appendix, or a second paper where story A is the point. Undecided.
+the 9.4 s call it gates, escalating 10% of queries multiplying p99 by 435×, the risk-coverage and AURC
+framing, and the heterogeneity result where sd(per-query gain) predicts the achieved routing gap at
+ρ = 0.943 across six cells. That material becomes a separate paper rather than an appendix.
+
+Its likely question is when a cost cascade is worth building at all, since our own measured answer for
+the LLM tier is that it is not: an oracle prize of +2.55 that does not survive a held-out gold split
+against a price of 63.5× tier B. The heterogeneity correlation is then the tool for deciding in
+advance. Scope, framing risk, and the overlap with this paper are in `paper2_scope.md`.
