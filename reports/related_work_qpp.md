@@ -35,10 +35,22 @@ and what the frames look like. Same shape, and one difference that turns out to 
 
 That sounds like bookkeeping. It sets what a predictor is able to see.
 
-**The pre-retrieval family does not transfer.** We implemented ten pre-retrieval predictors against the
-same reference repository their definitions come from, so this is a same-vocabulary comparison rather
-than a same-spirit one. All ten land at τ ≈ 0 and route to within 0.0005 nDCG of doing nothing. The
-score-only post-retrieval family, run identically, reaches |τ| ≈ 0.21. The families swap places.
+**The corpus-statistic family does not transfer.** We implemented eleven pre-retrieval predictors
+against the same reference repository their definitions come from, so this is a same-vocabulary
+comparison rather than a same-spirit one. All eleven land at τ ≈ 0 and route to within 0.0005 nDCG of
+doing nothing. The score-only post-retrieval family, run identically, reaches |τ| ≈ 0.21.
+
+One pre-retrieval predictor escapes, and it is the exception that fixes the rule. QSD_pre embeds the
+query, finds the historical queries nearest to it, and interpolates their known effectiveness, so it
+reads no corpus index at all. It beats the fixed policy in every cell (0.3137 / 0.3466 / 0.3039), which
+no term-statistic predictor does anywhere. So the boundary is not the pre/post-retrieval split the
+literature organises by. It is whether a predictor needs document-side language statistics.
+
+Two things stop that from weakening the result. QSD_pre still trails both NQC and our selector. And most
+of what it has is duplicate detection: under a plain query split it reaches τ +0.343 and beats
+everything, and event grouping removes 52% of that (see the methodological note below). The predictor
+that escapes the null is the same one that leaks, and both follow from it reading other queries' labels
+rather than documents.
 
 The first thing to rule out is our own setup. A pre-retrieval predictor reads query terms against a
 corpus index, and we had built one index, over the speech transcripts, so every predictor returned a
