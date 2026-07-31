@@ -47,9 +47,24 @@ usefully too.
 
 **Chinese barely moves.** +0.0122 on the channel, +0.0045 fused, on the second-largest language in the
 set. Whatever is wrong with Chinese here is not a retrieval-language problem, so translate-distill will
-not fix it either. Chinese also has the weakest visual channel of any language (0.1222). My read is that
-the ASR itself is the bottleneck, and that is worth checking directly before anyone spends more compute
-on the retrieval side.
+not fix it either. Chinese also has the weakest visual channel of any language (0.1222).
+
+An earlier version of this note guessed the ASR was the bottleneck. It is not. `mv2_asr_quality.py`
+audits the transcripts of every judged document by language: Chinese has 99.3% coverage, a median of 186
+content units, which is the densest of the large languages, and a degenerate-repetition rate of 7.2%,
+which is *lower* than English at 10.8%. Whisper handled Chinese. (The first pass of that audit said the
+opposite, 45% degenerate on a median of 3 tokens, because splitting on whitespace is meaningless for a
+script written without spaces. Worth remembering before anyone reads a length statistic off this corpus
+again.)
+
+Which leaves Chinese unexplained, and it is more honest to leave it there than to reach for a second
+guess. Both its channels are weak, its relevant-documents-per-query is 4.02 against English's 4.38 so
+the ideal DCG is comparable, and Korean sits right next to it on transcript quality and visual weakness
+while gaining three times as much from translation.
+
+The audit did settle something else. Arabic has the least reliable transcripts in the set, 32.8% in the
+wrong script and 15.8% degenerate, and Arabic is the language translation helps most. The gain tracks
+how badly the original-language channel was being served, not how far the language sits from English.
 
 **English gets worse, and that is not a bug.** English documents were passed through untouched — 35.3%
 of the corpus comes out byte-identical, and spot checks confirm English transcripts are unchanged. The

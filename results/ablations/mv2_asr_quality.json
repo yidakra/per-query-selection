@@ -1,0 +1,144 @@
+{
+  "n_docs": 3473,
+  "relevant_only": true,
+  "languages": {
+    "chinese": {
+      "n_docs": 741,
+      "coverage": 0.9932523616734144,
+      "median_chars": 254.0,
+      "median_tokens": 186.0,
+      "expected_script": "han",
+      "wrong_script_share": 0.22010869565217392,
+      "degenerate_share": 0.07201086956521739,
+      "dominant_scripts": {
+        "han": 561,
+        "latin": 145,
+        "null": 13,
+        "cyrillic": 10
+      }
+    },
+    "english": {
+      "n_docs": 727,
+      "coverage": 0.9766162310866575,
+      "median_chars": 587.0,
+      "median_tokens": 101.5,
+      "expected_script": "latin",
+      "wrong_script_share": 0.030985915492957747,
+      "degenerate_share": 0.10845070422535211,
+      "dominant_scripts": {
+        "latin": 661,
+        "null": 27,
+        "other": 11,
+        "cyrillic": 5
+      }
+    },
+    "korean": {
+      "n_docs": 719,
+      "coverage": 0.9902642559109874,
+      "median_chars": 446.5,
+      "median_tokens": 97.5,
+      "expected_script": "hangul",
+      "wrong_script_share": 0.21067415730337077,
+      "degenerate_share": 0.06320224719101124,
+      "dominant_scripts": {
+        "hangul": 549,
+        "latin": 132,
+        "null": 13,
+        "other": 9
+      }
+    },
+    "russian": {
+      "n_docs": 675,
+      "coverage": 0.9911111111111112,
+      "median_chars": 736.0,
+      "median_tokens": 106.0,
+      "expected_script": "cyrillic",
+      "wrong_script_share": 0.17937219730941703,
+      "degenerate_share": 0.0687593423019432,
+      "dominant_scripts": {
+        "cyrillic": 541,
+        "latin": 106,
+        "null": 8,
+        "arabic": 5
+      }
+    },
+    "spanish": {
+      "n_docs": 68,
+      "coverage": 0.9852941176470589,
+      "median_chars": 1160.0,
+      "median_tokens": 202.0,
+      "expected_script": "latin",
+      "wrong_script_share": 0.029850746268656716,
+      "degenerate_share": 0.05970149253731343,
+      "dominant_scripts": {
+        "latin": 64,
+        "cyrillic": 1,
+        "han": 1,
+        "null": 1
+      }
+    },
+    "arabic": {
+      "n_docs": 536,
+      "coverage": 0.9888059701492538,
+      "median_chars": 322.0,
+      "median_tokens": 53.5,
+      "expected_script": "arabic",
+      "wrong_script_share": 0.3283018867924528,
+      "degenerate_share": 0.15849056603773584,
+      "dominant_scripts": {
+        "arabic": 345,
+        "latin": 154,
+        "other": 13,
+        "null": 11
+      }
+    },
+    "malay": {
+      "n_docs": 1,
+      "coverage": 1.0,
+      "median_chars": 1914.0,
+      "median_tokens": 260.0,
+      "expected_script": "latin",
+      "wrong_script_share": 0.0,
+      "degenerate_share": 0.0,
+      "dominant_scripts": {
+        "latin": 1
+      }
+    },
+    "ukrainian": {
+      "n_docs": 2,
+      "coverage": 1.0,
+      "median_chars": 538.0,
+      "median_tokens": 83.5,
+      "expected_script": "cyrillic",
+      "wrong_script_share": 0.0,
+      "degenerate_share": 0.0,
+      "dominant_scripts": {
+        "cyrillic": 2
+      }
+    },
+    "japanese": {
+      "n_docs": 3,
+      "coverage": 1.0,
+      "median_chars": 346.0,
+      "median_tokens": 323.0,
+      "expected_script": "han",
+      "wrong_script_share": 0.0,
+      "degenerate_share": 0.0,
+      "dominant_scripts": {
+        "han": 3
+      }
+    },
+    "cantonese": {
+      "n_docs": 1,
+      "coverage": 1.0,
+      "median_chars": 419.0,
+      "median_tokens": 380.0,
+      "expected_script": "han",
+      "wrong_script_share": 0.0,
+      "degenerate_share": 0.0,
+      "dominant_scripts": {
+        "han": 1
+      }
+    }
+  }
+}
