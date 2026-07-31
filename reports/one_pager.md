@@ -1,53 +1,49 @@
 # Adaptive Q2E: one-page summary
 
-**Claim: in multimodal video retrieval, which evidence to trust is a per-query decision, and a
-1-ms model reading scores the system already computed makes that decision well.** All numbers are
-MultiVENT 2.0 test (2,546 queries, graded multi-gold judgments, nDCG@10).
+**Claim: QPP-based selection has a boundary, and we found where it is. Cheap pre-retrieval predictors
+pick well among query variants and cannot pick among evidence sources at all, because the options in the
+second case differ on the document side, where query-collection statistics cannot see.** All numbers are
+MultiVENT 2.0 test (2,546 queries, graded multi-gold judgments, nDCG@10), folds grouped by event.
 
-## Research questions
+Story B, agreed 31 Jul 2026. Per-query channel routing is the positive control, not the headline.
+The story-A version of this file led with the routing gain.
 
-**RQ1.** Can a retrieval system tell, per query and before spending anything, which of its evidence
-sources will help? Answer: yes, from the cheap sources' own score distributions; and no from the
-query text alone, which refutes Adaptive-RAG's premise in this setting.
+## The argument in three steps
 
-**RQ2.** Does acting on that prediction beat every fixed policy, including the best fusion of
-everything? Answer: by +7.59 ± 1.01 nDCG on the strong-channel cell, +5.64 ± 0.93 on the shipped
-channels, measured leak-free and split by event so near-duplicate queries cannot cross folds.
+1. **Pre-retrieval QPP does not transfer to source selection.** Arabzadeh et al. (arXiv:2604.22661)
+   show cheap pre-retrieval predictors picking well among 30 LLM query variants, ahead of NQC. We ran
+   the same families, implemented against the same reference definitions, on a choice among evidence
+   channels. All ten pre-retrieval predictors land at τ ≈ 0 and route to within 0.0005 nDCG of doing
+   nothing. Score-only post-retrieval reaches |τ| ≈ 0.21. The families swap places.
 
-**RQ3.** When does per-query selection pay, and can that be known in advance? Answer: the payoff
-tracks the spread of per-query gain (ρ = 0.943 across six cells), and it vanishes for the LLM
-expansion tier, whose gain no feature we tried can rank.
+2. **The choice is predictable, from the other family.** A null alone could mean the decision is not
+   predictable, in which case nothing follows about predictors. It is predictable: a selector over the
+   channels' own score distributions beats the best fixed policy chosen on the training fold by
+   **+7.59 ± 1.01 nDCG** (+5.64 ± 0.93 on the benchmark's shipped channels, permutation p = .0005 in
+   both). So the null is about a family of predictors, not about the task.
 
-**RQ4.** What makes prediction-based routing different when the documents are video? Answer: three
-things, each measured, and this is the axis separating us from a QPP-for-selection literature that is
-entirely text.
+3. **The reason is structural.** Variant selection compares competing texts, and how a text sits
+   against a collection is exactly what pre-retrieval statistics were built to measure. Source
+   selection compares channels whose applicability is a property of the document. A silent clip has no
+   speech to transcribe. In variant selection every option applies to every document and only quality
+   varies.
 
-1. *Query-collection statistics cannot pick an evidence source.* Pre-retrieval QPP scores the query
-   against a corpus index, and it is competitive for choosing among query variants. Here all ten
-   predictors land at **τ ≈ 0**, against **|τ| ≈ 0.21** for score-only post-retrieval. This is not an
-   artefact of giving them one index: with a separate index per channel, including the shipped captions
-   as a text surrogate for the visual channel, they reach **+0.86 ± 0.52** nDCG against **+7.59 ± 1.01**
-   for the channels' own score distributions, and add nothing when stacked on top (+7.56 ± 0.89). How a
-   query sits against a collection says how hard it looks, not which source will answer it.
-2. *Some predictors do not exist here.* Clarity needs a language model over the retrieved documents.
-   Frames have no terms, so it is undefined rather than weak, and we report it unavailable.
-3. *Channel applicability is a property of the document.* A silent clip has no speech to transcribe. In
-   query-variant selection every variant applies to every document and only quality varies. That is what
-   produces the gain spread RQ3 converts into accuracy (sd 23.1 against a mean of 3.72).
+## Evidence
 
-A fourth claim is pending the RAG arm now being measured: ranking and grounding may come apart, since
-our best cheap retriever (visual) emits embeddings no generator can read while our worst (OCR) emits
-usable text. Full argument in `related_work_qpp.md`.
+**The null, and the repair that fails to rescue it.** The obvious objection is that we built one index,
+over speech transcripts, so every predictor returned one number per query regardless of channel. So we
+gave it every index the benchmark allows: transcripts, on-screen text, and the shipped captions as a
+text surrogate for the visual channel, which searches frame embeddings and has no term index of its own.
+The features do vary across the three, mean relative range 0.09 to 0.33, so the repair is real. It buys
++0.43 ± 0.38 from speech alone, +0.86 ± 0.52 with on-screen text, +0.81 ± 0.57 with the visual surrogate
+added. Stacked on the score features: +7.56 ± 0.89, which is the baseline back again. The surrogate is a
+concession we make out loud — pre-retrieval QPP was handed a proxy it does not normally get, and it
+still did not help.
 
-## How we got here
+This is a bounded null, not a shrug. 2,546 queries against their 56 topics, with intervals that exclude
+anything of practical size.
 
-We started by importing Adaptive-RAG's premise into Q2E's LLM-expansion cascade. It half-failed in a
-useful way. Query text predicts nothing about which queries need the expensive tier; the cheap tier's
-own score distribution predicts a lot. And the expensive step it was meant to gate turned out not
-worth gating: LLM decomposition buys at most +0.8 nDCG for 260 J and 9.4 s per query, with per-query
-gain that no feature we tried can rank (τ = +0.002, p = .44). The decision that actually matters sits
-among the modality channels (frames, speech transcripts, on-screen text, captions), which every strong
-system on this benchmark fuses with one global weighting. Ours says the weighting should be per query.
+**The positive control.**
 
 | policy over the same three channels | nDCG@10 |
 |---|---|
@@ -56,74 +52,75 @@ system on this benchmark fuses with one global weighting. Ours says the weightin
 | pairwise routing: fuse dense ASR or don't | 0.3531 |
 | per-query channel selection over 7 policies | **0.4131** |
 
-The selector is a multi-target ridge over 30 cheap features (each channel's score-confidence shape,
-plus how much the channels' top candidates overlap). Out-of-fold, it beats the best fixed policy
-chosen on the training fold by **+7.59 ± 1.01** nDCG (+5.64 ± 0.93 with the benchmark's shipped
-channels; permutation p = .0005 in every cell). For 72% of queries it picks a single channel. Fusing
-everything on every query with unit weights, the field's default, loses to it by 13.6 points, and even
-the best weighted fusion we could find loses by 7.2. Where routing pays is also
-predictable before building anything: the spread of per-query gain predicts the achieved routing gap
-at ρ = 0.943 across our six original cells, and the channel cells land on the same line. Those six need
-no event grouping: no two of their queries share a relevant video, so every query is already its own
-event (`router_event_groups.py`).
+Multi-target ridge over 30 features: each channel's score-confidence shape, plus how much the channels'
+top candidates overlap. That last part is complementarity between evidence sources measured before
+either is trusted, which is one of the signals Arabzadeh et al.'s closing section asks for. It is
+available to us because our options can be scored side by side. For 72% of queries the selector picks a
+single channel.
 
-Ceilings get audited here. Picking each query's best policy on half its golds and grading on the
-other half wipes out 15 of the oracle's 16 points, so we report no "% of oracle captured". The
-selector's gap is immune to that leak by construction: its features never see a label and every
-prediction is out-of-fold. Folds are also split by event, not by query, because the benchmark carries
-several phrasings of the same event and a plain split puts near-duplicates on both sides of the
-boundary. That correction costs the selector 6% of its gap and costs the strongest historical-query
-baseline half of its correlation; the taxonomy is in `qpp_baselines.md`.
+**The limit case.** Clarity needs a language model over the retrieved documents. Over frames it is
+undefined rather than weak, and we report it unavailable rather than substituting a number that looks
+like one.
 
-### RQ2 in full: routing vs. QPP baselines
+**Downstream, and a prediction of ours that failed.** We expected ranking and grounding to come apart
+on our channels, since the visual channel retrieves best and emits embeddings no generator can read
+while OCR retrieves worst (0.1223) and emits usable text. Under the QPP-4-RAG nuggetizer protocol on
+395 queries with a local judge, the routed system reaches 0.5007 vital-nugget coverage against 0.4648
+for the best fixed policy (p = .037), 0.3902 against 0.3432 on strict vital (p = .014). **The ordering
+under nugget coverage is the ordering under nDCG.** No utility gap at the policy level. The physical
+asymmetry between the channels is real and it did not produce a divergence.
 
-Twenty QPP predictors implemented to the `QPP-4-RAG` definitions and run as routers, each oriented by an
-out-of-fold ridge then used to escalate the queries it flags. Decision metric is routed nDCG@10, ordering
-metric is Kendall τ against true gain. Folds are event-grouped. Summary rows below; all twenty, plus
-coverage notes, in `reports/qpp_baselines.md`.
+**Robustness.** The null is not an artefact of weak channels. Translating all 109,488 ASR transcripts
+with NLLB and re-encoding raises the speech channel from 0.3134 to 0.3332, and the routed gap goes
+**+7.59 → +8.01 ± 1.01** while pre-retrieval stays at zero. Improving a channel raises both sides and
+the decision layer keeps its margin, which is what should happen if the gain comes from variation in
+which channel suits which query rather than from any one channel being bad.
 
-| Category | Method | ASR-shipped | τ | ASR-dense | τ |
-|---|---|---|---|---|---|
-| Original | visual only (cheap) | 0.3036 | — | 0.3036 | — |
-| | uniform fusion (best w) | 0.2795 | — | 0.3408 | — |
-| Pre-retrieval (10) | best of family | 0.3039 | +0.067 | 0.3408 | +0.044 |
-| Post-retrieval (10) | best of family (NQC) | **0.3205** | −0.215 | **0.3541** | −0.154 |
-| | clarity | n/a | — | n/a | — |
-| Ours | cheap-feature gain ridge | 0.3193 | +0.211 | 0.3531 | +0.160 |
-| Oracle | route by true gain | 0.3653 | +1.000 | 0.3910 | +1.000 |
+**A methodological note their design invites.** MultiVENT 2.0 carries several phrasings of one event, so
+a query-split fold lets a predictor that learns from other queries read its answer off a near-duplicate.
+Event grouping (536 groups over 2,546 queries) costs our selector 6% of its gap and leaves the analytic
+predictors within 0.002 nDCG, because they read only the current query's scores. QSD loses 52% of its
+correlation and BERT-QPP loses 10-29%. The taxonomy is clean: predictors that consume other queries'
+performance leak, predictors that consume the current query's scores do not. Thirty variants of one
+information need share their relevant documents by construction, so this applies to their design too.
 
-Three readings, one of them against us. **Pre-retrieval QPP fails here**: all ten sit at τ ≈ 0 and route
-to within 0.0005 of doing nothing, which is the sharpest evidence for RQ1 and the measured core of RQ4.
-**Score-only post-retrieval works**, at |τ| ≈ 0.21. **Our router ties with NQC on this binary decision**,
-and if anything trails it (0.3193 vs 0.3205, and 0.3531 vs 0.3541; |τ| 0.211 vs 0.215), so eight features
-buy nothing over one good predictor when the only question is whether to escalate. Learning earns its keep on the k-way choice,
-which a scalar cannot express: that is why the selector above is the contribution and this cell is the
-baseline it clears. An earlier revision claimed we beat every predictor; that was an artifact of our own
-implementations, now corrected against the reference.
+## How we got here
 
+We started by importing Adaptive-RAG's premise into Q2E's LLM-expansion cascade, and it half-failed
+usefully. Query text predicts nothing about which queries need the expensive tier (accuracy at or below
+the majority prior); the cheap tier's own score distribution predicts a lot. MultiVENT's queries are
+259/259 Latin script, so the multilinguality lives in the videos and there is no query-side language
+feature to route on. That pointed at the decision among modality channels, which every strong system on
+this benchmark makes once, globally, with a single fusion weighting.
 
-Negative results we stand behind, briefly. The LLM expansion tier is correctly declined by its own
-router (and a 14B decomposer stays Pareto-dominated, so a 70B would not rescue it). Paraphrase
-selection ("tier C") does not exist once gold-split audited. On-screen text is weak evidence however
-it is scored; dense retrieval that lifted ASR by 4.7 points moves OCR by 0.1.
+## What we are not claiming
 
-Scope, honestly: our channels are deliberately cheap, so absolute numbers sit below MMMORRF (0.586)
-and OmniEmbed (0.753), which buy their lift with translate-distill dense retrieval per channel. The
-contribution is the decision layer those systems lack, and their channels drop into it unchanged.
+Our channels are deliberately cheap, so absolute numbers sit below MMMORRF (0.586) and OmniEmbed
+(0.753), which buy their lift with translate-distill dense retrieval per channel. Under story B that is
+setting rather than weakness: a boundary condition on someone else's result does not need our retrieval
+to be competitive. It would need it if the routing gain were the headline, which is the main reason it
+is not.
 
-We ran the translate half of that recipe to size the gap: all 109,488 ASR transcripts through NLLB to
-English, re-encoded with the same bge-m3, everything else fixed. The speech channel goes 0.3134 → 0.3332
-and the fusion 0.3372 → 0.3452. Translation is not what separates us from MMMORRF. What the per-language
-split shows is more interesting than the aggregate: Arabic gains +0.1055 on the channel (0.1509 → 0.2564,
-a 70% jump), Russian +0.045 and Korean +0.038, Chinese only +0.012 — and English *loses* 0.061, because
-translated non-English documents now compete for English queries and crowd English relevant videos out of
-the same list. English transcripts were passed through untouched, so this is contention, not damage.
-Translating the whole corpus averages a large real gain against a real loss. The unit of decision should
-be the document, which is this paper's argument one level down. Full table in
-`results/ablations/mv2_translate_findings.md`.
+We also do not claim to beat classical QPP. NQC ties or edges our router on the binary escalate-or-not
+decision (0.3193 vs 0.3205 shipped; 0.3531 vs 0.3541 dense). That costs us nothing here — NQC is in the
+family that transfers, so it corroborates the claim. A scalar predictor cannot express a k-way policy,
+which is why the selector is a selector, but that point is no longer load-bearing.
 
-The translated channel also answers the standing objection that routing only pays while the channels
-are weak. Rerunning the selector on it, everything else held fixed, the nested gap goes **+7.59 → +8.01
-± 1.01** (best fixed 0.3372 → 0.3428, selected 0.4131 → 0.4229, p = .0005). A better channel raises both
-sides and the decision layer keeps its margin, which is what should happen if routing exploits variation
-in which channel suits which query rather than the average weakness of one of them.
+Ceilings get audited. Picking each query's best policy on half its golds and grading on the other half
+wipes out 15 of the oracle's 16 points, so we report no "% of oracle captured" anywhere.
+
+## Negative results we stand behind
+
+The LLM expansion tier is correctly declined by its own router: the oracle prize is +2.55 and does not
+survive a held-out gold split, while the price is 63.5× tier B. A 14B decomposer stays Pareto-dominated,
+so a 70B would not rescue it. Paraphrase selection ("tier C") does not exist once gold-split audited.
+On-screen text is weak evidence however it is scored — dense retrieval that lifted ASR by 4.7 points
+moves OCR by 0.1.
+
+## Material that needs a home
+
+Story B has no room for the efficiency work: measured joules per tier, the router at 1.04 ms against
+the 9.4 s call it gates, escalating 10% of queries multiplying p99 by 435×, and the risk-coverage /
+AURC framing. Same for the heterogeneity result, where sd(per-query gain) predicts the achieved routing
+gap at ρ = 0.943 across six cells. Both are real and both are now support at best. Companion
+submission, appendix, or a second paper where story A is the point. Undecided.
