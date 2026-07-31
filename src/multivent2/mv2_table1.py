@@ -1,0 +1,156 @@
+"""Table 1: every predictor as a selector, laid out the way Arabzadeh et al. lay theirs out.
+
+Their Table 1 (SIGIR '26) reports, for each QPP method, the end-to-end performance of executing the
+option that method selected -- grouped Original / Pre-retrieval / Post-retrieval / Oracle, with a rule
+that reads at a glance: underline anything that beats the Original row, bold the best in each section.
+Their pre-retrieval block is almost entirely underlined. That is their headline.
+
+This emits the same shape for our selection problem, where the options are evidence channels rather
+than query variants. The point of matching their layout exactly is that the comparison then needs no
+prose: the pre-retrieval block that is underlined in their table is bare in ours.
+
+Reads what is already computed and writes the table. It runs no experiments, so it is safe to re-run
+and cheap; the columns it cannot fill yet are marked rather than quietly dropped (see COVERAGE below).
+
+  python src/multivent2/mv2_table1.py [--tag _grouped]
+"""
+import os
+import sys
+import json
+import argparse
+
+HERE = os.path.dirname(os.path.abspath(__file__)); sys.path.insert(0, HERE)
+_ROOT = os.path.dirname(os.path.dirname(HERE))
+ABL = os.path.join(_ROOT, "results", "ablations")
+
+# their method order, so the two tables can be read side by side. Names on the left are theirs; ours
+# on the right, None where we have no equivalent and the row is reported as a gap rather than omitted.
+PRE = [("IDF_avg", "IDF_avg"), ("IDF_max", "IDF_max"), ("IDF_sum", "IDF_sum"), ("IDF_std", "IDF_std"),
+       ("ICTF_avg", "avgICTF"), ("SCQ_avg", "SCQ_avg"), ("SCQ_max", "SCQ_max"), ("SCQ_sum", "SCQ_sum"),
+       ("SCS_apx", "SCS_1"), ("SCS_full", "SCS_2"),
+       ("QL", None), ("QSD_pre", None), ("DM", None)]
+POST = [("RSD", "RSD"), ("clarity", "CLARITY_NA"), ("NQC", "NQC"), ("NQC_norm", "NQC_norm"),
+        ("sigma_max", "sigma_max"), ("sigma_0.5", "sigma_x0.5"), ("SMV", "SMV"), ("SMV_norm", "SMV_norm"),
+        ("WIG", "WIG"), ("WIG_norm", "WIG_norm"), ("max", "max"),
+        ("QSD_post", None), ("BERTQPP", "BERTQPP")]
+
+CELLS = ["ASR-shipped", "ASR-dense", "OCR"]
+
+# what each column costs to fill. Recall@100 needs the per-channel A/B runs rebuilt and re-scored
+# (CPU, cheap). The two nugget columns need a judge pass per selected run -- our five-policy arm took
+# ~19 h on one GPU, so a row-per-predictor version is not affordable and only the section-best rows
+# will be filled. Stated here so the blanks in the table are a known cost, not an oversight.
+COVERAGE = {"nDCG@10": "complete", "tau": "complete",
+            "Recall@100": "not computed -- needs the A/B runs rebuilt and re-scored (CPU)",
+            "N_all": "not computed -- judge pass per selected run (~GPU-hours each)",
+            "N_strict": "not computed -- judge pass per selected run (~GPU-hours each)"}
+
+
+def load(tag):
+    with open(os.path.join(ABL, f"mv2_qpp_table{tag}.json")) as f:
+        table = json.load(f)
+    bert = {}
+    p = os.path.join(ABL, f"mv2_bertqpp{tag}.json")
+    if os.path.exists(p):
+        with open(p) as f:
+            raw = json.load(f)
+        # that file keys its cells differently from the main table
+        for k, cell in (("asr_shipped", "ASR-shipped"), ("asr_dense", "ASR-dense"), ("ocr", "OCR")):
+            if k in raw:
+                bert[cell] = (raw[k]["routed_ndcg10"], raw[k]["tau"])
+    return table, bert
+
+
+def main():
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--tag", default="_grouped", help="'_grouped' for event-grouped folds")
+    a = ap.parse_args()
+    table, bert = load(a.tag)
+    cells = [c for c in CELLS if c in table]
+
+    # The row every other row is measured against. Their Original is the unmodified query: the default
+    # action when you do no selection. Ours is therefore the best FIXED policy, not the cheap channel.
+    # This matters more than it sounds. Against the cheap channel, a predictor that degenerates to
+    # "always fuse" gets underlined in the ASR-dense cell purely because fusion beats visual-only --
+    # the mark would be reporting that fusion works, not that the predictor selected anything. Against
+    # the best fixed policy a degenerate predictor scores exactly zero improvement, which is the truth.
+    original = {c: max(table[c]["cheap"], table[c]["uniform"]) for c in cells}
+
+    def get(section, ours_name, cell):
+        if ours_name is None:
+            return None
+        if ours_name == "CLARITY_NA":
+            return "n/a"
+        if ours_name == "BERTQPP":
+            return bert.get(cell)
+        v = table[cell].get(section, {}).get(ours_name)
+        return tuple(v) if v else None
+
+    rows = []
+    rows.append(("Original", "best fixed policy (no selection)",
+                 {c: (original[c], None) for c in cells}))
+    rows.append(("", "visual only", {c: (table[c]["cheap"], None) for c in cells}))
+    rows.append(("", "uniform fusion (best w)", {c: (table[c]["uniform"], None) for c in cells}))
+    for i, (their, ours) in enumerate(PRE):
+        rows.append(("Pre-retrieval" if i == 0 else "", their,
+                     {c: get("pre", ours, c) for c in cells}))
+    for i, (their, ours) in enumerate(POST):
+        rows.append(("Post-retrieval" if i == 0 else "", their,
+                     {c: get("post", ours, c) for c in cells}))
+    rows.append(("Ours", "k-way channel selector", {c: tuple(table[c]["ours"]) for c in cells}))
+    rows.append(("Oracle", "route by true gain", {c: tuple(table[c]["oracle"]) for c in cells}))
+
+    # section bests, for the bold rule
+    best = {}
+    for sec in ("Pre-retrieval", "Post-retrieval"):
+        members, cur = [], None
+        for cat, _, vals in rows:
+            if cat in ("Pre-retrieval", "Post-retrieval", "Original", "Ours", "Oracle"):
+                cur = cat
+            if cur == sec:
+                members.append(vals)
+        for c in cells:
+            vs = [m[c][0] for m in members if isinstance(m.get(c), tuple) and m[c][0] is not None]
+            best[(sec, c)] = max(vs) if vs else None
+
+    def cellstr(v, sec, c):
+        if v is None:                       # both sub-columns, or the row loses its column alignment
+            return "*n.i.* | —"
+        if v == "n/a":
+            return "n/a | —"
+        nd, tau = v
+        s = f"{nd:.4f}"
+        # EPS, not zero. A predictor that degenerates to "always escalate" lands on the fixed policy
+        # give or take float noise, and a 3e-5 difference marked as an improvement would misreport the
+        # main result. 5e-4 is half a hundredth of an nDCG point: below anything we would ever claim.
+        if nd > original[c] + 5e-4:                       # their underline rule
+            s = f"<u>{s}</u>"
+        if best.get((sec, c)) is not None and abs(nd - best[(sec, c)]) < 1e-12:
+            s = f"**{s}**"
+        return s + (f" | {tau:+.3f}" if tau is not None else " | —")
+
+    L = ["| Category | Method | " + " | ".join(f"{c} nDCG@10 | τ" for c in cells) + " |",
+         "|" + "---|" * (2 + 2 * len(cells))]
+    sec = "Original"
+    for cat, name, vals in rows:
+        if cat:
+            sec = cat
+        L.append(f"| {cat} | `{name}` | " +
+                 " | ".join(cellstr(vals.get(c), sec, c) for c in cells) + " |")
+
+    out = "\n".join(L)
+    print(out)
+    print("\nunderline = beats the Original row; bold = best in section; "
+          "`n/a` = undefined for this channel; *not implemented* = we have no equivalent predictor")
+    print("\ncolumn coverage:")
+    for k, v in COVERAGE.items():
+        print(f"  {k:<12} {v}")
+
+    dest = os.path.join(ABL, f"mv2_table1{a.tag}.md")
+    with open(dest, "w") as f:
+        f.write("# Table 1 (paper layout)\n\n" + out + "\n")
+    print(f"\nwrote {dest}")
+
+
+if __name__ == "__main__":
+    main()
