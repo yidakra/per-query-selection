@@ -158,8 +158,13 @@ The structural argument from §3, now with evidence:
 Their utility gap says ranking and answer quality come apart, and NQC — the predictor that edges us on
 the binary cell — correlates −0.038 with answer quality against 0.329 with nDCG in their setting.
 
-We measured it: QPP-4-RAG nuggetizer, 395 queries, local judge. Routed 0.5007 vital vs 0.4648 best
-fixed, p = .037. **The ordering does not flip.** No utility gap at the policy level here.
+We measured it twice. Nuggets: QPP-4-RAG nuggetizer, 395 queries, local judge, routed 0.5007 vital vs
+0.4648 best fixed (p = .037), and **the ordering does not flip** — no gap between ranking and grounding.
+Recall: scoring the same decisions under R@100, the ASR-dense cell goes 0.7268 fixed / 0.7207 ours /
+0.6286 oracle while nDCG goes 0.3408 / 0.3531 / 0.3910. **The better the nDCG selection, the worse the
+recall.** Their gap is here; it runs between two retrieval metrics rather than between retrieval and
+generation. Both halves belong in this section, and the second one obliges the paper to say, wherever
+it reports nDCG@10 alone, that this is the metric the selection was fitted to.
 
 That is a genuine finding and it goes against what we expected — `related_work_qpp.md` predicted the
 split would appear, since the visual channel emits embeddings no generator can read while OCR emits

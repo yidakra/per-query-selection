@@ -110,13 +110,28 @@ undefined rather than weak, and we report it unavailable rather than substitutin
 like one. It is the extreme of the same axis QSD sits at the other end of: maximum dependence on
 document-side statistics, therefore no definition at all.
 
-**Downstream, and a prediction of ours that failed.** We expected ranking and grounding to come apart on
-our channels, since the visual channel retrieves best and emits embeddings no generator can read while
-OCR retrieves worst (0.1223) and emits usable text. Under the QPP-4-RAG nuggetizer protocol on 395
-queries with a local judge, the routed system reaches 0.5007 vital-nugget coverage against 0.4648 for
-the best fixed policy (p = .037), 0.3902 against 0.3432 on strict vital (p = .014). **The ordering under
-nugget coverage is the ordering under nDCG.** No utility gap at the policy level. The physical asymmetry
-between the channels is real and it did not produce a divergence.
+**The utility gap, found in the pair we were not looking at.** We expected ranking and grounding to come
+apart, since the visual channel retrieves best and emits embeddings no generator can read while OCR
+retrieves worst (0.1223) and emits usable text. Under the QPP-4-RAG nuggetizer protocol on 395 queries
+with a local judge, the routed system reaches 0.5007 vital-nugget coverage against 0.4648 for the best
+fixed policy (p = .037), 0.3902 against 0.3432 on strict vital (p = .014). **The ordering under nugget
+coverage is the ordering under nDCG.** The physical asymmetry between the channels is real and it did
+not produce a divergence there.
+
+It produces one between nDCG and recall. Scoring each selector's decision under Recall@100 as well, the
+ASR-dense cell reads:
+
+| | nDCG@10 | R@100 |
+|---|---|---|
+| Original (best fixed policy) | 0.3408 | **0.7268** |
+| our selector | 0.3531 | 0.7207 |
+| oracle, routing by true nDCG gain | **0.3910** | 0.6286 |
+
+**The better the nDCG selection, the worse the recall**, monotonically, and a perfect nDCG selector
+gives up nearly ten points of it. That is the shape of their Oracle-ndcg@5 versus Oracle-recall@100
+rows. So their utility gap holds here; we were looking in the wrong pair of metrics. Reproducing it in
+one pair while refuting it in another is a better result than either on its own, and it means a paper
+reporting only nDCG@10 — every table we have — is reporting the metric the selection was fitted to.
 
 **Robustness.** The null is not an artefact of weak channels. Translating all 109,488 ASR transcripts
 with NLLB and re-encoding raises the speech channel from 0.3134 to 0.3332, and the routed gap goes

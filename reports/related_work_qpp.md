@@ -114,9 +114,18 @@ the closest analogue of their setting. The routed system reaches 0.5007 vital-nu
 policy ordering under nugget coverage is the ordering under nDCG.** The one apparent swap separates two
 policies by five parts in a hundred thousand and is a tie.
 
-The physical asymmetry is real and it did not produce a divergence. Report it that way rather than
-burying it: on this cascade, at the policy level, retrieval nDCG is a faithful stand-in for downstream
-answer quality. One stake stays open. NQC, the predictor that edges our router on the binary escalation
+The physical asymmetry is real and it did not produce a divergence there. On this cascade, at the policy
+level, retrieval nDCG is a faithful stand-in for downstream answer quality.
+
+It is not a faithful stand-in for recall, and that is where their gap turns up. Scoring the same
+decisions under Recall@100, the ASR-dense cell goes 0.7268 for the best fixed policy, 0.7207 for our
+selector, 0.6286 for an oracle routing on true nDCG gain, while nDCG goes 0.3408 / 0.3531 / 0.3910. The
+better the nDCG selection, the worse the recall, monotonically, exactly as their Oracle-ndcg@5 and
+Oracle-recall@100 rows diverge. So the utility gap survives the change of setting; it just does not run
+between the two objectives we assumed. Any table of ours reporting nDCG@10 alone is reporting the metric
+the selection was fitted to, and the paper should say so where it reports one.
+
+One stake stays open. NQC, the predictor that edges our router on the binary escalation
 decision, is the same predictor they find correlating at −0.038 with answer quality while correlating at
 0.329 with nDCG. We cannot say from our data whether that inversion is a property of their setting or
 of the predictor, and it is worth posing as a question rather than answering it with a guess.
