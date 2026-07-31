@@ -27,3 +27,6 @@ runs/wandb/
 wandb/
 .codecarbon.config
 notes/
+
+# generated RAG reports: 1.7 MB of model prose per arm, regenerable from the runs
+results/ablations/rag/reports_n*.jsonl

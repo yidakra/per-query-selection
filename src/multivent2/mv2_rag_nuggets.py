@@ -58,6 +58,8 @@ PICKS = {"routed": "routed_dense_m3_picks.json"}
 # selector channel names -> the text that channel can actually hand a generator
 CHANNEL_TEXT = {"visual": "captions", "asr": "asr", "ocr": "ocr"}
 ALL_CHANNELS = ["captions", "asr", "ocr"]
+PERM = 10000           # paired permutation samples in the metrics phase
+TIE_EPS = 1e-3         # ranking differences smaller than this are ties, not utility gaps
 MAX_DOC_CHARS = 1500          # per document, keeps the context bounded on a 14b model
 TOPK = 5                      # documents fed to the generator, matching QPP-4-RAG's RAG setting
 
@@ -384,7 +386,7 @@ def phase_metrics(a, *_):
                 r = json.loads(line)
             except Exception:
                 continue
-            per[r["policy"]].append(score(r["nuggets"]))
+            per[r["policy"]].append((r["qid"], score(r["nuggets"])))
     qrels, _ = load_qrels(os.path.join(DATA, "multivent_2_test_judgments.jsonl"))
     from mv2_ab import per_query_ndcg
     gold = jsonl_done(os.path.join(RAG, f"gold_nuggets_n{a.n}.jsonl"))
@@ -400,7 +402,7 @@ def phase_metrics(a, *_):
             nd[pol] = float(np.mean(vals)) if vals else float("nan")
     rows = []
     for pol, vals in per.items():
-        m = {k: float(np.mean([v[k] for v in vals])) for k in vals[0]}
+        m = {k: float(np.mean([v[k] for _, v in vals])) for k in vals[0][1]}
         rows.append((pol, len(vals), nd.get(pol, float("nan")), m))
     rows.sort(key=lambda r: -r[2] if not np.isnan(r[2]) else 0)
     out = {"evidence": a.evidence, "n_queries": a.n,
@@ -421,12 +423,40 @@ def phase_metrics(a, *_):
                 print(f"ranking by N_{k:<12} (all tied, uninformative)")
                 continue
             order = [p for p, _ in sorted(vals.items(), key=lambda kv: -kv[1])]
+            # a pair separated by less than TIE_EPS has not swapped, it is tied, and reporting the
+            # arbitrary sort order as a utility gap would overclaim
+            real = order != by_nd and any(abs(vals[x] - vals[y]) > TIE_EPS
+                                          for x, y in zip(order, by_nd) if x != y)
             print(f"ranking by N_{k:<12} {' > '.join(order)}"
-                  + ("   <-- differs from nDCG" if order != by_nd else ""))
-            if order != by_nd:
+                  + ("   <-- differs from nDCG" if real else
+                     "   (reordered within {:.0e}, tied)".format(TIE_EPS) if order != by_nd else ""))
+            if real:
                 flips.append(k)
         print(f"\nUTILITY GAP on {', '.join(flips)}: the policy that ranks best does not generate best"
               if flips else "\nno utility gap: same ordering under retrieval and generation objectives")
+
+    # a mean difference over 395 queries with this much tying needs a paired test, not eyeballing.
+    # the ties are structural -- the router picks the fixed policy for some queries and the two runs
+    # are then identical -- so they stay in, and a sign test would throw them away.
+    if "routed" in per:
+        by_q = {pol: dict(vals) for pol, vals in per.items()}
+        sig = {}
+        print(f"\npaired permutation, {PERM:,} samples, routed vs each fixed policy")
+        print(f"{'baseline':<12}{'metric':<14}{'delta':>9}{'p':>8}   win/tie/loss")
+        for base in [p for p in by_q if p != "routed"]:
+            qs = sorted(set(by_q["routed"]) & set(by_q[base]))
+            for k in ("vital", "strict_vital", "all", "strict_all"):
+                d = np.array([by_q["routed"][q][k] - by_q[base][q][k] for q in qs])
+                obs = float(d.mean())
+                rng = np.random.default_rng(0)
+                null = np.where(rng.random((PERM, len(d))) < 0.5, -d, d).mean(axis=1)
+                p = float((np.abs(null) >= abs(obs)).mean())
+                w, l = int((d > 0).sum()), int((d < 0).sum())
+                sig[f"routed_vs_{base}:{k}"] = {"delta": obs, "p": p, "win": w, "loss": l,
+                                                "tie": len(d) - w - l}
+                print(f"{base:<12}{k:<14}{obs:>+9.4f}{p:>8.4f}   {w}/{len(d) - w - l}/{l}")
+        out["significance"] = sig
+        json.dump(out, open(os.path.join(RAG, f"metrics_n{a.n}_{a.evidence}.json"), "w"), indent=2)
 
 
 def main():
