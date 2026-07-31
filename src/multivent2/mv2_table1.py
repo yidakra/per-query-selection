@@ -28,7 +28,11 @@ ABL = os.path.join(_ROOT, "results", "ablations")
 PRE = [("IDF_avg", "IDF_avg"), ("IDF_max", "IDF_max"), ("IDF_sum", "IDF_sum"), ("IDF_std", "IDF_std"),
        ("ICTF_avg", "avgICTF"), ("SCQ_avg", "SCQ_avg"), ("SCQ_max", "SCQ_max"), ("SCQ_sum", "SCQ_sum"),
        ("SCS_apx", "SCS_1"), ("SCS_full", "SCS_2"),
-       ("QL", None), ("QSD_pre", None), ("DM", None)]
+       ("QL", "QL"), ("QSD_pre", "QSD_PRE"),
+       # DM appears in their Table 1 and nowhere in the reference repository, and its row is
+       # numerically identical to their Original row in all eight columns. Left unresolved rather
+       # than guessed at; one for the authors.
+       ("DM", None)]
 POST = [("RSD", "RSD"), ("clarity", "CLARITY_NA"), ("NQC", "NQC"), ("NQC_norm", "NQC_norm"),
         ("sigma_max", "sigma_max"), ("sigma_0.5", "sigma_x0.5"), ("SMV", "SMV"), ("SMV_norm", "SMV_norm"),
         ("WIG", "WIG"), ("WIG_norm", "WIG_norm"), ("max", "max"),
@@ -58,14 +62,26 @@ def load(tag):
         for k, cell in (("asr_shipped", "ASR-shipped"), ("asr_dense", "ASR-dense"), ("ocr", "OCR")):
             if k in raw:
                 bert[cell] = (raw[k]["routed_ndcg10"], raw[k]["tau"])
-    return table, bert
+    # QSD_pre reports at the best k for the split, per qpp_baselines.md: k=5 under a plain split where
+    # the duplicate IS the answer, k=100 under event grouping where many neighbours are needed to
+    # average the noise out. That reversal is itself the leakage evidence, so the k is not a free knob.
+    qsd, qsd_k = {}, "5_inv_dist" if not tag.endswith("_grouped") else "100_inv_dist"
+    p = os.path.join(ABL, f"mv2_qsd{tag}.json")
+    if os.path.exists(p):
+        with open(p) as f:
+            raw = json.load(f)
+        for k, cell in (("asr_shipped", "ASR-shipped"), ("asr_dense", "ASR-dense"), ("ocr", "OCR")):
+            if k in raw and qsd_k in raw[k]["k"]:
+                v = raw[k]["k"][qsd_k]
+                qsd[cell] = (v["routed_ndcg10"], v["tau"])
+    return table, bert, qsd
 
 
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--tag", default="_grouped", help="'_grouped' for event-grouped folds")
     a = ap.parse_args()
-    table, bert = load(a.tag)
+    table, bert, qsd = load(a.tag)
     cells = [c for c in CELLS if c in table]
 
     # The row every other row is measured against. Their Original is the unmodified query: the default
@@ -83,6 +99,8 @@ def main():
             return "n/a"
         if ours_name == "BERTQPP":
             return bert.get(cell)
+        if ours_name == "QSD_PRE":
+            return qsd.get(cell)
         v = table[cell].get(section, {}).get(ours_name)
         return tuple(v) if v else None
 

@@ -139,11 +139,16 @@ def pre_retrieval_suite(qtokens, stats):
         "avgICTF": avg_ictf,
         "SCS_1": float(np.log2(1.0 / ql) + avg_ictf),
         "SCS_2": float(scs2),
+        # QPP-4-RAG's QL is literally len(qtokens). It reads no index at all, so unlike every other
+        # predictor here it is identical across channels by construction -- the same number is asked to
+        # choose between speech, text and frames. Included for coverage against their table, and it
+        # doubles as the cleanest illustration of why the family cannot express a source choice.
+        "QL": float(len(qtokens)),
     }
 
 
 PRE_RETRIEVAL = ["IDF_avg", "IDF_max", "IDF_sum", "IDF_std", "SCQ_avg", "SCQ_max", "SCQ_sum",
-                 "avgICTF", "SCS_1", "SCS_2"]
+                 "avgICTF", "SCS_1", "SCS_2", "QL"]
 
 
 class Index:
