@@ -39,7 +39,11 @@ VISUAL = "10pyscene_clip.json"
 CELLS = {
     "ASR-shipped": ("whisperASR_clip.json",  0.5, "mv2_chan_visual_to_asr.json"),
     "ASR-dense":   ("asr_dense_bge-m3.json", 0.5, "mv2_chan_visual_to_asr_dense_m3.json"),
-    "OCR":         ("ocr_dense_bge-m3.json", 1.0, "mv2_chan_visual_to_ocr_dense_m3.json"),
+    # NB the "_dense_m3" in that filename is the BATCH tag, not the channel: this cell fuses the
+    # shipped paddleOCR run, not the dense OCR encode. Confirmed by sweep -- paddleOCR at 0.5
+    # reproduces the stored ndcgB exactly (d = 0.000000) where ocr_dense_bge-m3 misses by 0.0019 at
+    # every weight. Consistent with mv2_channels_dense_m3.json, whose single-channel OCR is 0.1223.
+    "OCR":         ("10pyscene_paddleOCR_clip.json", 0.5, "mv2_chan_visual_to_ocr_dense_m3.json"),
 }
 TOL = 5e-4          # the check is on a mean over 2,546 queries; anything real is far bigger than this
 
