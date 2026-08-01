@@ -1,0 +1,53 @@
+{
+  "ASR-shipped": {
+    "n_queries": 2546,
+    "mean_gain": -0.02409072326842401,
+    "n_carriers": 491,
+    "n_losers": 632,
+    "n_pairs": 911,
+    "rank_buckets": {
+      "1-10": 0,
+      "11-50": 867,
+      "51-100": 44,
+      "101-500": 0,
+      "501-1000": 0,
+      "absent": 0
+    },
+    "median_rank": 20.0,
+    "p90_rank": 42.0
+  },
+  "ASR-dense": {
+    "n_queries": 2546,
+    "mean_gain": 0.03715790917111628,
+    "n_carriers": 573,
+    "n_losers": 432,
+    "n_pairs": 1020,
+    "rank_buckets": {
+      "1-10": 0,
+      "11-50": 933,
+      "51-100": 87,
+      "101-500": 0,
+      "501-1000": 0,
+      "absent": 0
+    },
+    "median_rank": 21.0,
+    "p90_rank": 49.0
+  },
+  "OCR": {
+    "n_queries": 2546,
+    "mean_gain": -0.05916050841969175,
+    "n_carriers": 214,
+    "n_losers": 557,
+    "n_pairs": 362,
+    "rank_buckets": {
+      "1-10": 0,
+      "11-50": 346,
+      "51-100": 16,
+      "101-500": 0,
+      "501-1000": 0,
+      "absent": 0
+    },
+    "median_rank": 18.0,
+    "p90_rank": 40.0
+  }
+}
