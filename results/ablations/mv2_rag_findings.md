@@ -109,6 +109,26 @@ Letting that selection also restrict what the generator may read gives the gain 
 route retrieval and then ground on everything it can reach for the documents it found, which is the
 `all` arm, and the `all` arm is the one that converts.
 
+## What this arm also pays for: Table 1's nugget columns
+
+Three policies were added to the `all` arm — `cellB_asr_shipped`, `cellB_asr_dense`, `cellB_ocr` — each
+the fused run of one Table 1 cell, restricted to these 395 queries and verified against that cell's
+stored nDCG before being written (`mv2_cell_runs.py`). With `visual` already judged as run A and shared
+across all three cells, four judged runs cover the entire table.
+
+Every Table 1 row is then arithmetic rather than a judge pass. A predictor executes run A or run B per
+query; a report's nugget coverage is a property of the ranked list it was written from, not of the
+predictor that chose it; so the row's coverage is the per-query mix of the two under that predictor's
+recorded decisions. `mv2_table1_nuggets.py` does the mix and refuses to write unless both endpoints
+reproduce the judged runs exactly, which is what would catch a decision vector misaligned to `qids`.
+That turned roughly thirty judge passes into three.
+
+Two things it makes visible that the nDCG column only implied. BERT-QPP escalates every query, so its
+nugget row *is* the uniform-fusion row in all three cells — a selector that never selects, under a
+generation metric. And in ASR-shipped our selector is the only row whose coverage beats both endpoints
+(0.3411 against 0.3235 visual and 0.3167 fused), so routing there is better than either fixed policy on
+answer quality and not only on ranking.
+
 ## Caveats
 
 - One judge model, 14B, running locally. The judge never ranks anything, so it cannot prefer its own

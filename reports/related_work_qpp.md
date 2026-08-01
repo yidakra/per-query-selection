@@ -190,6 +190,24 @@ of other variants is exposed, and we can quantify the exposure because we have a
   do not claim scale on both axes in the same breath.
 - Both RAG arms are in (1 Aug 2026). Numbers live in `results/ablations/rag/metrics_n400_{all,own}.json`
   and the write-up in `mv2_rag_findings.md`.
+- Table 1 is complete as of 1 Aug 2026, nugget columns included, for every row rather than the
+  section-best rows. They are mixed per query from two judged runs per cell, which is exact and not an
+  approximation: a report's coverage is a property of the ranked list it was written from. The mix
+  aborts unless both endpoints reproduce the judged runs. Do not let a later draft describe these
+  columns as estimated or partial.
+- The τ-versus-utility result is the one finding that generalizes past this dataset, so state it
+  carefully. It is **negative**, −0.268 over 72 rows, and it *strengthens* to −0.337 and −0.425 as the
+  degenerate and near-degenerate rows are removed. That ordering matters: the first objection any
+  reviewer raises is that inert predictors score zero utility and are counted harmless, and the answer
+  is that removing them makes the effect larger, not smaller. Report the cheap-only denominator (−0.141)
+  in the same breath so the choice of denominator is not a hidden degree of freedom.
+- The corpus-axis experiments (1 Aug 2026) are a negative result and belong in the paper as one. In
+  sample they look outstanding — 100.0% of the ASR-dense gain at 38% of the corpus, an oracle document
+  set beating full extraction by +0.069 — and every bit of it is selection-on-test. Train and held-out
+  carrier sets overlap by zero documents in 15 of 15 folds. This is the tier-C failure mode again, and
+  the reason to publish it is that the in-sample number is exactly what a less careful paper would have
+  reported. What survives: the depth rule at 38% of corpus for 58% of the gain, +0.026 over random.
+  Scripts are in the scratchpad, not the repo, pending a decision on whether this section exists.
 - QPP-GenRE as a live baseline would quantify the cost gap against our 1 ms router, since it needs an
   LLM pass over the candidate list. Still to do, and under story B it is optional rather than expected.
 - Under story A this file was related work. Under story B most of it is §2 and §3 of the paper.

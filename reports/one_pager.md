@@ -43,7 +43,20 @@ are needed. It correlates at τ +0.237, +0.229 and +0.167, better than anything 
 escalates every query in all three cells — including the OCR cell, where fusing costs 0.059 nDCG. Its
 predictions are all positive, minimum +0.38, so the zero-crossing carries no information even though the
 ordering does. Read by correlation it is the best post-retrieval predictor we have. Read by decision it
-is the worst, and only the second reading tells you what happens if you deploy it.
+is the worst, and only the second reading tells you what happens if you deploy it. Its nugget row is
+identical to the uniform-fusion row in all three cells, which is what a selector that never selects
+looks like under a generation metric.
+
+**And BERT-QPP is not an outlier — the relationship runs the wrong way across the whole table.** Over
+all 72 predictor-cell rows, Kendall τ against utility over the best fixed policy is **−0.268**
+(p = 0.001, Pearson −0.448). The obvious objection is that an inert predictor scores exactly zero
+utility and is thereby counted harmless, which would drag the correlation down by itself. It does not
+explain this: dropping the degenerate rows *strengthens* it to −0.337 (n = 47), and restricting to rows
+that escalate between 5% and 95% strengthens it again to −0.425 (n = 27). Per cell: −0.485, −0.295,
+−0.068. Utility is measured against the best fixed policy rather than the cheap channel, because a
+selector that beats cheap-only but loses to always-fusing has bought nothing; the flattering denominator
+is −0.141 and is reported alongside. τ scores the whole ordering, a selection reads one point of it, and
+here the two point in opposite directions (`mv2_qpp_utility.py`).
 
 ## What QSD changed, and why the sharper claim is better
 
@@ -202,6 +215,19 @@ which is why the selector is a selector, but that point is no longer load-bearin
 Ceilings get audited. Picking each query's best policy on half its golds and grading on the other half
 wipes out 15 of the oracle's 16 points, so we report no "% of oracle captured" anywhere.
 
+## What the expensive channel actually does
+
+A channel can only raise nDCG@10 by pulling a relevant document into the top ten that the cheap channel
+did not already have there. Those documents sit **just below the cut**: 91–96% of them are at visual rank
+11–50, the rest at 51–100, **none past rank 100 and none absent from the visual list**, in all three
+cells (medians 18, 20, 21). The channel re-orders documents the cheap channel had already found and
+nearly ranked. It does not discover documents the cheap channel missed (`mv2_rescue_depth.py`).
+
+They are also few — 214 to 573 distinct documents per cell — and in two of three cells fusion pushes
+*more* relevant documents out of the top ten than it pulls in (632 against 491 in ASR-shipped, 557
+against 214 in OCR). That is where the negative mean gains come from, and it bounds what channel fusion
+can be asked to do.
+
 ## Negative results we stand behind
 
 The LLM expansion tier is correctly declined by its own router: the oracle prize is +2.55 and does not
@@ -210,15 +236,40 @@ so a 70B would not rescue it. Paraphrase selection ("tier C") does not exist onc
 On-screen text is weak evidence however it is scored — dense retrieval that lifted ASR by 4.7 points
 moves OCR by 0.1.
 
+**Selecting which documents to extract, rather than which queries to escalate, does not work either.**
+Extraction is a corpus-side cost paid before any query arrives, so per-query routing over an already
+built channel saves nothing, and the natural next question is which documents need the channel at all.
+In-sample it looks excellent: extracting only for the documents reaching visual top-100 keeps 100.0% of
+the ASR-dense gain at 38% of the corpus, and an oracle document set at 1% coverage scores 0.4098 against
+0.3408 for full extraction, flipping both harmful channels to helpful. None of it survives an
+event-grouped transfer test. Training and held-out carrier sets overlap by **zero documents** in all 15
+folds of all three cells — a carrier is relevant to a specific event, and events do not repeat — so the
+transferred set performs at random (0.2969 against 0.3036 for random of the same size) and the whole
++0.12 was selection-on-test, the same failure that killed tier C. The depth rule transfers partly and
+honestly: 38% of the corpus for 58% of the gain, beating random by +0.026. Language-conditioned
+selection transfers as a rule but does not beat random where a channel is worth building, and correctly
+selects nothing at all for OCR in all five folds. Reported because readers will ask, and because the
+in-sample version is exactly the number a less careful paper would have published.
+
 ## Open
 
-- **Table 1's retrieval half is full; the generation half is not.** Recall@100 is routed per predictor
-  in all three cells, including QSD_pre and BERT-QPP. Each cell's A and B runs are rebuilt from the
-  shipped ranked lists and the rebuild is required to reproduce the cell's stored nDCG before any recall
-  is written (`mv2_recall_sidecar.py`); all three now match to six decimals. The two nugget columns need
-  a judge pass per selected run and are queued behind the RAG arm. QSD_post is a trained transformer and
-  is a build, not a run. DM appears in their Table 1, nowhere in their repository, and its row equals
-  their Original row in all eight columns.
+- **Table 1 is complete.** All four columns are filled for every row in all three cells. Recall@100 is
+  routed per predictor, including QSD_pre and BERT-QPP; each cell's A and B runs are rebuilt from the
+  shipped ranked lists and the rebuild must reproduce the cell's stored nDCG before any recall is
+  written (`mv2_recall_sidecar.py`), and all three match to six decimals. The nugget columns looked like
+  they needed a judge pass per predictor, about thirty at GPU-hours each. They do not. A predictor row
+  executes run A or run B per query, and a report's coverage is a property of the run it was written
+  from, not of the predictor that chose it, so every row mixes from two judged runs per cell. Run A is
+  visual alone and shared across cells, so four judged runs fill the whole column
+  (`mv2_table1_nuggets.py`). Both endpoints are required to reproduce the judged runs exactly or the mix
+  aborts. Still open: QSD_post is a trained transformer and is a build, not a run; DM appears in their
+  Table 1, nowhere in their repository, and its row equals their Original row in all eight columns.
+- **The nugget columns confirm the degeneracy the nDCG column implies.** BERT-QPP escalates every query
+  in all three cells, so its nugget row is character-for-character the uniform-fusion row: 0.3167 /
+  0.2075 in ASR-shipped, 0.2810 / 0.1903 in OCR. It is the best τ in its block and it buys nothing under
+  any of the four metrics. Our selector is the only row in ASR-shipped whose nugget coverage exceeds
+  *both* endpoints (0.3411 against visual 0.3235 and fusion 0.3167), so routing beats either fixed
+  policy on answer quality there, not only on ranking.
 - **The OCR cell stays, and it is not the empty cell it looked like.** Fusing OCR costs 0.059 nDCG, so
   declining is right for most queries, but not for all: an oracle escalates 14.2% of them and gains
   +0.027. The post-retrieval predictors do choose there, escalating between 0.4% and 6.7%, and land on

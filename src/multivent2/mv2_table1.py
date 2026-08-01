@@ -41,14 +41,19 @@ POST = [("RSD", "RSD"), ("clarity", "CLARITY_NA"), ("NQC", "NQC"), ("NQC_norm", 
 CELLS = ["ASR-shipped", "ASR-dense", "OCR"]
 
 # what each column costs to fill. Recall@100 needs the per-channel A/B runs rebuilt and re-scored
-# (CPU, cheap). The two nugget columns need a judge pass per selected run -- our five-policy arm took
-# ~19 h on one GPU, so a row-per-predictor version is not affordable and only the section-best rows
-# will be filled. Stated here so the blanks in the table are a known cost, not an oversight.
+# (CPU, cheap). The nugget columns look like they need a judge pass per selected run, which at ~19 h on
+# one GPU for a five-policy arm would put a row-per-predictor version out of reach. They do not: a
+# predictor row executes run A or run B per query, and a report's coverage is a property of the run it
+# was written from, so the whole column mixes from two judged runs per cell (mv2_table1_nuggets.py).
+# Run A is visual alone and shared by all three cells, so four judged runs fill every row.
 COVERAGE = {"nDCG@10": "complete", "tau": "complete",
             "Recall@100": "complete -- mv2_recall_sidecar.py reproduces all 3 cells' stored nDCG "
                           "exactly, and QSD_pre / BERTQPP are re-scored from their own predictions",
-            "N_all": "not computed -- judge pass per selected run (~GPU-hours each)",
-            "N_strict": "not computed -- judge pass per selected run (~GPU-hours each)"}
+            "N_all": "complete -- mixed per query from the judged A and B runs of each cell, over the "
+                     "395 queries of the RAG arm rather than all 2,546; both endpoints reproduce the "
+                     "judged runs exactly or the mix aborts",
+            "N_strict": "complete -- same mix, strict support (see mv2_rag_nuggets.py for the "
+                        "difference between all and strict)"}
 
 
 def load(tag):
