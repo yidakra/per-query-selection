@@ -31,6 +31,7 @@
 |  | `max` | <u>0.3070</u> | -0.124 | 0.6334 | 0.3345 | 0.2334 | <u>0.3430</u> | -0.112 | 0.7232 | 0.3638 | 0.2608 | 0.3036 | -0.087 | 0.6024 | 0.3243 | 0.2259 |
 |  | `QSD_post` | *n.i.* | — | — | — | — | *n.i.* | — | — | — | — | *n.i.* | — | — | — | — |
 |  | `BERTQPP` | 0.2795 | +0.237 | 0.6892 | 0.3167 | 0.2075 | 0.3408 | +0.229 | 0.7268 | 0.3672 | 0.2621 | 0.2445 | +0.167 | 0.6008 | 0.2810 | 0.1903 |
+|  | `BERTQPP_bi` | 0.2954 | -0.016 | 0.6276 | 0.3288 | 0.2284 | 0.3125 | -0.025 | 0.6414 | 0.3443 | 0.2424 | 0.2847 | -0.030 | 0.6031 | 0.3099 | 0.2144 |
 | Ours | `k-way channel selector` | <u>0.3193</u> | +0.211 | 0.6592 | 0.3411 | 0.2364 | <u>0.3531</u> | +0.160 | 0.7207 | 0.3684 | 0.2642 | 0.3036 | +0.154 | 0.6012 | 0.3229 | 0.2258 |
 | Oracle | `route by true gain` | <u>0.3653</u> | +1.000 | 0.6196 | 0.3608 | 0.2586 | <u>0.3910</u> | +1.000 | 0.6286 | 0.3861 | 0.2841 | <u>0.3305</u> | +1.000 | 0.6038 | 0.3395 | 0.2397 |
 
@@ -43,8 +44,8 @@ Counted from each predictor's recorded escalation fraction, degenerate meaning e
 - Pre-retrieval / ASR-shipped: 3/12
 - Pre-retrieval / ASR-dense: 6/12
 - Pre-retrieval / OCR: 11/12
-- Post-retrieval / ASR-shipped: 1/11
-- Post-retrieval / ASR-dense: 2/11
-- Post-retrieval / OCR: 2/11
+- Post-retrieval / ASR-shipped: 1/12
+- Post-retrieval / ASR-dense: 2/12
+- Post-retrieval / OCR: 2/12
 
 Full list: IDF_avg/ASR-dense (always fuse); IDF_avg/OCR (never fuse); IDF_max/ASR-shipped (never fuse); IDF_max/OCR (never fuse); IDF_sum/OCR (never fuse); IDF_std/ASR-shipped (never fuse); IDF_std/ASR-dense (always fuse); IDF_std/OCR (never fuse); ICTF_avg/ASR-dense (always fuse); ICTF_avg/OCR (never fuse); SCQ_avg/ASR-shipped (never fuse); SCQ_avg/ASR-dense (always fuse); SCQ_avg/OCR (never fuse); SCQ_max/OCR (never fuse); SCQ_sum/OCR (never fuse); SCS_apx/ASR-dense (always fuse); SCS_apx/OCR (never fuse); SCS_full/ASR-dense (always fuse); SCS_full/OCR (never fuse); QL/OCR (never fuse); sigma_0.5/OCR (never fuse); WIG/ASR-dense (always fuse); BERTQPP/ASR-shipped (always fuse); BERTQPP/ASR-dense (always fuse); BERTQPP/OCR (always fuse).

@@ -38,6 +38,7 @@ to gain from escalating, so the raw predictor anti-correlates with gain and the 
 | | max | 0.3070 | −0.124 | 0.3430 | −0.112 | 0.3036 | −0.087 |
 | Post-retrieval | clarity | n/a | — | n/a | — | n/a | — |
 | (needs doc text) | BERT-QPP (cross) | 0.2795 | **+0.237** | 0.3408 | **+0.229** | 0.2445 | **+0.167** |
+| | BERT-QPP (bi) | 0.2954 | −0.016 | 0.3125 | −0.025 | 0.2847 | −0.030 |
 | Ours | cheap-feature gain ridge | 0.3193 | +0.211 | 0.3531 | +0.160 | 0.3036 | +0.154 |
 | Oracle | route by true gain | 0.3653 | +1.000 | 0.3910 | +1.000 | 0.3305 | +1.000 |
 
@@ -243,6 +244,25 @@ per cell, plus document text the visual channel does not natively have, against 
 training. Our claim is a position on the cost-quality frontier rather than the top of the accuracy
 column — and on this table the accuracy column and the decision column disagree, which is the finding
 rather than an inconvenience.
+
+**The bi-encoder variant fails the other way.** Their paper gives both, and the bi-encoder is the one a
+router could actually deploy: query and document are encoded separately, so the document side is done
+offline and query time costs one short forward pass rather than one per candidate. Same target, same
+event-grouped folds, same one-epoch budget as the cross-encoder, shared weights, mean pooling, dot
+product, MSE. It reaches **τ −0.016 / −0.025 / −0.030** — no ordering signal at all — and routes to
+0.2954 / 0.3125 / 0.2847, below the best fixed policy in every cell.
+
+It is worth being clear that this is not a collapsed model. Predictions span −9.1 to +7.2 with sd 1.47,
+2,485 of 2,546 values distinct, escalating 31–35% of queries. It trained; it simply learned nothing that
+orders queries by escalation gain, and unlike the corpus-statistic family it expresses that as varied
+noise rather than as a stuck switch. So the two variants bracket the failure: the cross-encoder orders
+well and cannot decide, the bi-encoder cannot order. What the pair rules out is the hope that the
+supervised entry in this suite would behave differently from the analytic ones once given document text.
+It does not — it just fails less visibly.
+
+Bounded appropriately: one epoch, bert-base, CPU, and a dot product whose scale overshoots a target in
+[−1, 1], which suggests the regression is poorly calibrated even where the ordering might not be. This
+bounds the variant at the cross-encoder's budget, not at any budget.
 
 Leakage magnitudes to carry forward: QSD_pre loses 52% of its τ under event grouping and falls behind,
 BERT-QPP loses 10-29% and stays ahead, and the analytic score-only predictors and our own router lose

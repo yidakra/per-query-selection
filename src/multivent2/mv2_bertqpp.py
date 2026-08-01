@@ -89,6 +89,61 @@ def recall_only(path):
     print(f"wrote {path}")
 
 
+def fit_bi(queries, qids, texts, g, tr, te, a, torch):
+    """The bi-encoder variant: encode query and document separately, score their dot product.
+
+    One shared encoder rather than two, which is the usual Siamese arrangement and halves the parameters;
+    stated here because their paper is not explicit about weight sharing and the choice is ours. Mean
+    pooling over unmasked tokens, then a dot product, then MSE against the escalation gain -- the same
+    target and the same objective as the cross-encoder path, so the two differ only in whether query and
+    document attend to each other.
+
+    That difference is the point of running both. The cross-encoder must see the pair, so at query time
+    it costs a forward pass per candidate document. The bi-encoder's document side can be encoded once,
+    offline, leaving one short query pass at serving time. A router that costs more than the retrieval it
+    is routing has no reason to exist, so the cheap variant is the one that could actually be deployed --
+    and if it degenerates the same way the expensive one does, that is worth knowing.
+    """
+    from transformers import AutoTokenizer, AutoModel
+    tok = AutoTokenizer.from_pretrained(a.model)
+    enc = AutoModel.from_pretrained(a.model)
+    opt = torch.optim.AdamW(enc.parameters(), lr=2e-5)
+    lossf = torch.nn.MSELoss()
+
+    def embed(strings, max_len):
+        b = tok(strings, padding=True, truncation=True, max_length=max_len, return_tensors="pt")
+        out = enc(**b).last_hidden_state
+        mask = b["attention_mask"].unsqueeze(-1).float()
+        return (out * mask).sum(1) / mask.sum(1).clamp(min=1e-9)
+
+    enc.train()
+    idx = np.array(tr)
+    for _ in range(a.epochs):
+        np.random.default_rng(0).shuffle(idx)
+        for s in range(0, len(idx), a.batch):
+            chunk = idx[s:s + a.batch]
+            if len(chunk) < 2:
+                continue
+            qe = embed([queries[qids[i]] for i in chunk], 64)
+            de = embed([texts[i] for i in chunk], a.max_len)
+            score = (qe * de).sum(-1)
+            loss = lossf(score, torch.tensor([float(g[i]) for i in chunk]))
+            loss.backward()
+            opt.step()
+            opt.zero_grad()
+
+    enc.eval()
+    out = []
+    with torch.no_grad():
+        for s in range(0, len(te), 32):
+            chunk = te[s:s + 32]
+            qe = embed([queries[qids[i]] for i in chunk], 64)
+            de = embed([texts[i] for i in chunk], a.max_len)
+            out.extend((qe * de).sum(-1).tolist())
+    del enc
+    return np.array(out)
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--cells", default="asr_shipped,asr_dense,ocr")
@@ -103,6 +158,14 @@ def main():
                          "near-duplicate event queries often retrieve the SAME top document, so a plain "
                          "split lets the model memorise event -> gain across folds")
     ap.add_argument("--out", default=os.path.join(ABL, "mv2_bertqpp.json"))
+    ap.add_argument("--variant", default="cross", choices=["cross", "bi"],
+                    help="Arabzadeh et al. give both. `cross` concatenates query and document into one "
+                         "encoder pass and reads the gain off the joint representation. `bi` encodes "
+                         "each separately and scores their dot product, which is the cheaper and more "
+                         "deployable of the two -- the document side can be encoded offline, so at "
+                         "query time it costs one short forward pass rather than one per candidate. "
+                         "That matters for a router, whose whole justification is being cheaper than "
+                         "the thing it is deciding about.")
     ap.add_argument("--recall-only", action="store_true",
                     help="score the ALREADY TRAINED predictions under Recall@100 and exit. The "
                          "out-of-fold predictions are stored per query, so the routing decision is "
@@ -161,20 +224,23 @@ def main():
         pred = np.zeros(len(qids))
         t0 = time.time()
         for fi, (tr, te) in enumerate(splits):
-            ex = [InputExample(texts=[queries[qids[i]], texts[i]], label=float(g[i])) for i in tr]
-            dl = DataLoader(ex, shuffle=True, batch_size=a.batch)
-            m = CrossEncoder(a.model, num_labels=1, max_length=a.max_len, device="cpu")
-            # CrossEncoder defaults to BCEWithLogitsLoss when num_labels == 1, which expects targets in
-            # [0, 1]. Our target is an escalation gain in roughly [-1, 1], so the default objective is
-            # invalid: an earlier run reached tau +0.240 yet escalated every query, because the ranking
-            # carried signal while the zero-crossing was meaningless. Their setup avoids this because a
-            # ranking metric is already in [0, 1]. Regress the gain with MSE instead.
-            m.fit(train_dataloader=dl, epochs=a.epochs, warmup_steps=max(10, len(dl) // 10),
-                  loss_fct=torch.nn.MSELoss(), show_progress_bar=False)
-            pred[te] = m.predict([[queries[qids[i]], texts[i]] for i in te],
-                                 batch_size=32, show_progress_bar=False)
+            if a.variant == "bi":
+                pred[te] = fit_bi(queries, qids, texts, g, tr, te, a, torch)
+            else:
+                ex = [InputExample(texts=[queries[qids[i]], texts[i]], label=float(g[i])) for i in tr]
+                dl = DataLoader(ex, shuffle=True, batch_size=a.batch)
+                m = CrossEncoder(a.model, num_labels=1, max_length=a.max_len, device="cpu")
+                # CrossEncoder defaults to BCEWithLogitsLoss when num_labels == 1, which expects targets
+                # in [0, 1]. Our target is an escalation gain in roughly [-1, 1], so the default
+                # objective is invalid: an earlier run reached tau +0.240 yet escalated every query,
+                # because the ranking carried signal while the zero-crossing was meaningless. Their setup
+                # avoids this because a ranking metric is already in [0, 1]. Regress the gain with MSE.
+                m.fit(train_dataloader=dl, epochs=a.epochs, warmup_steps=max(10, len(dl) // 10),
+                      loss_fct=torch.nn.MSELoss(), show_progress_bar=False)
+                pred[te] = m.predict([[queries[qids[i]], texts[i]] for i in te],
+                                     batch_size=32, show_progress_bar=False)
+                del m
             print(f"  fold {fi+1}/5 done ({(time.time()-t0)/60:.1f} min elapsed)", flush=True)
-            del m
 
         tau = float(kendalltau(pred, g).statistic)
         routed = float(np.where(pred > 0, ndB, ndA).mean())
@@ -192,6 +258,7 @@ def main():
                      "routed_best_f": best_v, "best_f": best_f, "n": len(qids),
                      "cheap": float(ndA.mean()), "uniform": float(ndB.mean()),
                      "model": a.model, "epochs": a.epochs, "group_cv": bool(a.group_cv),
+                     "variant": a.variant,
                      "pred": {q: float(p) for q, p in zip(qids, pred)}}
         json.dump(out, open(a.out, "w"), indent=2)
         print(f"{cell}: tau={tau:+.3f}  routed nDCG@10={routed:.4f} (thresh>0)  "
