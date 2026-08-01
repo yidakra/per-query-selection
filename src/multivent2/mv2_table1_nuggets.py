@@ -83,6 +83,8 @@ def main():
     bert = json.load(open(os.path.join(ABL, f"mv2_bertqpp{a.tag}.json")))
     p_bi = os.path.join(ABL, f"mv2_bertqpp_bi{a.tag}.json")
     bert_bi = json.load(open(p_bi)) if os.path.exists(p_bi) else {}
+    p_qp = os.path.join(ABL, f"mv2_qsd_post{a.tag}.json")
+    qsd_post = json.load(open(p_qp)) if os.path.exists(p_qp) else {}
     qrels, _ = load_qrels(os.path.join(DATA, "multivent_2_test_judgments.jsonl"))
     SNAKE = {"ASR-shipped": "asr_shipped", "ASR-dense": "asr_dense", "OCR": "ocr"}
     qsd_k = "5_inv_dist" if not a.tag.endswith("_grouped") else "100_inv_dist"
@@ -124,6 +126,8 @@ def main():
         rows["post/BERTQPP"] = mix(bert[SNAKE[cell]]["decisions"])
         if SNAKE[cell] in bert_bi and "decisions" in bert_bi[SNAKE[cell]]:
             rows["post/BERTQPP_BI"] = mix(bert_bi[SNAKE[cell]]["decisions"])
+        if SNAKE[cell] in qsd_post and "decisions" in qsd_post[SNAKE[cell]]:
+            rows["post/QSD_POST"] = mix(qsd_post[SNAKE[cell]]["decisions"])
         rows["ours"] = mix(dec["ours"])
         rows["oracle"] = mix(dec["oracle"])
         rows["_A_visual"] = mix("0" * len(qids))

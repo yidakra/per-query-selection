@@ -37,7 +37,8 @@ to gain from escalating, so the raw predictor anti-correlates with gain and the 
 | | σ_x0.5 | 0.3152 | −0.182 | 0.3446 | −0.122 | 0.3036 | −0.100 |
 | | max | 0.3070 | −0.124 | 0.3430 | −0.112 | 0.3036 | −0.087 |
 | Post-retrieval | clarity | n/a | — | n/a | — | n/a | — |
-| (needs doc text) | BERT-QPP (cross) | 0.2795 | **+0.237** | 0.3408 | **+0.229** | 0.2445 | **+0.167** |
+| (needs doc text) | QSD_post | 0.3054 | +0.137 | 0.3423 | +0.102 | 0.3013 | +0.092 |
+| | BERT-QPP (cross) | 0.2795 | **+0.237** | 0.3408 | **+0.229** | 0.2445 | **+0.167** |
 | | BERT-QPP (bi) | 0.2954 | −0.016 | 0.3125 | −0.025 | 0.2847 | −0.030 |
 | Ours | cheap-feature gain ridge | 0.3193 | +0.211 | 0.3531 | +0.160 | 0.3036 | +0.154 |
 | Oracle | route by true gain | 0.3653 | +1.000 | 0.3910 | +1.000 | 0.3305 | +1.000 |
@@ -103,19 +104,21 @@ of the list, and SMV uses a log ratio rather than a difference.
 
 ## Coverage against the reference suite
 
-Implemented: the ten pre-retrieval predictors (IDF/SCQ/ICTF/SCS families) and the ten score-only
-post-retrieval predictors.
+The suite is complete. Implemented and run: the eleven pre-retrieval predictors (IDF/SCQ/ICTF/SCS/QL),
+the ten score-only post-retrieval predictors, both halves of QSD, and BERT-QPP in both the cross-encoder
+and bi-encoder flavours.
 
-Not implemented, with reasons rather than blanks:
+Two rows carry something other than a number, with reasons rather than blanks:
 
-- **Clarity** is structurally unavailable for a visual channel, as above.
-- **BERT-QPP (cross-encoder)** is implemented and run; see the section below. `*` in the table marks
-  that its nDCG is at the best escalation fraction rather than at a zero threshold, because its head is
-  poorly calibrated even under MSE and thresholding escalates every query.
-- **QSD_post** is not implemented. Its formulation (Eq. 8 of the paper below) is a trained transformer
-  over the query, its neighbour queries with their scores, and the retrieved documents, which is the same
-  shape of training job as BERT-QPP. **QSD_pre is implemented** and is discussed next, because it turned
-  out to matter more than its table row.
+- **Clarity** is structurally unavailable for a visual channel, as above. Marked n/a rather than scored,
+  because a number would imply the comparison was possible.
+- **DM** appears in their Table 1, nowhere in the reference repository, and its row is numerically
+  identical to their Original row in all eight columns. Left unresolved rather than guessed at; a
+  question for the authors, not a gap in this implementation.
+
+Every learned row — QSD_post and both BERT-QPP variants — is trained at the same budget (one epoch,
+bert-base, CPU, event-grouped folds) so the three are comparable to each other. That budget bounds what
+any of them demonstrates, and the write-ups say so individually.
 
 ## QSD-QPP and duplicate-topic leakage
 
@@ -268,3 +271,39 @@ Leakage magnitudes to carry forward: QSD_pre loses 52% of its τ under event gro
 BERT-QPP loses 10-29% and stays ahead, and the analytic score-only predictors and our own router lose
 1-3%. Anything that consumes historical query performance leaks on this benchmark; anything that reads
 only the current query's score distribution does not.
+
+## QSD_post
+
+The post-retrieval half of QSD (Bigdeli et al., Eq. 8), implemented from the paper because the
+QPP-4-RAG repository ships only consumers of precomputed QSD outputs. A transformer reads the query,
+its k nearest *training* queries with their known escalation gains, and the caption of the query's
+top-1 visually retrieved document, and regresses the gain. The pooled representation is concatenated
+with four numeric features from the same neighbourhood — Eq. 5's inverse-distance interpolation, Eq. 7's
+uniform mean, the spread of the neighbour gains, and the mean cosine distance — before a linear head,
+because serialising floats into the text alone would test wordpiece arithmetic rather than the method.
+
+Leakage discipline matters more for this row than for any other in the table, since the model is handed
+other queries' labels and can memorise them. Neighbours come only from the training fold, a training
+query never retrieves itself, and folds are grouped by event. QSD_pre loses 52% of its τ to that
+correction; QSD_post has strictly more to lose.
+
+| | ASR-shipped | ASR-dense | OCR |
+|---|---|---|---|
+| QSD_pre (no document evidence) | 0.3137 / +0.164 | 0.3466 / +0.152 | 0.3039 / +0.095 |
+| QSD_post (query + neighbours + documents) | 0.3054 / +0.137 | 0.3423 / +0.102 | 0.3013 / +0.092 |
+| escalation fraction | 52.4% | 65.8% | 15.3% |
+
+**It is worse than QSD_pre on both metrics in all three cells.** That is the interesting outcome rather
+than a disappointing one. QSD_post is QSD_pre plus precisely the evidence QSD_pre does without, so if
+document-side statistics were the ingredient that would make a pre-retrieval predictor competitive here,
+this row is where it would show. It does not: a trained transformer over all three evidence types lands
+below a training-free interpolation over one. The boundary this table argues for across predictor
+families reproduces inside a single family.
+
+It is a working predictor, not a broken one — not degenerate in any cell, and it beats the Original row
+in two of three. So the comparison is between two functioning variants rather than against a failure.
+
+Bounded honestly: one epoch, bert-base, CPU, k = 5. A better-resourced QSD_post is the obvious reviewer
+request, and this result bounds the variant at the same budget the BERT-QPP rows were trained at rather
+than at any budget. Reported at its own zero crossing like every other row in the main table; its swept
+figures are in the artifact and are not comparable to that column.

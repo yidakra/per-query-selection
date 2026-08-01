@@ -36,7 +36,7 @@ PRE = [("IDF_avg", "IDF_avg"), ("IDF_max", "IDF_max"), ("IDF_sum", "IDF_sum"), (
 POST = [("RSD", "RSD"), ("clarity", "CLARITY_NA"), ("NQC", "NQC"), ("NQC_norm", "NQC_norm"),
         ("sigma_max", "sigma_max"), ("sigma_0.5", "sigma_x0.5"), ("SMV", "SMV"), ("SMV_norm", "SMV_norm"),
         ("WIG", "WIG"), ("WIG_norm", "WIG_norm"), ("max", "max"),
-        ("QSD_post", None), ("BERTQPP", "BERTQPP"), ("BERTQPP_bi", "BERTQPP_BI")]
+        ("QSD_post", "QSD_POST"), ("BERTQPP", "BERTQPP"), ("BERTQPP_bi", "BERTQPP_BI")]
 
 CELLS = ["ASR-shipped", "ASR-dense", "OCR"]
 
@@ -62,14 +62,15 @@ def load(tag):
     # Arabzadeh et al. give BERT-QPP in both flavours and Jingfen asked for both. They fail differently,
     # which is the reason to carry two rows: the cross-encoder orders well and cannot decide, the
     # bi-encoder cannot order at all.
-    bert, bert_bi = {}, {}
-    for suffix, dest in (("", bert), ("_bi", bert_bi)):
-        p = os.path.join(ABL, f"mv2_bertqpp{suffix}{tag}.json")
+    bert, bert_bi, qsd_post = {}, {}, {}
+    for fn, dest in ((f"mv2_bertqpp{tag}", bert), (f"mv2_bertqpp_bi{tag}", bert_bi),
+                     (f"mv2_qsd_post{tag}", qsd_post)):
+        p = os.path.join(ABL, f"{fn}.json")
         if not os.path.exists(p):
             continue
         with open(p) as f:
             raw = json.load(f)
-        # that file keys its cells differently from the main table
+        # those files key their cells differently from the main table
         for k, cell in (("asr_shipped", "ASR-shipped"), ("asr_dense", "ASR-dense"), ("ocr", "OCR")):
             if k in raw:
                 dest[cell] = (raw[k]["routed_ndcg10"], raw[k]["tau"],
@@ -87,14 +88,14 @@ def load(tag):
                 v = raw[k]["k"][qsd_k]
                 qsd[cell] = (v["routed_ndcg10"], v["tau"], v.get("routed_recall100"),
                              v.get("frac_escalated"))
-    return table, bert, bert_bi, qsd
+    return table, bert, bert_bi, qsd_post, qsd
 
 
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--tag", default="_grouped", help="'_grouped' for event-grouped folds")
     a = ap.parse_args()
-    table, bert, bert_bi, qsd = load(a.tag)
+    table, bert, bert_bi, qsd_post, qsd = load(a.tag)
     cells = [c for c in CELLS if c in table]
 
     # The row every other row is measured against. Their Original is the unmodified query: the default
@@ -114,6 +115,8 @@ def main():
             return bert.get(cell)
         if ours_name == "BERTQPP_BI":
             return bert_bi.get(cell)
+        if ours_name == "QSD_POST":
+            return qsd_post.get(cell)
         if ours_name == "QSD_PRE":
             return qsd.get(cell)
         v = table[cell].get(section, {}).get(ours_name)

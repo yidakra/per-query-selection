@@ -28,7 +28,10 @@ them and predictions are made on the held-out fold, so nothing leaks. The target
 matching every other predictor in our table rather than their absolute-metric target.
 
 QSD_post (their Eq. 8) needs a trained transformer over the query, its neighbours with their scores, and
-the retrieved documents. Not implemented here; it is the same shape of training job as BERT-QPP.
+the retrieved documents. It lives in `mv2_qsd_post.py`, because it is a training job rather than a
+closed-form interpolation. Worth reading the two rows together: QSD_post is this predictor plus document
+evidence, and it scores *worse* on both metrics in all three cells, which is the RQ4 boundary reproduced
+inside one family instead of across families.
 
   python src/multivent2/mv2_qsd.py
 """

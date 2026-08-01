@@ -68,7 +68,7 @@ expensive channel pays; all three cells and the full artifact in
 | | WIG | 0.3408 | +0.012 | 0.7268 | 0.3672 | 0.2621 |
 | | WIG_norm | 0.3411 | −0.106 | 0.7186 | 0.3649 | 0.2597 |
 | | max | <u>0.3430</u> | −0.112 | 0.7232 | 0.3638 | 0.2608 |
-| | QSD_post | *n.i.* | — | — | — | — |
+| | QSD_post | <u>0.3423</u> | +0.102 | 0.6983 | 0.3557 | 0.2496 |
 | | BERT-QPP (cross) | 0.3408 | **+0.229** | 0.7268 | 0.3672 | 0.2621 |
 | | BERT-QPP (bi) | 0.3125 | −0.025 | 0.6414 | 0.3443 | 0.2424 |
 | Ours | k-way channel selector | <u>0.3531</u> | +0.160 | 0.7207 | 0.3684 | 0.2642 |
@@ -80,11 +80,19 @@ reported separately in `qpp_baselines.md` and are not comparable to this column.
 rule, a margin above 5 × 10⁻⁴ over the Original row.
 
 **Across all three cells, the corpus-statistic block has 0 underlined cells out of 33; the score-only
-block has 19 out of 30.** The underline threshold is not doing the work: the largest margin anywhere in
+block has 16 out of 30.** The underline threshold is not doing the work: the largest margin anywhere in
 those 33 cells is **+0.0003**. The escalation fractions put it more bluntly — a corpus-statistic
 predictor here does not choose badly, it does not choose. In the OCR cell all eleven escalate exactly 0%
 of queries; in ASR-dense six of eleven escalate exactly 100%. Counting only exact 0 or exact 1, **20 of
 33 corpus-statistic cells are degenerate against 2 of 30 score-only cells**.
+
+**Both halves of QSD are now in, and the post-retrieval one is worse.** QSD_post reads everything the
+suite has — the query, its neighbours in Query Space with their known gains, and the retrieved document
+text — and it lands below QSD_pre on *both* metrics in *all three* cells (−0.008 / −0.004 / −0.003 nDCG,
+τ −0.027 / −0.050 / −0.003). QSD_pre uses no document evidence whatsoever. Adding it, plus a trained
+transformer, did not help. That is the boundary argued above, tested inside a single predictor family
+rather than across families. Caveat carried in the table notes: one epoch, bert-base, CPU, so this
+bounds the variant at that budget rather than at any budget.
 
 **Correlation and decision come apart, and they do it systematically.** BERT-QPP (cross) has the best τ
 in the table (+0.237 / +0.229 / +0.167) and the worst decision in it: its predictions are all positive,
@@ -98,9 +106,9 @@ side encodes offline — cannot order at all: τ −0.016 / −0.025 / −0.030.
 31–35% of queries, but the decisions are noise, and it loses to the best fixed policy in all three cells.
 Neither flavour of the suite's one supervised predictor yields a usable decision.
 
-This is not one bad row. Over all 75 predictor-cell rows, Kendall τ against utility over the best fixed
-policy is **−0.239** (p = 0.003), and it *strengthens* to −0.328 when degenerate rows are dropped and
-−0.430 among rows escalating between 5% and 95%. τ scores the whole ordering; a selection reads one point
+This is not one bad row. Over all 78 predictor-cell rows, Kendall τ against utility over the best fixed
+policy is **−0.213** (p = 0.008), and it *strengthens* to −0.288 when degenerate rows are dropped and
+−0.386 among rows escalating between 5% and 95%. τ scores the whole ordering; a selection reads one point
 of it.
 
 ---
@@ -133,9 +141,10 @@ router on the binary decision, and since NQC is in the family that transfers, th
 claim. Ceilings get audited: picking each query's best policy on half its golds and grading on the other
 half wipes out 15 of the oracle's 16 points, so we report no "% of oracle captured" anywhere.
 
-**Open:** QSD_post is the one remaining gap against the QPP-4-RAG suite — a trained transformer, a build
-rather than a run. BERT-QPP is now in both flavours Jingfen asked for. DM appears in their Table 1,
-nowhere in their repository, and its row equals their Original row in all eight columns.
+**Open:** the QPP-4-RAG suite is complete — every predictor named, BERT-QPP in both flavours, both halves
+of QSD. The one row we cannot fill is DM, which appears in their Table 1, nowhere in their repository,
+and whose row equals their Original row in all eight columns. That is a question for the authors rather
+than a gap in our implementation.
 
 ---
 

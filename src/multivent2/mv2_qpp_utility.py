@@ -48,6 +48,8 @@ def collect(tag):
     bert = json.load(open(os.path.join(ABL, f"mv2_bertqpp{tag}.json")))
     p_bi = os.path.join(ABL, f"mv2_bertqpp_bi{tag}.json")
     bert_bi = json.load(open(p_bi)) if os.path.exists(p_bi) else {}
+    p_qp = os.path.join(ABL, f"mv2_qsd_post{tag}.json")
+    qsd_post = json.load(open(p_qp)) if os.path.exists(p_qp) else {}
     # QSD's neighbourhood size is chosen per split scheme, matching how the table reports it
     qsd_k = "100_inv_dist" if tag.endswith("_grouped") else "5_inv_dist"
 
@@ -73,6 +75,9 @@ def collect(tag):
         if sn in bert_bi:
             bb = bert_bi[sn]
             add("post", "BERT-QPP_bi", bb["tau"], bb["routed_ndcg10"], bb.get("frac_escalated"))
+        if sn in qsd_post:
+            qp = qsd_post[sn]
+            add("post", "QSD_post", qp["tau"], qp["routed_ndcg10"], qp.get("frac_escalated"))
     return rows
 
 
