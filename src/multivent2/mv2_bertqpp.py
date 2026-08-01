@@ -80,6 +80,8 @@ def recall_only(path):
         c["recall_cheap"] = float(recA.mean()) if recA is not None else None
         c["recall_uniform"] = float(recB.mean()) if recB is not None else None
         c["frac_escalated"] = float((pred > 0).mean())
+        c["qids"] = qids
+        c["decisions"] = "".join("1" if p > 0 else "0" for p in pred)
         print(f"{cell}: nDCG@10 {chk:.4f} reproduced; "
               + (f"R@100 {rec:.4f} (A {recA.mean():.4f}, B {recB.mean():.4f})"
                  if rec is not None else "no verified recall for this cell"))

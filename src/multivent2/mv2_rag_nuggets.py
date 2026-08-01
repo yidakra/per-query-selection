@@ -53,6 +53,14 @@ POLICIES = {
     "ocr":       ("10pyscene_paddleOCR_clip.json",    ["ocr"]),
     "bestfixed": ("bestfixed_dense_m3.json",          ["captions", "asr"]),
     "routed":    ("routed_dense_m3.json",             None),
+    # Table 1's three cells, B run only: visual fused with the cell's channel (mv2_cell_runs.py). The A
+    # run of all three cells is visual alone, which is the `visual` policy above, so between these four
+    # every predictor row in Table 1 is a per-query mix of two already-judged runs. See
+    # mv2_table1_nuggets.py. Phases resume on (qid, policy), so adding these regenerates only the new
+    # pairs and leaves the five original policies untouched.
+    "cellB_asr_shipped": ("cellB_asr_shipped.json",   ["captions", "asr"]),
+    "cellB_asr_dense":   ("cellB_asr_dense.json",     ["captions", "asr"]),
+    "cellB_ocr":         ("cellB_ocr.json",           ["captions", "ocr"]),
 }
 PICKS = {"routed": "routed_dense_m3_picks.json"}
 # selector channel names -> the text that channel can actually hand a generator

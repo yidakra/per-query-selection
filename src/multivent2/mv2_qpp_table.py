@@ -48,10 +48,14 @@ def mk():
                      ("m", RidgeCV(alphas=np.logspace(-2, 3, 12)))])
 
 
+def bits(esc):
+    return "".join("1" if x else "0" for x in np.asarray(esc).ravel())
+
+
 def route(raw, g, ndA, ndB, cv=None, recA=None, recB=None):
     """Single-feature OOF ridge -> escalate where predicted gain > 0.
 
-    Returns (routed nDCG, raw tau, routed Recall@100, escalated fraction).
+    Returns (routed nDCG, raw tau, routed Recall@100, escalated fraction, decision bits).
 
     The recall is the SAME decision scored under a second metric, not a second decision: their Table 1
     reports each selector under four metrics, and a selector re-optimised per metric would not be the
@@ -61,17 +65,22 @@ def route(raw, g, ndA, ndB, cv=None, recA=None, recB=None):
     decision for every query, so its nDCG is a fixed policy's nDCG and reports nothing about the
     predictor. Inferring that from the nDCG instead would be a guess: a predictor that escalates six
     queries out of 2,546 lands within float noise of never escalating, and is not the same thing.
+
+    The last element is the decision itself, one bit per query in `qids` order, which is what the
+    nugget columns are mixed from (`mv2_table1_nuggets.py`). Callers store it apart from the four
+    reported numbers so the JSON's result tuples keep their shape.
     """
     raw = np.asarray(raw, dtype=np.float64).reshape(-1, 1)
     if np.allclose(raw.std(), 0):
-        return float(ndA.mean()), 0.0, (float(recA.mean()) if recA is not None else None), 0.0
+        return (float(ndA.mean()), 0.0, (float(recA.mean()) if recA is not None else None),
+                0.0, "0" * len(ndA))
     if cv is None:
         cv = KFold(5, shuffle=True, random_state=0)
     pred = cross_val_predict(mk(), raw, g, cv=cv)
     esc = pred > 0
     rec = float(np.where(esc, recB, recA).mean()) if recA is not None else None
     return (float(np.where(esc, ndB, ndA).mean()), float(kendalltau(raw.ravel(), g).statistic),
-            rec, float(esc.mean()))
+            rec, float(esc.mean()), bits(esc))
 
 
 def main():
@@ -138,7 +147,11 @@ def main():
             for n, v in score_only_suite(list(visual[q].values()), nq).items():
                 post[n].append(v)
 
-        rows = {n: route(post[n], g, ndA, ndB, cv, recA, recB) for n in SCORE_ONLY}
+        # decisions are kept out of the reported tuples: one bitstring per predictor, in `qids` order
+        dec = {}
+        full = {n: route(post[n], g, ndA, ndB, cv, recA, recB) for n in SCORE_ONLY}
+        rows = {n: v[:4] for n, v in full.items()}
+        dec["post"] = {n: v[4] for n, v in full.items()}
 
         # pre-retrieval predictors over the ASR lexical index (query-side only, no retrieval at all)
         pre_rows = {}
@@ -148,7 +161,9 @@ def main():
                 s = pre_retrieval_suite(queries[q].lower().split(), idx)
                 for n in PRE_RETRIEVAL:
                     pre[n].append(s[n])
-            pre_rows = {n: route(pre[n], g, ndA, ndB, cv, recA, recB) for n in PRE_RETRIEVAL}
+            pfull = {n: route(pre[n], g, ndA, ndB, cv, recA, recB) for n in PRE_RETRIEVAL}
+            pre_rows = {n: v[:4] for n, v in pfull.items()}
+            dec["pre"] = {n: v[4] for n, v in pfull.items()}
 
         ours_pred = cross_val_predict(mk(), feats, g,
                                      cv=cv or KFold(5, shuffle=True, random_state=0))
@@ -160,10 +175,13 @@ def main():
                   float(np.where(g > 0, recB, recA).mean()) if recA is not None else None,
                   float((g > 0).mean()))
 
+        dec["ours"] = bits(ours_pred > 0)
+        dec["oracle"] = bits(g > 0)
         results[label] = {"n": len(qids), "cheap": float(ndA.mean()), "uniform": float(ndB.mean()),
                           "recall_cheap": float(recA.mean()) if recA is not None else None,
                           "recall_uniform": float(recB.mean()) if recB is not None else None,
-                          "post": rows, "pre": pre_rows, "ours": ours, "oracle": oracle}
+                          "post": rows, "pre": pre_rows, "ours": ours, "oracle": oracle,
+                          "qids": qids, "decisions": dec}
         print(f"{label}: n={len(qids)} cheap={ndA.mean():.4f} uniform={ndB.mean():.4f} "
               f"ours={ours[0]:.4f} (tau {ours[1]:+.3f})", flush=True)
 

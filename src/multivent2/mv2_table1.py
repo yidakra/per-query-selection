@@ -107,32 +107,50 @@ def main():
         v = table[cell].get(section, {}).get(ours_name)
         return tuple(v) if v else None
 
+    # Nugget coverage per row, mixed from two judged runs per cell by mv2_table1_nuggets.py. Absent
+    # until that has run, in which case the two columns stay empty rather than being dropped.
+    nug = {}
+    p = os.path.join(ABL, f"mv2_table1_nuggets{a.tag}.json")
+    if os.path.exists(p):
+        nug = json.load(open(p))
+
+    def nug_for(key, c):
+        r = nug.get(c, {}).get("rows", {}).get(key)
+        return (r["all"], r["strict_all"]) if r else None
+
     rows = []
     def orec(c):
         rc, ru = table[c].get("recall_cheap"), table[c].get("recall_uniform")
         if rc is None:
             return None
         return ru if table[c]["uniform"] >= table[c]["cheap"] else rc
+    def okey(c):
+        return "_B_fused" if table[c]["uniform"] >= table[c]["cheap"] else "_A_visual"
     rows.append(("Original", "best fixed policy (no selection)",
-                 {c: (original[c], None, orec(c)) for c in cells}))
+                 {c: (original[c], None, orec(c)) for c in cells}, {c: okey(c) for c in cells}))
     rows.append(("", "visual only", {c: (table[c]["cheap"], None, table[c].get("recall_cheap"))
-                                     for c in cells}))
+                                     for c in cells}, "_A_visual"))
     rows.append(("", "uniform fusion (best w)",
-                 {c: (table[c]["uniform"], None, table[c].get("recall_uniform")) for c in cells}))
+                 {c: (table[c]["uniform"], None, table[c].get("recall_uniform")) for c in cells},
+                 "_B_fused"))
     for i, (their, ours) in enumerate(PRE):
         rows.append(("Pre-retrieval" if i == 0 else "", their,
-                     {c: get("pre", ours, c) for c in cells}))
+                     {c: get("pre", ours, c) for c in cells},
+                     f"pre/{ours}" if ours else None))
     for i, (their, ours) in enumerate(POST):
         rows.append(("Post-retrieval" if i == 0 else "", their,
-                     {c: get("post", ours, c) for c in cells}))
-    rows.append(("Ours", "k-way channel selector", {c: tuple(table[c]["ours"]) for c in cells}))
-    rows.append(("Oracle", "route by true gain", {c: tuple(table[c]["oracle"]) for c in cells}))
+                     {c: get("post", ours, c) for c in cells},
+                     f"post/{ours}" if ours and ours != "CLARITY_NA" else None))
+    rows.append(("Ours", "k-way channel selector", {c: tuple(table[c]["ours"]) for c in cells},
+                 "ours"))
+    rows.append(("Oracle", "route by true gain", {c: tuple(table[c]["oracle"]) for c in cells},
+                 "oracle"))
 
     # section bests, for the bold rule
     best = {}
     for sec in ("Pre-retrieval", "Post-retrieval"):
         members, cur = [], None
-        for cat, _, vals in rows:
+        for cat, _, vals, _k in rows:
             if cat in ("Pre-retrieval", "Post-retrieval", "Original", "Ours", "Oracle"):
                 cur = cat
             if cur == sec:
@@ -141,11 +159,14 @@ def main():
             vs = [m[c][0] for m in members if isinstance(m.get(c), tuple) and m[c][0] is not None]
             best[(sec, c)] = max(vs) if vs else None
 
-    def cellstr(v, sec, c):
+    NCOL = 5 if nug else 3
+    BLANK = " | ".join(["—"] * (NCOL - 1))
+
+    def cellstr(v, sec, c, key):
         if v is None:                       # every sub-column, or the row loses its alignment
-            return "*n.i.* | — | —"
+            return f"*n.i.* | {BLANK}"
         if v == "n/a":
-            return "n/a | — | —"
+            return f"n/a | {BLANK}"
         nd, tau = v[0], v[1]
         rec = v[2] if len(v) > 2 else None
         s = f"{nd:.4f}"
@@ -156,17 +177,22 @@ def main():
             s = f"<u>{s}</u>"
         if best.get((sec, c)) is not None and abs(nd - best[(sec, c)]) < 1e-12:
             s = f"**{s}**"
-        return (s + (f" | {tau:+.3f}" if tau is not None else " | —")
-                  + (f" | {rec:.4f}" if rec is not None else " | —"))
+        s += (f" | {tau:+.3f}" if tau is not None else " | —")
+        s += (f" | {rec:.4f}" if rec is not None else " | —")
+        if nug:
+            n = nug_for(key.get(c) if isinstance(key, dict) else key, c) if key else None
+            s += (f" | {n[0]:.4f} | {n[1]:.4f}" if n else " | — | —")
+        return s
 
-    L = ["| Category | Method | " + " | ".join(f"{c} nDCG@10 | τ | R@100" for c in cells) + " |",
-         "|" + "---|" * (2 + 3 * len(cells))]
+    head = "nDCG@10 | τ | R@100" + (" | N_all | N_strict" if nug else "")
+    L = ["| Category | Method | " + " | ".join(f"{c} {head}" for c in cells) + " |",
+         "|" + "---|" * (2 + NCOL * len(cells))]
     sec = "Original"
-    for cat, name, vals in rows:
+    for cat, name, vals, key in rows:
         if cat:
             sec = cat
         L.append(f"| {cat} | `{name}` | " +
-                 " | ".join(cellstr(vals.get(c), sec, c) for c in cells) + " |")
+                 " | ".join(cellstr(vals.get(c), sec, c, key) for c in cells) + " |")
 
     # Which rows never actually choose. A predictor whose routed nDCG lands on the always-escalate or
     # never-escalate policy made one decision for all 2,546 queries, so its nDCG reports that fixed
@@ -174,7 +200,7 @@ def main():
     # here -- BERTQPP correlates at +0.24 and escalates every query -- which is exactly the gap between
     # correlation and decision quality that Arabzadeh et al.'s two metric families are there to expose.
     degen, tally, sec = [], {}, None
-    for cat, name, vals in rows:
+    for cat, name, vals, _k in rows:
         if cat:
             sec = cat
         if sec == "Original":           # the fixed policies ARE the degenerate ones; not a finding

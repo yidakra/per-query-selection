@@ -41,6 +41,7 @@ import numpy as np                            # noqa: E402
 HERE = os.path.dirname(os.path.abspath(__file__)); sys.path.insert(0, HERE)
 from mv2_io import load_queries, load_run       # noqa: E402
 from mv2_recall_sidecar import load_cell_recall  # noqa: E402
+from mv2_qpp_table import bits                   # noqa: E402
 from scipy.stats import kendalltau             # noqa: E402
 from sklearn.model_selection import KFold      # noqa: E402
 
@@ -151,6 +152,7 @@ def main():
             return float(np.where(pred > 0, recB, recA).mean())
 
         cell_out = {"cheap": float(ndA.mean()), "uniform": float(ndB.mean()), "n": len(qids), "k": {},
+                    "qids": qids,
                     "recall_cheap": float(recA.mean()) if recA is not None else None,
                     "recall_uniform": float(recB.mean()) if recB is not None else None}
         for k in [int(x) for x in a.ks.split(",")]:
@@ -163,7 +165,8 @@ def main():
                 rec = routed_recall(pred)
                 cell_out["k"][f"{k}_{tag}"] = {"tau": tau, "routed_ndcg10": routed,
                                                "routed_recall100": rec,
-                                               "frac_escalated": float((pred > 0).mean())}
+                                               "frac_escalated": float((pred > 0).mean()),
+                                               "decisions": bits(pred > 0)}
                 print(f"  k={k:<4} {tag:<13} tau={tau:+.3f}  routed nDCG@10={routed:.4f}"
                       + (f"  R@100={rec:.4f}" if rec is not None else ""), flush=True)
         # same splits, our cheap-feature router and the best analytic predictor, so the comparison is
