@@ -51,19 +51,27 @@ def mk():
 def route(raw, g, ndA, ndB, cv=None, recA=None, recB=None):
     """Single-feature OOF ridge -> escalate where predicted gain > 0.
 
-    Returns (routed nDCG, raw tau, routed Recall@100). The recall is the SAME decision scored under a
-    second metric, not a second decision: their Table 1 reports each selector under four metrics, and a
-    selector re-optimised per metric would not be the same selector. None where the sidecar has no
-    verified recall for the cell."""
+    Returns (routed nDCG, raw tau, routed Recall@100, escalated fraction).
+
+    The recall is the SAME decision scored under a second metric, not a second decision: their Table 1
+    reports each selector under four metrics, and a selector re-optimised per metric would not be the
+    same selector. None where the sidecar has no verified recall for the cell.
+
+    The fraction is what makes a degenerate row identifiable. At 0.0 or 1.0 the predictor made one
+    decision for every query, so its nDCG is a fixed policy's nDCG and reports nothing about the
+    predictor. Inferring that from the nDCG instead would be a guess: a predictor that escalates six
+    queries out of 2,546 lands within float noise of never escalating, and is not the same thing.
+    """
     raw = np.asarray(raw, dtype=np.float64).reshape(-1, 1)
     if np.allclose(raw.std(), 0):
-        return float(ndA.mean()), 0.0, (float(recA.mean()) if recA is not None else None)
+        return float(ndA.mean()), 0.0, (float(recA.mean()) if recA is not None else None), 0.0
     if cv is None:
         cv = KFold(5, shuffle=True, random_state=0)
     pred = cross_val_predict(mk(), raw, g, cv=cv)
     esc = pred > 0
     rec = float(np.where(esc, recB, recA).mean()) if recA is not None else None
-    return float(np.where(esc, ndB, ndA).mean()), float(kendalltau(raw.ravel(), g).statistic), rec
+    return (float(np.where(esc, ndB, ndA).mean()), float(kendalltau(raw.ravel(), g).statistic),
+            rec, float(esc.mean()))
 
 
 def main():
@@ -146,9 +154,11 @@ def main():
                                      cv=cv or KFold(5, shuffle=True, random_state=0))
         ours = (float(np.where(ours_pred > 0, ndB, ndA).mean()),
                 float(kendalltau(ours_pred, g).statistic),
-                float(np.where(ours_pred > 0, recB, recA).mean()) if recA is not None else None)
+                float(np.where(ours_pred > 0, recB, recA).mean()) if recA is not None else None,
+                float((ours_pred > 0).mean()))
         oracle = (float(np.where(g > 0, ndB, ndA).mean()), 1.0,
-                  float(np.where(g > 0, recB, recA).mean()) if recA is not None else None)
+                  float(np.where(g > 0, recB, recA).mean()) if recA is not None else None,
+                  float((g > 0).mean()))
 
         results[label] = {"n": len(qids), "cheap": float(ndA.mean()), "uniform": float(ndB.mean()),
                           "recall_cheap": float(recA.mean()) if recA is not None else None,

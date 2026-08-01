@@ -19,11 +19,17 @@ Five policies. Three single channels, the best fixed policy the selector could h
 folds (`asr+visual`), and the routed system, which reuses the same event-grouped out-of-fold decisions
 as the main table, materialised as ranked lists so the generator can consume them.
 
-This arm is `--evidence all`: every policy's report is written from all three channel texts of the
-documents *it* retrieved. The only thing that varies between policies is which documents they found.
-The `--evidence own` arm, where each policy may read only the channels it selected, is still running.
+Two arms, and the difference between them turns out to be the finding.
 
-## Result
+`--evidence all` writes every policy's report from all three channel texts of the documents *it*
+retrieved, so the only thing that varies is which documents each policy found. That isolates retrieval
+quality.
+
+`--evidence own` holds each policy to the text of the channels it actually selected. It is the
+deployment-realistic version: a system that routes to the visual channel has frames, and frames do not
+hand a generator anything to read.
+
+## Result, `--evidence all`
 
 | policy | nDCG@10 | vital | strict vital | all | strict all |
 |---|---|---|---|---|---|
@@ -56,15 +62,52 @@ The large tie counts are the mechanism rather than a weakness of the test. The r
 by construction. It picks a single channel for 292 (`asr` 165, `visual` 123, `ocr` 4) and something
 else for the remaining 15.
 
-## No utility gap
+Under this arm the ordering under nugget coverage is the ordering under nDCG: routed > best fixed >
+dense ASR > visual > OCR. `strict_vital` looks like it swaps the middle pair. But 0.34329 against
+0.34324 is five parts in a hundred thousand, so that is a tie, and calling it a flip would be dishonest.
 
-The ordering under nugget coverage is the ordering under nDCG: routed > best fixed > dense ASR > visual
-> OCR. `strict_vital` looks like it swaps the middle pair. But 0.34329 against 0.34324 is five parts in
-a hundred thousand, so that is a tie, and calling it a flip would be dishonest.
+So when retrieval quality is isolated, nDCG is a faithful stand-in for answer quality.
 
-Worth stating plainly, because it did not have to come out this way and QPP-4-RAG exists because it
-often doesn't. For this cascade, retrieval nDCG is a faithful stand-in for downstream answer quality at
-the policy level, which licenses every other table in the paper that reports nDCG alone.
+## Result, `--evidence own`
+
+Same queries, same gold nuggets, same judge. Each policy now generates only from the channels it chose.
+
+| policy | nDCG@10 | vital | strict vital | all | strict all |
+|---|---|---|---|---|---|
+| routed | **0.4068** | **0.4822** | **0.3674** | 0.3776 | 0.2665 |
+| best fixed (`asr+visual`) | 0.3331 | 0.4746 | 0.3473 | **0.3808** | **0.2718** |
+| dense ASR | 0.3310 | 0.4438 | 0.3137 | 0.3383 | 0.2306 |
+| visual | 0.2917 | 0.3854 | 0.2578 | 0.3043 | 0.1917 |
+| OCR | 0.1232 | 0.2328 | 0.1436 | 0.1749 | 0.0945 |
+
+Routed against the best fixed policy, same test:
+
+| metric | Δ | p | win / tie / loss |
+|---|---|---|---|
+| vital | +0.0076 | .67 | 108 / 183 / 104 |
+| strict vital | +0.0201 | .29 | 80 / 242 / 73 |
+| all | −0.0032 | .83 | 128 / 131 / 136 |
+| strict all | −0.0054 | .71 | 94 / 191 / 110 |
+
+**The gain does not survive.** Routed is still ahead of every single channel on all four metrics, worst
+case p = .025 against dense ASR, so the selector is doing something. Against the best fixed policy it is indistinguishable, in
+either direction, while holding a +7.4 nDCG lead over that same policy. That is the utility gap: a large
+ranking advantage that buys nothing measurable in answer quality.
+
+**Where it went.** Compare the two arms policy by policy. The best fixed policy is unmoved by the
+restriction (vital 0.4648 → 0.4746, strict vital 0.3432 → 0.3473) because it always had `asr+visual`,
+which is two text sources either way. The routed system loses 2 to 4 points on every metric (vital
+0.5007 → 0.4822, strict all 0.3048 → 0.2665) because it picks a single channel for 73% of these queries:
+`asr` alone for 165, `visual` alone for 123, `ocr` alone for 4, and both for only 88.
+
+The reports are not shorter for it — 868 characters on average against the best fixed policy's 867, over
+the same five documents. What changes is what is in them. A query routed to the visual channel is
+written from captions describing the video instead of from what was said in it.
+
+**The design conclusion is the useful part.** Selecting a channel for *retrieval* is worth +7.4 nDCG.
+Letting that selection also restrict what the generator may read gives the gain back. A cascade should
+route retrieval and then ground on everything it can reach for the documents it found, which is the
+`all` arm, and the `all` arm is the one that converts.
 
 ## Caveats
 
@@ -74,7 +117,12 @@ the policy level, which licenses every other table in the paper that reports nDC
   (0.4131 / 0.3372) closely enough that the sample is not obviously unrepresentative.
 - Nugget creation reads only 8 relevant documents per query. Queries with many relevant videos have
   their gold list built from a subset of them.
-- The `--evidence own` arm is pending. It asks a harder question: whether the routed system still wins
-  when each policy is held to the evidence it actually selected. The single-channel policies should
-  fall and the gap should widen. Some of that widening will be the restricted evidence rather than
-  better retrieval, and the write-up will have to say so.
+- We predicted the `own` arm would *widen* the gap, on the reasoning that single-channel policies would
+  fall hardest. They did fall, and so did the routed system, which is itself single-channel on 73% of
+  queries. The prediction was wrong in a way worth keeping on the record.
+- The two arms disagree, so neither can be quoted alone. "Routing improves answer quality" is true of
+  the `all` arm and false of the `own` arm, and the difference is a design choice about grounding rather
+  than a fact about routing.
+- `strict_all` and `all` reverse order in the `own` arm, by 0.005 and 0.003 at p = .71 and .83. The
+  script flags any reversal above a 0.001 tie threshold, which these clear. They are not evidence that
+  the fixed policy generates better; they are evidence that the two are indistinguishable.

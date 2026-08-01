@@ -40,6 +40,7 @@ os.environ.setdefault("TOKENIZERS_PARALLELISM", "false")
 import numpy as np                            # noqa: E402
 HERE = os.path.dirname(os.path.abspath(__file__)); sys.path.insert(0, HERE)
 from mv2_io import load_queries, load_run       # noqa: E402
+from mv2_recall_sidecar import load_cell_recall  # noqa: E402
 from scipy.stats import kendalltau             # noqa: E402
 from sklearn.model_selection import KFold      # noqa: E402
 
@@ -140,7 +141,18 @@ def main():
             splits = list(KFold(5, shuffle=True, random_state=0).split(np.arange(len(qids))))
             print(f"{cell}: {len(qids)} queries, dim {E.shape[1]}", flush=True)
 
-        cell_out = {"cheap": float(ndA.mean()), "uniform": float(ndB.mean()), "n": len(qids), "k": {}}
+        # verified per-query Recall@100 for this cell's A and B runs. The SAME escalation decision
+        # scored under a second metric, not a second decision: Table 1 reports one selector per row.
+        recA, recB = load_cell_recall(cell, qids)
+
+        def routed_recall(pred):
+            if recA is None:
+                return None
+            return float(np.where(pred > 0, recB, recA).mean())
+
+        cell_out = {"cheap": float(ndA.mean()), "uniform": float(ndB.mean()), "n": len(qids), "k": {},
+                    "recall_cheap": float(recA.mean()) if recA is not None else None,
+                    "recall_uniform": float(recB.mean()) if recB is not None else None}
         for k in [int(x) for x in a.ks.split(",")]:
             for weighted, tag in ((True, "inv_dist"), (False, "uniform_mean")):
                 pred = np.zeros(len(qids))
@@ -148,8 +160,12 @@ def main():
                     pred[te] = qsd_predict(E, g, tr, te, k, weighted)
                 tau = float(kendalltau(pred, g).statistic)
                 routed = float(np.where(pred > 0, ndB, ndA).mean())
-                cell_out["k"][f"{k}_{tag}"] = {"tau": tau, "routed_ndcg10": routed}
-                print(f"  k={k:<4} {tag:<13} tau={tau:+.3f}  routed nDCG@10={routed:.4f}", flush=True)
+                rec = routed_recall(pred)
+                cell_out["k"][f"{k}_{tag}"] = {"tau": tau, "routed_ndcg10": routed,
+                                               "routed_recall100": rec,
+                                               "frac_escalated": float((pred > 0).mean())}
+                print(f"  k={k:<4} {tag:<13} tau={tau:+.3f}  routed nDCG@10={routed:.4f}"
+                      + (f"  R@100={rec:.4f}" if rec is not None else ""), flush=True)
         # same splits, our cheap-feature router and the best analytic predictor, so the comparison is
         # not confounded by a different CV scheme
         from sklearn.linear_model import RidgeCV
@@ -167,7 +183,9 @@ def main():
                 mm = mk().fit(feats[tr], g[tr])
                 pred[te] = mm.predict(feats[te])
             cell_out[tag] = {"tau": float(kendalltau(pred, g).statistic),
-                             "routed_ndcg10": float(np.where(pred > 0, ndB, ndA).mean())}
+                             "routed_ndcg10": float(np.where(pred > 0, ndB, ndA).mean()),
+                             "routed_recall100": routed_recall(pred),
+                             "frac_escalated": float((pred > 0).mean())}
             print(f"  {tag:<12} tau={cell_out[tag]['tau']:+.3f}  "
                   f"routed nDCG@10={cell_out[tag]['routed_ndcg10']:.4f}", flush=True)
         res[cell] = cell_out

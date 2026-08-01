@@ -47,9 +47,31 @@ CELLS = {
 }
 TOL = 5e-4          # the check is on a mean over 2,546 queries; anything real is far bigger than this
 
+# mv2_qsd.py and mv2_bertqpp.py name their cells in snake case; this file and mv2_qpp_table.py use the
+# display names. One map rather than three private ones.
+ALIAS = {"asr_shipped": "ASR-shipped", "asr_dense": "ASR-dense", "ocr": "OCR"}
+
 
 def per_query_recall(qrels, run, k=100):
     return {m.query_id: m.value for m in ir_measures.iter_calc([R @ k], qrels, run)}
+
+
+def load_cell_recall(cell, qids):
+    """(recallA, recallB) aligned to qids, or (None, None) if this cell has no verified recall.
+
+    A cell is absent from the sidecar when its A/B reconstruction failed to reproduce the stored nDCG,
+    so "missing" means "we would be guessing", and the callers leave the column empty rather than
+    filling it. Partial coverage is treated as missing too: a recall averaged over a different query
+    set than the nDCG beside it is not comparable to it.
+    """
+    p = os.path.join(ABL, "mv2_recall_sidecar.json")
+    if not os.path.exists(p):
+        return None, None
+    sc = json.load(open(p)).get(ALIAS.get(cell, cell))
+    if not sc or not all(q in sc["per_query"] for q in qids):
+        return None, None
+    return (np.array([sc["per_query"][q][0] for q in qids]),
+            np.array([sc["per_query"][q][1] for q in qids]))
 
 
 def main():

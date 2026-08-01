@@ -51,6 +51,42 @@ def load_captions():
     return cap
 
 
+def recall_only(path):
+    """Fill routed_recall100 for each cell already in `path`, from its stored out-of-fold predictions.
+
+    The nDCG is re-derived here too and checked against the stored value. It is a cheap way of proving
+    that the predictions in the file are the ones that produced the number beside them, which is worth
+    having before a recall computed from them goes into the paper's main table.
+    """
+    from mv2_recall_sidecar import load_cell_recall
+    out = json.load(open(path))
+    for cell, c in out.items():
+        if "pred" not in c:
+            continue
+        d = json.load(open(os.path.join(ABL, CELLS[cell])))
+        qids = list(c["pred"])
+        pred = np.array([c["pred"][q] for q in qids])
+        ndA = np.array([d["per_query"][q]["ndA"] for q in qids])
+        ndB = np.array([d["per_query"][q]["ndB"] for q in qids])
+        chk = float(np.where(pred > 0, ndB, ndA).mean())
+        ok = abs(chk - c["routed_ndcg10"]) < 1e-9
+        recA, recB = load_cell_recall(cell, qids)
+        rec = None if recA is None else float(np.where(pred > 0, recB, recA).mean())
+        if not ok:
+            print(f"{cell}: stored predictions give {chk:.6f}, file says "
+                  f"{c['routed_ndcg10']:.6f} -- recall not written")
+            continue
+        c["routed_recall100"] = rec
+        c["recall_cheap"] = float(recA.mean()) if recA is not None else None
+        c["recall_uniform"] = float(recB.mean()) if recB is not None else None
+        c["frac_escalated"] = float((pred > 0).mean())
+        print(f"{cell}: nDCG@10 {chk:.4f} reproduced; "
+              + (f"R@100 {rec:.4f} (A {recA.mean():.4f}, B {recB.mean():.4f})"
+                 if rec is not None else "no verified recall for this cell"))
+    json.dump(out, open(path, "w"), indent=2)
+    print(f"wrote {path}")
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--cells", default="asr_shipped,asr_dense,ocr")
@@ -65,7 +101,16 @@ def main():
                          "near-duplicate event queries often retrieve the SAME top document, so a plain "
                          "split lets the model memorise event -> gain across folds")
     ap.add_argument("--out", default=os.path.join(ABL, "mv2_bertqpp.json"))
+    ap.add_argument("--recall-only", action="store_true",
+                    help="score the ALREADY TRAINED predictions under Recall@100 and exit. The "
+                         "out-of-fold predictions are stored per query, so the routing decision is "
+                         "recoverable without a retrain, and re-scoring it is the point: one selector, "
+                         "two metrics. Touches no GPU and no model.")
     a = ap.parse_args()
+
+    if a.recall_only:
+        recall_only(a.out)
+        return
 
     import torch
     torch.set_num_threads(a.threads)

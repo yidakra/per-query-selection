@@ -28,8 +28,22 @@ policy — the default action when you do no selection. Abridged here; all 30 ro
 | Ours | k-way channel selector | <u>0.3193</u> | +0.211 | <u>0.3531</u> | +0.160 | 0.3036 | +0.154 |
 | Oracle | route by true gain | <u>0.3653</u> | +1.000 | <u>0.3910</u> | +1.000 | <u>0.3305</u> | +1.000 |
 
-**The corpus-statistic block has 0 underlined cells out of 30. The post-retrieval block has 16.** That
-is the result, and their table's own notation makes it legible without a sentence of prose.
+**The corpus-statistic block has 0 underlined cells out of 33. The post-retrieval block has 16 out of
+33.** Same denominator, and their table's own notation makes it legible without a sentence of prose.
+
+The escalation fractions say the same thing more bluntly. A corpus-statistic predictor does not make a
+poor choice here; it makes no choice. In the OCR cell all eleven escalate exactly 0% of queries, in
+ASR-dense six of eleven escalate exactly 100%, and the rest sit within a fraction of a percent of a
+corner. The score-only family varies query by query in the same cells (NQC escalates 43% / 79% / 7%).
+Counting only exact 0 or exact 1: 20 of 33 corpus-statistic cells are degenerate against 5 of 33
+score-only cells.
+
+Three of those five are BERT-QPP, and it is the clearest case in the table of why both metric families
+are needed. It correlates at τ +0.237, +0.229 and +0.167, better than anything else in its block, and it
+escalates every query in all three cells — including the OCR cell, where fusing costs 0.059 nDCG. Its
+predictions are all positive, minimum +0.38, so the zero-crossing carries no information even though the
+ordering does. Read by correlation it is the best post-retrieval predictor we have. Read by decision it
+is the worst, and only the second reading tells you what happens if you deploy it.
 
 ## What QSD changed, and why the sharper claim is better
 
@@ -110,16 +124,28 @@ undefined rather than weak, and we report it unavailable rather than substitutin
 like one. It is the extreme of the same axis QSD sits at the other end of: maximum dependence on
 document-side statistics, therefore no definition at all.
 
-**The utility gap, found in the pair we were not looking at.** We expected ranking and grounding to come
-apart, since the visual channel retrieves best and emits embeddings no generator can read while OCR
+**The utility gap, and it turns on how the generator is grounded.** We expected ranking and grounding to
+come apart, since the visual channel retrieves best and emits embeddings no generator can read while OCR
 retrieves worst (0.1223) and emits usable text. Under the QPP-4-RAG nuggetizer protocol on 395 queries
-with a local judge, the routed system reaches 0.5007 vital-nugget coverage against 0.4648 for the best
-fixed policy (p = .037), 0.3902 against 0.3432 on strict vital (p = .014). **The ordering under nugget
-coverage is the ordering under nDCG.** The physical asymmetry between the channels is real and it did
-not produce a divergence there.
+with a local judge, run twice:
 
-It produces one between nDCG and recall. Scoring each selector's decision under Recall@100 as well, the
-ASR-dense cell reads:
+| grounding | routed vital | best fixed vital | Δ | p |
+|---|---|---|---|---|
+| all text for the documents each policy retrieved | 0.5007 | 0.4648 | +0.0359 | .037 |
+| only the channels each policy selected | 0.4822 | 0.4746 | +0.0076 | .67 |
+
+Same ranked lists, same +7.4 nDCG lead for the routed system in both rows. Isolate retrieval and the
+gain converts; hold each policy to the evidence it chose and it does not. The best fixed policy is
+unmoved between the two rows because `asr+visual` is two text sources either way; the routed system
+drops because it picks a single channel for 73% of these queries, and a query routed to the visual
+channel is then written from captions rather than from what was said in the video.
+
+So the gap is a design choice, not a property of routing: **select the channel for retrieval, then
+ground on everything reachable for the documents you found.** Selection that also narrows the evidence
+hands the gain back.
+
+**A second gap, between nDCG and recall.** This one needs no generator. Scoring each selector's decision
+under Recall@100 as well, the ASR-dense cell reads:
 
 | | nDCG@10 | R@100 |
 |---|---|---|
@@ -129,9 +155,10 @@ ASR-dense cell reads:
 
 **The better the nDCG selection, the worse the recall**, monotonically, and a perfect nDCG selector
 gives up nearly ten points of it. That is the shape of their Oracle-ndcg@5 versus Oracle-recall@100
-rows. So their utility gap holds here; we were looking in the wrong pair of metrics. Reproducing it in
-one pair while refuting it in another is a better result than either on its own, and it means a paper
-reporting only nDCG@10 — every table we have — is reporting the metric the selection was fitted to.
+rows. Their utility gap therefore holds here twice over, once against recall and once against nugget
+coverage under realistic grounding, and it fails only in the arm that isolates retrieval. Any table of
+ours reporting nDCG@10 alone — every table we have — is reporting the metric the selection was fitted
+to, and should say so.
 
 **Robustness.** The null is not an artefact of weak channels. Translating all 109,488 ASR transcripts
 with NLLB and re-encoding raises the speech channel from 0.3134 to 0.3332, and the routed gap goes
@@ -185,12 +212,17 @@ moves OCR by 0.1.
 
 ## Open
 
-- **Table 1 is not full.** Recall@100 is computed per cell (`mv2_recall_sidecar.py`, 2 of 3 cells
-  reproduce the stored nDCG exactly; OCR is off by 0.0019 and unwritten) but not yet routed per
-  predictor. The two nugget columns need a judge pass per selected run and are queued behind the RAG
-  arm. QSD_post is a trained transformer and is a build, not a run. DM appears in their Table 1, nowhere
-  in their repository, and its row equals their Original row in all eight columns.
-- **Whether the OCR cell belongs in the paper.** Everything in it degenerates to a tie, which reads as a
-  broken cell rather than a real one.
+- **Table 1's retrieval half is full; the generation half is not.** Recall@100 is routed per predictor
+  in all three cells, including QSD_pre and BERT-QPP. Each cell's A and B runs are rebuilt from the
+  shipped ranked lists and the rebuild is required to reproduce the cell's stored nDCG before any recall
+  is written (`mv2_recall_sidecar.py`); all three now match to six decimals. The two nugget columns need
+  a judge pass per selected run and are queued behind the RAG arm. QSD_post is a trained transformer and
+  is a build, not a run. DM appears in their Table 1, nowhere in their repository, and its row equals
+  their Original row in all eight columns.
+- **The OCR cell stays, and it is not the empty cell it looked like.** Fusing OCR costs 0.059 nDCG, so
+  declining is right for most queries, but not for all: an oracle escalates 14.2% of them and gains
+  +0.027. The post-retrieval predictors do choose there, escalating between 0.4% and 6.7%, and land on
+  the cheap policy's score anyway. So it is a low-base-rate cell rather than a degenerate one, and it is
+  where the gap between making a decision and making a good one is widest.
 - **The second paper.** The efficiency material — measured joules, the p99 tail, risk-coverage, and the
   ρ = 0.943 heterogeneity result — has its own scope note in `paper2_scope.md`.

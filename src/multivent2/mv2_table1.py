@@ -45,8 +45,8 @@ CELLS = ["ASR-shipped", "ASR-dense", "OCR"]
 # ~19 h on one GPU, so a row-per-predictor version is not affordable and only the section-best rows
 # will be filled. Stated here so the blanks in the table are a known cost, not an oversight.
 COVERAGE = {"nDCG@10": "complete", "tau": "complete",
-            "Recall@100": "complete where mv2_recall_sidecar.py reproduced the cell's stored nDCG "
-                          "exactly (2/3 cells; OCR is off by 0.0019 and left unwritten)",
+            "Recall@100": "complete -- mv2_recall_sidecar.py reproduces all 3 cells' stored nDCG "
+                          "exactly, and QSD_pre / BERTQPP are re-scored from their own predictions",
             "N_all": "not computed -- judge pass per selected run (~GPU-hours each)",
             "N_strict": "not computed -- judge pass per selected run (~GPU-hours each)"}
 
@@ -62,7 +62,8 @@ def load(tag):
         # that file keys its cells differently from the main table
         for k, cell in (("asr_shipped", "ASR-shipped"), ("asr_dense", "ASR-dense"), ("ocr", "OCR")):
             if k in raw:
-                bert[cell] = (raw[k]["routed_ndcg10"], raw[k]["tau"])
+                bert[cell] = (raw[k]["routed_ndcg10"], raw[k]["tau"],
+                              raw[k].get("routed_recall100"), raw[k].get("frac_escalated"))
     # QSD_pre reports at the best k for the split, per qpp_baselines.md: k=5 under a plain split where
     # the duplicate IS the answer, k=100 under event grouping where many neighbours are needed to
     # average the noise out. That reversal is itself the leakage evidence, so the k is not a free knob.
@@ -74,7 +75,8 @@ def load(tag):
         for k, cell in (("asr_shipped", "ASR-shipped"), ("asr_dense", "ASR-dense"), ("ocr", "OCR")):
             if k in raw and qsd_k in raw[k]["k"]:
                 v = raw[k]["k"][qsd_k]
-                qsd[cell] = (v["routed_ndcg10"], v["tau"])
+                qsd[cell] = (v["routed_ndcg10"], v["tau"], v.get("routed_recall100"),
+                             v.get("frac_escalated"))
     return table, bert, qsd
 
 
@@ -166,17 +168,54 @@ def main():
         L.append(f"| {cat} | `{name}` | " +
                  " | ".join(cellstr(vals.get(c), sec, c) for c in cells) + " |")
 
+    # Which rows never actually choose. A predictor whose routed nDCG lands on the always-escalate or
+    # never-escalate policy made one decision for all 2,546 queries, so its nDCG reports that fixed
+    # policy and not the predictor. Worth naming: a row can carry a healthy tau and still be degenerate
+    # here -- BERTQPP correlates at +0.24 and escalates every query -- which is exactly the gap between
+    # correlation and decision quality that Arabzadeh et al.'s two metric families are there to expose.
+    degen, tally, sec = [], {}, None
+    for cat, name, vals in rows:
+        if cat:
+            sec = cat
+        if sec == "Original":           # the fixed policies ARE the degenerate ones; not a finding
+            continue
+        for c in cells:
+            v = vals.get(c)
+            if not isinstance(v, tuple) or v[0] is None or len(v) < 4 or v[3] is None:
+                continue                # no recorded escalation fraction -> we do not claim either way
+            tally.setdefault((sec, c), [0, 0])[1] += 1
+            if v[3] in (0.0, 1.0):
+                degen.append(f"{name}/{c} ({'always' if v[3] else 'never'} fuse)")
+                tally[(sec, c)][0] += 1
+    summary = [f"{s} / {c}: {d}/{n}" for (s, c), (d, n) in tally.items() if d]
+
     out = "\n".join(L)
     print(out)
     print("\nunderline = beats the Original row; bold = best in section; "
           "`n/a` = undefined for this channel; *not implemented* = we have no equivalent predictor")
+    if degen:
+        print(f"\ndegenerate (one decision for every query): {len(degen)} cells")
+        for s in summary:
+            print(f"  {s}")
     print("\ncolumn coverage:")
     for k, v in COVERAGE.items():
         print(f"  {k:<12} {v}")
 
     dest = os.path.join(ABL, f"mv2_table1{a.tag}.md")
     with open(dest, "w") as f:
-        f.write("# Table 1 (paper layout)\n\n" + out + "\n")
+        f.write("# Table 1 (paper layout)\n\n" + out + "\n\n"
+                "underline = beats the Original row; bold = best in section; `n/a` = undefined for "
+                "this channel; *n.i.* = no equivalent predictor implemented.\n")
+        if degen:
+            f.write(f"\n## Degenerate cells\n\nCounted from each predictor's recorded escalation "
+                    f"fraction, degenerate meaning exactly 0 or exactly 1: the same decision for all "
+                    f"{table[cells[0]]['n']} queries, so the number in the cell reports a fixed "
+                    f"policy and not the predictor. A row can carry a healthy tau and still be "
+                    f"degenerate, which is the gap between correlation and decision quality. "
+                    f"Denominators cover the rows that have a fraction on record, so `clarity`, `DM` "
+                    f"and `QSD_post` are excluded rather than counted as non-degenerate.\n\n"
+                    + "\n".join(f"- {s}" for s in summary)
+                    + "\n\nFull list: " + "; ".join(degen) + ".\n")
     print(f"\nwrote {dest}")
 
 

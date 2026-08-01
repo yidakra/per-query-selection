@@ -158,18 +158,28 @@ The structural argument from §3, now with evidence:
 Their utility gap says ranking and answer quality come apart, and NQC — the predictor that edges us on
 the binary cell — correlates −0.038 with answer quality against 0.329 with nDCG in their setting.
 
-We measured it twice. Nuggets: QPP-4-RAG nuggetizer, 395 queries, local judge, routed 0.5007 vital vs
-0.4648 best fixed (p = .037), and **the ordering does not flip** — no gap between ranking and grounding.
+We measured it three ways and it appears in two of them.
+
+Nuggets, QPP-4-RAG nuggetizer, 395 queries, local judge, run under both grounding protocols. Ground
+every policy on all text for the documents it retrieved and routing lifts vital coverage 0.4648 → 0.5007
+(p = .037), with no ordering flip. Ground each policy on only the channels it selected and the same
+ranked lists give 0.4746 → 0.4822 (p = .67), indistinguishable, on an unchanged +7.4 nDCG lead.
+**Selection that also narrows the generator's evidence hands the retrieval gain back**, because the
+router picks a single channel for 73% of queries where the fixed policy always has two.
+
 Recall: scoring the same decisions under R@100, the ASR-dense cell goes 0.7268 fixed / 0.7207 ours /
 0.6286 oracle while nDCG goes 0.3408 / 0.3531 / 0.3910. **The better the nDCG selection, the worse the
-recall.** Their gap is here; it runs between two retrieval metrics rather than between retrieval and
-generation. Both halves belong in this section, and the second one obliges the paper to say, wherever
-it reports nDCG@10 alone, that this is the metric the selection was fitted to.
+recall**, with no generator involved at all.
 
-That is a genuine finding and it goes against what we expected — `related_work_qpp.md` predicted the
-split would appear, since the visual channel emits embeddings no generator can read while OCR emits
-usable text. The physical asymmetry is real and it did not produce a divergence. Report it that way.
-Whether the NQC inversion holds across modalities is then an open question we can pose but not settle.
+So their gap reproduces twice over, and the section's job is to say what governs it in each case. The
+recall half also obliges the paper to note, wherever it reports nDCG@10 alone, that this is the metric
+the selection was fitted to.
+
+We predicted the split for the wrong reason, and the paper should say so. `related_work_qpp.md` expected
+it because the visual channel emits embeddings no generator can read while OCR emits usable text. The
+asymmetry is real, but what produced the divergence is narrower evidence per query, not the visual
+channel's illegibility, and we only found that by running both arms. Whether the NQC inversion holds
+across modalities is then an open question we can pose but not settle.
 
 #### 5.5 Robustness of the boundary — 400 w
 
@@ -234,8 +244,9 @@ figure carries it alone now. Watch that section.
 | 5.2 | Single-channel picks | 72% (76% translated) | `mv2_translate_findings.md` |
 | 5.3 | Gain spread | sd 23.1 vs mean 3.72 | one-pager |
 | 5.3 | Clarity undefined | n/a | `qpp_baselines.md` |
-| 5.4 | Nugget coverage | vital .5007 vs .4648, p = .037; strict vital +.047, p = .014 | `metrics_n400_all.json` |
-| 5.4 | No ordering flip | strict-vital pair differs by 5e-5 | `mv2_rag_findings.md` |
+| 5.4 | Nugget coverage, retrieval isolated | vital .5007 vs .4648, p = .037; strict vital +.047, p = .014 | `metrics_n400_all.json` |
+| 5.4 | Same, own evidence only | vital .4822 vs .4746, p = .67; strict vital +.020, p = .29 | `metrics_n400_own.json` |
+| 5.4 | Single-channel picks on the RAG subset | 73% (asr 165, visual 123, ocr 4 of 395) | `mv2_rag_findings.md` |
 | 5.4 | Their NQC inversion | −0.038 answer vs 0.329 nDCG | `related_work_qpp.md` |
 | 5.5 | Better channel, wider gap | +7.59 → +8.01 ± 1.01, p = .0005 | `mv2_translate_findings.md` |
 | 5.5 | Leakage taxonomy | QSD −52%, BERT-QPP −10..−29%, analytic ≤ 2% | `qpp_baselines.md` |
@@ -256,12 +267,14 @@ structural difference, and if that diagram is good the paper is much easier to r
 
 ## Open items
 
-1. **`related_work_qpp.md` needs rewriting**, not editing. It was drafted as story A's related work and
-   its utility-gap paragraph predicts a split the RAG arm did not find. Under story B it is closer to
-   being §2 + §3 of the paper, which is a promotion.
+1. **§5.4 needs rewriting for two arms, not one.** Both RAG arms are in as of 1 Aug 2026 and they
+   disagree: isolating retrieval, routing lifts vital-nugget coverage (+0.036, p = .037); holding each
+   policy to the evidence it selected, it does not (+0.008, p = .67) despite the same +7.4 nDCG lead.
+   The section can no longer be "the gain survives a change of objective". It is "the gain survives if
+   you do not let channel selection narrow the generator's evidence", which is a design claim and a
+   better one. `mv2_rag_findings.md` carries both tables.
 2. **Authorship**, now more pressing. Story B is a boundary condition argued on the JHU benchmark and
    engages Arabzadeh et al. directly. Settle before §2 is drafted.
-3. **The `--evidence own` RAG arm** is still running; §5.4 stands on the `all` arm.
 4. **Where the efficiency work goes.** See the demotion table.
 5. **Citation keys unverified** — only the two arXiv IDs are confirmed.
 6. **Recheck Arabzadeh et al. against any v2**; our numbers are from the 24 Apr 2026 v1.
