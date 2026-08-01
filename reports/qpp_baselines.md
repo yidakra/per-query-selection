@@ -37,9 +37,17 @@ to gain from escalating, so the raw predictor anti-correlates with gain and the 
 | | σ_x0.5 | 0.3152 | −0.182 | 0.3446 | −0.122 | 0.3036 | −0.100 |
 | | max | 0.3070 | −0.124 | 0.3430 | −0.112 | 0.3036 | −0.087 |
 | Post-retrieval | clarity | n/a | — | n/a | — | n/a | — |
-| (needs doc text) | BERT-QPP (cross)* | **0.3239** | **+0.237** | **0.3583** | **+0.229** | 0.3045 | +0.167 |
+| (needs doc text) | BERT-QPP (cross) | 0.2795 | **+0.237** | 0.3408 | **+0.229** | 0.2445 | **+0.167** |
 | Ours | cheap-feature gain ridge | 0.3193 | +0.211 | 0.3531 | +0.160 | 0.3036 | +0.154 |
 | Oracle | route by true gain | 0.3653 | +1.000 | 0.3910 | +1.000 | 0.3305 | +1.000 |
+
+Every nDCG cell above is the predictor's own decision at its zero crossing, BERT-QPP's included. An
+earlier version of this table put BERT-QPP's *best swept* escalation fraction in that column (0.3239 /
+0.3583 / 0.3045) and bolded it best in section, which is not comparable: f was chosen on the evaluation
+set, so it is an oracle-tuned operating point standing next to eleven honest ones. Its swept numbers are
+still reported, in the BERT-QPP section below, where the label says what they are. The correction
+matters because it reverses the reading — BERT-QPP has the best τ in the table and the *worst* decision
+in it, escalating every query in all three cells, and that contrast is the point rather than a blemish.
 
 Every row is oriented on **event-grouped folds** (536 groups; see the leakage section below). The
 plain-KFold version of the same table is kept at `results/ablations/mv2_qpp_table.{md,json}`, the grouped
@@ -219,15 +227,22 @@ main table. Our thresholded values are 0.3193 / 0.3531 / 0.3036.
 
 Event grouping costs it 20%, 10% and 29% of its τ, so it leaks like QSD does, through the same
 event-level gain correlation. Unlike QSD it survives the correction and **keeps a real lead over our
-router**: τ +0.237 against +0.211 on the shipped cell and +0.229 against +0.160 on the dense one, and it
-stays ahead on routed nDCG at a matched escalation fraction in all three cells.
+router on ordering**: τ +0.237 against +0.211 on the shipped cell and +0.229 against +0.160 on the dense
+one, and it stays ahead on routed nDCG at a matched escalation fraction in all three cells.
 
-That is the honest headline for this table. A fine-tuned cross-encoder reading caption text beats a
-ridge over cheap score features, and it should. What it costs is the point of the comparison: roughly 40
-minutes of CPU fine-tuning per fold, five folds per cell, plus document text that the visual channel does
-not natively have, against 1.04 ms per query and no training at all. Our claim is a position on the
-cost-quality frontier, not the top of the accuracy column, and the k-way selector remains the
-contribution a scalar predictor cannot express.
+Both halves of that have to be said together, because they point opposite ways. A fine-tuned
+cross-encoder reading caption text orders queries better than a ridge over cheap score features, and it
+should. **It also makes the worst decision in the table**: its predictions are all positive, minimum
++0.38, so at its own zero crossing it escalates all 2,546 queries in all three cells and lands exactly on
+uniform fusion — 0.2795, 0.3408, 0.2445, which in two of the three cells is worse than doing nothing.
+Reading it at a matched or swept f hides that, because supplying f from outside is supplying the decision
+the predictor failed to make.
+
+What it costs is the rest of the comparison: roughly 40 minutes of CPU fine-tuning per fold, five folds
+per cell, plus document text the visual channel does not natively have, against 1.04 ms per query and no
+training. Our claim is a position on the cost-quality frontier rather than the top of the accuracy
+column — and on this table the accuracy column and the decision column disagree, which is the finding
+rather than an inconvenience.
 
 Leakage magnitudes to carry forward: QSD_pre loses 52% of its τ under event grouping and falls behind,
 BERT-QPP loses 10-29% and stays ahead, and the analytic score-only predictors and our own router lose
