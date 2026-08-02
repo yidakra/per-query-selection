@@ -8,9 +8,35 @@ Working document, not for commit.
 
 ## Configuration
 
-ECIR 2027 full paper track, Springer LNCS, numbered citations, ~12 pages excl. references (~6,300 words
-body), English. Style/length/data-release wording still assumed rather than confirmed. Authorship with
-the JHU collaborators unsettled and now more consequential — see open items.
+ECIR 2027 full paper track. **Confirmed against the call on 2 Aug 2026** (previously assumed):
+
+| | |
+|---|---|
+| Length | 12 pages, unlimited additional pages for references |
+| **Appendices** | **count toward the 12** and must sit before the references |
+| Template | Springer LNCS, LaTeX or Word; ORCIDs encouraged |
+| Review | **double-blind**, first-stage review then meta-reviewer discussion |
+| Abstract due | **21 Sep 2026** |
+| Paper due | **5 Oct 2026** |
+| Notification | 7 Dec 2026 |
+| Conference | 21–25 Mar 2027, Southampton FC, Southampton UK, in person |
+| Data release | no explicit requirement in the full-paper call |
+
+Two of these change plans rather than confirm them.
+
+**Double-blind was never in this outline.** The submission cannot self-identify, which reaches further
+than the author block: `github.com/yidakra/adaptive-q2e` cannot be linked as-is, any artifact URL has to
+be anonymised, and the MultiVENT collaboration cannot be named in a way that identifies us. Decide the
+artifact story before writing rather than after.
+
+**Appendices counting toward the 12 pages** removes the obvious parking space. The full RQ2 table is 33
+rows × 4 metrics × 3 cells and cannot be a free appendix; it has to be either cut down for the body or
+held for a companion artifact. The one-pager's approach — full rows and all four metrics for one cell,
+the other two summarised — is the version that fits.
+
+Authorship with the JHU collaborators unsettled and now more consequential — see open items. Under a
+21 Sep abstract deadline this is the item with the least slack, since an author list is required before
+there is a paper.
 
 ---
 

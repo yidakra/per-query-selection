@@ -164,7 +164,18 @@ of other variants is exposed, and we can quantify the exposure because we have a
 
 ## Notes for revision (not for the paper)
 
-- Numbers for their side are from the v1 PDF, 24 Apr 2026. Re-check against any v2 before submission.
+- Numbers for their side are from the v1 PDF, 24 Apr 2026. **Checked 2 Aug 2026: arXiv still shows only
+  v1**, so the numbers stand. But the paper is now published — SIGIR 2026, doi:10.1145/3805712.3808571,
+  *Proceedings of the 49th International ACM SIGIR Conference* — and the camera-ready is the version of
+  record. Cite the ACM version, not the preprint. The ACM page is paywalled to us, so the arXiv v1 and
+  the published version have **not** been diffed; if any of their numbers moved in camera-ready, ours
+  would be quoting a superseded table. Get the published PDF before submission and re-check the figures
+  we quote.
+- The QSD citation was wrong and is fixed: the title is *Query Performance Prediction Using Neural Query
+  Space Proximity* (not "Estimating..."), ACM TIST, doi:10.1145/3762197. Worth knowing that **Negar
+  Arabzadeh is an author of both** that paper and the variant-selection paper we bound, so QSD_pre and
+  QSD_post are not a neutral third-party baseline — they are the same group's method, which makes the
+  QSD_post result a stronger rather than weaker thing to report.
 - Do NOT write that we beat classical QPP. With formulas pinned to their repo and folds grouped by
   event, NQC edges our router on the binary decision (0.3205 vs 0.3193 shipped, 0.3541 vs 0.3531 dense,
   |τ| 0.215 vs 0.211). Under story B this costs nothing: NQC is in the family that transfers, so it

@@ -123,7 +123,9 @@ any of them demonstrates, and the write-ups say so individually.
 ## QSD-QPP and duplicate-topic leakage
 
 The reference repository ships only consumers of precomputed QSD outputs, so we implemented QSD-QPP from
-Bigdeli et al., *Estimating Query Performance Using Neural Query Space Proximity* (ACM TIST 2025).
+Bigdeli et al., *Query Performance Prediction Using Neural Query Space Proximity*, ACM TIST,
+doi:10.1145/3762197. Note that Negar Arabzadeh is an author of both this paper and the variant-selection
+paper our boundary condition engages, so the two are closer than the citation list suggests.
 QSD-QPP_Pre embeds queries into a "Query Space", takes the historical queries nearest the new one, and
 interpolates their known effectiveness with inverse-distance weights, `ω = 1/(1+ψ)` (their Eqs. 5–7).
 Implementation in `src/multivent2/mv2_qsd.py`. Two documented deviations: we take the k nearest rather

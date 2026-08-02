@@ -1,5 +1,5 @@
-"""QSD-QPP as a routing baseline: Bigdeli et al., "Estimating Query Performance Using Neural Query
-Space Proximity" (ACM TIST 2025). This is the QSD_pre / QSD_post entry in the QPP-4-RAG suite, whose
+"""QSD-QPP as a routing baseline: Bigdeli et al., "Query Performance Prediction Using Neural Query
+Space Proximity", ACM TIST, doi:10.1145/3762197. This is the QSD_pre / QSD_post entry in the suite, whose
 repository ships only consumers of precomputed QSD outputs, so the method is implemented here from the
 paper's equations.
 

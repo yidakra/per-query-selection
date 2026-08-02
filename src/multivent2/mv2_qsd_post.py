@@ -1,4 +1,5 @@
-"""QSD-QPP_Post (Bigdeli et al., ACM TIST 2025, their Eq. 8) as a routing baseline.
+"""QSD-QPP_Post (Bigdeli et al., "Query Performance Prediction Using Neural Query Space Proximity",
+ACM TIST, doi:10.1145/3762197, their Eq. 8) as a routing baseline.
 
 The post-retrieval half of QSD. Where QSD_pre interpolates a prediction straight from the known
 effectiveness of nearby historical queries (`mv2_qsd.py`, Eqs. 5-7), QSD_post learns the mapping instead:
