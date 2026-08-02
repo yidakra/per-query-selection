@@ -1,9 +1,20 @@
 # Adaptive Q2E — one-pager
 
-**Claim.** QPP-based selection has a boundary, and it is not the pre/post-retrieval split the literature
-organises by. Predictors that read the query against a corpus index cannot choose an *evidence source*.
-Predictors that read evidence back from retrieval can. The dividing line is whether a predictor needs
-document-side language statistics — which in a video collection may not exist at all.
+Standard practice in IR is to let a query performance predictor decide how much machinery a query gets.
+Arabzadeh et al. (arXiv:2604.22661) do exactly this to pick among LLM query variants, and it works. We
+ask whether it survives when the choice is *which channel to search* in a video corpus: speech,
+on-screen text, or the frames themselves. The choice is worth making — a selector over the channels' own
+score distributions beats the best fixed policy by +7.59 nDCG — but the standard predictors cannot see
+it. Eleven corpus-statistic predictors sit flat, Clarity is undefined over frames rather than merely
+weak, and the one pre-retrieval predictor that escapes needs no index at all. So the boundary is not pre-
+versus post-retrieval, it is whether a predictor depends on document-side language statistics — and in a
+corpus where 10% of videos carry no text, that dependence is not a detail. Kendall's τ, meanwhile,
+*anti*-correlates with how useful a predictor actually is for the decision (−0.213 over 78
+predictor-cell rows, p = 0.008), which is a problem for the metric the field selects on.
+
+**Claim, stated sharply.** Predictors that read the query against a corpus index cannot choose an
+*evidence source*. Predictors that read evidence back from retrieval can. The pre/post-retrieval split
+the literature organises by is a proxy for that, and it is the wrong proxy here.
 
 MultiVENT 2.0 test, 2,546 queries, graded multi-gold judgments, folds grouped by event (536 groups).
 Predictor definitions follow `github.com/Narabzad/QPP-4-RAG`.
