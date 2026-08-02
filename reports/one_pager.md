@@ -71,13 +71,15 @@ expensive channel pays; all three cells and the full artifact in
 | | QSD_post | <u>0.3423</u> | +0.102 | 0.6983 | 0.3557 | 0.2496 |
 | | BERT-QPP (cross) | 0.3408 | **+0.229** | 0.7268 | 0.3672 | 0.2621 |
 | | BERT-QPP (bi) | 0.3125 | −0.025 | 0.6414 | 0.3443 | 0.2424 |
-| Ours | k-way channel selector | <u>0.3531</u> | +0.160 | 0.7207 | 0.3684 | 0.2642 |
+| Ours | cheap-feature gain ridge | <u>0.3531</u> | +0.160 | 0.7207 | 0.3684 | 0.2642 |
 | Oracle | route by true gain | <u>0.3910</u> | +1.000 | 0.6286 | 0.3861 | 0.2841 |
 
 *n.i.* = no equivalent predictor implemented; `n/a` = undefined over frames. Every nDCG cell is the
 predictor's own decision at its zero crossing, including BERT-QPP's — swept operating points are
 reported separately in `qpp_baselines.md` and are not comparable to this column. Underline follows their
-rule, a margin above 5 × 10⁻⁴ over the Original row.
+rule, a margin above 5 × 10⁻⁴ over the Original row. The Ours row is a binary escalate-or-not decision,
+which is the only decision this cell offers; the k-way selector over all 7 channel subsets is the
+separate experiment behind the +7.59 in RQ1 and is not a row here.
 
 **Across all three cells, the corpus-statistic block has 0 underlined cells out of 33; the score-only
 block has 16 out of 30.** The underline threshold is not doing the work: the largest margin anywhere in

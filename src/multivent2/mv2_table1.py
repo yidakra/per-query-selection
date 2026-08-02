@@ -156,7 +156,10 @@ def main():
         rows.append(("Post-retrieval" if i == 0 else "", their,
                      {c: get("post", ours, c) for c in cells},
                      f"post/{ours}" if ours and ours != "CLARITY_NA" else None))
-    rows.append(("Ours", "k-way channel selector", {c: tuple(table[c]["ours"]) for c in cells},
+    # not the k-way selector: inside a cell the decision is binary (escalate or not), so this is the
+    # same cheap-feature ridge making a pairwise call. The k-way selector over all 7 channel subsets is
+    # a separate experiment (`mv2_channel_select.py`, 0.4131) and does not appear in this table.
+    rows.append(("Ours", "cheap-feature gain ridge", {c: tuple(table[c]["ours"]) for c in cells},
                  "ours"))
     rows.append(("Oracle", "route by true gain", {c: tuple(table[c]["oracle"]) for c in cells},
                  "oracle"))
