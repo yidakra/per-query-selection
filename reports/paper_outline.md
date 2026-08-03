@@ -268,7 +268,7 @@ figure carries it alone now. Watch that section.
 | 5.2 | Post-retrieval works | \|τ\| ≈ 0.21 (NQC −0.215) | `qpp_baselines.md` |
 | 5.2 | NQC edges us on binary | .3193 vs .3205; .3531 vs .3541 | `qpp_baselines.md` |
 | 5.2 | Single-channel picks | 72% (76% translated) | `mv2_translate_findings.md` |
-| 5.3 | Gain spread | sd 23.1 vs mean 3.72 | one-pager |
+| 5.3 | Gain spread | ASR-shipped -2.41 +/- 24.07, ASR-dense +3.72 +/- 23.12, OCR -5.92 +/- 19.42 | computed from the three cell JSONs, 2 Aug 2026 |
 | 5.3 | Clarity undefined | n/a | `qpp_baselines.md` |
 | 5.4 | Nugget coverage, retrieval isolated | vital .5007 vs .4648, p = .037; strict vital +.047, p = .014 | `metrics_n400_all.json` |
 | 5.4 | Same, own evidence only | vital .4822 vs .4746, p = .67; strict vital +.020, p = .29 | `metrics_n400_own.json` |
