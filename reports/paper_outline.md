@@ -133,7 +133,11 @@ of that sentence, so it is worth its own section rather than a paragraph in the 
   already computed, and give the 1.04 ms in one clause.
 - Protocol: nested outer CV with the best fixed policy re-chosen per training fold; event-grouped folds
   from union-find over shared relevant documents, 536 groups over 2,546 queries. Both cost us margin.
-- MultiVENT 2.0 test, 2,546 queries, 109,488 documents, nDCG@10, 10,000-sample permutation tests.
+- MultiVENT 2.0 test, 2,546 queries, **109,724 videos** (109,488 carry speech; 98,805 carry on-screen
+  text), nDCG@10, **2,000-sample** permutation tests. Both figures were wrong in an earlier version of
+  this outline: 109,488 is the speech channel's document count and not the collection, and the
+  permutation test is 2,000 samples, so the reported p = .0005 is its floor of 1/2001 rather than a
+  measured value.
 
 ### 5. Results
 
