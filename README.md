@@ -23,6 +23,17 @@ ends up scoring:
 
 ---
 
+## The paper
+
+The ECIR 2027 paper is written in a separate repository, `yidakra/project_a`. This one keeps the
+experiments, the generated tables under `results/ablations/`, and the evidence documents in `reports/`
+that those tables are verified against. Prose lives over there; numbers are re-derived here.
+
+The mapping from a claim in the paper to the artifact behind it is the evidence map in
+`reports/paper_outline.md`.
+
+---
+
 ## Findings
 
 All on MultiVENT (259 queries, 2393 videos) and MSR-VTT-1kA, nDCG@10. Write-ups:
