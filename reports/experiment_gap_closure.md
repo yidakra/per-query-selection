@@ -1,4 +1,4 @@
-# Experiment gap closure — 3 Aug 2026
+# Experiment gap closure, 3 Aug 2026
 
 This note records the experiments added after the first complete draft. It is deliberately separate
 from `paper2_scope.md`: every item here tests the boundary-condition paper.

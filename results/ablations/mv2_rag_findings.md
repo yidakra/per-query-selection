@@ -100,7 +100,7 @@ which is two text sources either way. The routed system loses 2 to 4 points on e
 0.5007 → 0.4822, strict all 0.3048 → 0.2665) because it picks a single channel for 73% of these queries:
 `asr` alone for 165, `visual` alone for 123, `ocr` alone for 4, and both for only 88.
 
-The reports are not shorter for it — 868 characters on average against the best fixed policy's 867, over
+The reports are not shorter for it: 868 characters on average against the best fixed policy's 867, over
 the same five documents. What changes is what is in them. A query routed to the visual channel is
 written from captions describing the video instead of from what was said in it.
 
@@ -111,7 +111,7 @@ route retrieval and then ground on everything it can reach for the documents it 
 
 ## What this arm also pays for: Table 1's nugget columns
 
-Three policies were added to the `all` arm — `cellB_asr_shipped`, `cellB_asr_dense`, `cellB_ocr` — each
+Three policies were added to the `all` arm (`cellB_asr_shipped`, `cellB_asr_dense`, `cellB_ocr`), each
 the fused run of one Table 1 cell, restricted to these 395 queries and verified against that cell's
 stored nDCG before being written (`mv2_cell_runs.py`). With `visual` already judged as run A and shared
 across all three cells, four judged runs cover the entire table.
@@ -123,8 +123,9 @@ recorded decisions. `mv2_table1_nuggets.py` does the mix and refuses to write un
 reproduce the judged runs exactly, which is what would catch a decision vector misaligned to `qids`.
 That turned roughly thirty judge passes into three.
 
-Two things it makes visible that the nDCG column only implied. BERT-QPP escalates every query, so its
-nugget row *is* the uniform-fusion row in all three cells — a selector that never selects, under a
+Two things it makes visible that the nDCG column only implied. BERT-QPP at its raw zero crossing
+escalates every query, so its nugget row *is* the uniform-fusion row in all three cells: a selector
+that never selects, under a
 generation metric. And in ASR-shipped our selector is the only row whose coverage beats both endpoints
 (0.3411 against 0.3235 visual and 0.3167 fused), so routing there is better than either fixed policy on
 answer quality and not only on ranking.

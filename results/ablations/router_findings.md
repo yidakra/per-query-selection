@@ -1,9 +1,9 @@
-# Adaptive routing over Q2E fusion tiers — findings
+# Adaptive routing over Q2E fusion tiers: findings
 
 > **Scope:** this cost model was measured on the **original Q2E pipeline** (ViT-H similarity,
 > `mx_q=30` padding, the paper's own corpora). It does **not** describe the MultiVENT 2.0 cascade,
-> whose measured latency and energy are in [`reports/efficiency_metrics.md`](reports/efficiency_metrics.md)
-> — there, tiers A and B are CPU-only and cost ~0.01 J and ~1 J per query. Do not mix the two tables.
+> whose measured latency and energy are in [`reports/efficiency_metrics.md`](reports/efficiency_metrics.md);
+> there, tiers A and B are CPU-only and cost ~0.01 J and ~1 J per query. Do not mix the two tables.
 
 
 Ladder (cost = **measured GPU energy per query**, J; normalized so Full = 1.0). Single source of
@@ -23,7 +23,7 @@ components it ends up scoring. Escalation is free; there is no re-scoring penalt
 > components at unit cost, but they differ by up to 68× (`cost_model_findings.md`). Every frontier
 > figure and the tables below now use the measured marginal joules from `tier_cost.py`. The router's
 > whole operating range is the cheapest **0.5–1.6% of the Full budget**, not the 20–40% the proxy
-> implied. The gaps are **identical** either way — cost is affine in the escalated fraction `f`, so
+> implied. The gaps are **identical** either way: cost is affine in the escalated fraction `f`, so
 > cost-matched == `f`-matched in any unit; only the x-positions moved. Verified: regenerating the
 > frontier JSONs changed only the `cost` field, everything else byte-for-byte. See §5.
 
@@ -36,7 +36,7 @@ scored strictly out-of-fold (`cross_val_predict`, vectorizer refit per fold).
 Tier accuracy lands **at or below the majority-class prior**: MultiVENT noASR 0.37 vs prior 0.36;
 MSR-VTT 0.90 vs prior 0.86. Every operating point is dominated by the constant Fixed-B policy.
 
-Adaptive-RAG's premise — that query complexity is predictable from the question's surface form —
+Adaptive-RAG's premise, that query complexity is predictable from the question's surface form,
 **does not transfer to text-to-video retrieval**. Whether event decomposition helps depends on the
 query × gallery *interaction*, not on the query alone. This is consistent with MultiVENT's queries
 being 259/259 Latin script: the multilinguality lives in the videos and captions, not the queries,
@@ -44,8 +44,8 @@ so there is no query-side language feature to route on.
 
 ## 2. What works: expected-gain cascade on cheap-tier retrieval confidence
 
-Route on the **cheap tier's own retrieval signal** — top-1 margin, margin@1-3, z-score of the top
-hit, softmax entropy over the gallery, top-5 mass, score sd — and regress the *gain* rather than
+Route on the **cheap tier's own retrieval signal** (top-1 margin, margin@1-3, z-score of the top
+hit, softmax entropy over the gallery, top-5 mass, score sd) and regress the *gain* rather than
 classify the tier. Cascade discipline: the A→B decision may use only A-side features.
 
 Predict `g_i = nDCG_B(i) − nDCG_A(i)` (ridge, OOF), escalate the top-`f` by predicted gain. The
@@ -55,7 +55,7 @@ frontier gap over the cost-matched baseline then has a closed form:
 gap(f) = f · ( mean_{i∈S} g_i  −  mean_i g_i )
 ```
 
-so the entire claim reduces to *does the ranker order queries by true gain?* — exactly
+so the entire claim reduces to *does the ranker order queries by true gain?*, exactly
 permutation-testable. Randomly escalating a fraction `f` reproduces the chord between Fixed-A and
 Fixed-B in expectation, so **the chord is the honest baseline**, not Fixed-B alone.
 
@@ -79,18 +79,18 @@ Significance is a broad plateau over `f ≈ 0.35–0.90`, not a single lucky poi
 > so we report the same pair. ρ is linear; τ is rank-only and outlier-robust, and both are computed
 > on the same OOF predictions with a shared 2000-shuffle permutation null. τ agrees with ρ on the
 > five stronger cells (all p < .05). The exception is the lowest-heterogeneity cell, MSR-VTT/mCLIP/
-> noASR, whose rank association is not significant (τ = +0.014, p = .28) though its linear ρ grazes it
-> — the honest reading is that its per-query signal is marginal, exactly as its low sd(gain) predicts.
-> **What we predict is a *differential* — nDCG_B − nDCG_A — not absolute AP**, a noisier target than
+> noASR, whose rank association is not significant (τ = +0.014, p = .28) though its linear ρ grazes it;
+> the honest reading is that its per-query signal is marginal, exactly as its low sd(gain) predicts.
+> **What we predict is a *differential* (nDCG_B − nDCG_A), not absolute AP**, a noisier target than
 > the single-system effectiveness those benchmarks predict, so these magnitudes are not comparable to
 > iQPP's τ ≈ 0.65 ceiling.
 
 **Baselines the router is measured against** (`baselines_findings.md`, `router_baselines.py`). The
-learned multi-feature router beats routing on the best single classical QPP predictor — max score, SD,
-NQC (Shtok 2012), WIG (Zhou & Croft 2007), Clarity (Cronen-Townsend 2002) — on the routing objective
+learned multi-feature router beats routing on the best single classical QPP predictor (max score, SD,
+NQC (Shtok 2012), WIG (Zhou & Croft 2007), Clarity (Cronen-Townsend 2002)) on the routing objective
 (mean gap +0.78 vs +0.43) and on average τ (+0.092 vs +0.078). The real win is robustness: *which*
 single predictor is best flips across regimes (WIG on MultiVENT, NQC / max on MSR-VTT, with max going
-negative on MultiVENT), reproducing iQPP's "no predictor is consistently best" result — so the learned
+negative on MultiVENT), reproducing iQPP's "no predictor is consistently best" result, so the learned
 combination is the only signal positive on all six cells. A model-class ablation confirms the estimator
 choice: linear (ridge ≈ logistic) beats gradient boosting, random forest and SVR, all of which overfit
 the weak low-dimensional signal. Regression on the continuous gain is retained (it leads logistic on the
@@ -101,15 +101,15 @@ realized gap).
 > §4: the oracle orders queries by a gain measured on the same labels it is scored against, and
 > most of that gain is irreducible label noise. The `nested gap` column is out-of-fold and stands.
 
-### Caveats — do not overclaim
+### Caveats: do not overclaim
 
 - **The router never beats Fixed-B in absolute nDCG.** At a budget just under tier B (cost 0.0152 ≈
   B's 0.0158) MultiVENT noASR reaches 74.15 vs Fixed-B's 74.28. The win lives *strictly between*
   Fixed-A and Fixed-B, i.e. at budgets where B cannot be run on every query and the only fixed
   alternative is a cost-matched
   random mixture. This is a legitimate accuracy–compute frontier claim. It is **not** "we beat Q2E".
-- **The Full tier is never purchased.** The original phrasing here — *"ρ(B→Full) = +0.094 (p = .07);
-  event decomposition's benefit is not predictable from retrieval confidence"* — cited only the cell
+- **The Full tier is never purchased.** The original phrasing here, *"ρ(B→Full) = +0.094 (p = .07);
+  event decomposition's benefit is not predictable from retrieval confidence"*, cited only the cell
   that supported it. Both cells:
 
   | | ρ(B→Full) | perm p | oracle B→Full gap |
@@ -121,14 +121,14 @@ realized gap).
   "not predictable" was an overclaim by omission.
 
   The conclusion is unchanged, but the reason is different: what kills the escalation is the size of
-  the prize, not the inability to see it. The oracle gap is only ≈ +2.55 either way — and §4 shows
+  the prize, not the inability to see it. The oracle gap is only ≈ +2.55 either way, and §4 shows
   that figure is itself an in-sample quantity whose advantage does not survive a held-out label split
   (optimism 3.36 / 3.76, out-of-sample −0.47 / −0.65). There is nothing there worth buying, which
   still bounds the whole approach.
 
   §5 adds an independent reason on the *price* rather than the prize: the Full tier costs a measured
   **63.5× tier B**, not the 2.5× the component-count proxy implies.
-- The router captures only 14–31% of oracle headroom — **but that fraction is not meaningful**, and
+- The router captures only 14–31% of oracle headroom, **but that fraction is not meaningful**, and
   §4 shows why. Its denominator is inflated by label noise.
 
 ## 3. The load-bearing claim: routing value scales with heterogeneity
@@ -141,20 +141,20 @@ gap with **Spearman ρ = +0.943** (n = 6; one-tailed critical value at α = .05 
 > 536 event groups rather than 2,546 queries (`reports/qpp_baselines.md`). These six cells were measured
 > under a plain KFold split, so the same question applies. `router_event_groups.py` links queries that
 > share any relevant video and counts connected components: **every query is its own component in all
-> six cells** — 259/259 on MultiVENT v1, 995/995 on each MSR-VTT cell. GroupKFold therefore reduces to
+> six cells** (259/259 on MultiVENT v1, 995/995 on each MSR-VTT cell). GroupKFold therefore reduces to
 > KFold and nothing here needs rerunning. MultiVENT v1 pairs one query with ~9.24 relevant videos but
 > gives each event a single query, and MSR-VTT is effectively single-gold; only MultiVENT 2.0 carries
 > several phrasings of one event. The leakage is a property of that benchmark, not of the method.
 
 Crucially the driver is heterogeneity, *not dataset identity*: MSR-VTT/internvideo2/ASR has
-sd = 13.81, close to MultiVENT's 15.22, and its gap (+0.96) lands where the trend predicts —
+sd = 13.81, close to MultiVENT's 15.22, and its gap (+0.96) lands where the trend predicts,
 despite 1.01 gold/query. The fraction of headroom the router *captures* stays roughly flat
 (14–31%); it is the headroom itself that scales.
 
 Related: **17% of MultiVENT queries are actively hurt** by adding captions (vs 2–4% on MSR-VTT).
 That is what a router is for, and it is the quiet critique of Q2E's one-size-fits-all fusion.
 
-The heterogeneity thesis also predicts **where the router transfers** — see `transfer_findings.md`
+The heterogeneity thesis also predicts **where the router transfers**; see `transfer_findings.md`
 (`router_transfer.py`). Training the A→B ridge on one cell and deploying it unchanged on another
 transfers at within-cell strength across encoders (mCLIP ↔ IV2, mean ρ +0.14) and across the
 ASR/noASR setting (+0.15), but **flips sign across the MultiVENT ↔ MSR-VTT boundary** (−0.05): the
@@ -170,7 +170,7 @@ subsets against the test labels reports +2.00 nDCG of headroom that no method ca
 critique applies to the `oracle` column above, so we measured it rather than assumed it:
 `router_oracle_goldsplit.py`.
 
-The ceiling is computed as `gap_at(f, ghat=g, g=g)` — queries are ordered by the **true** per-query
+The ceiling is computed as `gap_at(f, ghat=g, g=g)`: queries are ordered by the **true** per-query
 gain `g`, measured on the very relevance judgments used to score the result. That is in-sample
 selection. MultiVENT's 9.24 golds/query let us split each query's golds into halves and re-run it.
 
@@ -201,8 +201,8 @@ never purchasable.
   bias, and wins. A pooled learner beating a per-query oracle fed noisy labels is not a paradox.
 - **The ceiling is still a valid bound**, just a very loose one. On a fixed label set `gap(f)` is
   maximised by ordering on the true gain, so no router can exceed it *on those labels*. It is a
-  bound, not a target — and "% of oracle captured" is therefore not a measure of what is left.
-- **MSR-VTT cannot be tested this way** (1.01 golds/query — no second half to grade on). Its
+  bound, not a target, and "% of oracle captured" is therefore not a measure of what is left.
+- **MSR-VTT cannot be tested this way** (1.01 golds/query, so no second half to grade on). Its
   ceilings (+1.46 to +3.09) stay labelled in-sample.
 
 ### The heterogeneity thesis survives
@@ -219,7 +219,7 @@ Report oracle headroom with a held-out label split whenever the dataset is multi
 extra evaluation. Where it is impossible (single-gold data), label the ceiling in-sample and do not
 build a "% captured" narrative on it.
 
-## 5. The cost axis is measured energy — how the proxy was retired
+## 5. The cost axis is measured energy: how the proxy was retired
 
 The frontier figures and §2 tables now plot the **measured joules** below (via `tier_cost.py`),
 not the old component count. This section is the measurement and the proof that the swap was safe.
@@ -232,7 +232,7 @@ Full write-up: `cost_model_findings.md`. Measured marginal joules per query, Mul
 | one event component (as published, `mx_q=30`) | 465.34 J | 1 unit |
 
 Four of the five components share one code path and differ only in how many query-side strings they
-feed it (259 vs 7,770). Cost is affine in that count — `E(N) = 3167 + 0.912·N` J per doc slot,
+feed it (259 vs 7,770). Cost is affine in that count: `E(N) = 3167 + 0.912·N` J per doc slot,
 R² = 0.9994, verified by held-out extrapolation to N=7,770 within 1.3%.
 
 | tier | measured | normalised | proxy |
@@ -241,16 +241,16 @@ R² = 0.9994, verified by held-out extrapolation to N=7,770 within 1.3%.
 | B | 22.35 J | 0.0158 | 0.4 |
 | Full | 1,418.36 J | 1.0 | 1.0 |
 
-**The gaps in §2 are invariant — and this was checked, not just argued.** Cost of escalating a
-fraction `f` from A to B is `cost(A) + f·(cost(B) − cost(A))` — affine in `f` under any cost
-assignment — so a cost-matched baseline is an `f`-matched baseline in either unit. Regenerating
+**The gaps in §2 are invariant, and this was checked, not just argued.** Cost of escalating a
+fraction `f` from A to B is `cost(A) + f·(cost(B) − cost(A))`, affine in `f` under any cost
+assignment, so a cost-matched baseline is an `f`-matched baseline in either unit. Regenerating
 `router_gain_curve.json` and `router_curves.json` under the joules axis changed **only** the `cost`
 field of each point; `ndcg`, `chord`, `gap`, the CIs, permutation `p`, `nested_gap` (+0.73 / +1.68)
 and `oracle_gap` (+5.04 / +6.03) are byte-for-byte identical. Nothing in §2, §3 or §4 moves.
 
 **Two things do move.** The B→Full escalation is now dead on price as well as prize (63.5× vs the
 proxy's 2.5×), and the reported savings against Full are revealed as a lower bound, since the proxy
-understates Full's cost — before even counting the ~30 LLaMA-70B generations per query that only
+understates Full's cost, before even counting the ~30 LLaMA-70B generations per query that only
 Full pays.
 
 Along the way: tier A's query path runs the ViT-H **vision tower on a batch of black images** and

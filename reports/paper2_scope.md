@@ -1,8 +1,8 @@
-# Paper 2: the efficiency material — scope note
+# Paper 2: the efficiency material, a scope note
 
 Decided 31 Jul 2026: the efficiency and cascade work becomes its own paper rather than an appendix to
 the boundary-condition paper. This note exists so the material stops being homeless. It is a scope
-sketch, not an outline — the framing question below is not settled and should be settled before anyone
+sketch, not an outline: the framing question below is not settled and should be settled before anyone
 allocates sections.
 
 ## The material

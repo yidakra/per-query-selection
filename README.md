@@ -2,8 +2,8 @@
 
 **Per-query adaptive routing for zero-shot multilingual text-to-video retrieval.** Q2E decomposes
 every query with an LLM and fuses all five similarity components at a fixed cost. This project muxes
-Q2E's fusion tiers with an Adaptive-RAG-style complexity router that spends *per query* — visual-only
-for easy queries, full event decomposition only where it pays — targeting the **accuracy–compute
+Q2E's fusion tiers with an Adaptive-RAG-style complexity router that spends *per query* (visual-only
+for easy queries, full event decomposition only where it pays), targeting the **accuracy–compute
 frontier** rather than a single operating point.
 
 The router is built on a **faithful reproduction of Q2E** (Dipta & Ferraro, IJCNLP-AACL 2025,
@@ -12,7 +12,7 @@ https://github.com/dipta007/Q2E (cloned to `external/q2e_official`, commit `a1c0
 
 > **Private, pre-publication.** Unpublished findings; keep private until write-up.
 
-Three tiers over Q2E's components, nested so escalation is free — a cascade pays only for what it
+Three tiers over Q2E's components, nested so escalation is free; a cascade pays only for what it
 ends up scoring:
 
 | tier | components | LLM calls / query |
@@ -40,7 +40,7 @@ All on MultiVENT (259 queries, 2393 videos) and MSR-VTT-1kA, nDCG@10. Write-ups:
 [`results/ablations/router_findings.md`](results/ablations/router_findings.md) and
 [`results/ablations/tierC_findings.md`](results/ablations/tierC_findings.md).
 
-### 1. The routing signal is not in the query text — but it is in the cheap tier's own confidence
+### 1. The routing signal is not in the query text, but it is in the cheap tier's own confidence
 
 A TF-IDF + LogReg router over query text scores **at or below the majority-class prior** and is
 dominated by the constant Fixed-B policy. Adaptive-RAG's premise (complexity is predictable from the
@@ -49,7 +49,7 @@ helps depends on the query × gallery interaction, not the query alone.
 
 Routing on the cheap tier's *retrieval confidence* works. Predict the per-query gain
 `g_i = nDCG_B(i) − nDCG_A(i)`, escalate the top-`f`. The whole claim reduces to *"does the ranker
-order queries by true gain?"* — exactly permutation-testable.
+order queries by true gain?"*, exactly permutation-testable.
 
 | | ρ(pred, true) | perm p | nested-CV gap vs cost-matched chord |
 |---|---|---|---|
@@ -59,17 +59,17 @@ order queries by true gain?"* — exactly permutation-testable.
 Significance is a broad plateau over `f ≈ 0.35–0.90`, not one lucky point. The operating point is
 chosen by nested CV, so it carries no selection bias.
 
-**Caveats, stated up front.** The router **never beats Fixed-B in absolute nDCG** — at cost 0.39 it
+**Caveats, stated up front.** The router **never beats Fixed-B in absolute nDCG**; at cost 0.39 it
 reaches 74.15 vs Fixed-B's 74.28. Its win lives *strictly between* Fixed-A and Fixed-B, where the only
 fixed alternative is a cost-matched random mixture (the chord). This is an accuracy–compute frontier
 claim, **not** "we beat Q2E".
 
 **The Full tier is never purchased.** B→Full gain is far less predictable than A→B (ρ = +0.094,
-p = .07 on noASR; +0.137, p = .011 on ASR — the ASR cell is significant, so the honest statement is
+p = .07 on noASR; +0.137, p = .011 on ASR; the ASR cell is significant, so the honest statement is
 *weakly* predictable, not unpredictable). What kills the escalation is the size of the prize: the
 oracle B→Full gap is only +2.55 / +2.56, and §5 shows that figure is itself an in-sample quantity
 whose advantage does not survive a held-out label split (optimism 3.36 / 3.76). Event decomposition's
-per-query benefit is not worth buying — itself a finding, and it bounds the approach.
+per-query benefit is not worth buying, which is itself a finding, and it bounds the approach.
 
 ### 2. The load-bearing claim: routing value scales with heterogeneity
 
@@ -79,9 +79,9 @@ identity*: MSR-VTT/InternVideo2/ASR has sd = 13.81, close to MultiVENT's 15.22, 
 where the trend predicts despite 1.01 gold/query.
 
 This is the differentiator from Adaptive-RAG. Relatedly, **17% of MultiVENT queries are actively
-hurt** by adding captions (vs 2–4% on MSR-VTT) — the quiet critique of Q2E's one-size-fits-all fusion.
+hurt** by adding captions (vs 2–4% on MSR-VTT), the quiet critique of Q2E's one-size-fits-all fusion.
 
-### 3. The cost proxy is wrong — and wrong in the safe direction
+### 3. The cost proxy is wrong, and wrong in the safe direction
 
 The frontier plots use `cost = #components scored` (A = 0.2, B = 0.4, Full = 1.0), rating all five
 similarity components at unit cost. Both halves of that assumption were measured, not assumed.
@@ -92,7 +92,7 @@ tokens. Tiers A and B issue **zero**.
 
 **The similarity half** ([`cost_model_findings.md`](results/ablations/cost_model_findings.md)):
 components differ by up to **68×**. Four of the five share one code path and differ only in how many
-query-side strings they feed it — 259 for `query_vs_captions`, **7,770** for an event component
+query-side strings they feed it: 259 for `query_vs_captions`, **7,770** for an event component
 (`mx_q=30` padding). Cost is affine in that count: `E(N) = 3167 + 0.912·N` J per doc slot,
 R² = 0.9994, confirmed by held-out extrapolation to N=7,770 within **1.3%**.
 
@@ -104,15 +104,15 @@ R² = 0.9994, confirmed by held-out extrapolation to N=7,770 within **1.3%**.
 
 > **Scope:** this cost model was measured on the **original Q2E pipeline** (ViT-H similarity,
 > `mx_q=30` padding, the paper's own corpora). It does **not** describe the MultiVENT 2.0 cascade,
-> whose measured latency and energy are in [`reports/efficiency_metrics.md`](reports/efficiency_metrics.md)
-> — there, tiers A and B are CPU-only and cost ~0.01 J and ~1 J per query. Do not mix the two tables.
+> whose measured latency and energy are in [`reports/efficiency_metrics.md`](reports/efficiency_metrics.md);
+> there, tiers A and B are CPU-only and cost ~0.01 J and ~1 J per query. Do not mix the two tables.
 
-The proxy overstates A by 42× and B by 25× relative to Full — i.e. it **understates** Full, so the
+The proxy overstates A by 42× and B by 25× relative to Full, i.e. it **understates** Full, so the
 reported savings are a **lower bound**. Escalating B→Full really costs **63.5× tier B**, not 2.5×,
 which independently kills the Full escalation on price to go with §1's argument on prize.
 
 **The routing gaps are invariant to all of this.** Cost of escalating a fraction `f` from A to B is
-`cost(A) + f·(cost(B) − cost(A))` — affine in `f` under *any* per-component cost assignment — so
+`cost(A) + f·(cost(B) − cost(A))`, affine in `f` under *any* per-component cost assignment, so
 cost-matched is `f`-matched in either unit. Nothing in §1, §2 or §5 moves; only the x-axis label does.
 The cascade's entire gain is obtained in the zero-LLM regime.
 
@@ -123,7 +123,7 @@ cheaper. We report the as-shipped number, since that is what the published nDCG 
 ### 4. Tier C does not exist: oracle headroom over Q2E is label noise
 
 Q2E max-pools ~24 generated paraphrases per query. Because the pool is a `max`, a bad paraphrase can
-never *lower* a video's score — only raise a wrong video's. So dropping the bad ones should be free.
+never *lower* a video's score, only raise a wrong video's. So dropping the bad ones should be free.
 An oracle agrees: **+2.00 nDCG** over Fixed-Full, keeping 0.9 of 24 paraphrases.
 
 It is unachievable. Three independent estimates converge:
@@ -135,12 +135,12 @@ It is unachievable. Three independent estimates converge:
 | by an oracle denied the grading labels | −1.81 |
 
 The decisive test: MultiVENT is multi-gold (≥4 relevant videos/query), so split each query's golds,
-run the *identical* oracle on half A, grade on half B. In-sample **+3.07**, out-of-sample **−1.81** —
+run the *identical* oracle on half A, grade on half B. In-sample **+3.07**, out-of-sample **−1.81**:
 **optimism +4.89 nDCG, more than twice the headline it inflates.** The oracle was exploiting *which
 videos are marked relevant*, not which paraphrases are good.
 
 **Q2E's max-pool is vindicated**: dropping a paraphrase forfeits a chance to match a *right* video as
-often as a wrong one. Neither tier-C design survives — not the learned selector (tested, loses), not
+often as a wrong one. Neither tier-C design survives: not the learned selector (tested, loses), not
 the iterative regeneration loop (its premise just failed).
 
 ### 5. Methodological: report oracle headroom against a held-out label split
@@ -165,7 +165,7 @@ Consequences, carefully scoped:
 - A negative out-of-sample gap does **not** mean achievable gain is negative. That oracle estimates
   each query's gain from ~4 golds and is variance-dominated; the nested-CV router pools across
   training queries and wins. A pooled learner beating a per-query oracle fed noisy labels is no paradox.
-- The ceiling is still a **valid bound** on a fixed label set — just a very loose one. Bound, not target.
+- The ceiling is still a **valid bound** on a fixed label set, just a very loose one. Bound, not target.
 - **MSR-VTT cannot be audited this way** (1.01 golds/query). Its ceilings stay labelled in-sample.
 - Consequently the heterogeneity thesis (§2) is carried by the **achieved-gap** correlation, which is
   out-of-fold; the oracle-headroom correlation is corroborative at best.
@@ -181,19 +181,19 @@ option quality**, not the count of options.
 Paths are derived from `__file__` / `$0`, so the checkout can live anywhere.
 
 ```bash
-# routing (§1, §2) — CPU
+# routing (§1, §2): CPU
 CUDA_VISIBLE_DEVICES="" python src/evaluation/router_diag.py             # query-text router fails
 CUDA_VISIBLE_DEVICES="" python src/evaluation/router_gain_curve.py       # permutation-tested curve
 CUDA_VISIBLE_DEVICES="" python src/evaluation/router_hetero.py           # all 6 cells
 CUDA_VISIBLE_DEVICES="" python src/evaluation/router_oracle_goldsplit.py # ceiling audit (§5)
 CUDA_VISIBLE_DEVICES="" python src/evaluation/router_figs.py             # figures
 
-# cost model (§3) — LLM accounting on CPU, component energy on GPU1
+# cost model (§3): LLM accounting on CPU, component energy on GPU1
 CUDA_VISIBLE_DEVICES="" python src/evaluation/llm_cost_accounting.py
 CUDA_VISIBLE_DEVICES=1  python src/evaluation/component_energy_bench.py --repeats 2 --padded
 CUDA_VISIBLE_DEVICES=1  python src/evaluation/component_energy_tierA.py
 
-# tier C (§4) — one GPU pass, then CPU
+# tier C (§4): one GPU pass, then CPU
 CUDA_VISIBLE_DEVICES=1  python src/evaluation/perparaphrase_scores.py --setting noASR --event all
 CUDA_VISIBLE_DEVICES="" python src/evaluation/tierC_selection_oracle.py --setting noASR
 CUDA_VISIBLE_DEVICES="" python src/evaluation/diag_zerorow_prior.py     --setting noASR
@@ -249,7 +249,7 @@ Read before trusting any energy number:
   measured. We record which mode was used per run; never sum them into one unqualified headline.
 - Carbon intensity is CodeCarbon's bundled **annual** grid mix (NLD, 267.6 gCO2e/kWh), not live.
 
-Per-run records land in `results/energy/{emissions.csv,runs.jsonl}` — append-only, so **merge
+Per-run records land in `results/energy/{emissions.csv,runs.jsonl}`, which are append-only, so **merge
 conflicts there must be resolved as a union**, never by taking one side.
 
 ---
@@ -261,32 +261,32 @@ conflicts there must be resolved as a union**, never by taking one side.
 The paper's *generation* models (Llama-3.3-70B, InternVL2.5-38B) do **not** fit. We execute a tiered
 plan (`reports/reproduction_spec.md` §3, `reports/compute_cost_report.md`):
 
-- **Tier A (executed)** — faithful reproduction of the *evaluation*: real encoders (MultiCLIP,
+- **Tier A (executed)**: faithful reproduction of the *evaluation*, with real encoders (MultiCLIP,
   InternVideo2-1B), real ColBERT/PLAID-X text scorer, real inverse-entropy fusion, over the authors'
   released generation artifacts. Numbers are directly comparable to the paper's tables.
-- **Tier B (optional)** — re-run generation with smaller open substitutes to measure model-size
+- **Tier B (optional)**: re-run generation with smaller open substitutes to measure model-size
   effects (the authors released 1B–70B LLM and 1B–38B VLM variants, so the *size ablations* are
   reproducible from released text without re-running generation).
 
 ### A reproducibility note
 
-Q2E's cached component tensors are **not bitwise reproducible** across sessions — ColBERT runs in
-fp16 and its scores depend on batch composition (40% of `prequel` entries move by >1e-3, max 0.15 on
-a 0–100 scale) — yet its **reported metrics are** (Full-tier nDCG identical to 4 dp). Correctness
+Q2E's cached component tensors are **not bitwise reproducible** across sessions (ColBERT runs in
+fp16 and its scores depend on batch composition; 40% of `prequel` entries move by >1e-3, max 0.15 on
+a 0–100 scale), yet its **reported metrics are** (Full-tier nDCG identical to 4 dp). Correctness
 gates in this repo therefore assert on *metrics*, not float equality.
 
 ## Layout
 
-- `external/q2e_official/` — upstream repo, unmodified. Its `data/` is a relative symlink to `../../data`.
-- `data/` — HF datasets saved to disk, encoder checkpoints, videos, manifests.
-- `src/evaluation/` — drivers, the router, the tier-C study, tracking.
-- `configs/prompts/` — snapshot of the 14 upstream prompt templates.
-- `runs/` — run logs, raw metrics JSON, shell drivers, cached component tensors.
-- `results/` — comparison tables, `ablations/` (findings + JSON), `energy/`.
-- `reports/` — spec, report, gap analysis, compute cost, figures.
-- `environment/` — system/GPU/python/cuda manifests, pip freeze.
+- `external/q2e_official/`: upstream repo, unmodified. Its `data/` is a relative symlink to `../../data`.
+- `data/`: HF datasets saved to disk, encoder checkpoints, videos, manifests.
+- `src/evaluation/`: drivers, the router, the tier-C study, tracking.
+- `configs/prompts/`: snapshot of the 14 upstream prompt templates.
+- `runs/`: run logs, raw metrics JSON, shell drivers, cached component tensors.
+- `results/`: comparison tables, `ablations/` (findings + JSON), `energy/`.
+- `reports/`: spec, report, gap analysis, compute cost, figures.
+- `environment/`: system/GPU/python/cuda manifests, pip freeze.
 
-**Excluded from version control** (`.gitignore`): `data/` (HF datasets, checkpoints, videos —
+**Excluded from version control** (`.gitignore`): `data/` (HF datasets, checkpoints, videos;
 re-fetch per `repro_log.md`), `external/` (clone `https://github.com/dipta007/Q2E` @ `a1c09da`),
 `.venv-eval/`, and `*.pt` caches under `runs/`. All are large and/or regenerable.
 

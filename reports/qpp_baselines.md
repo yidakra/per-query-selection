@@ -14,8 +14,8 @@ confidence score is expected: a confident cheap channel means less to gain from 
 
 | Category | Method | ASR-shipped | τ | ASR-dense | τ | OCR | τ |
 |---|---|---|---|---|---|---|---|
-| Original | visual only (cheap) | 0.3036 | — | 0.3036 | — | 0.3036 | — |
-| | uniform fusion (best w) | 0.2795 | — | 0.3408 | — | 0.2445 | — |
+| Original | visual only (cheap) | 0.3036 | -- | 0.3036 | -- | 0.3036 | -- |
+| | uniform fusion (best w) | 0.2795 | -- | 0.3408 | -- | 0.2445 | -- |
 | Pre-retrieval | IDF_avg | 0.3031 | −0.033 | 0.3408 | −0.008 | 0.3036 | +0.022 |
 | (ASR text index) | IDF_max | 0.3036 | −0.008 | 0.3408 | +0.024 | 0.3036 | +0.006 |
 | | IDF_sum | 0.3039 | +0.057 | 0.3400 | +0.044 | 0.3036 | +0.009 |
@@ -38,7 +38,7 @@ confidence score is expected: a confident cheap channel means less to gain from 
 | | σ_max | 0.3168 | −0.196 | 0.3507 | −0.144 | 0.3036 | −0.149 |
 | | σ_x0.5 | 0.3152 | −0.182 | 0.3446 | −0.122 | 0.3036 | −0.100 |
 | | max | 0.3070 | −0.124 | 0.3430 | −0.112 | 0.3036 | −0.087 |
-| Post-retrieval | clarity | n/a | — | n/a | — | n/a | — |
+| Post-retrieval | clarity | n/a | -- | n/a | -- | n/a | -- |
 | (needs doc text) | QSD_post | 0.3104 | +0.122 | 0.3486 | +0.142 | 0.3014 | +0.100 |
 | | BERT-QPP (cross) | 0.3204 | +0.223 | **0.3560** | +0.210 | **0.3042** | +0.180 |
 | | BERT-QPP (bi) | 0.3006 | −0.017 | 0.3403 | −0.029 | 0.3028 | −0.015 |
@@ -54,7 +54,7 @@ finding, not permission to tune on evaluation labels.
 Every row is oriented on **event-grouped folds** (536 groups; see the leakage section below). The
 plain-KFold version of the same table is kept at `results/ablations/mv2_qpp_table.{md,json}`, the grouped
 one at `mv2_qpp_table_grouped.{md,json}`. The analytic predictors move by at most 0.002 nDCG between the
-two, and τ is computed on the raw predictor so it does not move at all — only the two predictors that
+two, and τ is computed on the raw predictor so it does not move at all; only the two predictors that
 learn from other queries' labels are affected.
 
 ## What the table says
@@ -65,7 +65,7 @@ diverges from Arabzadeh et al., who find cheap pre-retrieval predictors competit
 
 The rows above are computed against a single lexical index, over the ASR transcripts, which on its own
 cannot separate "no signal here" from "we only built one index". `mv2_qpp_prechannel.py` settles it by
-building an index per channel — transcripts, on-screen text, and the shipped captions as a text
+building an index per channel: transcripts, on-screen text, and the shipped captions as a text
 surrogate for the visual channel, which retrieves over frame embeddings and has no index of its own. The
 features do vary across the three (mean relative range 0.09 to 0.33), so the repair works as a repair,
 and it buys almost nothing: +0.43 ± 0.38 nDCG from the speech index alone, +0.86 ± 0.52 adding on-screen
@@ -175,7 +175,7 @@ measures duplicate detection.
 
 The scope of the correction is worth stating precisely, because it is narrower than it first looks. The
 six cells behind the heterogeneity law (MultiVENT v1, MSR-VTT) were checked with the same construction
-and every query there is already its own event group — 259/259 and 995/995, so GroupKFold reduces to
+and every query there is already its own event group (259/259 and 995/995), so GroupKFold reduces to
 KFold and those numbers stand unchanged (`src/evaluation/router_event_groups.py`). MultiVENT v1 gives
 each event ~9.24 relevant videos but only one query; MultiVENT 2.0 gives it several phrasings. The
 leakage is a property of that one benchmark's query construction, not of the routing method, and it is
@@ -196,7 +196,7 @@ fit on the training groups and the best fixed policy is chosen on them as well.
 The gap costs 9%, 6% and 2%, permutation p = .0005 in all three, and the qualitative claims are
 untouched: the selector still beats the best fixed policy by more than seven points on the headline
 cell, and it still resolves to a single channel for most queries (72% grouped against 71% before). The
-fold-to-fold spread roughly triples, which is what 536 groups instead of 2,546 queries buys — the honest
+fold-to-fold spread roughly triples, which is what 536 groups instead of 2,546 queries buys: the honest
 error bar is wider, and the effect clears it comfortably. Report the grouped numbers.
 
 ## BERT-QPP: calibration rescues the cross-encoder, not the bi-encoder
@@ -249,8 +249,8 @@ The post-retrieval half of QSD (Bigdeli et al., Eq. 8), implemented from the pap
 QPP-4-RAG repository ships only consumers of precomputed QSD outputs. A transformer reads the query,
 its k nearest *training* queries with their known escalation gains, and the caption of the query's
 top-1 visually retrieved document, and regresses the gain. The pooled representation is concatenated
-with four numeric features from the same neighbourhood — Eq. 5's inverse-distance interpolation, Eq. 7's
-uniform mean, the spread of the neighbour gains, and the mean cosine distance — before a linear head,
+with four numeric features from the same neighbourhood (Eq. 5's inverse-distance interpolation, Eq. 7's
+uniform mean, the spread of the neighbour gains, and the mean cosine distance) before a linear head,
 because serialising floats into the text alone would test wordpiece arithmetic rather than the method.
 
 Leakage discipline matters more for this row than for any other in the table, since the model is handed

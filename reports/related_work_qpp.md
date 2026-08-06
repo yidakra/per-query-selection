@@ -46,7 +46,7 @@ queries escalated is pinned at a corner in 20 of the 33 cells, exactly 0% in all
 and exactly 100% in six of eleven in ASR-dense. The score-only family is at a corner in 5 of 33 and
 otherwise varies query by query. Three of those five corners are BERT-QPP, whose predictions are all
 positive by a margin (minimum +0.38) so its zero-crossing is uninformative while its ordering is the
-strongest in the block — the sharpest illustration in our table of the distinction their two metric
+strongest in the block, the sharpest illustration in our table of the distinction their two metric
 families exist to draw.
 
 One pre-retrieval predictor escapes, and it is the exception that fixes the rule. QSD_pre embeds the
@@ -127,7 +127,7 @@ The two arms disagree. Isolating retrieval, the routed system reaches 0.5007 vit
 against 0.4648 for the best fixed policy (p = .037) and 0.3902 against 0.3432 on strict vital (p = .014),
 and the policy ordering under nugget coverage is the ordering under nDCG. Holding each policy to its own
 evidence, the same routed system reaches 0.4822 against 0.4746 (p = .67) and 0.3674 against 0.3473
-(p = .29) — indistinguishable, while still leading that policy by +7.4 nDCG.
+(p = .29): indistinguishable, while still leading that policy by +7.4 nDCG.
 
 The 7B assignment repeats the distinction: all-text vital coverage is 0.4781 against 0.4381
 (delta +0.0399, p=.038), while selected-channel coverage is 0.4583 against 0.4328
@@ -173,8 +173,8 @@ of other variants is exposed, and we can quantify the exposure because we have a
 ## Notes for revision (not for the paper)
 
 - Numbers for their side are from the v1 PDF, 24 Apr 2026. **Checked 2 Aug 2026: arXiv still shows only
-  v1**, so the numbers stand. But the paper is now published — SIGIR 2026, doi:10.1145/3805712.3808571,
-  *Proceedings of the 49th International ACM SIGIR Conference* — and the camera-ready is the version of
+  v1**, so the numbers stand. But the paper is now published (SIGIR 2026, doi:10.1145/3805712.3808571,
+  *Proceedings of the 49th International ACM SIGIR Conference*), and the camera-ready is the version of
   record. Cite the ACM version, not the preprint. The ACM page is paywalled to us, so the arXiv v1 and
   the published version have **not** been diffed; if any of their numbers moved in camera-ready, ours
   would be quoting a superseded table. Get the published PDF before submission and re-check the figures
@@ -182,7 +182,7 @@ of other variants is exposed, and we can quantify the exposure because we have a
 - The QSD citation was wrong and is fixed: the title is *Query Performance Prediction Using Neural Query
   Space Proximity* (not "Estimating..."), ACM TIST, doi:10.1145/3762197. Worth knowing that **Negar
   Arabzadeh is an author of both** that paper and the variant-selection paper we bound, so QSD_pre and
-  QSD_post are not a neutral third-party baseline — they are the same group's method, which makes the
+  QSD_post are not a neutral third-party baseline; they are the same group's method, which makes the
   QSD_post result a stronger rather than weaker thing to report.
 - Do NOT write that we beat classical QPP. With formulas pinned to their repo and folds grouped by
   event, NQC edges our router on the binary decision (0.3205 vs 0.3193 shipped, 0.3541 vs 0.3531 dense,
@@ -221,8 +221,8 @@ of other variants is exposed, and we can quantify the exposure because we have a
   a deployable operating point, demonstrated by the cross-encoder changing from always-fuse to the
   strongest learned baseline under inner-fold calibration. Do not reinstate the anti-correlation claim.
 - The corpus-axis experiments (1 Aug 2026) are a negative result and belong in the paper as one. In
-  sample they look outstanding — 100.0% of the ASR-dense gain at 38% of the corpus, an oracle document
-  set beating full extraction by +0.069 — and every bit of it is selection-on-test. Train and held-out
+  sample they look outstanding (100.0% of the ASR-dense gain at 38% of the corpus, an oracle document
+  set beating full extraction by +0.069), and every bit of it is selection-on-test. Train and held-out
   carrier sets overlap by zero documents in 15 of 15 folds. This is the tier-C failure mode again, and
   the reason to publish it is that the in-sample number is exactly what a less careful paper would have
   reported. What survives: the depth rule at 38% of corpus for 58% of the gain, +0.026 over random.

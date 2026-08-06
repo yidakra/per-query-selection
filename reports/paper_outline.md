@@ -1,4 +1,4 @@
-# ECIR 2027 full paper — outline and evidence map
+# ECIR 2027 full paper: outline and evidence map
 
 **Story: B with A as the engine** (agreed 31 Jul 2026). The claim is a boundary condition on
 QPP-for-selection. Per-query channel routing is the positive control that makes the boundary
@@ -31,10 +31,10 @@ artifact story before writing rather than after.
 
 **Appendices counting toward the 12 pages** removes the obvious parking space. The full RQ2 table is 33
 rows × 4 metrics × 3 cells and cannot be a free appendix; it has to be either cut down for the body or
-held for a companion artifact. The one-pager's approach — full rows and all four metrics for one cell,
-the other two summarised — is the version that fits.
+held for a companion artifact. The one-pager's approach (full rows and all four metrics for one cell,
+the other two summarised) is the version that fits.
 
-Authorship with the JHU collaborators unsettled and now more consequential — see open items. Under a
+Authorship with the JHU collaborators unsettled and now more consequential; see open items. Under a
 21 Sep abstract deadline this is the item with the least slack, since an author list is required before
 there is a paper.
 
@@ -56,7 +56,7 @@ This is the part to agree before any prose gets written, because everything else
 >
 > The reason is structural. Variant selection compares competing texts, and how a text sits against a
 > collection is exactly what corpus statistics measure. Source selection compares channels whose
-> applicability is a property of the *document* — a silent clip has no speech to transcribe — and no
+> applicability is a property of the *document* (a silent clip has no speech to transcribe), and no
 > query-side statistic can see that.
 
 Three sentences, three sections. If the reader takes only the middle one they have story A, which is
@@ -80,12 +80,12 @@ system claim does not. That was the reason for choosing B.
 
 ## Section plan (~6,300 words body)
 
-### 1. Introduction — 900 w
+### 1. Introduction (900 w)
 
 1. QPP has been recast from *how hard is this query* to *which candidate should I run*, and it works:
    cheap pre-retrieval predictors are competitive at picking among LLM query variants.
 2. The natural next question is what else that selects. Retrieval systems choose among more than
-   rewritings — in multimodal video retrieval they choose among evidence channels on every query.
+   rewritings; in multimodal video retrieval they choose among evidence channels on every query.
 3. We run the same predictor families, implemented to the same reference definitions, on that choice.
    The result inverts: corpus-statistic prediction collapses, score-only post-retrieval carries it.
 4. State the spine (above) in three sentences. This is the introduction's real work.
@@ -103,7 +103,7 @@ system claim does not. That was the reason for choosing B.
 
 Do not open with fused weighting. That was story A's opening.
 
-### 2. Related work — 800 w
+### 2. Related work (800 w)
 
 - **QPP as selection.** Arabzadeh et al. in full and fairly: 30 variants per need, 56 TREC-RAG topics,
   8 pre-retrieval + 12 post-retrieval predictors, IDF_max lifting nugget quality 0.273 → 0.398 ahead of
@@ -114,18 +114,18 @@ Do not open with fused weighting. That was story A's opening.
   consistently best."
 - **QPP-GenRE** as the accuracy-first alternative and its cost.
 - **Multimodal video retrieval**, briefly. MultiVENT 2.0, MMMORRF, OmniEmbed. Under story B this is
-  setting, not competition — say what the channels are and move on. Two or three sentences, not a
+  setting, not competition: say what the channels are and move on. Two or three sentences, not a
   paragraph defending our numbers.
 
-### 3. Two instantiations of one selection problem — 600 w
+### 3. Two instantiations of one selection problem (600 w)
 
 The section that makes the comparison legitimate. Define selection abstractly: a set of options, a
-predictor scoring each, a decision rule. Instantiate twice — options as query variants over one corpus,
-options as evidence channels over one query — and name precisely what differs: **the option set varies
+predictor scoring each, a decision rule. Instantiate twice (options as query variants over one corpus,
+options as evidence channels over one query) and name precisely what differs: **the option set varies
 on the query side in one and on the document side in the other.** Everything in §5.3 is a consequence
 of that sentence, so it is worth its own section rather than a paragraph in the method.
 
-### 4. Setup and method — 900 w
+### 4. Setup and method (900 w)
 
 - Channels and the 7-policy space; weighted RRF, k = 60. Table 1: per-channel nDCG@10.
 - Predictors evaluated: 11 corpus-statistic pre-retrieval, 10 score-only post-retrieval, plus supervised
@@ -144,11 +144,11 @@ of that sentence, so it is worth its own section rather than a paragraph in the 
 
 ### 5. Results
 
-#### 5.1 Corpus statistics do not select sources — 700 w
+#### 5.1 Corpus statistics do not select sources (700 w)
 
 The null, then the repair, then the null again, then the exception. Eleven predictors at τ ≈ 0, routing
 within 0.0005 of doing nothing. The obvious objection is that we built one index over transcripts, so every predictor returned
-one number per query regardless of channel. So: an index per channel — transcripts, on-screen text, and
+one number per query regardless of channel. So: an index per channel, meaning transcripts, on-screen text, and
 the shipped captions as a **text surrogate** for the visual channel, which has no term index of its own.
 Features do vary across the three (mean relative range 0.09 to 0.33), so the repair is a real repair.
 It buys +0.43 ± 0.38 / +0.86 ± 0.52 / +0.81 ± 0.57, none distinguishable from routing nothing, and
@@ -162,13 +162,13 @@ confidence interval that excludes anything of practical size. This is a bounded 
 
 Then QSD_pre, which is the section's best paragraph. Under nested calibration it clearly beats fixed in
 the two speech cells and is effectively tied in OCR (0.3102 / 0.3469 / 0.3037), because it reads no
-corpus index at all — only the historical queries nearest this one, and their known effectiveness. So
+corpus index at all: only the historical queries nearest this one, and their known effectiveness. So
 the boundary is not the category label the literature organises by; it is document-side language
 statistics. QSD still trails NQC and the control, and 52% of what it has is duplicate detection (§5.5),
 so it sharpens the claim without denting it. The matched five-epoch QSD_post comparison is mixed, ruling
 out consistent benefit or harm from adding document text.
 
-#### 5.2 The choice is predictable, from the other family — 700 w
+#### 5.2 The choice is predictable, from the other family (700 w)
 
 The positive control. Table 2: visual .3036 / best uniform fusion .3408 / pairwise routing .3531 /
 k-way selection **.4131**. Nested gap +7.59 ± 1.01, p = .0005; +5.64 ± 0.93 on shipped channels. 72%
@@ -176,8 +176,8 @@ single-channel picks. Score-only post-retrieval reaches |τ| ≈ 0.21 where pre-
 
 Include the reading against us, and under story B it costs less than it did: **NQC ties or beats our
 router on the binary escalate-or-not decision** (.3193 vs .3205). That is fine here. The paper's claim
-is about which *family* transfers, and NQC is in the family that does. The k-way point stays — a scalar
-cannot express a k-way policy — but it is no longer load-bearing.
+is about which *family* transfers, and NQC is in the family that does. The k-way point stays (a scalar
+cannot express a k-way policy) but it is no longer load-bearing.
 
 Then the calibration correction. Three-epoch BERT-QPP cross has τ +.223 / +.210 / +.180 but still
 fuses everything at its raw zero crossing. Fractions chosen on group-disjoint inner folds route to
@@ -185,7 +185,7 @@ fuses everything at its raw zero crossing. Fractions chosen on group-disjoint in
 rows weakens τ-versus-utility from −.213 to −.099 (p=.213), so the headline is calibration, not
 anti-correlation.
 
-#### 5.3 Why the family flips — 600 w
+#### 5.3 Why the family flips (600 w)
 
 The structural argument from §3, now with evidence:
 1. Channel applicability is a document property. A silent clip has no speech. In variant selection
@@ -194,10 +194,10 @@ The structural argument from §3, now with evidence:
 3. The limit case: Clarity needs a language model over retrieved documents. Over frames it is
    **undefined, not weak**, and we report it unavailable rather than substituting a number.
 
-#### 5.4 Does the boundary matter downstream? — 500 w
+#### 5.4 Does the boundary matter downstream? (500 w)
 
-Their utility gap says ranking and answer quality come apart, and NQC — the predictor that edges us on
-the binary cell — correlates −0.038 with answer quality against 0.329 with nDCG in their setting.
+Their utility gap says ranking and answer quality come apart, and NQC, the predictor that edges us on
+the binary cell, correlates −0.038 with answer quality against 0.329 with nDCG in their setting.
 
 We measured it three ways and it appears in two of them.
 
@@ -224,7 +224,7 @@ asymmetry is real, but what produced the divergence is narrower evidence per que
 channel's illegibility, and we only found that by running both arms. Whether the NQC inversion holds
 across modalities is then an open question we can pose but not settle.
 
-#### 5.5 Robustness of the boundary — 400 w
+#### 5.5 Robustness of the boundary (400 w)
 
 - The null is not an artefact of weak channels: improving speech by translation raises the $k$-way
   routed gap, +7.59 → +8.01 ± 1.01. In the matched binary cell 3/11 corpus-statistic rows make small
@@ -236,14 +236,14 @@ across modalities is then an open question we can pose but not settle.
   −29% under event grouping); predictors reading only the current query's scores lose ≤ 2%. Their
   30-variants-per-need design shares relevant documents by construction, so this applies to them too.
 
-### 6. Discussion and limitations — 500 w
+### 6. Discussion and limitations (500 w)
 
-The caption surrogate. Judge sensitivity for §5.4. Absolute nDCG below MMMORRF and OmniEmbed — which
+The caption surrogate. Judge sensitivity for §5.4. Absolute nDCG below MMMORRF and OmniEmbed, which
 under story B is a statement about setting, not a weakness in the claim, and should be phrased that
 way. MSR-VTT supplies a within-video second collection, but the remaining generalisation question is
 whether the boundary holds for non-video multi-source retrieval or is about modality specifically.
 
-### 7. Conclusion — 250 w
+### 7. Conclusion (250 w)
 
 The transferable finding: the predictor family that works depends on what the choice is *over*.
 Options that differ on the query side are visible to query-collection statistics; options that differ on
@@ -311,7 +311,7 @@ from the original Q2E cost model.
 
 | # | Content | Status |
 |---|---|---|
-| 1 | The two instantiations of §3 — variant selection vs source selection, side by side | to draw; this is the paper's picture |
+| 1 | The two instantiations of §3: variant selection vs source selection, side by side | to draw; this is the paper's picture |
 | 2 | Predictor family × routed nDCG: pre-retrieval clustered at zero, post-retrieval spread, control at +7.59 | data exists |
 | 3 | *(optional)* per-channel pre-retrieval feature variation, to show the repair is real | data exists |
 

@@ -1,14 +1,14 @@
-# Adaptive Q2E — one-pager
+# Adaptive Q2E one-pager
 
 Standard practice in IR is to let a query performance predictor decide how much machinery a query gets.
 Arabzadeh et al. (arXiv:2604.22661) do exactly this to pick among LLM query variants, and it works. We
 ask whether it survives when the choice is *which channel to search* in a video corpus: speech,
-on-screen text, or the frames themselves. The choice is worth making — a selector over the channels' own
-score distributions beats the best fixed policy by +7.59 nDCG — but the standard corpus-statistic
+on-screen text, or the frames themselves. The choice is worth making (a selector over the channels' own
+score distributions beats the best fixed policy by +7.59 nDCG), but the standard corpus-statistic
 family does not see it reliably. Eleven such predictors sit flat in the three reference cells, Clarity
 is undefined over frames rather than merely
 weak, and the one pre-retrieval predictor that escapes needs no index at all. So the boundary is not pre-
-versus post-retrieval, it is whether a predictor depends on document-side language statistics — and in a
+versus post-retrieval, it is whether a predictor depends on document-side language statistics, and in a
 corpus where 10% of videos carry no text, that dependence is not a detail. Rank correlation, meanwhile,
 does not specify a decision threshold: nested calibration changes BERT-QPP's cross-encoder from an
 always-fuse failure to the strongest learned QPP baseline and removes the apparent overall
@@ -25,7 +25,7 @@ Predictor definitions follow `github.com/Narabzad/QPP-4-RAG`.
 
 ---
 
-## RQ1 — Does QPP-based selection transfer from query variants to evidence sources?
+## RQ1. Does QPP-based selection transfer from query variants to evidence sources?
 
 **No, for the corpus-statistic family.** Arabzadeh et al. (arXiv:2604.22661) show cheap pre-retrieval
 predictors picking well among 30 LLM query variants, ahead of NQC. Run the same families against the same
@@ -33,7 +33,7 @@ reference definitions on a choice among evidence channels and all eleven land at
 0.0005 nDCG of doing nothing in each of the three reference cells.
 
 The obvious objection is that one index over transcripts gives every predictor one number per query
-regardless of channel. So we built an index per channel — transcripts, on-screen text, and the shipped
+regardless of channel. So we built an index per channel: transcripts, on-screen text, and the shipped
 captions as a text surrogate for the visual channel, which has none of its own. Features do vary across
 the three (mean relative range 0.09–0.33). The repair buys +0.43 ± 0.38, +0.86 ± 0.52 and +0.81 ± 0.57;
 stacked on the score features it gives +7.56 ± 0.89, which is the score-feature baseline back again. We
@@ -55,19 +55,19 @@ of every retrieval-score predictor.
 
 ---
 
-## RQ2 — How do the standard QPP predictors compare when used as routers?
+## RQ2. How do the standard QPP predictors compare when used as routers?
 
 Laid out like Arabzadeh et al.'s Table 1 so the two read side by side: <u>underline</u> beats the
 Original row, **bold** is best in section. Their Original is the unmodified query, so ours is the best
-fixed policy — the default when you do no selection. **ASR-dense cell** below, the one where the
+fixed policy, the default when you do no selection. **ASR-dense cell** below, the one where the
 expensive channel pays; all three cells and the full artifact in
 `results/ablations/mv2_table1_nested_grouped.md`.
 
 | Category | Method | nDCG@10 | τ | R@100 | N_all | N_strict |
 |---|---|---|---|---|---|---|
-| Original | best fixed policy (no selection) | 0.3408 | — | 0.7268 | 0.3672 | 0.2621 |
-| | visual only | 0.3036 | — | 0.6027 | 0.3235 | 0.2256 |
-| | uniform fusion (best w) | 0.3408 | — | 0.7268 | 0.3672 | 0.2621 |
+| Original | best fixed policy (no selection) | 0.3408 | -- | 0.7268 | 0.3672 | 0.2621 |
+| | visual only | 0.3036 | -- | 0.6027 | 0.3235 | 0.2256 |
+| | uniform fusion (best w) | 0.3408 | -- | 0.7268 | 0.3672 | 0.2621 |
 | Pre-retrieval | IDF_avg | 0.3408 | −0.008 | 0.7268 | 0.3672 | 0.2621 |
 | | IDF_max | 0.3408 | +0.024 | 0.7268 | 0.3672 | 0.2621 |
 | | IDF_sum | 0.3400 | +0.044 | 0.7258 | 0.3682 | 0.2622 |
@@ -80,9 +80,9 @@ expensive channel pays; all three cells and the full artifact in
 | | SCS_full | 0.3408 | −0.016 | 0.7268 | 0.3672 | 0.2621 |
 | | QL | 0.3408 | +0.052 | 0.7268 | 0.3678 | 0.2625 |
 | | **QSD_pre** | **<u>0.3469</u>** | +0.152 | 0.7112 | 0.3630 | 0.2559 |
-| | DM | *n.i.* | — | — | — | — |
+| | DM | *n.i.* | -- | -- | -- | -- |
 | Post-retrieval | RSD | 0.3388 | −0.069 | 0.7202 | 0.3660 | 0.2611 |
-| | clarity | n/a | — | — | — | — |
+| | clarity | n/a | -- | -- | -- | -- |
 | | NQC | <u>0.3527</u> | −0.163 | 0.7198 | 0.3669 | 0.2630 |
 | | NQC_norm | <u>0.3541</u> | −0.154 | 0.7169 | 0.3716 | 0.2671 |
 | | σ_max | <u>0.3507</u> | −0.144 | 0.7223 | 0.3676 | 0.2640 |
@@ -107,7 +107,7 @@ separate experiment behind the +7.59 in RQ1 and is not a row here.
 
 **Across all three cells, the corpus-statistic block has 0 underlined cells out of 33; the score-only
 block has 16 out of 30.** The underline threshold is not doing the work: the largest margin anywhere in
-those 33 cells is **+0.0003**. The escalation fractions put it more bluntly — a corpus-statistic
+those 33 cells is **+0.0003**. The escalation fractions put it more bluntly: a corpus-statistic
 predictor here does not choose badly, it does not choose. In the OCR cell all eleven escalate exactly 0%
 of queries; in ASR-dense six of eleven escalate exactly 100%. Counting only exact 0 or exact 1, **20 of
 33 corpus-statistic cells are degenerate against 2 of 30 score-only cells**.
@@ -127,7 +127,7 @@ routes 52.4% / 65.2% / 12.0% instead and reaches 0.3204 / 0.3560 / 0.3042. It ne
 post-retrieval row in shipped speech and is best in dense speech and OCR. On the judged subset its
 N_all also beats both fixed endpoints in the two speech cells.
 
-The bi-encoder — the cheaper, deployable one, whose document side encodes offline — cannot order at all
+The bi-encoder, the cheaper and deployable one whose document side encodes offline, cannot order at all
 even after the same treatment: τ −0.017 / −0.029 / −0.015 and routed nDCG 0.3006 / 0.3403 / 0.3028,
 below fixed everywhere. Calibration can locate an operating point in a useful ordering; it cannot create
 one.
@@ -140,21 +140,21 @@ selector also needs leakage-free operating-point calibration.
 
 ---
 
-## RQ4 — What makes the multimodal case different?
+## RQ4. What makes the multimodal case different?
 
 This is the differentiator, and it is measurable rather than rhetorical. Classical pre-retrieval QPP is
 built on tf-idf-style corpus statistics. Our documents are video: there is no lexical index over frames,
 and the text channels are noisy, multilingual, and **often absent**. Of the 109,724 test videos,
 **10,919 (10.0%) yield no on-screen text at all** and 236 (0.2%) yield no speech.
 
-For those videos a channel does not underperform — it does not exist. Modality *applicability* is a
+For those videos a channel does not underperform; it does not exist. Modality *applicability* is a
 property of the document, and no query-side statistic can see it. Text retrieval has no analogue: every
 document in a text collection has terms, so the question of whether a modality is available never
 arises. Clarity is the limit case: it needs a language model over the retrieved documents, so over frames
 it is undefined rather than weak, and we report it unavailable rather than substituting a number that
 looks like one.
 
-*(RQ3 is the efficiency material — measured joules, p99 latency, risk-coverage. Scoped to a second paper;
+*(RQ3 is the efficiency material: measured joules, p99 latency, risk-coverage. Scoped to a second paper;
 see `paper2_scope.md`.)*
 
 ---
@@ -163,12 +163,12 @@ see `paper2_scope.md`.)*
 
 Our channels are deliberately cheap, so absolute numbers sit below MMMORRF (0.586) and OmniEmbed (0.753).
 Under this story that is setting rather than weakness: a boundary condition on someone else's result does
-not need our retrieval to be competitive. We do not claim to beat classical QPP — NQC ties or edges our
+not need our retrieval to be competitive. We do not claim to beat classical QPP: NQC ties or edges our
 router on the binary decision, and since NQC is in the family that transfers, that corroborates the
 claim. Ceilings get audited: picking each query's best policy on half its golds and grading on the other
 half wipes out 15 of the oracle's 16 points, so we report no "% of oracle captured" anywhere.
 
-**Open:** the QPP-4-RAG suite is complete — every predictor named, BERT-QPP in both flavours, both halves
+**Open:** the QPP-4-RAG suite is complete, with every predictor named, BERT-QPP in both flavours, both halves
 of QSD. The one row we cannot fill is DM, which appears in their Table 1, nowhere in their repository,
 and whose row equals their Original row in all eight columns. That is a question for the authors rather
 than a gap in our implementation.
