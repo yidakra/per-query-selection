@@ -46,15 +46,15 @@ confidence score is expected: a confident cheap channel means less to gain from 
 | Oracle | route by true gain | 0.3653 | +1.000 | 0.3910 | +1.000 | 0.3305 | +1.000 |
 
 The analytic rows use their out-of-fold zero crossing. QSD and BERT-QPP use a fraction chosen strictly
-inside the outer training fold; the earlier best-swept test fractions remain below only as a diagnostic
+inside the outer training fold. The earlier best-swept test fractions remain below only as a diagnostic
 and are not comparable. Raw zero-crossing scores are also retained: the cross-encoder fuses every query
 and lands at 0.2795 / 0.3408 / 0.2445. The difference between raw and nested results is the calibration
 finding, not permission to tune on evaluation labels.
 
-Every row is oriented on **event-grouped folds** (536 groups; see the leakage section below). The
+Every row is oriented on **event-grouped folds** (536 groups, see the leakage section below). The
 plain-KFold version of the same table is kept at `results/ablations/mv2_qpp_table.{md,json}`, the grouped
 one at `mv2_qpp_table_grouped.{md,json}`. The analytic predictors move by at most 0.002 nDCG between the
-two, and τ is computed on the raw predictor so it does not move at all; only the two predictors that
+two, and τ is computed on the raw predictor so it does not move at all. Only the two predictors that
 learn from other queries' labels are affected.
 
 ## What the table says
@@ -74,7 +74,7 @@ distributions on the same event-grouped folds. Stacked on top of those score fea
 +7.56 ± 0.89, which is the baseline unchanged.
 
 So the null is not an indexing artifact. Corpus term statistics describe how hard a query looks against a
-collection; which *evidence source* will answer it is not a property of the query's vocabulary. Variant
+collection. Which *evidence source* will answer it is not a property of the query's vocabulary. Variant
 selection differs in exactly the way that matters, since there the options are competing texts and how a
 text sits against the collection is what these predictors were built to measure. See RQ4.
 
@@ -113,12 +113,12 @@ Two rows carry something other than a number, with reasons rather than blanks:
 - **Clarity** is structurally unavailable for a visual channel, as above. Marked n/a rather than scored,
   because a number would imply the comparison was possible.
 - **DM** appears in their Table 1, nowhere in the reference repository, and its row is numerically
-  identical to their Original row in all eight columns. Left unresolved rather than guessed at; a
+  identical to their Original row in all eight columns. Left unresolved rather than guessed at: a
   question for the authors, not a gap in this implementation.
 
 QSD_post is trained for five epochs and both BERT-QPP variants for three on bert-base with AMP on the
 same GPU. More importantly, all use identical event-grouped outer folds and group-disjoint nested
-operating-point selection. Those budgets bound what the models demonstrate; larger models remain open.
+operating-point selection. Those budgets bound what the models demonstrate. Larger models remain open.
 
 ## QSD-QPP and duplicate-topic leakage
 
@@ -224,17 +224,17 @@ The calibration set and test set share no event groups, and no outer-test label 
 
 This nearly ties NQC on shipped speech and beats NQC_norm and our control on dense speech. It also clears
 the OCR underline margin by 0.0006. The earlier held-out sweep (0.3239 / 0.3583 / 0.3045) remains an
-optimistic ordering ceiling, not a reported decision; the nested scores are lower, as they should be.
+optimistic ordering ceiling, not a reported decision. The nested scores are lower, as they should be.
 The old “best correlation, worst decision” claim was therefore a calibration artefact.
 
 **The bi-encoder still fails.** It is the cheaper variant because documents encode offline. With shared
 weights, mean pooling, dot product, MSE, the same epochs and the same nested protocol, it reaches τ
 −0.017 / −0.029 / −0.015 and routes to 0.3006 / 0.3403 / 0.3028. The chosen fractions are 16.0%, 99.2%
-and 0.8%; all three scores remain below fixed. Calibration can locate a decision boundary in a useful
+and 0.8%. All three scores remain below fixed. Calibration can locate a decision boundary in a useful
 ordering, but it cannot create an ordering.
 
-These runs use bert-base and AMP on one NVIDIA A2. Larger backbones or budgets could change either row;
-the present conclusion is about these specified builds. Stored predictions are finite, decision bits
+These runs use bert-base and AMP on one NVIDIA A2. Larger backbones or budgets could change either row.
+The present conclusion is about these specified builds. Stored predictions are finite, decision bits
 reproduce routed nDCG and Recall@100 exactly, and every fit/calibration/test partition is event-disjoint
 (`mv2_bertqpp_cross_3ep_nested_grouped.json`, `mv2_bertqpp_bi_3ep_nested_grouped.json`).
 
@@ -256,7 +256,7 @@ because serialising floats into the text alone would test wordpiece arithmetic r
 Leakage discipline matters more for this row than for any other in the table, since the model is handed
 other queries' labels and can memorise them. Neighbours come only from the training fold, a training
 query never retrieves itself, and folds are grouped by event. QSD_pre loses 52% of its τ to that
-correction; QSD_post has strictly more to lose.
+correction. QSD_post has strictly more to lose.
 
 | | ASR-shipped | ASR-dense | OCR |
 |---|---|---|---|
@@ -266,7 +266,7 @@ correction; QSD_post has strictly more to lose.
 | post − pre nDCG / τ | +0.0001 / −0.042 | +0.0017 / −0.010 | −0.0023 / +0.005 |
 
 The first one-epoch, zero-crossing run put QSD_post below QSD_pre on both metrics in all three cells.
-That result is not robust. Under five epochs and matched nested calibration, QSD_post is effectively tied
+That result does not survive a stronger protocol. Under five epochs and matched nested calibration, QSD_post is effectively tied
 in shipped speech, modestly better in dense speech and worse in OCR. Its ordering is worse in two cells
 and slightly better in one. Adding retrieved document text therefore provides **no consistent benefit or
 harm** over historical-query interpolation.

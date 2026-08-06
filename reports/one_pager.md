@@ -17,7 +17,7 @@ anti-correlation between τ and utility.
 **Claim.** QPP-based selection has a boundary: the reference corpus-statistic family does not provide
 a reliable *evidence-source* selector, while signals that read option outcomes from retrieval transfer
 much more reliably. The pre/post-retrieval split the literature organises by is a proxy for that, and
-it is the wrong proxy here. The boundary is measured at the family level; nothing here proves that a
+it is the wrong proxy here. The boundary is measured at the family level. Nothing here proves that a
 query--collection statistic can never help.
 
 MultiVENT 2.0 test, 2,546 queries, graded multi-gold judgments, folds grouped by event (536 groups).
@@ -35,13 +35,13 @@ reference definitions on a choice among evidence channels and all eleven land at
 The obvious objection is that one index over transcripts gives every predictor one number per query
 regardless of channel. So we built an index per channel: transcripts, on-screen text, and the shipped
 captions as a text surrogate for the visual channel, which has none of its own. Features do vary across
-the three (mean relative range 0.09–0.33). The repair buys +0.43 ± 0.38, +0.86 ± 0.52 and +0.81 ± 0.57;
-stacked on the score features it gives +7.56 ± 0.89, which is the score-feature baseline back again. We
+the three (mean relative range 0.09–0.33). The repair buys +0.43 ± 0.38, +0.86 ± 0.52 and +0.81 ± 0.57.
+Stacked on the score features it gives +7.56 ± 0.89, which is the score-feature baseline back again. We
 handed pre-retrieval QPP a proxy it does not normally get and it still did not help.
 
 **The choice itself is predictable.** A selector over the channels' own score distributions beats the
 best fixed policy chosen on the training fold by **+7.59 ± 1.01 nDCG** (permutation p = .0005). The
-failure above therefore sits with the predictor family; the task gives a learner plenty to find. We
+failure above therefore sits with the predictor family. The task gives a learner plenty to find. We
 treat this selector as the positive control, and the paper's claim is about which predictors can read
 the signal it proves exists.
 
@@ -51,7 +51,7 @@ only to 0.3468--0.3472, against 8 of 10 score-only rows and 0.3920 for the contr
 across direct visual-versus-caption choice and visual-to-fusion escalation under two encoders and two
 evidence conditions, the corpus-statistic family is 0/88. The direct choice has 5.57--10.37 nDCG of
 oracle headroom and the control beats fixed in all four conditions. Score-only transfer on that second
-collection is mixed, so the claim that survives both checks is the corpus-statistic boundary; the
+collection is mixed, so the claim that survives both checks is the corpus-statistic boundary. The
 score-only family earns no universal guarantee from us.
 
 ---
@@ -61,7 +61,7 @@ score-only family earns no universal guarantee from us.
 Laid out like Arabzadeh et al.'s Table 1 so the two read side by side: <u>underline</u> beats the
 Original row, **bold** is best in section. Their Original is the unmodified query, so ours is the best
 fixed policy, the default when you do no selection. **ASR-dense cell** below, the one where the
-expensive channel pays; all three cells and the full artifact in
+expensive channel pays. All three cells and the full artifact are in
 `results/ablations/mv2_table1_nested_grouped.md`.
 
 | Category | Method | nDCG@10 | τ | R@100 | N_all | N_strict |
@@ -100,11 +100,11 @@ expensive channel pays; all three cells and the full artifact in
 | Oracle | route by true gain | <u>0.3910</u> | +1.000 | 0.6286 | 0.3861 | 0.2841 |
 
 *n.i.* = no equivalent predictor implemented; `n/a` = undefined over frames. Analytic predictors use
-their out-of-fold gain crossing; QSD and BERT-QPP use an escalation fraction chosen on a group-disjoint
+their out-of-fold gain crossing. QSD and BERT-QPP use an escalation fraction chosen on a group-disjoint
 subset of each outer training fold and fixed before outer-test prediction. Underline follows their
 rule, a margin above 5 × 10⁻⁴ over the Original row. The Ours row is a binary escalate-or-not decision,
-which is the only decision this cell offers; the k-way selector over all 7 channel subsets is the
-separate experiment behind the +7.59 in RQ1 and is not a row here.
+the only decision this cell offers. The k-way selector over all 7 channel subsets is the separate
+experiment behind the +7.59 in RQ1 and is not a row here.
 
 **Across all three cells, the corpus-statistic block has 0 underlined cells out of 33; the score-only
 block has 16 out of 30.** The underline threshold is not doing the work: the largest margin anywhere in
@@ -116,12 +116,12 @@ exact 1, **20 of 33 corpus-statistic cells are degenerate against 2 of 30 score-
 **The stronger, matched QSD comparison is mixed.** QSD_post reads the query, neighbouring queries and
 their gains, and retrieved document text. After five epochs and group-disjoint nested calibration, it is
 effectively tied with equally calibrated QSD_pre in shipped speech (+0.0001 nDCG), modestly better in
-dense speech (+0.0017), and worse in OCR (−0.0023); τ changes −0.042 / −0.010 / +0.005. The earlier
+dense speech (+0.0017), and worse in OCR (−0.0023). τ changes −0.042 / −0.010 / +0.005. The earlier
 one-epoch claim that adding documents makes QSD worse did not survive this. The supported conclusion is
 narrower: document evidence does not produce a consistent benefit, so it does not rescue the family
 comparison, but this experiment no longer positively locates the boundary by itself.
 
-**Correlation is not a decision rule; calibration changes the conclusion.** The three-epoch BERT-QPP
+**Correlation is not a decision rule, and calibration changes the conclusion.** The three-epoch BERT-QPP
 cross-encoder orders well (τ +0.223 / +0.210 / +0.180), but its predictions remain all positive and its
 raw zero crossing fuses every query. Choosing its escalation fraction on group-disjoint inner folds
 routes 52.4% / 65.2% / 12.0% instead and reaches 0.3204 / 0.3560 / 0.3042. It nearly ties the best
@@ -134,7 +134,7 @@ below fixed everywhere. Calibration can locate an operating point in a useful or
 one.
 
 Replacing every learned row with its nested-calibration decision weakens Kendall τ against utility over
-the best fixed policy from −0.213 to **−0.099** over 78 rows (p = 0.213); against cheap-only it is −0.046
+the best fixed policy from −0.213 to **−0.099** over 78 rows (p = 0.213). Against cheap-only it is −0.046
 (p = 0.558). Restricted populations remain modestly negative, but the overall anti-correlation headline
 was a calibration artefact. The supported lesson is that τ scores an ordering while a deployable
 selector also needs leakage-free operating-point calibration.
@@ -154,7 +154,7 @@ question: every document in a text collection has terms, so a modality is always
 the limit case. It needs a language model over the retrieved documents, so over frames it has no
 definition at all, and we report it unavailable instead of substituting a number that looks like one.
 
-*(RQ3 is the efficiency material: measured joules, p99 latency, risk-coverage. Scoped to a second paper;
+*(RQ3 is the efficiency material: measured joules, p99 latency, risk-coverage. Scoped to a second paper,
 see `paper2_scope.md`.)*
 
 ---

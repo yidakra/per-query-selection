@@ -59,7 +59,7 @@ split, but it is the kind of thing a PC checks, so:
 ## What paper 2 still needs
 
 - **A coherent system boundary.** `efficiency_metrics.md` measures the MultiVENT 2.0 cascade; the six
-  heterogeneity cells are MultiVENT v1 and MSR-VTT under the original Q2E pipeline; the component
+  heterogeneity cells are MultiVENT v1 and MSR-VTT under the original Q2E pipeline, and the component
   energy model is the original pipeline too. Three systems in one argument. Either the paper is
   explicitly a cross-system study or the numbers need re-measuring on one.
 - **FLOPs in a hardware-independent unit**, index/memory footprint, and a QPS-vs-load curve. The
@@ -67,7 +67,7 @@ split, but it is the kind of thing a PC checks, so:
 - **A venue.** Undecided. The negative-result framing is a poor fit for a venue that wants systems
   wins, and a good fit for a reproducibility or evaluation track.
 - Tier A energy is a TDP estimate, not a measurement, since the host exposes no RAPL counters. Fine to
-  report as an order of magnitude; not fine as a headline number.
+  report as an order of magnitude, not fine as a headline number.
 
 ## Not yet decided
 

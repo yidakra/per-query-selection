@@ -16,8 +16,8 @@ side of the comparison peeks. Permutation p is the floor of 2000 shuffles in all
 | dense ASR (bge-m3) | asr+visual, 0.33715 | **0.41714** | **+8.09 ± 0.65** | .0005 |
 | dense ASR + dense OCR | asr+visual, 0.33715 | 0.41502 | +7.83 ± 1.01 | .0005 |
 
-These are the largest gaps in the project. The previous best was +3.07 (pairwise channel routing);
-the best fixed *or routed* number on these channels was 0.3545. The picks histogram is the telling
+These are the largest gaps in the project. The previous best was +3.07 (pairwise channel routing).
+The best fixed *or routed* number on these channels was 0.3545. The picks histogram is the telling
 part: in the dense cell the selector takes a single channel for 71% of queries (asr 986, visual 815)
 and the asr+visual fusion for 25% (644). Fusing everything everywhere is exactly what it learns not
 to do.
@@ -49,7 +49,7 @@ oracle's extra 10 points were never there. "% of oracle captured" stays retired.
 
 bge-m3 over the raw on-screen text scores 0.13295 against 0.1223 for the shipped CLIP-tower list.
 Compare ASR, where the same swap bought 4.7 points (0.2666 to 0.3134). The encoder-decides-everything
-story from the dense-ASR finding does not transfer; OCR text on this benchmark carries little signal
+story from the dense-ASR finding does not transfer. OCR text on this benchmark carries little signal
 however it is scored. Two small consolations. The dense scorer turns the visual→+OCR cell from
 "router declines at f=0.00" into a marginal purchase (+0.40 at f=0.50). And in the all-dense selection
 cell OCR-containing policies are picked for 352 queries. Neither moves the aggregate: adding dense OCR
@@ -62,7 +62,7 @@ Two questions a reviewer would ask, answered on both cells (`mv2_select_baseline
 afternoon baselines: pick the channel whose own confidence feature is highest, or pick a policy at
 random. Best heuristic (pick by z1): 0.2626 shipped, 0.3207 dense. Both lose to the best *fixed*
 policy, never mind the selector. Confidence features carry the signal only in combination and with
-training; no single-feature shortcut gets there.
+training. No single-feature shortcut gets there.
 
 Second, the model ablation, identical protocol throughout:
 
@@ -92,11 +92,11 @@ heterogeneous evidence, and these six cells say so with data rather than a cavea
 ## Scope and loose ends
 
 - Policies are unit-weight RRF subsets. Per-policy weight tuning would grow the policy set and
-  probably the gap; it also multiplies the ways to overfit, so it waits for a reason.
+  probably the gap. It also multiplies the ways to overfit, so it waits for a reason.
 - The features deliberately use every channel's score distribution. For channel selection that is
-  legal by design; it would not be legal for a cost cascade, where the expensive tier's scores do not
+  legal by design. It would not be legal for a cost cascade, where the expensive tier's scores do not
   exist before the decision.
-- A classification head (predict the argmax directly) and richer disagreement features are untried;
+- A classification head (predict the argmax directly) and richer disagreement features are untried.
   GBDT and MLP regressors are tried and lose to the ridge.
 - The selector's absolute numbers still sit on cheap channels. MMMORRF-class dense retrieval per
   channel plus this selector is the obvious composition, and nothing in the protocol changes.
