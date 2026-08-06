@@ -1,0 +1,101 @@
+{
+  "channels": {
+    "visual": "10pyscene_clip.json",
+    "asr": "asr_dense_bge-m3.json",
+    "ocr": "10pyscene_paddleOCR_clip.json"
+  },
+  "policies": [
+    "asr",
+    "ocr",
+    "visual",
+    "asr+ocr",
+    "asr+visual",
+    "ocr+visual",
+    "asr+ocr+visual"
+  ],
+  "n_queries": 2546,
+  "policy_means": {
+    "asr": 0.31380412182068373,
+    "ocr": 0.12226372458879763,
+    "visual": 0.30363779663917684,
+    "asr+ocr": 0.18786454164802405,
+    "asr+visual": 0.33715160205194816,
+    "ocr+visual": 0.18204096235955505,
+    "asr+ocr+visual": 0.27756175686195944
+  },
+  "best_fixed": "asr+visual",
+  "selected_oof": 0.41307220842657577,
+  "p_perm": 0.0004997501249375312,
+  "oracle_best_policy": 0.5180726523047243,
+  "nested_gap": 7.591914140522979,
+  "nested_sem": 1.0125261842769535,
+  "folds": [
+    {
+      "achieved": 0.43052007225682,
+      "fixed": 0.35087111876461813,
+      "fixed_policy": 4
+    },
+    {
+      "achieved": 0.3918658949447125,
+      "fixed": 0.2955981277564036,
+      "fixed_policy": 4
+    },
+    {
+      "achieved": 0.39897557589618665,
+      "fixed": 0.34594126356868043,
+      "fixed_policy": 4
+    },
+    {
+      "achieved": 0.44282933586764966,
+      "fixed": 0.3440761140552115,
+      "fixed_policy": 4
+    },
+    {
+      "achieved": 0.40113588445664533,
+      "fixed": 0.34924443225095153,
+      "fixed_policy": 4
+    }
+  ],
+  "group_cv": true,
+  "picks": {
+    "asr": 1011,
+    "ocr": 29,
+    "visual": 802,
+    "asr+ocr": 10,
+    "asr+visual": 619,
+    "ocr+visual": 35,
+    "asr+ocr+visual": 40
+  },
+  "feature_order": [
+    "asr:margin12",
+    "asr:margin13",
+    "asr:z1",
+    "asr:entropy",
+    "asr:maxp",
+    "asr:top5mass",
+    "asr:std",
+    "asr:top1",
+    "ocr:margin12",
+    "ocr:margin13",
+    "ocr:z1",
+    "ocr:entropy",
+    "ocr:maxp",
+    "ocr:top5mass",
+    "ocr:std",
+    "ocr:top1",
+    "visual:margin12",
+    "visual:margin13",
+    "visual:z1",
+    "visual:entropy",
+    "visual:maxp",
+    "visual:top5mass",
+    "visual:std",
+    "visual:top1",
+    "overlap10:asr+ocr",
+    "overlap100:asr+ocr",
+    "overlap10:asr+visual",
+    "overlap100:asr+visual",
+    "overlap10:ocr+visual",
+    "overlap100:ocr+visual"
+  ]
+}

@@ -5,7 +5,7 @@
   `whisper_server`, so all Q2E work runs on GPU1**), 16 vCPU, 31 GB RAM, ~480 GB disk.
 - No external API calls used (all models run locally or via released artifacts). **$0 API cost.**
 
-## What was actually run (Tier A — evaluation reproduction)
+## What was actually run (Tier A: evaluation reproduction)
 The paper's *generation* models (Llama-3.3-70B, InternVL2.5-38B; ~150 GB VRAM combined,
 served via vLLM on A100s) do **not** fit on an A2. We instead consumed the authors'
 released generation artifacts (HF datasets) and re-ran the *evaluation stack* locally:

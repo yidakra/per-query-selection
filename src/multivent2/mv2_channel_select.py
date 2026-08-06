@@ -75,12 +75,13 @@ def features(runs, qids):
     return np.array(rows), order
 
 
-def nested_selection(X, Y, model=mk):
+def nested_selection(X, Y, model=mk, splits=None):
     """Outer 5-fold: fit the selector on train, pick the best fixed policy on train, compare on test.
     Returns (gap mean, gap sem, per-fold detail)."""
-    outer = KFold(5, shuffle=True, random_state=1)
+    if splits is None:
+        splits = KFold(5, shuffle=True, random_state=1).split(X)
     gaps, folds = [], []
-    for tr, te in outer.split(X):
+    for tr, te in splits:
         m = model().fit(X[tr], Y[tr])
         sel = np.argmax(m.predict(X[te]), axis=1)
         achieved = Y[te, sel].mean()
@@ -122,17 +123,32 @@ def main():
     ap.add_argument("--channel", action="append", default=[], metavar="NAME=FILE",
                     help="add or override a channel, e.g. asr=asr_dense_bge-m3.json")
     ap.add_argument("--cell-tag", default="", help="suffix for the output JSON")
+    ap.add_argument("--group-cv", action="store_true",
+                    help="split by event group instead of by query. MultiVENT 2.0 carries several "
+                         "phrasings of the same event, so a plain split puts near-duplicates on both "
+                         "sides of the fold boundary and the selector can memorise event -> best policy")
     ap.add_argument("--out", default=None)
     a = ap.parse_args()
     out_path = a.out or os.path.join(ABL, f"mv2_channel_select{a.cell_tag}.json")
 
     channels, names, policies, qids, X, Y, feat_order = load_cell(a.channel)
     print(f"channels: {names}  queries: {len(qids)}")
+    if a.group_cv:
+        from sklearn.model_selection import GroupKFold
+        from mv2_qsd import event_groups
+        qrels, _ = load_qrels(os.path.join(DATA, "multivent_2_test_judgments.jsonl"))
+        grp = event_groups(qids, qrels)
+        print(f"grouped CV: {len(set(grp))} event groups over {len(qids)} queries")
+        cv_pool = list(GroupKFold(5).split(X, groups=grp))
+        cv_nested = list(GroupKFold(5).split(X, groups=grp))
+    else:
+        cv_pool = KFold(5, shuffle=True, random_state=0)
+        cv_nested = None
     print(f"policy means: " + "  ".join(f"{p}={Y[:, j].mean():.4f}" for j, p in enumerate(policies)))
     print(f"features: {X.shape[1]} ({len(names)} channels x {len(FEATURE_ORDER)} + overlaps)")
 
     # pooled out-of-fold selection: diagnostics, histogram, permutation test
-    Yhat = cross_val_predict(mk(), X, Y, cv=KFold(5, shuffle=True, random_state=0))
+    Yhat = cross_val_predict(mk(), X, Y, cv=cv_pool)
     sel = np.argmax(Yhat, axis=1)
     achieved = Y[np.arange(len(Y)), sel]
     best_fixed_j = int(np.argmax(Y.mean(axis=0)))
@@ -145,7 +161,7 @@ def main():
     p_perm = float((1 + (perm_stats >= achieved.mean()).sum()) / 2001)
     hist = {policies[j]: int((sel == j).sum()) for j in range(len(policies))}
 
-    ng, ngs, folds = nested_selection(X, Y)
+    ng, ngs, folds = nested_selection(X, Y, splits=cv_nested)
 
     print(f"\nbest fixed policy   {policies[best_fixed_j]:<22} {Y[:, best_fixed_j].mean():.5f}")
     print(f"selected (oof)      {'':<22} {achieved.mean():.5f}  perm p={p_perm:.4f}")
@@ -158,7 +174,7 @@ def main():
                "best_fixed": policies[best_fixed_j],
                "selected_oof": float(achieved.mean()), "p_perm": p_perm,
                "oracle_best_policy": float(oracle.mean()),
-               "nested_gap": ng, "nested_sem": ngs, "folds": folds,
+               "nested_gap": ng, "nested_sem": ngs, "folds": folds, "group_cv": bool(a.group_cv),
                "picks": hist, "feature_order": feat_order},
               open(out_path, "w"), indent=2)
     print(f"wrote {out_path}")

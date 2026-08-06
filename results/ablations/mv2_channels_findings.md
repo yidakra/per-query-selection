@@ -9,7 +9,7 @@ average effect is positive or negative.
 Our cascade is a cheap visual+caption stack (nDCG@10 0.30–0.37), while the strong systems on MultiVENT
 2.0 (MMMORRF 0.586, CLaMR 0.585) get their lift from speech and on-screen-text channels we were not
 using. Those channels do not have to be built: the benchmark ships them as ranked lists next to the
-CLIP run we already use — `ranked_lists/whisperASR_clip.json` and
+CLIP run we already use: `ranked_lists/whisperASR_clip.json` and
 `ranked_lists/10pyscene_paddleOCR_clip.json` (84 MB each, same 2,546 queries × 1,000 candidates). So a
 MMMORRF-style weighted RRF over visual + ASR + OCR is reproducible here on CPU at zero retrieval cost.
 `src/multivent2/mv2_channels.py`.
@@ -27,7 +27,7 @@ MMMORRF-style weighted RRF over visual + ASR + OCR is reproducible here on CPU a
 | ASR + OCR | 0.14173 |
 
 **With these shipped lists, every fusion is worse than the visual channel alone.** This is not a
-weighting failure — the sweep over ASR ∈ {0.5, 1, 1.5, 2} × OCR ∈ {0, 0.25, 0.5, 1} never beats
+weighting failure: the sweep over ASR ∈ {0.5, 1, 1.5, 2} × OCR ∈ {0, 0.25, 0.5, 1} never beats
 0.30364; the best point (ASR 0.5, OCR 0) is 0.27955. Uniform RRF hands a fixed share of the vote to a
 channel that, for most queries, has nothing useful to say, and the noise it injects costs more than the
 signal it adds. (Swap the weak ASR list for the dense retriever and this table changes: uniform
@@ -46,20 +46,20 @@ The spread is roughly **ten times** the mean effect. A silent protest clip has n
 news studio segment is almost all speech. Averaging over that distribution is what destroys the channel.
 
 The ceiling this heterogeneity implies is large: an oracle that picks the single best channel per query
-scores **0.44022**, against 0.30364 for the best fixed channel — a **+13.7 point** headroom. Treat that
+scores **0.44022**, against 0.30364 for the best fixed channel, a **+13.7 point** headroom. Treat that
 as an upper bound, not a promise: this project has twice seen oracle headroom evaporate under a real
 predictor (tier C, B→Full), which is exactly why the next section is the one that matters.
 
 ## 3. It survives a real predictor
 
-Out-of-fold ridge on the visual channel's own confidence features (score margins, entropy, top-k mass —
+Out-of-fold ridge on the visual channel's own confidence features (score margins, entropy, top-k mass;
 all free, the visual channel has already run). Escalate the top-*f* queries by predicted gain.
 
 | cell | τ (perm p) | nested gap vs cost-matched random | cheap only | uniform fusion | **routed** | oracle |
 |---|---|---|---|---|---|---|
 | visual → +ASR | **+0.217** (p=.0005) | **+3.07 ± 0.38** | 0.30364 | 0.27955 | **0.32206** @ f=0.55 | 0.36530 |
-| visual → +ASR+OCR | — | — | 0.30364 | 0.25937 | **0.31432** @ f=0.35 | 0.35854 |
-| visual → +OCR | — | — | 0.30364 | 0.24448 | 0.30364 @ **f=0.00** | 0.33047 |
+| visual → +ASR+OCR | -- | -- | 0.30364 | 0.25937 | **0.31432** @ f=0.35 | 0.35854 |
+| visual → +OCR | -- | -- | 0.30364 | 0.24448 | 0.30364 @ **f=0.00** | 0.33047 |
 
 Three things to take from this table:
 
@@ -70,7 +70,7 @@ Three things to take from this table:
 2. **τ = +0.217 is also our strongest predictability.** Compare +0.127 (caption tier) and +0.002/+0.035
    (LLM expansion tier at 7B/14B). The routing signal is much stronger across channels than across
    expansion tiers.
-3. **The router correctly refuses OCR.** Its optimum is f = 0.00 — escalate nothing. OCR is too weak
+3. **The router correctly refuses OCR.** Its optimum is f = 0.00: escalate nothing. OCR is too weak
    (0.122 alone) for the predictor to find a subset worth paying for, so the honest outcome is a
    decline, not a manufactured gain. A router that only ever finds reasons to spend would be suspicious;
    this one declines a channel and declines the LLM expansion tier.
@@ -82,12 +82,12 @@ gap instead, and say why.
 ## 4. Why this reframes the project
 
 The work so far routes between **LLM query-expansion tiers**, where the honest conclusion was mostly
-negative — the Full tier is expensive, barely helps, and is close to unroutable. Routing between
+negative: the Full tier is expensive, barely helps, and is close to unroutable. Routing between
 **modality channels** is the same question asked where the answer is loud:
 
 - larger effect (+3.07 nested gap vs +2.23 and ~0),
 - reproducible on CPU from shipped artifacts, no LLM generation cost at all,
-- and it speaks directly to what the strong systems on this benchmark do — MMMORRF's contribution *is*
+- and it speaks directly to what the strong systems on this benchmark do: MMMORRF's contribution *is*
   a weighted fusion over these modality channels. Our claim becomes: those weights should be per query,
   not global.
 

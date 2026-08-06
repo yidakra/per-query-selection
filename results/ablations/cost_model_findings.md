@@ -1,9 +1,9 @@
-# Is the component-count cost proxy right? — measured joules per component
+# Is the component-count cost proxy right? Measured joules per component
 
 > **Scope:** this cost model was measured on the **original Q2E pipeline** (ViT-H similarity,
 > `mx_q=30` padding, the paper's own corpora). It does **not** describe the MultiVENT 2.0 cascade,
-> whose measured latency and energy are in [`reports/efficiency_metrics.md`](reports/efficiency_metrics.md)
-> — there, tiers A and B are CPU-only and cost ~0.01 J and ~1 J per query. Do not mix the two tables.
+> whose measured latency and energy are in [`reports/efficiency_metrics.md`](reports/efficiency_metrics.md);
+> there, tiers A and B are CPU-only and cost ~0.01 J and ~1 J per query. Do not mix the two tables.
 
 
 Every frontier figure in this repo plots **cost = number of similarity components scored**,
@@ -12,7 +12,7 @@ is the check that the assumption deserved, and it does not survive it.
 
 `llm_cost_accounting.py` already showed the proxy ignores the ~30 LLaMA-3.3-70B generations the
 Full tier issues per query. This document attacks the other half: **are the similarity components
-themselves equal cost?** They are not — they differ by up to **68×**.
+themselves equal cost?** They are not: they differ by up to **68×**.
 
 Measured on MultiVENT noASR (T=259 queries, V=2393 videos, 17 caption slots per video), NVML power
 sampled at 5 Hz on physical GPU1 and integrated, minus a warm idle baseline. Scripts:
@@ -47,7 +47,7 @@ Fitted on `N ∈ {259, 519, 1038}` only. Two held-out points confirm it:
 A 7.5× extrapolation lands within 1.3%. The law is not fitted noise.
 
 **Per-string cost is length-independent.** The real queries (mean 172.7 chars) cost 3,444 J at
-N=259; event paraphrases (mean 116.5 chars) cost 3,398 J at the same N — a ratio of 1.014. ColBERT
+N=259; event paraphrases (mean 116.5 chars) cost 3,398 J at the same N, a ratio of 1.014. ColBERT
 pads to `query_maxlen`, so what you pay for is *how many strings*, not how long they are. The cost
 axis is therefore a **string count**, exactly the quantity the proxy assumes is constant.
 
@@ -56,8 +56,8 @@ axis is therefore a **string count**, exactly the quantity the proxy assumes is 
 `a = 3167 J` is **93.1%** of a `query_vs_captions` call. It is the doc side: `_patched_one_to_one`
 calls `RAG.encode(seqs2)` on all 2,393 captions **every call**, then `clear_encoded_docs`.
 
-Charge that intercept to every component and the components look nearly equal — `event/qvc =
-1.49×` — and the 1:1 proxy looks fine. **That accounting is wrong for routing.** A caption index is
+Charge that intercept to every component and the components look nearly equal (`event/qvc =
+1.49×`) and the 1:1 proxy looks fine. **That accounting is wrong for routing.** A caption index is
 built once, offline, and is paid identically by every tier; it is not a per-query cost. What a
 router pays when it escalates one query is the **marginal** cost `b·N`. The intercept is an artefact
 of the evaluation harness re-encoding the gallery on every call, not a property of the method.
@@ -127,7 +127,7 @@ nested. A router escalating a fraction `f` of queries from A to B pays
 cost(f) = (1−f)·cost(A) + f·cost(B) = cost(A) + f·(cost(B) − cost(A))
 ```
 
-— affine and strictly increasing in `f` under *any* per-component cost assignment. Proxy:
+This is affine and strictly increasing in `f` under *any* per-component cost assignment. Proxy:
 `0.2 + 0.2f`. Joules: `6.83 + 15.51f`. A cost-matched baseline is therefore an **`f`-matched**
 baseline in either unit, so every gap in `router_findings.md` §2 (nested-CV `+0.73` / `+1.68`,
 permutation-tested) is unchanged. Only the axis labels move.
@@ -140,13 +140,13 @@ denominator.
 
 **The proxy is conservative, in the direction that matters.** It understates Full's cost, so every
 saving this work reports against Full is a *lower bound*. Nothing needs to be walked back. But the
-frontier figures should not be read as though the x-axis were energy — it is a component count, and
+frontier figures should not be read as though the x-axis were energy: it is a component count, and
 a component is not a unit of anything.
 
 ### Caveats
 
 - Similarity/GPU energy only. Excludes the ~30 LLM generations per query that **only Full** pays,
-  and excludes CPU (no RAPL on this host — CodeCarbon's CPU figure is a TDP estimate, not a
+  and excludes CPU (no RAPL on this host; CodeCarbon's CPU figure is a TDP estimate, not a
   measurement).
 - Absolute joules are A2-specific. The **string-count scaling law** (§1) and the **ratios** (§4) are
   not: they follow from `mx_q` and the code path, not the hardware.
@@ -164,7 +164,7 @@ a component is not a unit of anything.
 Everything above is **measured** GPU similarity energy. It excludes the one thing only the Full tier
 buys: ~30 LLaMA-3.3-70B generations per query for the event decomposition (`llm_cost_accounting.py`:
 mean 30.0 calls, **8,046 prompt + 936 generated tokens/query**). The 70B ran offline, so this can only
-be **estimated** — but the estimate is worth having, because it is the largest cost in the pipeline.
+be **estimated**, but the estimate is worth having, because it is the largest cost in the pipeline.
 
 Two independent methods (`llm_cost_accounting.py`):
 
@@ -186,12 +186,12 @@ The estimate spans ~6×, but the conclusion does not:
 | B → Full price | 63× tier B | **~177× tier B** (80–352×) |
 
 **The LLM decomposition is comparable to or larger than Full's entire similarity cost** (central
-1.8×), and tiers A and B pay **none** of it — the router never triggers a single generation. So the
+1.8×), and tiers A and B pay **none** of it: the router never triggers a single generation. So the
 already-conservative "savings vs Full" from §5 understate the real gap by roughly another 2–5×, and
 the "never buy Full" verdict holds on end-to-end energy, not just similarity FLOPs. This is an
 estimate and labelled as one throughout; the measured axis (§1–5) is unchanged.
 
-## 7. The router's own cost is negligible — the frontier is router-inclusive
+## 7. The router's own cost is negligible: the frontier is router-inclusive
 
 The frontier charges tier-A/B similarity energy but not the cost of the routing *decision* itself. The
 obvious reviewer question: at a 15.52 J A→B escalation, does the router's overhead eat the saving? It
@@ -202,24 +202,24 @@ vectors (T=259, V=2393):
 |---|---|
 | feature extraction (`conf_feats`: softmax/sort/std over the V-dim gallery vector) | 343.0 µs |
 | ridge inference (standardize + dot, raw) | 2.1 µs |
-| — ridge inference via sklearn `.predict`, as-implemented upper bound | 185.6 µs |
+| -- ridge inference via sklearn `.predict`, as-implemented upper bound | 185.6 µs |
 | **per-query router decision** | **345.1 µs** |
 
 At a single-core CPU-TDP estimate of 5–25 W (no RAPL on this host, same caveat as the CPU figures
 above), that is **~5.2 mJ/query** (1.7–8.6 mJ). The router pays it on *every* query, escalation only on
-the top-f — so charge it to all and compare:
+the top-f, so charge it to all and compare:
 
 | router overhead vs | ratio |
 |---|---|
-| A→B marginal (15.52 J) | **0.033%** — the escalation is **~3,000×** the router |
+| A→B marginal (15.52 J) | **0.033%**: the escalation is **~3,000×** the router |
 | one tier-A evaluation (6.83 J) | 0.076% |
 | Full (1,418 J) | 0.00036% |
 
 So the **router-inclusive** cost, `cost(A) + E_router + f·(cost(B) − cost(A))`, differs from the axis
-we plot by a constant ~5 mJ — 0.08% of tier A, invisible at figure resolution — and the *gap* is exactly
+we plot by a constant ~5 mJ (0.08% of tier A, invisible at figure resolution) and the *gap* is exactly
 unchanged, since a constant added to every operating point cancels (same invariance as §5). The feature
 extraction dominates (the ridge is ~2 µs of genuine FLOPs; the 186 µs sklearn number is Python dispatch,
-not intrinsic cost), and even charging the full as-measured `conf_feats` time is conservative — it is
+not intrinsic cost), and even charging the full as-measured `conf_feats` time is conservative: it is
 work a deployment could fuse into tier-A scoring. The routing decision is free relative to what it saves.
 
 ## Reproduce
@@ -231,5 +231,5 @@ CUDA_VISIBLE_DEVICES="" python src/evaluation/llm_cost_accounting.py
 CUDA_VISIBLE_DEVICES="" python src/evaluation/router_overhead.py
 ```
 
-GPU1 only — GPU0 hosts an unrelated whisper server whose idle draw (22.3 W, measured) would
+GPU1 only: GPU0 hosts an unrelated whisper server whose idle draw (22.3 W, measured) would
 otherwise be billed to these runs. See `tracking.py`.

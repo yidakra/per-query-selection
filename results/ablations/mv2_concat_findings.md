@@ -9,29 +9,29 @@ that concatenation flattens. We tested it directly on MultiVENT 2.0, CPU-only, r
 Same tier-B base as `mv2_ab`/`mv2_full` (CLIP visual + caption[query], RRF). Three ways to add the LLM
 event descriptions (prequel/during/sequel from `mv2_events.py`) on top of it:
 
-- **DECOMP** — 3 events encoded separately, max-pooled per candidate, added as a weighted RRF component. This is exactly `mv2_full.py`'s Full tier (decomposition + fusion).
-- **CONCAT** — the 3 events joined into one string, encoded once, added as a weighted RRF component.
-- **EXTQ** — the query itself extended (query + prequel + during + sequel → one string), used as the caption-side query in place of the plain query, RRF'd with CLIP.
+- **DECOMP**: 3 events encoded separately, max-pooled per candidate, added as a weighted RRF component. This is exactly `mv2_full.py`'s Full tier (decomposition + fusion).
+- **CONCAT**: the 3 events joined into one string, encoded once, added as a weighted RRF component.
+- **EXTQ**: the query itself extended (query + prequel + during + sequel → one string), used as the caption-side query in place of the plain query, RRF'd with CLIP.
 
 ## Result: concatenation wins on effectiveness, at both decomposer sizes
 
 | decomposer | variant | best w | nDCG@10 | Δ vs tier B | per-query gain sd | help / hurt |
 |---|---|---|---|---|---|---|
-| **qwen7B** | Tier B | — | 0.35403 | — | — | — |
+| **qwen7B** | Tier B | -- | 0.35403 | -- | -- | -- |
 | | DECOMP (current) | 0.25 | 0.35960 | +0.56 | 7.54 | 25% / 20% |
 | | **CONCAT** | 0.5 | **0.36244** | **+0.84** | 10.45 | 31% / 24% |
-| | EXTQ | — | 0.35573 | +0.17 | 12.81 | 28% / 27% |
-| **qwen14B** | Tier B | — | 0.35435 | — | — | — |
+| | EXTQ | -- | 0.35573 | +0.17 | 12.81 | 28% / 27% |
+| **qwen14B** | Tier B | -- | 0.35435 | -- | -- | -- |
 | | DECOMP (current) | 0.5 | 0.36244 | +0.81 | 11.00 | 29% / 25% |
 | | **CONCAT** | 0.5 | **0.37001** | **+1.57** | 10.68 | 32% / 21% |
-| | EXTQ | — | 0.36342 | +0.91 | 12.52 | 30% / 25% |
+| | EXTQ | -- | 0.36342 | +0.91 | 12.52 | 30% / 25% |
 
 - **CONCAT > DECOMP on effectiveness at both sizes**, and the gap *widens* with the decomposer: +0.84 vs +0.56 (7B), **+1.57 vs +0.81 (14B)**. On 14B both pick the same weight (w=0.5), so it is a like-for-like comparison: concatenation nearly doubles the gain at identical contribution strength.
-- **EXTQ (replacing the query wholesale) is the wrong way to extend** — worst effectiveness and highest variance at both sizes. The win comes from concatenating the *events* as a weighted component, not dissolving the original query into them.
+- **EXTQ (replacing the query wholesale) is the wrong way to extend**: worst effectiveness and highest variance at both sizes. The win comes from concatenating the *events* as a weighted component, not dissolving the original query into them.
 
 ## The variance claim: concatenation is lower-variance at matched contribution
 
-The headline `sd` column above is confounded — each variant picks its own best weight, and a bigger
+The headline `sd` column above is confounded: each variant picks its own best weight, and a bigger
 weight mechanically inflates both mean and variance. Holding the event weight fixed removes that:
 
 | event weight | 7B DECOMP sd | 7B CONCAT sd | 14B DECOMP sd | 14B CONCAT sd |
@@ -60,7 +60,7 @@ Two things point in opposite directions and roughly cancel, leaving the project'
    from "dominated" toward "still expensive but closer to the frontier."
 
 Net: the A→B routing story is unchanged (that gain lives in the caption tier, not the events). The
-honest update is that **how you fold in the LLM expansion is a real design axis we had under-explored** —
+honest update is that **how you fold in the LLM expansion is a real design axis we had under-explored**:
 concatenation is a free (same LLM cost) ~1.5–2× effectiveness improvement on the Full tier over the
 decompose-and-fuse default, with a small variance reduction as a side effect.
 
@@ -73,11 +73,11 @@ Ran both CPU checks on the concatenated 14B Full tier (`mv2_router.py`, `mv2_fro
 | DECOMP (decompose + fuse) | +0.035 (.0045) | +0.39 ± 0.07 | 0.082 | 0.18 | 321 J | 8% |
 | **CONCAT** (extend + concatenate) | **+0.042 (.0015)** | **+0.41 ± 0.11** | 0.090 | 0.26 | **166 J** | **13%** |
 
-- **Routability is marginally better, not worse.** The variance shrink did not cost predictability — CONCAT's B→Full gain is if anything slightly more orderable (τ +0.042 vs +0.035, though both are ~6× weaker than the A→B τ of +0.127). The worry that flattening heterogeneity would starve the router did not materialise at this scale.
-- **Energy frontier: less dominated, still expensive.** Concatenation halves the Full tier's cost-per-point (166 vs 321 J/nDCG@10), and the routed curve now sits above the random-escalation chord at every f — capturing **13%** of a +2.99 oracle headroom, vs 8% for decompose-and-fuse. But even fully escalated the tier buys +1.57 nDCG for 259.7 J/query, while A→B buys +5.69 nearly free, so Full stays off the efficient frontier.
+- **Routability is marginally better, not worse.** The variance shrink did not cost predictability: CONCAT's B→Full gain is if anything slightly more orderable (τ +0.042 vs +0.035, though both are ~6× weaker than the A→B τ of +0.127). The worry that flattening heterogeneity would starve the router did not materialise at this scale.
+- **Energy frontier: less dominated, still expensive.** Concatenation halves the Full tier's cost-per-point (166 vs 321 J/nDCG@10), and the routed curve now sits above the random-escalation chord at every f, capturing **13%** of a +2.99 oracle headroom, vs 8% for decompose-and-fuse. But even fully escalated the tier buys +1.57 nDCG for 259.7 J/query, while A→B buys +5.69 nearly free, so Full stays off the efficient frontier.
 
 **Verdict update.** "Route A→B, don't buy Full" stands, but softens: concatenation is the right way to
-build the Full tier *if you build it* — ~2× the effectiveness and ~2× cheaper per point than the
+build the Full tier *if you build it*: ~2× the effectiveness and ~2× cheaper per point than the
 decompose-and-fuse default, with a small but real routable gain. The negative on Full is now "expensive
 and weakly routable," not "dominated and unroutable."
 

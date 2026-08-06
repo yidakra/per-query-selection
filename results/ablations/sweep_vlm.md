@@ -1,4 +1,4 @@
-## VLM size (InternVL) ablation — MultiVENT text-only (Q2E − Video), noASR NDCG@10
+## VLM size (InternVL) ablation: MultiVENT text-only (Q2E − Video), noASR NDCG@10
 
 | variant | NDCG@10 |
 |---|---:|

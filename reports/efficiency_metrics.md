@@ -16,12 +16,12 @@ machine. `src/multivent2/mv2_efficiency.py`, `src/multivent2/mv2_riskcov.py`.
 | `qenc` | encode the query (MiniLM, CPU) | 9.36 | 7.95 | 12.03 | 20.51 |
 | `capsim` | caption-embedding dot product over 1,000 candidates | 3.82 | 3.67 | 5.67 | 9.01 |
 | `fuse_B` | RRF over two rank lists + sort | 1.56 | 1.62 | 1.71 | 1.87 |
-| `route` | confidence features + ridge predict — **the router itself** | 1.04 | 1.02 | 1.14 | 1.73 |
+| `route` | confidence features + ridge predict, **the router itself** | 1.04 | 1.02 | 1.14 | 1.73 |
 | `evenc` | encode the 3 event descriptions | 13.15 | 11.63 | 19.55 | 26.58 |
 | `evfuse` | max-pool event similarities + weighted RRF + sort | 2.80 | 2.56 | 4.70 | 5.72 |
 | `llm_gen` | **the expansion call on GPU** | **9,396.74** | 9,648.19 | 11,454.02 | 11,505.86 |
 
-The router costs 1.04 ms — 0.01% of the 9.4 s decision it is making. (An earlier measurement of the
+The router costs 1.04 ms, 0.01% of the 9.4 s decision it is making. (An earlier measurement of the
 decision alone, without feature extraction, put it at 345 µs.)
 
 ## 2. Per-tier latency and throughput
@@ -53,7 +53,7 @@ and Full queries):
 | 1.00 | 9,425 ms | 11,534 ms | 11,543 ms | 0.11 q/s |
 
 Escalating just **10%** of queries multiplies p99 by **435×** (26.5 ms → 11.5 s) while the mean rises
-only 67×. Under any p99 SLO the escalation budget is set by the tail, not the average — so a router
+only 67×. Under any p99 SLO the escalation budget is set by the tail, not the average, so a router
 paper on this problem should report the percentile curve, not a mean-cost number. This is the single
 most useful thing the efficiency work added.
 
@@ -62,20 +62,20 @@ most useful thing the efficiency work added.
 | metric | tier A | tier B | Full |
 |---|---|---|---|
 | energy / query | 0.011 J *(est.)* | 1.01 J *(est.)* | **260.7 J** (259.7 measured + ~1 est.) |
-| energy / query | — | — | 72.1 mWh |
-| gCO₂e / query | — | — | 0.034 |
-| gCO₂e over the 2,546-query test set | — | — | 87.2 |
+| energy / query | -- | -- | 72.1 mWh |
+| gCO₂e / query | -- | -- | 0.034 |
+| gCO₂e over the 2,546-query test set | -- | -- | 87.2 |
 | relevant items in top-10 (mean) | 1.62 | 1.78 | 1.78 |
-| **joules per relevant item retrieved@10** | — | **0.57** | **146.5** |
+| **joules per relevant item retrieved@10** | -- | **0.57** | **146.5** |
 
-Two different kinds of number here, and the distinction matters. The **LLM stage is measured** — NVML
+Two different kinds of number here, and the distinction matters. The **LLM stage is measured**: NVML
 at 5 Hz on the physical GPU, net of a model-loaded idle baseline. Tiers A and B never touch a GPU, and
 this host exposes no RAPL counters, so their energy **cannot be measured here**; it is estimated as
 measured latency × package TDP scaled by thread occupancy (135 W Xeon Silver 4314 × 8/16 threads =
 67.5 W), the same fallback CodeCarbon uses. Treat the A/B column as an order of magnitude, not a
 measurement.
 
-Carbon uses an assumed grid intensity of 0.475 kg CO₂e/kWh (IEA world average) — documented, not
+Carbon uses an assumed grid intensity of 0.475 kg CO₂e/kWh (IEA world average): documented, not
 measured. Cost-per-correct-answer remains the cleanest statement of the Full tier's problem: **~260×
 the energy per relevant item surfaced, for no measurable change in how many are surfaced** (1.78 either
 way).

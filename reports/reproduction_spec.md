@@ -69,7 +69,7 @@ fusion**.
 | Retrieval encoder B | `OpenGVLab/InternVideo2-Stage2_1B-224p-f4` | **[REPO]** | ✅ (~1B) |
 | Text–text similarity | `hltcoe/plaidx-large-eng-tdist-mt5xxl-engeng` (ColBERT/PLAID-X via ragatouille) | **[REPO]** | ✅ |
 | Rank fusion | Inverse-entropy (training-free) | **[PAPER/REPO]** | ✅ |
-| Reranking | none | **[REPO]** | — |
+| Reranking | none | **[REPO]** | -- |
 
 Generation decoding **[REPO]** (`src/data/utils.py` defaults): temperature=0.8,
 top_p=0.95, max_tokens=2048, served by vLLM. Frame captioning uses
@@ -149,7 +149,7 @@ flowchart TD
 ## 6. Inverse-entropy rank fusion **[REPO]** (`src/eval/fusion_score.py`, `infer.py`)
 
 For each score matrix `S_i` (QxV):
-1. **Pre-softmax** (default `--softmax pre`): `P_i = softmax(S_i, dim=0)` — softmax **over
+1. **Pre-softmax** (default `--softmax pre`): `P_i = softmax(S_i, dim=0)`, softmax **over
    queries** (column-wise, dim=0), applied once per component when cached.
 2. Row-wise entropy `H(P_i) = -Σ_v P_i log2(P_i + 1e-6)` (per query).
 3. Fuse: `S_fused = Σ_i (1/(H(P_i)+1e-6)) · P_i`.
@@ -162,13 +162,13 @@ components (e.g. `[query_vs_video]` = raw encoder baseline).
 > Note the fusion in code divides by entropy directly (`1/H`), matching the paper's
 > "weight inversely to entropy → emphasize confident (low-entropy) components".
 > Other fusion variants in code: `exp_entropy` (exp(-H)·P), `rrf` (reciprocal rank),
-> plus `mean`/`max` aggregations — these map to the paper's Table 4 fusion ablation.
+> plus `mean`/`max` aggregations; these map to the paper's Table 4 fusion ablation.
 
 ---
 
 ## 7. Main reported results (targets)
 
-### Table 1 — MultiVENT (headline NDCG in **bold** context)
+### Table 1: MultiVENT (headline NDCG in **bold** context)
 | Model | R@1 | R@5 | R@10 | P@10 | MRR | **NDCG** | MAP | MnR | MdR |
 |---|---|---|---|---|---|---|---|---|---|
 | MultiCLIP | 9.83 | 44.32 | 70.82 | 65.25 | 0.92 | **75.34** | 86.33 | 22.12 | 6 |
@@ -180,7 +180,7 @@ components (e.g. `[query_vs_video]` = raw encoder baseline).
 | InternVideo2-1B + Q2E | 9.54 | 40.88 | 63.40 | 58.73 | 0.92 | **69.15** | 83.96 | 53.84 | 7 |
 | InternVideo2-1B + Q2E + ASR | 10.24 | 44.94 | 70.79 | 65.14 | 0.95 | **76.10** | 88.09 | 42.81 | 6 |
 
-### Table 1 — MSR-VTT-1kA
+### Table 1: MSR-VTT-1kA
 | Model | R@1 | R@5 | R@10 | P@10 | MRR | **NDCG** | MAP | MnR | MdR |
 |---|---|---|---|---|---|---|---|---|---|
 | MultiCLIP | 43.52 | 69.05 | 76.88 | 7.71 | 0.54 | **59.72** | 54.27 | 20.29 | 2 |
@@ -192,7 +192,7 @@ components (e.g. `[query_vs_video]` = raw encoder baseline).
 | InternVideo2-1B + Q2E | 53.47 | 73.57 | 82.11 | 8.23 | 0.62 | **67.16** | 62.47 | 16.73 | 1 |
 | InternVideo2-1B + Q2E + ASR | 56.28 | 76.58 | 83.72 | 8.39 | 0.65 | **69.53** | 65.06 | 15.85 | 1 |
 
-### Table 2 — Per-language MultiVENT NDCG (MC = MultiCLIP)
+### Table 2: Per-language MultiVENT NDCG (MC = MultiCLIP)
 | Lang | MC | +Q2E | +Q2E+ASR |
 |---|---|---|---|
 | Arabic | 76.10 | 78.09 | 82.07 |
@@ -201,9 +201,9 @@ components (e.g. `[query_vs_video]` = raw encoder baseline).
 | Korean | 70.38 | 76.92 | 80.58 |
 | Russian | 82.84 | 84.62 | 88.70 |
 
-### Table 3 — LLM size (MultiVENT, NDCG): 1B 79.34/82.50 · 3B 79.78/83.03 · 8B 79.41/82.91 · 70B 80.04/83.24 (noAudio/Audio)
-### Table 4 — Fusion (MultiVENT, NDCG noAudio/Audio): NegExpEnt 66.61/73.20 · RRF 69.74/76.29 · Max 76.60/80.04 · Mean 78.37/82.44 · **InvEnt 80.04/83.24**
-### Table 5 — Component ablation (MultiVENT, NDCG noAudio/Audio): Full 80.04/83.24 · −Video 64.83/73.96 · −Query 78.78/81.54 · −Events 79.02/81.75
+### Table 3: LLM size (MultiVENT, NDCG): 1B 79.34/82.50 · 3B 79.78/83.03 · 8B 79.41/82.91 · 70B 80.04/83.24 (noAudio/Audio)
+### Table 4: Fusion (MultiVENT, NDCG noAudio/Audio): NegExpEnt 66.61/73.20 · RRF 69.74/76.29 · Max 76.60/80.04 · Mean 78.37/82.44 · **InvEnt 80.04/83.24**
+### Table 5: Component ablation (MultiVENT, NDCG noAudio/Audio): Full 80.04/83.24 · −Video 64.83/73.96 · −Query 78.78/81.54 · −Events 79.02/81.75
 
 (VLM-size ablation datasets also exist on HF: InternVL 1B/2B/4B/8B/26B/38B.)
 
@@ -218,7 +218,7 @@ components (e.g. `[query_vs_video]` = raw encoder baseline).
   Bypassed via released HF datasets.
 - **Prompts/configs match paper**: yes; prompts in `src/data/prompts`, decoding params in
   `src/data/utils.py`, dataset naming convention in `src/data/constants.py`.
-- **Exact eval commands available**: yes — `scripts/eval_{msrvtt,multivent}.sh`.
+- **Exact eval commands available**: yes, `scripts/eval_{msrvtt,multivent}.sh`.
 - **wandb**: `infer.py` calls `wandb.init(entity="gcnssdvae")`; must run with
   `WANDB_MODE=disabled` (scripts already export it) or offline.
 
@@ -232,13 +232,13 @@ components (e.g. `[query_vs_video]` = raw encoder baseline).
   no-ASR caption set); the plain baseline row = `[query_vs_video]`. Will confirm by
   matching numbers to specific subsets when running.
 - **[INFER]** "MultiCLIP + ASR" (no Q2E) row = encoder score fused with ASR-caption
-  text scores but without event decomposition — need to map to the exact subset.
-- **[REPO]** Softmax is over dim=0 (queries), applied pre-fusion — confirmed in code,
+  text scores but without event decomposition; need to map to the exact subset.
+- **[REPO]** Softmax is over dim=0 (queries), applied pre-fusion; confirmed in code,
   not stated in paper.
 - **[INFER]** MSR-VTT-1kA exact query list (995) comes bundled inside the HF dataset;
   we inherit the authors' split rather than re-deriving it.
 - **[UNKNOWN]** Whether per-language MultiVENT numbers come from slicing the same run by
-  language metadata (likely) — will slice `video_id`/query language if present.
+  language metadata (likely); will slice `video_id`/query language if present.
 - **[INFER]** InternVideo2 frame handling (f4 model) differs from MultiCLIP; will read
   `src/eval/InternVideo2/vision_embedder.py` before that encoder's runs.
 

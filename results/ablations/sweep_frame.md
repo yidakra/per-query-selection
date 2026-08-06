@@ -1,4 +1,4 @@
-## Frame count (Funiform) ablation — MultiVENT text-only (Q2E − Video), noASR NDCG@10
+## Frame count (Funiform) ablation: MultiVENT text-only (Q2E − Video), noASR NDCG@10
 
 | variant | NDCG@10 |
 |---|---:|

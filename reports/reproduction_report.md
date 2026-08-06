@@ -3,11 +3,11 @@
 > Reproduction of Q2E (arXiv:2506.10202) evaluation on a 2×A2 VPS. This report is
 > auto-populated from `runs/<tag>/metrics.json`; see
 > `results/main_tables/reproduced_vs_reported.{csv,md}` for the machine-readable tables.
-> **Results sections below are filled once the corresponding runs complete — any row still
+> **Results sections below are filled once the corresponding runs complete; any row still
 > reading `TBD` had not finished at last edit.**
 
 ## 1. Method (what was reproduced)
-The evaluation stack of Q2E: for each query we compute up to 5 similarity components —
+The evaluation stack of Q2E: for each query we compute up to 5 similarity components:
 `query_vs_video` (MultiCLIP or InternVideo2 text–video), and text–text ColBERT/PLAID-X
 max-sim of {query, prequel, during, sequel} vs the video's caption pool (frame captions +
 holistic caption, plus 3 ASR-transcript fields when ASR is on). Components are pre-softmaxed
@@ -17,7 +17,7 @@ All scoring/fusion/metric code is the **official repo's**, unchanged; the LLM/VL
 
 ## 2. Setup
 - Datasets: MSR-VTT-1kA (995 q / 1000 v, full pipeline incl. video), MultiVENT (259 q /
-  2393 v, **full video+text pipeline** — videos scraped from YouTube; **1995 of 2393 downloaded**,
+  2393 v, **full video+text pipeline**: videos scraped from YouTube; **1995 of 2393 downloaded**,
   398 unavailable at scrape time → full-video numbers reported on the downloadable subset, with the
   full-gallery numbers given alongside as a coverage lower-bound). MultiVENT uses the MultiCLIP
   encoder only (no InternVideo2 MultiVENT run).
@@ -31,7 +31,7 @@ All scoring/fusion/metric code is the **official repo's**, unchanged; the LLM/VL
   recorded in each run's args.
 
 ## 3. Headline: reproduced vs reported (NDCG@10)
-<!-- AUTO: results/main_tables/reproduced_vs_reported.md — rows with blank "rep" cols are still running. -->
+<!-- AUTO: results/main_tables/reproduced_vs_reported.md; rows with blank "rep" cols are still running. -->
 
 | Dataset | Encoder | Setting | rep NDCG | paper NDCG | ΔNDCG |
 |---|---|---|---:|---:|---:|
@@ -54,20 +54,20 @@ baseline R@1/R@5/R@10 = 43.52/69.05/76.88, all exact; IV2 baseline R@1 52.56 exa
 The MultiCLIP video encoder was run over the scraped MultiVENT videos and fused with the four
 ColBERT text components exactly as in MSR-VTT. 398 videos were unavailable at scrape time, so the
 subset gallery is smaller than the paper's 2393 → fewer distractors, and the consistent +0.9…+1.5
-NDCG over the paper is a **gallery-size artifact, not a genuine improvement** — the faithful reading
+NDCG over the paper is a **gallery-size artifact, not a genuine improvement**: the faithful reading
 is "reproduces the paper's MultiVENT/MultiCLIP block." On the **full 2393 gallery** (398 videos'
 frames absent → visual component degraded) the same cells are baseline 67.71 / Q2E 76.21 /
 Q2E+ASR 80.66, which lower-bounds the download-coverage cost. The InternVideo2 MultiVENT rows
-(paper 50.43→76.10) were **not run** — only the MultiCLIP encoder was reproduced for MultiVENT.
+(paper 50.43→76.10) were **not run**; only the MultiCLIP encoder was reproduced for MultiVENT.
 
 *Correction (this is the video-only baseline, previously mis-tabulated):* the paper's
 video-only baseline is the single `query_vs_video` component pushed through the **same**
-softmax→min-max normalization pipeline as fused Q2E — not the raw dot-products. An earlier
+softmax→min-max normalization pipeline as fused Q2E, not the raw dot-products. An earlier
 version of `build_tables.py` selected the raw (unnormalized) single-component scores for the
 baseline row, producing a phantom −3.14 NDCG gap for MultiCLIP that was wrongly attributed to
 "video re-encoding variance." With the correct normalized selection (all fusion operators are
 numerically identical for a single component), the MultiCLIP baseline is **59.72 vs 59.72**
-and the IV2 baseline **66.00 vs 66.07** — i.e. exact/near-exact, consistent with the fact
+and the IV2 baseline **66.00 vs 66.07**, i.e. exact/near-exact, consistent with the fact
 that we use identical code, artifacts, and videos. There is no residual re-encoding gap.
 
 ## 4. Component ablation (MultiVENT / MultiCLIP, Table 5)
@@ -88,7 +88,7 @@ video-dependent rows sit ~3–4 NDCG low **solely** because 398/2393 videos were
 visual component is absent on the full gallery); on the downloadable subset they meet/exceed the paper
 (Full 80.94/84.70, −Query 79.97/82.77, −Events 80.58/83.75). The paper's `− Query` = *drop
 query-vs-captions while keeping video* (not the text-only triple prequel+during+sequel, which scores
-62.89/72.00 — a different quantity, tabulated in the supplementary leave-one-out below).
+62.89/72.00, a different quantity, tabulated in the supplementary leave-one-out below).
 
 **Supplementary text-only leave-one-out** (not a paper row; ranks text-component importance
 within the `− Video` stack, `results/ablations/component_textonly_leaveoneout.json`):
@@ -105,7 +105,7 @@ components each add a smaller increment, consistent with the paper's framing tha
 decomposition is a complement to (not a replacement for) the query.
 
 ## 5. Fusion-method ablation (Table 4)
-Computed from the identical 5-component MSR-VTT/MultiCLIP (noASR) cache — only the fusion
+Computed from the identical 5-component MSR-VTT/MultiCLIP (noASR) cache; only the fusion
 operator differs (`results/ablations/fusion_msrvtt_multiclip_noASR.json`):
 
 | Fusion | NDCG@10 |
@@ -141,17 +141,17 @@ rather than its full-video Table 2, but the ranking and the ASR-gain pattern mat
 
 ## 7. Analysis of gaps
 Sources of the (small) residual gaps: (a) ColBERT/PLAID indexing nondeterminism across library
-versions; (b) fp32 A2 vs A100 numerics (negligible). For **MSR-VTT** both wash out — the full
+versions; (b) fp32 A2 vs A100 numerics (negligible). For **MSR-VTT** both wash out: the full
 pipeline reproduces to ±0.07 NDCG. For **MultiVENT** the only material gap is **video download
 coverage**: 398/2393 YouTube videos were unavailable, so the full-gallery video-dependent rows sit
-~3–4 NDCG below the paper. This is isolated cleanly — the text-only `−Video` row (immune to the
+~3–4 NDCG below the paper. This is isolated cleanly: the text-only `−Video` row (immune to the
 missing videos) reproduces to the decimal, and on the downloadable subset the full-video rows
 meet/exceed the paper. There is no residual encoder or fusion discrepancy on either dataset.
 
 ## 8. Confidence
-- MSR-VTT full pipeline (both encoders): **high** — exact code + exact artifacts + exact videos.
-- MultiVENT full video+text pipeline (MultiCLIP): **high** — the text path is exact (`−Video`
+- MSR-VTT full pipeline (both encoders): **high**, exact code + exact artifacts + exact videos.
+- MultiVENT full video+text pipeline (MultiCLIP): **high**, the text path is exact (`−Video`
   to the decimal) and the full-video subset meets/exceeds the paper; the only caveat is the 398
   undownloadable videos, whose effect is isolated and reported both ways (subset + full gallery).
-  InternVideo2 MultiVENT: **not run** (out of scope — MultiCLIP encoder only).
+  InternVideo2 MultiVENT: **not run** (out of scope: MultiCLIP encoder only).
 - Negative results are reported, not hidden.

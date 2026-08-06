@@ -1,0 +1,57 @@
+{
+  "evidence": "all",
+  "n_queries": 395,
+  "requested_n": 400,
+  "judge_model": "qwen2.5:7b-instruct",
+  "judge_tag": "qwen7b",
+  "rows": [
+    {
+      "policy": "routed",
+      "n": 395,
+      "ndcg10": 0.40678942492530573,
+      "strict_vital": 0.41729355033152504,
+      "strict_all": 0.283765594461797,
+      "vital": 0.47805605786618444,
+      "all": 0.35731382541509127
+    },
+    {
+      "policy": "bestfixed",
+      "n": 395,
+      "ndcg10": 0.3331134952693508,
+      "strict_vital": 0.3673297166968053,
+      "strict_all": 0.24646793431603556,
+      "vital": 0.4381163351416516,
+      "all": 0.32296536796536796
+    }
+  ],
+  "significance": {
+    "routed_vs_bestfixed:vital": {
+      "delta": 0.039939722724532854,
+      "p": 0.0384,
+      "win": 102,
+      "loss": 78,
+      "tie": 215
+    },
+    "routed_vs_bestfixed:strict_vital": {
+      "delta": 0.04996383363471971,
+      "p": 0.0114,
+      "win": 83,
+      "loss": 59,
+      "tie": 253
+    },
+    "routed_vs_bestfixed:all": {
+      "delta": 0.03434845744972328,
+      "p": 0.0166,
+      "win": 126,
+      "loss": 106,
+      "tie": 163
+    },
+    "routed_vs_bestfixed:strict_all": {
+      "delta": 0.03729766014576141,
+      "p": 0.0055,
+      "win": 106,
+      "loss": 82,
+      "tie": 207
+    }
+  }
+}

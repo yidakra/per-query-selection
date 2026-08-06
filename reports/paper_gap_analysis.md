@@ -11,10 +11,10 @@ and `reports/reproduction_report.md`.
 - ✅ **Inverse-entropy fusion**: repo `fusion_score.py` used verbatim; independently
   unit-tested to equal the paper's equation (pre-softmax over queries, `1/H·P`, min-max).
 - ✅ **Text-text scorer**: PLAID-X ColBERT `hltcoe/plaidx-large-eng-tdist-mt5xxl-engeng`
-  via ragatouille — the exact default in `infer.py`; max-aggregation many-to-many identical.
+  via ragatouille, the exact default in `infer.py`; max-aggregation many-to-many identical.
 - ✅ **Encoders**: MultiCLIP (`CLIP-ViT-H-14-frozen-xlm-roberta-large-laion5B`) and
-  InternVideo2-1B (`InternVideo2-Stage2_1B-224p-f4`) — exact checkpoints from the repo.
-- ✅ **Frame sampling**: uniform 16-frame mid-interval (MultiCLIP) / 4-frame (IV2) — the
+  InternVideo2-1B (`InternVideo2-Stage2_1B-224p-f4`), exact checkpoints from the repo.
+- ✅ **Frame sampling**: uniform 16-frame mid-interval (MultiCLIP) / 4-frame (IV2), the
   repo's exact `uniform_sample_frames` / `get_frame_indices(middle)`.
 - ✅ **Score components**: the 5 components + 31-subset sweep as enumerated in `infer.py`.
 
@@ -35,13 +35,13 @@ and `reports/reproduction_report.md`.
 - ⚠️ **MultiVENT video download coverage** (was ⏸️, now reproduced): the 2,393 source videos
   are YouTube-scraped (video_id = YouTube ID). **1995/2393 downloaded; 398 unavailable** at scrape
   time. The full MultiVENT video+text pipeline (MultiCLIP + Q2E) is now reproduced: on the
-  downloadable **subset** it meets/exceeds the paper (Q2E 80.94 vs 80.04, +ASR 84.70 vs 83.24) —
+  downloadable **subset** it meets/exceeds the paper (Q2E 80.94 vs 80.04, +ASR 84.70 vs 83.24):
   the small surplus is a gallery-size artifact (1995 < 2393 → fewer distractors), read as "matches";
   on the **full 2393 gallery** the missing frames depress it (Q2E 76.21, +ASR 80.66), lower-bounding
   the coverage cost. The text-only `−Video` row is immune and reproduces to the decimal (64.83/73.92),
-  isolating the gap entirely to downloads. **MultiVENT was run with MultiCLIP only** — the
+  isolating the gap entirely to downloads. **MultiVENT was run with MultiCLIP only**; the
   InternVideo2 MultiVENT rows (paper 50.43→76.10) are ⏸️ not run.
-- ⚠️ **LLaMA-1B ablation cell — paraphrase cap (`Q2E_EVENT_MAXPARAS=32`)**: the released
+- ⚠️ **LLaMA-1B ablation cell, paraphrase cap (`Q2E_EVENT_MAXPARAS=32`)**: the released
   `Q2E_MultiVENT_LLAMA_1B_*` artifact contains degenerate event decompositions with up to **270
   paraphrases/event** (vs the 8B artifact's max 35); the many-to-many ColBERT scorer accumulates
   `T×paraphrases` queries and OOM/stalls at that width. We cap paraphrases-per-event to 32 (env-gated,
@@ -49,7 +49,7 @@ and `reports/reproduction_report.md`.
   proven-safe 8B run. Because the score max-pools over paraphrases, keeping the first 32 is a mild
   approximation affecting **only the single LLaMA-1B LLM-size sweep point**, and only its absolute
   NDCG (not any headline or other ablation). Documented in `runs/llama1b_trunc.sh` + code comment.
-- ⏸️ **MSVD**: not in the paper (paper uses 2 datasets). Out of scope — no gap to report.
+- ⏸️ **MSVD**: not in the paper (paper uses 2 datasets). Out of scope; no gap to report.
 - ⏸️ **Generation-stage reproduction (Tier B)**: re-running decomposition/captioning with
   smaller open models to measure model-size effect is optional; the authors already
   released 1B–70B LLM and 1B–38B VLM artifact variants, so the *size ablation* is
