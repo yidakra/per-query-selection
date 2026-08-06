@@ -79,8 +79,8 @@ The surrogate deserves its own sentence, plainly. The visual channel retrieves o
 captions describe the same videos in text. Anyone who knows MultiVENT 2.0 will notice, and the honest
 framing is that we handed pre-retrieval QPP a proxy it does not normally get and it still did not help.
 
-**The null is bounded, not a shrug.** 2,546 queries against their 56 topics, and intervals that exclude
-anything of practical size. We are not reporting an absence of evidence.
+**The null is bounded.** 2,546 queries against their 56 topics, and intervals that exclude
+anything of practical size. This is evidence of absence, at that power.
 
 **And the choice is predictable, from the other family.** A null on its own could mean the decision is
 simply not predictable, in which case nothing about predictor families follows. It is predictable. A

@@ -1,8 +1,8 @@
 # ECIR 2027 full paper: outline and evidence map
 
 **Story: B with A as the engine** (agreed 31 Jul 2026). The claim is a boundary condition on
-QPP-for-selection. Per-query channel routing is the positive control that makes the boundary
-interpretable, not the headline. An earlier version of this file assumed story A and has been replaced.
+QPP-for-selection, and per-query channel routing is the positive control that makes the boundary
+interpretable. An earlier version of this file assumed story A and has been replaced.
 
 Working document, not for commit.
 
@@ -158,7 +158,7 @@ One sentence conceding the surrogate, plainly. The honest framing is that we han
 proxy it does not normally get and it still did not help.
 
 Power has to be addressed here, not in limitations: 2,546 queries against their 56 topics, and a
-confidence interval that excludes anything of practical size. This is a bounded null, not a shrug.
+confidence interval that excludes anything of practical size. The null is bounded.
 
 Then QSD_pre, which is the section's best paragraph. Under nested calibration it clearly beats fixed in
 the two speech cells and is effectively tied in OCR (0.3102 / 0.3469 / 0.3037), because it reads no

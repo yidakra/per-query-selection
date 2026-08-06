@@ -6,19 +6,19 @@ ask whether it survives when the choice is *which channel to search* in a video 
 on-screen text, or the frames themselves. The choice is worth making (a selector over the channels' own
 score distributions beats the best fixed policy by +7.59 nDCG), but the standard corpus-statistic
 family does not see it reliably. Eleven such predictors sit flat in the three reference cells, Clarity
-is undefined over frames rather than merely
-weak, and the one pre-retrieval predictor that escapes needs no index at all. So the boundary is not pre-
-versus post-retrieval, it is whether a predictor depends on document-side language statistics, and in a
-corpus where 10% of videos carry no text, that dependence is not a detail. Rank correlation, meanwhile,
+cannot even be computed over frames, and the one pre-retrieval predictor that escapes needs no index at
+all. What separates the predictors that work from the ones that fail is whether they depend on
+document-side language statistics, and in a corpus where 10% of videos carry no text, that dependence
+decides a tenth of the collection outright. Rank correlation, meanwhile,
 does not specify a decision threshold: nested calibration changes BERT-QPP's cross-encoder from an
 always-fuse failure to the strongest learned QPP baseline and removes the apparent overall
 anti-correlation between τ and utility.
 
-**Claim, stated sharply.** QPP-based selection has a boundary: the reference corpus-statistic family
-does not provide a reliable *evidence-source* selector, while signals that read option outcomes from
-retrieval transfer much more reliably. The pre/post-retrieval split the literature organises by is a
-proxy for that, and it is the wrong proxy here. This is a measured family-level boundary, not a theorem
-that a query--collection statistic can never help.
+**Claim.** QPP-based selection has a boundary: the reference corpus-statistic family does not provide
+a reliable *evidence-source* selector, while signals that read option outcomes from retrieval transfer
+much more reliably. The pre/post-retrieval split the literature organises by is a proxy for that, and
+it is the wrong proxy here. The boundary is measured at the family level; nothing here proves that a
+query--collection statistic can never help.
 
 MultiVENT 2.0 test, 2,546 queries, graded multi-gold judgments, folds grouped by event (536 groups).
 Predictor definitions follow `github.com/Narabzad/QPP-4-RAG`.
@@ -39,10 +39,11 @@ the three (mean relative range 0.09–0.33). The repair buys +0.43 ± 0.38, +0.8
 stacked on the score features it gives +7.56 ± 0.89, which is the score-feature baseline back again. We
 handed pre-retrieval QPP a proxy it does not normally get and it still did not help.
 
-**The null is about the family, not the task.** A selector over the channels' own score distributions
-beats the best fixed policy chosen on the training fold by **+7.59 ± 1.01 nDCG** (permutation p = .0005).
-So the choice is predictable; these predictors just cannot see it. This is the positive control, not the
-headline.
+**The choice itself is predictable.** A selector over the channels' own score distributions beats the
+best fixed policy chosen on the training fold by **+7.59 ± 1.01 nDCG** (permutation p = .0005). The
+failure above therefore sits with the predictor family; the task gives a learner plenty to find. We
+treat this selector as the positive control, and the paper's claim is about which predictors can read
+the signal it proves exists.
 
 The boundary survives two harder checks, with useful qualifications. A translated speech channel raises
 the fixed baseline from 0.3408 to 0.3452: 3 of 11 corpus-statistic rows now clear the 0.0005 margin, but
@@ -50,8 +51,8 @@ only to 0.3468--0.3472, against 8 of 10 score-only rows and 0.3920 for the contr
 across direct visual-versus-caption choice and visual-to-fusion escalation under two encoders and two
 evidence conditions, the corpus-statistic family is 0/88. The direct choice has 5.57--10.37 nDCG of
 oracle headroom and the control beats fixed in all four conditions. Score-only transfer on that second
-collection is mixed, so the robust claim is the corpus-statistic boundary rather than universal success
-of every retrieval-score predictor.
+collection is mixed, so the claim that survives both checks is the corpus-statistic boundary; the
+score-only family earns no universal guarantee from us.
 
 ---
 
@@ -107,16 +108,16 @@ separate experiment behind the +7.59 in RQ1 and is not a row here.
 
 **Across all three cells, the corpus-statistic block has 0 underlined cells out of 33; the score-only
 block has 16 out of 30.** The underline threshold is not doing the work: the largest margin anywhere in
-those 33 cells is **+0.0003**. The escalation fractions put it more bluntly: a corpus-statistic
-predictor here does not choose badly, it does not choose. In the OCR cell all eleven escalate exactly 0%
-of queries; in ASR-dense six of eleven escalate exactly 100%. Counting only exact 0 or exact 1, **20 of
-33 corpus-statistic cells are degenerate against 2 of 30 score-only cells**.
+those 33 cells is **+0.0003**. The escalation fractions show what is actually happening: in the OCR
+cell all eleven escalate exactly 0% of queries, and in ASR-dense six of eleven escalate exactly 100%. A
+prediction that never varies is a fixed policy wearing a predictor's name. Counting only exact 0 or
+exact 1, **20 of 33 corpus-statistic cells are degenerate against 2 of 30 score-only cells**.
 
 **The stronger, matched QSD comparison is mixed.** QSD_post reads the query, neighbouring queries and
 their gains, and retrieved document text. After five epochs and group-disjoint nested calibration, it is
 effectively tied with equally calibrated QSD_pre in shipped speech (+0.0001 nDCG), modestly better in
-dense speech (+0.0017), and worse in OCR (−0.0023); τ changes −0.042 / −0.010 / +0.005. Thus the earlier
-one-epoch claim that adding documents makes QSD worse was not robust. The supported conclusion is
+dense speech (+0.0017), and worse in OCR (−0.0023); τ changes −0.042 / −0.010 / +0.005. The earlier
+one-epoch claim that adding documents makes QSD worse did not survive this. The supported conclusion is
 narrower: document evidence does not produce a consistent benefit, so it does not rescue the family
 comparison, but this experiment no longer positively locates the boundary by itself.
 
@@ -142,17 +143,16 @@ selector also needs leakage-free operating-point calibration.
 
 ## RQ4. What makes the multimodal case different?
 
-This is the differentiator, and it is measurable rather than rhetorical. Classical pre-retrieval QPP is
-built on tf-idf-style corpus statistics. Our documents are video: there is no lexical index over frames,
-and the text channels are noisy, multilingual, and **often absent**. Of the 109,724 test videos,
-**10,919 (10.0%) yield no on-screen text at all** and 236 (0.2%) yield no speech.
+Classical pre-retrieval QPP is built on tf-idf-style corpus statistics. Our documents are video: there
+is no lexical index over frames, and the text channels are noisy, multilingual, and **often absent**.
+Of the 109,724 test videos, **10,919 (10.0%) yield no on-screen text at all** and 236 (0.2%) yield no
+speech.
 
-For those videos a channel does not underperform; it does not exist. Modality *applicability* is a
-property of the document, and no query-side statistic can see it. Text retrieval has no analogue: every
-document in a text collection has terms, so the question of whether a modality is available never
-arises. Clarity is the limit case: it needs a language model over the retrieved documents, so over frames
-it is undefined rather than weak, and we report it unavailable rather than substituting a number that
-looks like one.
+For those 10,919 videos there is no on-screen text channel to score. Modality *applicability* is a
+property of the document, and no query-side statistic can see it. Text retrieval never poses the
+question: every document in a text collection has terms, so a modality is always available. Clarity is
+the limit case. It needs a language model over the retrieved documents, so over frames it has no
+definition at all, and we report it unavailable instead of substituting a number that looks like one.
 
 *(RQ3 is the efficiency material: measured joules, p99 latency, risk-coverage. Scoped to a second paper;
 see `paper2_scope.md`.)*
@@ -162,7 +162,7 @@ see `paper2_scope.md`.)*
 ## What we are not claiming
 
 Our channels are deliberately cheap, so absolute numbers sit below MMMORRF (0.586) and OmniEmbed (0.753).
-Under this story that is setting rather than weakness: a boundary condition on someone else's result does
+For this claim the cheap channels are the setting: a boundary condition on someone else's result does
 not need our retrieval to be competitive. We do not claim to beat classical QPP: NQC ties or edges our
 router on the binary decision, and since NQC is in the family that transfers, that corroborates the
 claim. Ceilings get audited: picking each query's best policy on half its golds and grading on the other
@@ -170,8 +170,7 @@ half wipes out 15 of the oracle's 16 points, so we report no "% of oracle captur
 
 **Open:** the QPP-4-RAG suite is complete, with every predictor named, BERT-QPP in both flavours, both halves
 of QSD. The one row we cannot fill is DM, which appears in their Table 1, nowhere in their repository,
-and whose row equals their Original row in all eight columns. That is a question for the authors rather
-than a gap in our implementation.
+and whose row equals their Original row in all eight columns. Only the authors can say what it was.
 
 ---
 

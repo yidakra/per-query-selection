@@ -13,8 +13,8 @@ stronger translated channel produces three small exceptions out of eleven, and a
 produces none in 88 tests. The claim is therefore a family-level boundary, not a theorem that a
 query--collection statistic can never work. MultiVENT folds are grouped by event.
 
-Story B, agreed 31 Jul 2026, sharpened the same evening (see "What QSD changed" below). Per-query
-channel routing is the positive control, not the headline.
+Story B, agreed 31 Jul 2026, sharpened the same evening (see "What QSD changed" below). The boundary
+carries the paper; per-query channel routing serves as its positive control.
 
 ## Table 1
 
@@ -50,8 +50,7 @@ their rule, a margin above 5 × 10⁻⁴, and the threshold is not what produces
 anywhere in those 33 cells is **+0.0003**, which is the same "+0.0005 of doing nothing" fact quoted in
 step 1 seen from the other side.
 
-The escalation fractions say the same thing more bluntly. A corpus-statistic predictor does not make a
-poor choice here; it makes no choice. In the OCR cell all eleven escalate exactly 0% of queries, in
+The escalation fractions say the same thing in plainer terms. In the OCR cell all eleven escalate exactly 0% of queries, in
 ASR-dense six of eleven escalate exactly 100%, and the rest sit within a fraction of a percent of a
 corner. The score-only family varies query by query in the same cells (NQC escalates 43% / 79% / 7%).
 Counting only exact 0 or exact 1: 20 of 33 corpus-statistic cells are degenerate against 2 of 30
@@ -101,10 +100,9 @@ beats everything including us, and event grouping takes 52% of that away, becaus
 neighbour shares 60% of its relevant documents on average (Jaccard 0.605, against 0.0018 for a random
 query, a 300-fold enrichment). What survives grouping is real but small.
 
-The sharper claim is also the more useful one. "Pre-retrieval fails" would be a fact about a category
-label. "A predictor that reads the query against a collection cannot tell you which source will answer
-it" is a fact about what the predictors measure, and it says what would have to change for the result
-to flip.
+"Pre-retrieval fails" would be a fact about a category label. "A predictor that reads the query
+against a collection cannot tell you which source will answer it" is a fact about what the predictors
+measure, and it says what would have to change for the result to flip.
 
 **QSD_post gives a matched within-family test, and the result is mixed.** Their post-retrieval variant
 (Eq. 8) reads everything the suite has: the query, its neighbours in Query Space *with* their known
@@ -148,10 +146,9 @@ event-group-disjoint (`mv2_qsd_pre_nested_grouped.json`,
    compares channels whose applicability is a property of the document. In variant selection every
    option applies to every document and only quality varies.
 
-   This is measurable rather than rhetorical. Of the 109,724 test videos, **10,919 (10.0%) yield no
-   on-screen text at all** and 236 (0.2%) yield no speech; 101 yield neither. For those videos the
-   channel does not underperform, it does not exist, and no query-side statistic can know that in
-   advance because it is a property of the document. Text retrieval has no analogue: every document in a
+   Of the 109,724 test videos, **10,919 (10.0%) yield no on-screen text at all** and 236 (0.2%) yield
+   no speech; 101 yield neither. For those videos there is no channel to score, and no query-side
+   statistic can know that in advance because it is a property of the document. Text retrieval has no analogue: every document in a
    collection has terms, so the question of whether a modality is *available* never arises. This is the
    part of the multimodal setting with no counterpart in the QPP literature, and it is why the boundary
    falls where it does.
@@ -168,7 +165,7 @@ added. Stacked on the score features: +7.56 ± 0.89, the baseline back again. Th
 concession we make out loud: pre-retrieval QPP was handed a proxy it does not normally get, and it
 still did not help.
 
-A bounded null, not a shrug: 2,546 queries against their 56 topics, with intervals that exclude anything
+The null is bounded: 2,546 queries against their 56 topics, with intervals that exclude anything
 of practical size. And QL makes the structural point on its own, since QPP-4-RAG defines it as
 `len(qtokens)`, a number identical across channels by construction, asked to choose between speech,
 text and frames.
