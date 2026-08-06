@@ -34,7 +34,9 @@ grouped by event so a near-duplicate phrasing cannot sit on both sides of the sp
 grouping this predictor reads its own answer off a duplicate -- QSD_pre loses 52% of its tau to that
 correction.
 
-CPU only: GPU0 runs an unrelated service and GPU1 is left free, so CUDA is hidden before torch loads.
+CPU is the default. A GPU run must be launched with an explicit nonzero CUDA visibility mask, for
+example `CUDA_VISIBLE_DEVICES=1 ... --device cuda`; the script refuses an unmasked CUDA request so GPU0
+cannot be selected accidentally.
 
   python src/multivent2/mv2_qsd_post.py --group-cv
 """
@@ -44,7 +46,7 @@ import json
 import time
 import argparse
 
-os.environ["CUDA_VISIBLE_DEVICES"] = ""          # must precede torch
+os.environ.setdefault("CUDA_VISIBLE_DEVICES", "")  # hide every GPU unless the caller names a safe one
 os.environ.setdefault("TOKENIZERS_PARALLELISM", "false")
 
 import numpy as np                                # noqa: E402
@@ -53,6 +55,8 @@ from mv2_io import load_run, load_queries, load_qrels   # noqa: E402
 from mv2_qsd import event_groups                        # noqa: E402
 from mv2_bertqpp import load_captions, CELLS            # noqa: E402
 from mv2_recall_sidecar import load_cell_recall         # noqa: E402
+from mv2_nested_calibration import (apply_fraction, calibration_split,
+                                    choose_fraction)     # noqa: E402
 from scipy.stats import kendalltau                      # noqa: E402
 from sklearn.model_selection import KFold, GroupKFold   # noqa: E402
 
@@ -94,13 +98,18 @@ def build_text(qtext, nb_texts, nb_gains, doc_text):
     return qtext, f"similar queries: {nb} | document: {doc_text}"
 
 
-def run_fold(a, torch, queries, qids, E, g, caps_for, tr, te):
+def run_fold(a, torch, queries, qids, E, g, caps_for, tr, te, seed):
     from transformers import AutoTokenizer, AutoModel
+    np.random.seed(seed)
+    torch.manual_seed(seed)
+    if a.device == "cuda":
+        torch.cuda.manual_seed_all(seed)
     tok = AutoTokenizer.from_pretrained(a.model)
-    enc = AutoModel.from_pretrained(a.model)
-    head = torch.nn.Linear(enc.config.hidden_size + 4, 1)
+    enc = AutoModel.from_pretrained(a.model).to(a.device)
+    head = torch.nn.Linear(enc.config.hidden_size + 4, 1).to(a.device)
     opt = torch.optim.AdamW(list(enc.parameters()) + list(head.parameters()), lr=a.lr)
     lossf = torch.nn.MSELoss()
+    scaler = torch.amp.GradScaler("cuda", enabled=a.amp)
 
     def prep(targets, exclude_self):
         order, d, gains, feats = neighbourhood(E, g, tr, targets, a.k, exclude_self)
@@ -113,32 +122,44 @@ def run_fold(a, torch, queries, qids, E, g, caps_for, tr, te):
     def forward(pairs, feats):
         b = tok([p[0] for p in pairs], [p[1] for p in pairs], padding=True, truncation=True,
                 max_length=a.max_len, return_tensors="pt")
+        b = {k: v.to(a.device) for k, v in b.items()}
         out = enc(**b).last_hidden_state
         mask = b["attention_mask"].unsqueeze(-1).float()
         pooled = (out * mask).sum(1) / mask.sum(1).clamp(min=1e-9)
-        return head(torch.cat([pooled, torch.tensor(feats)], dim=1)).squeeze(-1)
+        numeric = torch.as_tensor(feats, dtype=torch.float32, device=a.device)
+        return head(torch.cat([pooled, numeric], dim=1)).squeeze(-1)
 
     tr_pairs, tr_feats = prep(list(tr), exclude_self=True)
     enc.train(); head.train()
     idx = np.arange(len(tr))
-    rng = np.random.default_rng(0)
+    rng = np.random.default_rng(seed)
     for _ in range(a.epochs):
         rng.shuffle(idx)
         for s in range(0, len(idx), a.batch):
             ch = idx[s:s + a.batch]
             if len(ch) < 2:
                 continue
-            pred = forward([tr_pairs[i] for i in ch], tr_feats[ch])
-            loss = lossf(pred, torch.tensor([float(g[tr[i]]) for i in ch]))
-            loss.backward(); opt.step(); opt.zero_grad()
+            with torch.autocast(device_type="cuda", dtype=torch.float16, enabled=a.amp):
+                pred = forward([tr_pairs[i] for i in ch], tr_feats[ch])
+                target = torch.as_tensor([float(g[tr[i]]) for i in ch],
+                                         dtype=torch.float32, device=a.device)
+                loss = lossf(pred, target)
+            scaler.scale(loss).backward()
+            scaler.step(opt)
+            scaler.update()
+            opt.zero_grad()
 
     te_pairs, te_feats = prep(list(te), exclude_self=False)
     enc.eval(); head.eval()
     out = []
     with torch.no_grad():
         for s in range(0, len(te), 32):
-            out.extend(forward(te_pairs[s:s + 32], te_feats[s:s + 32]).tolist())
+            with torch.autocast(device_type="cuda", dtype=torch.float16, enabled=a.amp):
+                batch_out = forward(te_pairs[s:s + 32], te_feats[s:s + 32])
+            out.extend(batch_out.float().cpu().tolist())
     del enc, head
+    if a.device == "cuda":
+        torch.cuda.empty_cache()
     return np.array(out)
 
 
@@ -154,6 +175,15 @@ def main():
     ap.add_argument("--max-len", type=int, default=320)
     ap.add_argument("--lr", type=float, default=2e-5)
     ap.add_argument("--threads", type=int, default=12)
+    ap.add_argument("--device", default="cpu", choices=["cpu", "cuda"],
+                    help="CUDA is accepted only when CUDA_VISIBLE_DEVICES names nonzero physical GPUs")
+    ap.add_argument("--amp", action="store_true",
+                    help="use CUDA mixed precision; requires --device cuda")
+    ap.add_argument("--seed", type=int, default=0)
+    ap.add_argument("--nested-calibration", action="store_true",
+                    help="choose an escalation fraction on a group-disjoint subset of each outer "
+                         "training fold, never on outer-test labels")
+    ap.add_argument("--calibration-size", type=float, default=0.2)
     ap.add_argument("--limit", type=int, default=0, help="debug: only this many queries")
     ap.add_argument("--group-cv", action="store_true",
                     help="split by event group. Strongly recommended: this predictor is handed other "
@@ -162,6 +192,16 @@ def main():
     a = ap.parse_args()
 
     import torch
+    if a.device == "cuda":
+        visible = [x.strip() for x in os.environ.get("CUDA_VISIBLE_DEVICES", "").split(",") if x.strip()]
+        if not visible or "0" in visible:
+            sys.exit("refusing CUDA: set CUDA_VISIBLE_DEVICES to nonzero physical GPU indices only")
+        if not torch.cuda.is_available():
+            sys.exit("CUDA requested but unavailable under the current visibility mask")
+    if a.amp and a.device != "cuda":
+        sys.exit("--amp requires --device cuda")
+    if a.nested_calibration and not a.group_cv:
+        sys.exit("--nested-calibration requires --group-cv")
     torch.set_num_threads(a.threads)
     from sentence_transformers import SentenceTransformer
 
@@ -191,46 +231,60 @@ def main():
         print(f"{cell}: {len(qids)} queries, {n_missing} without a caption for their top doc",
               flush=True)
 
+        grp = event_groups(qids, qrels) if a.group_cv else None
         if a.group_cv:
-            grp = event_groups(qids, qrels)
             splits = list(GroupKFold(5).split(np.arange(len(qids)), groups=grp))
             print(f"  {len(set(grp))} event groups (grouped CV)", flush=True)
         else:
             splits = list(KFold(5, shuffle=True, random_state=0).split(np.arange(len(qids))))
 
         pred = np.zeros(len(qids))
+        nested_decisions = np.zeros(len(qids), dtype=bool)
+        calibration = []
         t0 = time.time()
         for fi, (tr, te) in enumerate(splits):
-            pred[te] = run_fold(a, torch, queries, qids, E, g, caps_for, tr, te)
+            if a.nested_calibration:
+                fit, cal = calibration_split(tr, grp, a.calibration_size, a.seed + fi)
+                cal_pred = run_fold(a, torch, queries, qids, E, g, caps_for, fit, cal,
+                                    a.seed + 100 * fi)
+                fraction, cal_utility = choose_fraction(cal_pred, ndA[cal], ndB[cal])
+                calibration.append({"fold": fi, "fraction": fraction,
+                                    "calibration_utility": cal_utility,
+                                    "n_fit": len(fit), "n_calibration": len(cal)})
+                pred[te] = run_fold(a, torch, queries, qids, E, g, caps_for, tr, te,
+                                    a.seed + 100 * fi + 1)
+                nested_decisions[te] = apply_fraction(pred[te], fraction)
+            else:
+                pred[te] = run_fold(a, torch, queries, qids, E, g, caps_for, tr, te,
+                                    a.seed + fi)
             print(f"  fold {fi+1}/5 done ({(time.time()-t0)/60:.1f} min elapsed)", flush=True)
 
         tau = float(kendalltau(pred, g).statistic)
-        routed = float(np.where(pred > 0, ndB, ndA).mean())
+        zero_decisions = pred > 0
+        decisions = nested_decisions if a.nested_calibration else zero_decisions
+        routed = float(np.where(decisions, ndB, ndA).mean())
+        routed_zero = float(np.where(zero_decisions, ndB, ndA).mean())
         recA, recB = load_cell_recall(cell, qids)
-        rec = None if recA is None else float(np.where(pred > 0, recB, recA).mean())
-        # the same f sweep BERT-QPP reports, for the same reason: it separates a bad ordering from a
-        # badly placed zero crossing. It is chosen on the evaluation set and is NOT comparable to the
-        # thresholded column in Table 1.
-        order = np.argsort(-pred)
-        best_v, best_f = routed, 0.0
-        for f in np.arange(0.02, 1.0, 0.02):
-            m = np.zeros(len(qids), bool); m[order[:int(round(f * len(qids)))]] = True
-            v = float(np.where(m, ndB, ndA).mean())
-            if v > best_v:
-                best_v, best_f = v, float(f)
+        rec = None if recA is None else float(np.where(decisions, recB, recA).mean())
 
         out[cell] = {"tau": tau, "routed_ndcg10": routed, "routed_recall100": rec,
-                     "frac_escalated": float((pred > 0).mean()),
-                     "routed_best_f": best_v, "best_f": best_f, "n": len(qids),
+                     "frac_escalated": float(decisions.mean()),
+                     "routed_ndcg10_zero": routed_zero,
+                     "frac_escalated_zero": float(zero_decisions.mean()), "n": len(qids),
                      "cheap": float(ndA.mean()), "uniform": float(ndB.mean()),
                      "recall_cheap": float(recA.mean()) if recA is not None else None,
                      "recall_uniform": float(recB.mean()) if recB is not None else None,
                      "model": a.model, "k": a.k, "epochs": a.epochs, "group_cv": bool(a.group_cv),
+                     "device": a.device, "precision": "amp-fp16" if a.amp else "fp32",
+                     "batch_size": a.batch, "max_length": a.max_len, "seed": a.seed,
+                     "decision_rule": "nested_fraction" if a.nested_calibration else "zero",
+                     "nested_calibration": calibration,
                      "qids": qids,
-                     "decisions": "".join("1" if p > 0 else "0" for p in pred),
+                     "decisions": "".join("1" if x else "0" for x in decisions),
+                     "zero_decisions": "".join("1" if x else "0" for x in zero_decisions),
                      "pred": {q: float(p) for q, p in zip(qids, pred)}}
         json.dump(out, open(a.out, "w"), indent=2)
-        print(f"{cell}: tau={tau:+.3f}  routed nDCG@10={routed:.4f}  esc={100*(pred>0).mean():.1f}%"
+        print(f"{cell}: tau={tau:+.3f}  routed nDCG@10={routed:.4f}  esc={100*decisions.mean():.1f}%"
               + (f"  R@100={rec:.4f}" if rec is not None else "")
               + f"  (cheap {ndA.mean():.4f}, uniform {ndB.mean():.4f})", flush=True)
 

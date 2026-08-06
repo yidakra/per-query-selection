@@ -21,7 +21,7 @@ produced the row's nDCG, and the judged queries must be a subset of the routed o
 The mix runs over the RAG arm's 395 judged queries, not all 2,546, so the nDCG reproduced here is the
 subset's and will not equal the main table's. That is reported rather than hidden.
 
-  python src/multivent2/mv2_table1_nuggets.py [--evidence all] [--tag _grouped]
+  python src/multivent2/mv2_table1_nuggets.py [--evidence all] [--tag _grouped] [--nested]
 """
 import os
 import sys
@@ -70,6 +70,8 @@ def main():
                          "is what the rest of Table 1 measures")
     ap.add_argument("--tag", default="_grouped")
     ap.add_argument("--n", type=int, default=400)
+    ap.add_argument("--nested", action="store_true",
+                    help="use the matched nested-calibration QSD and BERT-QPP decisions")
     a = ap.parse_args()
 
     assigned = load_assigned(os.path.join(RAG, f"assigned_n{a.n}_{a.evidence}.jsonl"))
@@ -79,11 +81,16 @@ def main():
                  f"after adding them to POLICIES.")
 
     table = json.load(open(os.path.join(ABL, f"mv2_qpp_table{a.tag}.json")))
-    qsd = json.load(open(os.path.join(ABL, f"mv2_qsd{a.tag}.json")))
-    bert = json.load(open(os.path.join(ABL, f"mv2_bertqpp{a.tag}.json")))
-    p_bi = os.path.join(ABL, f"mv2_bertqpp_bi{a.tag}.json")
+    qsd = json.load(open(os.path.join(
+        ABL, "mv2_qsd_pre_nested_grouped.json" if a.nested else f"mv2_qsd{a.tag}.json")))
+    bert = json.load(open(os.path.join(
+        ABL, "mv2_bertqpp_cross_3ep_nested_grouped.json"
+        if a.nested else f"mv2_bertqpp{a.tag}.json")))
+    p_bi = os.path.join(ABL, "mv2_bertqpp_bi_3ep_nested_grouped.json"
+                        if a.nested else f"mv2_bertqpp_bi{a.tag}.json")
     bert_bi = json.load(open(p_bi)) if os.path.exists(p_bi) else {}
-    p_qp = os.path.join(ABL, f"mv2_qsd_post{a.tag}.json")
+    p_qp = os.path.join(ABL, "mv2_qsd_post_5ep_nested_grouped.json"
+                        if a.nested else f"mv2_qsd_post{a.tag}.json")
     qsd_post = json.load(open(p_qp)) if os.path.exists(p_qp) else {}
     qrels, _ = load_qrels(os.path.join(DATA, "multivent_2_test_judgments.jsonl"))
     SNAKE = {"ASR-shipped": "asr_shipped", "ASR-dense": "asr_dense", "OCR": "ocr"}
@@ -152,7 +159,8 @@ def main():
                       f"{r['strict_vital']:>9.4f}{r['all']:>8.4f}{r['strict_all']:>9.4f}")
         out[cell] = {"n_judged": len(judged), "evidence": a.evidence, "rows": rows}
 
-    dest = os.path.join(ABL, f"mv2_table1_nuggets{a.tag}.json")
+    stem = "mv2_table1_nuggets_nested" if a.nested else "mv2_table1_nuggets"
+    dest = os.path.join(ABL, f"{stem}{a.tag}.json")
     json.dump(out, open(dest, "w"), indent=2)
     print(f"\nwrote {dest}")
 

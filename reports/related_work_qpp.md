@@ -116,7 +116,9 @@ embeddings, which no generator can read, while OCR retrieves worst at 0.1223 and
 can use directly. Ranking ability and grounding ability are carried by different things here, so we
 predicted a divergence sharper than theirs.
 
-We measured it under their nuggetizer protocol, 395 stratified queries, local judge, and ran it twice.
+We measured it under their nuggetizer protocol on 395 stratified queries and ran two grounding arms.
+The 14B checkpoint produces nuggets, reports and primary assignments; a 7B checkpoint from the same
+model family repeats assignment while holding nuggets and reports fixed.
 In the first arm every policy is grounded on all available text for the documents it returned, which
 isolates retrieval quality and is the closest analogue of their setting. In the second each policy may
 read only the channels it selected, which is what a deployed cascade would have.
@@ -126,6 +128,12 @@ against 0.4648 for the best fixed policy (p = .037) and 0.3902 against 0.3432 on
 and the policy ordering under nugget coverage is the ordering under nDCG. Holding each policy to its own
 evidence, the same routed system reaches 0.4822 against 0.4746 (p = .67) and 0.3674 against 0.3473
 (p = .29) — indistinguishable, while still leading that policy by +7.4 nDCG.
+
+The 7B assignment repeats the distinction: all-text vital coverage is 0.4781 against 0.4381
+(delta +0.0399, p=.038), while selected-channel coverage is 0.4583 against 0.4328
+(delta +0.0255, p=.22). Exact label agreement is 71--72% and Cohen's κ is 0.53. Thus absolute judgments
+move, but the arm-level conclusion survives this capacity/checkpoint change. Because both are Qwen2.5,
+this is not evidence of cross-family judge robustness.
 
 The asymmetry is real, then, and it sits in the grounding rather than in the retrieval. The best fixed
 policy is unaffected by the restriction because `asr+visual` gives it two text sources either way; the
@@ -199,19 +207,19 @@ of other variants is exposed, and we can quantify the exposure because we have a
   on the record rather than presenting the mechanism as though we had it in advance.
 - Their 56 topics against our 2,546 queries is a fair power contrast, but the RAG arm runs on 395, so
   do not claim scale on both axes in the same breath.
-- Both RAG arms are in (1 Aug 2026). Numbers live in `results/ablations/rag/metrics_n400_{all,own}.json`
-  and the write-up in `mv2_rag_findings.md`.
+- Both RAG arms and the second assignment checkpoint are in. Numbers live in
+  `results/ablations/rag/metrics_n400_{all,own}{,_qwen7b}.json`; the current write-up is in
+  `evidence.md` and `experiment_gap_closure.md`.
 - Table 1 is complete as of 1 Aug 2026, nugget columns included, for every row rather than the
   section-best rows. They are mixed per query from two judged runs per cell, which is exact and not an
   approximation: a report's coverage is a property of the ranked list it was written from. The mix
   aborts unless both endpoints reproduce the judged runs. Do not let a later draft describe these
   columns as estimated or partial.
-- The τ-versus-utility result is the one finding that generalizes past this dataset, so state it
-  carefully. It is **negative**, −0.268 over 72 rows, and it *strengthens* to −0.337 and −0.425 as the
-  degenerate and near-degenerate rows are removed. That ordering matters: the first objection any
-  reviewer raises is that inert predictors score zero utility and are counted harmless, and the answer
-  is that removing them makes the effect larger, not smaller. Report the cheap-only denominator (−0.141)
-  in the same breath so the choice of denominator is not a hidden degree of freedom.
+- The old τ-versus-utility headline does not survive nested calibration of the learned methods. It is
+  −0.099 over 78 rows (p=.213), −0.189 after exact degeneracies are removed, and −0.244 for 5--95%
+  escalation; against cheap-only it is −0.046. The portable result is that correlation does not supply
+  a deployable operating point, demonstrated by the cross-encoder changing from always-fuse to the
+  strongest learned baseline under inner-fold calibration. Do not reinstate the anti-correlation claim.
 - The corpus-axis experiments (1 Aug 2026) are a negative result and belong in the paper as one. In
   sample they look outstanding — 100.0% of the ASR-dense gain at 38% of the corpus, an oracle document
   set beating full extraction by +0.069 — and every bit of it is selection-on-test. Train and held-out

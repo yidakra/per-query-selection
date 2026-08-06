@@ -4,17 +4,21 @@ Standard practice in IR is to let a query performance predictor decide how much 
 Arabzadeh et al. (arXiv:2604.22661) do exactly this to pick among LLM query variants, and it works. We
 ask whether it survives when the choice is *which channel to search* in a video corpus: speech,
 on-screen text, or the frames themselves. The choice is worth making — a selector over the channels' own
-score distributions beats the best fixed policy by +7.59 nDCG — but the standard predictors cannot see
-it. Eleven corpus-statistic predictors sit flat, Clarity is undefined over frames rather than merely
+score distributions beats the best fixed policy by +7.59 nDCG — but the standard corpus-statistic
+family does not see it reliably. Eleven such predictors sit flat in the three reference cells, Clarity
+is undefined over frames rather than merely
 weak, and the one pre-retrieval predictor that escapes needs no index at all. So the boundary is not pre-
 versus post-retrieval, it is whether a predictor depends on document-side language statistics — and in a
-corpus where 10% of videos carry no text, that dependence is not a detail. Kendall's τ, meanwhile,
-*anti*-correlates with how useful a predictor actually is for the decision (−0.213 over 78
-predictor-cell rows, p = 0.008), which is a problem for the metric the field selects on.
+corpus where 10% of videos carry no text, that dependence is not a detail. Rank correlation, meanwhile,
+does not specify a decision threshold: nested calibration changes BERT-QPP's cross-encoder from an
+always-fuse failure to the strongest learned QPP baseline and removes the apparent overall
+anti-correlation between τ and utility.
 
-**Claim, stated sharply.** Predictors that read the query against a corpus index cannot choose an
-*evidence source*. Predictors that read evidence back from retrieval can. The pre/post-retrieval split
-the literature organises by is a proxy for that, and it is the wrong proxy here.
+**Claim, stated sharply.** QPP-based selection has a boundary: the reference corpus-statistic family
+does not provide a reliable *evidence-source* selector, while signals that read option outcomes from
+retrieval transfer much more reliably. The pre/post-retrieval split the literature organises by is a
+proxy for that, and it is the wrong proxy here. This is a measured family-level boundary, not a theorem
+that a query--collection statistic can never help.
 
 MultiVENT 2.0 test, 2,546 queries, graded multi-gold judgments, folds grouped by event (536 groups).
 Predictor definitions follow `github.com/Narabzad/QPP-4-RAG`.
@@ -26,7 +30,7 @@ Predictor definitions follow `github.com/Narabzad/QPP-4-RAG`.
 **No, for the corpus-statistic family.** Arabzadeh et al. (arXiv:2604.22661) show cheap pre-retrieval
 predictors picking well among 30 LLM query variants, ahead of NQC. Run the same families against the same
 reference definitions on a choice among evidence channels and all eleven land at τ ≈ 0, routing to within
-0.0005 nDCG of doing nothing.
+0.0005 nDCG of doing nothing in each of the three reference cells.
 
 The obvious objection is that one index over transcripts gives every predictor one number per query
 regardless of channel. So we built an index per channel — transcripts, on-screen text, and the shipped
@@ -40,6 +44,15 @@ beats the best fixed policy chosen on the training fold by **+7.59 ± 1.01 nDCG*
 So the choice is predictable; these predictors just cannot see it. This is the positive control, not the
 headline.
 
+The boundary survives two harder checks, with useful qualifications. A translated speech channel raises
+the fixed baseline from 0.3408 to 0.3452: 3 of 11 corpus-statistic rows now clear the 0.0005 margin, but
+only to 0.3468--0.3472, against 8 of 10 score-only rows and 0.3920 for the control. On MSR-VTT-1kA,
+across direct visual-versus-caption choice and visual-to-fusion escalation under two encoders and two
+evidence conditions, the corpus-statistic family is 0/88. The direct choice has 5.57--10.37 nDCG of
+oracle headroom and the control beats fixed in all four conditions. Score-only transfer on that second
+collection is mixed, so the robust claim is the corpus-statistic boundary rather than universal success
+of every retrieval-score predictor.
+
 ---
 
 ## RQ2 — How do the standard QPP predictors compare when used as routers?
@@ -48,7 +61,7 @@ Laid out like Arabzadeh et al.'s Table 1 so the two read side by side: <u>underl
 Original row, **bold** is best in section. Their Original is the unmodified query, so ours is the best
 fixed policy — the default when you do no selection. **ASR-dense cell** below, the one where the
 expensive channel pays; all three cells and the full artifact in
-`results/ablations/mv2_table1_grouped.md`.
+`results/ablations/mv2_table1_nested_grouped.md`.
 
 | Category | Method | nDCG@10 | τ | R@100 | N_all | N_strict |
 |---|---|---|---|---|---|---|
@@ -66,12 +79,12 @@ expensive channel pays; all three cells and the full artifact in
 | | SCS_apx | 0.3408 | −0.014 | 0.7268 | 0.3672 | 0.2621 |
 | | SCS_full | 0.3408 | −0.016 | 0.7268 | 0.3672 | 0.2621 |
 | | QL | 0.3408 | +0.052 | 0.7268 | 0.3678 | 0.2625 |
-| | **QSD_pre** | **<u>0.3466</u>** | +0.152 | 0.7074 | 0.3545 | 0.2500 |
+| | **QSD_pre** | **<u>0.3469</u>** | +0.152 | 0.7112 | 0.3630 | 0.2559 |
 | | DM | *n.i.* | — | — | — | — |
 | Post-retrieval | RSD | 0.3388 | −0.069 | 0.7202 | 0.3660 | 0.2611 |
 | | clarity | n/a | — | — | — | — |
 | | NQC | <u>0.3527</u> | −0.163 | 0.7198 | 0.3669 | 0.2630 |
-| | **NQC_norm** | **<u>0.3541</u>** | −0.154 | 0.7169 | 0.3716 | 0.2671 |
+| | NQC_norm | <u>0.3541</u> | −0.154 | 0.7169 | 0.3716 | 0.2671 |
 | | σ_max | <u>0.3507</u> | −0.144 | 0.7223 | 0.3676 | 0.2640 |
 | | σ_50% | <u>0.3446</u> | −0.122 | 0.7190 | 0.3629 | 0.2572 |
 | | SMV | <u>0.3509</u> | −0.151 | 0.7201 | 0.3682 | 0.2638 |
@@ -79,15 +92,15 @@ expensive channel pays; all three cells and the full artifact in
 | | WIG | 0.3408 | +0.012 | 0.7268 | 0.3672 | 0.2621 |
 | | WIG_norm | 0.3411 | −0.106 | 0.7186 | 0.3649 | 0.2597 |
 | | max | <u>0.3430</u> | −0.112 | 0.7232 | 0.3638 | 0.2608 |
-| | QSD_post | <u>0.3423</u> | +0.102 | 0.6983 | 0.3557 | 0.2496 |
-| | BERT-QPP (cross) | 0.3408 | **+0.229** | 0.7268 | 0.3672 | 0.2621 |
-| | BERT-QPP (bi) | 0.3125 | −0.025 | 0.6414 | 0.3443 | 0.2424 |
+| | QSD_post | <u>0.3486</u> | +0.142 | 0.7087 | 0.3705 | 0.2670 |
+| | **BERT-QPP (cross)** | **<u>0.3560</u>** | **+0.210** | 0.7042 | 0.3748 | 0.2725 |
+| | BERT-QPP (bi) | 0.3403 | −0.029 | 0.7264 | 0.3676 | 0.2624 |
 | Ours | cheap-feature gain ridge | <u>0.3531</u> | +0.160 | 0.7207 | 0.3684 | 0.2642 |
 | Oracle | route by true gain | <u>0.3910</u> | +1.000 | 0.6286 | 0.3861 | 0.2841 |
 
-*n.i.* = no equivalent predictor implemented; `n/a` = undefined over frames. Every nDCG cell is the
-predictor's own decision at its zero crossing, including BERT-QPP's — swept operating points are
-reported separately in `qpp_baselines.md` and are not comparable to this column. Underline follows their
+*n.i.* = no equivalent predictor implemented; `n/a` = undefined over frames. Analytic predictors use
+their out-of-fold gain crossing; QSD and BERT-QPP use an escalation fraction chosen on a group-disjoint
+subset of each outer training fold and fixed before outer-test prediction. Underline follows their
 rule, a margin above 5 × 10⁻⁴ over the Original row. The Ours row is a binary escalate-or-not decision,
 which is the only decision this cell offers; the k-way selector over all 7 channel subsets is the
 separate experiment behind the +7.59 in RQ1 and is not a row here.
@@ -99,30 +112,31 @@ predictor here does not choose badly, it does not choose. In the OCR cell all el
 of queries; in ASR-dense six of eleven escalate exactly 100%. Counting only exact 0 or exact 1, **20 of
 33 corpus-statistic cells are degenerate against 2 of 30 score-only cells**.
 
-**Both halves of QSD are now in, and the post-retrieval one is worse.** QSD_post reads everything the
-suite has — the query, its neighbours in Query Space with their known gains, and the retrieved document
-text — and it lands below QSD_pre on *both* metrics in *all three* cells (−0.008 / −0.004 / −0.003 nDCG,
-τ −0.027 / −0.050 / −0.003). QSD_pre uses no document evidence whatsoever. Adding it, plus a trained
-transformer, did not help. That is the boundary argued above, tested inside a single predictor family
-rather than across families. Caveat carried in the table notes: one epoch, bert-base, CPU, so this
-bounds the variant at that budget rather than at any budget.
+**The stronger, matched QSD comparison is mixed.** QSD_post reads the query, neighbouring queries and
+their gains, and retrieved document text. After five epochs and group-disjoint nested calibration, it is
+effectively tied with equally calibrated QSD_pre in shipped speech (+0.0001 nDCG), modestly better in
+dense speech (+0.0017), and worse in OCR (−0.0023); τ changes −0.042 / −0.010 / +0.005. Thus the earlier
+one-epoch claim that adding documents makes QSD worse was not robust. The supported conclusion is
+narrower: document evidence does not produce a consistent benefit, so it does not rescue the family
+comparison, but this experiment no longer positively locates the boundary by itself.
 
-**Correlation and decision come apart, and they do it systematically.** BERT-QPP (cross) has the best τ
-in the table (+0.237 / +0.229 / +0.167) and the worst decision in it: its predictions are all positive,
-minimum +0.38, so it escalates every query in all three cells and lands exactly on uniform fusion — worse
-than doing nothing in two of them. Its nugget row is identical to the uniform-fusion row, which is what a
-selector that never selects looks like under a generation metric.
+**Correlation is not a decision rule; calibration changes the conclusion.** The three-epoch BERT-QPP
+cross-encoder orders well (τ +0.223 / +0.210 / +0.180), but its predictions remain all positive and its
+raw zero crossing fuses every query. Choosing its escalation fraction on group-disjoint inner folds
+routes 52.4% / 65.2% / 12.0% instead and reaches 0.3204 / 0.3560 / 0.3042. It nearly ties the best
+post-retrieval row in shipped speech and is best in dense speech and OCR. On the judged subset its
+N_all also beats both fixed endpoints in the two speech cells.
 
-The two BERT-QPP variants fail in different ways, which is why both are worth carrying. The
-cross-encoder orders well and cannot decide. The bi-encoder — the cheaper, deployable one, whose document
-side encodes offline — cannot order at all: τ −0.016 / −0.025 / −0.030. It is *not* degenerate, escalating
-31–35% of queries, but the decisions are noise, and it loses to the best fixed policy in all three cells.
-Neither flavour of the suite's one supervised predictor yields a usable decision.
+The bi-encoder — the cheaper, deployable one, whose document side encodes offline — cannot order at all
+even after the same treatment: τ −0.017 / −0.029 / −0.015 and routed nDCG 0.3006 / 0.3403 / 0.3028,
+below fixed everywhere. Calibration can locate an operating point in a useful ordering; it cannot create
+one.
 
-This is not one bad row. Over all 78 predictor-cell rows, Kendall τ against utility over the best fixed
-policy is **−0.213** (p = 0.008), and it *strengthens* to −0.288 when degenerate rows are dropped and
-−0.386 among rows escalating between 5% and 95%. τ scores the whole ordering; a selection reads one point
-of it.
+Replacing every learned row with its nested-calibration decision weakens Kendall τ against utility over
+the best fixed policy from −0.213 to **−0.099** over 78 rows (p = 0.213); against cheap-only it is −0.046
+(p = 0.558). Restricted populations remain modestly negative, but the overall anti-correlation headline
+was a calibration artefact. The supported lesson is that τ scores an ordering while a deployable
+selector also needs leakage-free operating-point calibration.
 
 ---
 
@@ -162,4 +176,4 @@ than a gap in our implementation.
 ---
 
 Full evidence, caveats and negative results: `reports/evidence.md`. Complete RQ2 table with all three
-cells: `reports/qpp_baselines.md` and `results/ablations/mv2_table1_grouped.md`.
+cells: `reports/qpp_baselines.md` and `results/ablations/mv2_table1_nested_grouped.md`.

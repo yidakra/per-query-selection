@@ -324,7 +324,8 @@ def phase_assign(a, cl, model):
                 reports.append(json.loads(line))
             except Exception:
                 pass
-    out_path = os.path.join(RAG, f"assigned_n{a.n}_{a.evidence}.jsonl")
+    suffix = f"_{a.judge_tag}" if a.judge_tag else ""
+    out_path = os.path.join(RAG, f"assigned_n{a.n}_{a.evidence}{suffix}.jsonl")
     done = set()
     if os.path.exists(out_path):
         with open(out_path) as f:
@@ -333,13 +334,16 @@ def phase_assign(a, cl, model):
                     r = json.loads(line); done.add((r["qid"], r["policy"]))
                 except Exception:
                     pass
-    print(f"assign: {len(reports)} reports, {len(done)} already done", flush=True)
+    selected = [r for r in reports
+                if (not a.policies or r["policy"] in a.policies) and r["qid"] in gold]
+    print(f"assign: {len(selected)} selected reports ({len(reports)} total), "
+          f"{len(done)} already done", flush=True)
 
     with open(out_path, "a", buffering=1) as fh:
         n = 0
-        for r in reports:
+        for r in selected:
             key = (r["qid"], r["policy"])
-            if key in done or r["qid"] not in gold:
+            if key in done:
                 continue
             g = gold[r["qid"]]
             nug = g["nuggets"]
@@ -367,6 +371,8 @@ Only return the list of labels (List[str]). Do not explain."""}]
             n += 1
             if n % 20 == 0:
                 print(f"  {n} assigned", flush=True)
+            if a.max_items and n >= a.max_items:
+                break
     print(f"wrote {out_path}", flush=True)
 
 
@@ -384,7 +390,8 @@ def score(nuggets):
 
 
 def phase_metrics(a, *_):
-    path = os.path.join(RAG, f"assigned_n{a.n}_{a.evidence}.jsonl")
+    suffix = f"_{a.judge_tag}" if a.judge_tag else ""
+    path = os.path.join(RAG, f"assigned_n{a.n}_{a.evidence}{suffix}.jsonl")
     if not os.path.exists(path):
         sys.exit("nothing assigned yet")
     per = collections.defaultdict(list)
@@ -413,9 +420,10 @@ def phase_metrics(a, *_):
         m = {k: float(np.mean([v[k] for _, v in vals])) for k in vals[0][1]}
         rows.append((pol, len(vals), nd.get(pol, float("nan")), m))
     rows.sort(key=lambda r: -r[2] if not np.isnan(r[2]) else 0)
-    out = {"evidence": a.evidence, "n_queries": a.n,
+    out = {"evidence": a.evidence, "n_queries": len(gold), "requested_n": a.n,
+           "judge_model": a.model, "judge_tag": a.judge_tag or None,
            "rows": [{"policy": p, "n": n, "ndcg10": d, **m} for p, n, d, m in rows]}
-    json.dump(out, open(os.path.join(RAG, f"metrics_n{a.n}_{a.evidence}.json"), "w"), indent=2)
+    json.dump(out, open(os.path.join(RAG, f"metrics_n{a.n}_{a.evidence}{suffix}.json"), "w"), indent=2)
     print(f"\nevidence={a.evidence}  (judge: local model; policies comparable to each other only)")
     print(f"{'policy':<12}{'n':>5}{'nDCG@10':>10}{'N_strict_v':>12}{'N_vital':>10}{'N_strict_a':>12}{'N_all':>8}")
     for p, n, d, m in rows:
@@ -464,7 +472,8 @@ def phase_metrics(a, *_):
                                                 "tie": len(d) - w - l}
                 print(f"{base:<12}{k:<14}{obs:>+9.4f}{p:>8.4f}   {w}/{len(d) - w - l}/{l}")
         out["significance"] = sig
-        json.dump(out, open(os.path.join(RAG, f"metrics_n{a.n}_{a.evidence}.json"), "w"), indent=2)
+        json.dump(out, open(os.path.join(
+            RAG, f"metrics_n{a.n}_{a.evidence}{suffix}.json"), "w"), indent=2)
 
 
 def main():
@@ -474,7 +483,14 @@ def main():
     ap.add_argument("--n", type=int, default=400)
     ap.add_argument("--model", default="qwen2.5:14b-instruct")
     ap.add_argument("--base", default="http://localhost:11434/v1")
+    ap.add_argument("--judge-tag", default="",
+                    help="suffix for independent assignment/metric artifacts, e.g. qwen7b")
+    ap.add_argument("--policies", default="",
+                    help="optional comma-separated policy subset for assignment, e.g. routed,bestfixed")
+    ap.add_argument("--max-items", type=int, default=0,
+                    help="stop after this many new assignments; zero runs every remaining item")
     a = ap.parse_args()
+    a.policies = {p.strip() for p in a.policies.split(",") if p.strip()}
     cl, model = client(a.model, a.base)
     {"nuggets": phase_nuggets, "generate": phase_generate,
      "assign": phase_assign, "metrics": phase_metrics}[a.phase](a, cl, model)

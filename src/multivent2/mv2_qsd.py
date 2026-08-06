@@ -37,7 +37,11 @@ inside one family instead of across families.
 """
 import os, sys, json, argparse
 
-os.environ["CUDA_VISIBLE_DEVICES"] = ""      # before torch: both GPUs are in use elsewhere
+# This closed-form baseline is CPU-only when launched directly.  Keep an explicit mask supplied by a
+# caller importing `event_groups` (the guarded QSD-post/BERT-QPP trainers) instead of silently erasing
+# its already-validated GPU selection.
+if __name__ == "__main__":
+    os.environ["CUDA_VISIBLE_DEVICES"] = ""
 os.environ.setdefault("TOKENIZERS_PARALLELISM", "false")
 
 import numpy as np                            # noqa: E402
@@ -45,6 +49,8 @@ HERE = os.path.dirname(os.path.abspath(__file__)); sys.path.insert(0, HERE)
 from mv2_io import load_queries, load_run       # noqa: E402
 from mv2_recall_sidecar import load_cell_recall  # noqa: E402
 from mv2_qpp_table import bits                   # noqa: E402
+from mv2_nested_calibration import (apply_fraction, calibration_split,
+                                    choose_fraction)  # noqa: E402
 from scipy.stats import kendalltau             # noqa: E402
 from sklearn.model_selection import KFold      # noqa: E402
 
@@ -116,8 +122,15 @@ def main():
     ap.add_argument("--ks", default="5,10,25,50,100")
     ap.add_argument("--group-cv", action="store_true",
                     help="split by event group instead of by query, removing duplicate-topic leakage")
+    ap.add_argument("--nested-calibration", action="store_true",
+                    help="choose an escalation fraction on a group-disjoint subset of each outer "
+                         "training fold, never on outer-test labels")
+    ap.add_argument("--calibration-size", type=float, default=0.2)
+    ap.add_argument("--seed", type=int, default=0)
     ap.add_argument("--out", default=os.path.join(ABL, "mv2_qsd.json"))
     a = ap.parse_args()
+    if a.nested_calibration and not a.group_cv:
+        ap.error("--nested-calibration requires --group-cv")
 
     from sentence_transformers import SentenceTransformer
     from sklearn.model_selection import GroupKFold
@@ -149,10 +162,10 @@ def main():
         # scored under a second metric, not a second decision: Table 1 reports one selector per row.
         recA, recB = load_cell_recall(cell, qids)
 
-        def routed_recall(pred):
+        def routed_recall(decisions):
             if recA is None:
                 return None
-            return float(np.where(pred > 0, recB, recA).mean())
+            return float(np.where(decisions, recB, recA).mean())
 
         cell_out = {"cheap": float(ndA.mean()), "uniform": float(ndB.mean()), "n": len(qids), "k": {},
                     "qids": qids,
@@ -161,15 +174,36 @@ def main():
         for k in [int(x) for x in a.ks.split(",")]:
             for weighted, tag in ((True, "inv_dist"), (False, "uniform_mean")):
                 pred = np.zeros(len(qids))
-                for tr, te in splits:
+                nested_decisions = np.zeros(len(qids), dtype=bool)
+                calibration = []
+                for fi, (tr, te) in enumerate(splits):
+                    if a.nested_calibration:
+                        fit, cal = calibration_split(tr, grp, a.calibration_size, a.seed + fi)
+                        cal_pred = qsd_predict(E, g, fit, cal, k, weighted)
+                        fraction, cal_utility = choose_fraction(cal_pred, ndA[cal], ndB[cal])
+                        calibration.append({"fold": fi, "fraction": fraction,
+                                            "calibration_utility": cal_utility,
+                                            "n_fit": len(fit), "n_calibration": len(cal)})
                     pred[te] = qsd_predict(E, g, tr, te, k, weighted)
+                    if a.nested_calibration:
+                        nested_decisions[te] = apply_fraction(pred[te], fraction)
                 tau = float(kendalltau(pred, g).statistic)
-                routed = float(np.where(pred > 0, ndB, ndA).mean())
-                rec = routed_recall(pred)
+                zero_decisions = pred > 0
+                decisions = nested_decisions if a.nested_calibration else zero_decisions
+                routed = float(np.where(decisions, ndB, ndA).mean())
+                rec = routed_recall(decisions)
                 cell_out["k"][f"{k}_{tag}"] = {"tau": tau, "routed_ndcg10": routed,
                                                "routed_recall100": rec,
-                                               "frac_escalated": float((pred > 0).mean()),
-                                               "decisions": bits(pred > 0)}
+                                               "frac_escalated": float(decisions.mean()),
+                                               "routed_ndcg10_zero": float(
+                                                   np.where(zero_decisions, ndB, ndA).mean()),
+                                               "frac_escalated_zero": float(zero_decisions.mean()),
+                                               "decision_rule": ("nested_fraction" if
+                                                                 a.nested_calibration else "zero"),
+                                               "nested_calibration": calibration,
+                                               "decisions": bits(decisions),
+                                               "zero_decisions": bits(zero_decisions),
+                                               "pred": {q: float(p) for q, p in zip(qids, pred)}}
                 print(f"  k={k:<4} {tag:<13} tau={tau:+.3f}  routed nDCG@10={routed:.4f}"
                       + (f"  R@100={rec:.4f}" if rec is not None else ""), flush=True)
         # same splits, our cheap-feature router and the best analytic predictor, so the comparison is
@@ -190,7 +224,7 @@ def main():
                 pred[te] = mm.predict(feats[te])
             cell_out[tag] = {"tau": float(kendalltau(pred, g).statistic),
                              "routed_ndcg10": float(np.where(pred > 0, ndB, ndA).mean()),
-                             "routed_recall100": routed_recall(pred),
+                             "routed_recall100": routed_recall(pred > 0),
                              "frac_escalated": float((pred > 0).mean())}
             print(f"  {tag:<12} tau={cell_out[tag]['tau']:+.3f}  "
                   f"routed nDCG@10={cell_out[tag]['routed_ndcg10']:.4f}", flush=True)

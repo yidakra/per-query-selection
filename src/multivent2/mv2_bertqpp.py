@@ -13,14 +13,15 @@ to regress query performance. Two adaptations are needed here and both are state
   arm makes. Without them this predictor could not be run at all, which is itself the RQ4 point.
 
 Trained out of fold (5 folds, train on four, predict the held-out one) so the reported numbers carry no
-leakage, matching the protocol used for the analytic predictors. CPU only: GPU0 runs an unrelated
-service and GPU1 is occupied, so CUDA is hidden before torch is imported.
+leakage, matching the protocol used for the analytic predictors. CPU is the default. A GPU run must be
+launched with an explicit nonzero CUDA visibility mask; the script refuses an unmasked CUDA request so
+GPU0 cannot be selected accidentally.
 
   python src/multivent2/mv2_bertqpp.py --cells asr_shipped,asr_dense,ocr --epochs 1
 """
 import os, sys, json, time, argparse
 
-os.environ["CUDA_VISIBLE_DEVICES"] = ""          # must precede torch: keep both GPUs untouched
+os.environ.setdefault("CUDA_VISIBLE_DEVICES", "")  # hide every GPU unless caller names a safe one
 os.environ.setdefault("TOKENIZERS_PARALLELISM", "false")
 
 import numpy as np                                # noqa: E402
@@ -29,6 +30,8 @@ from mv2_io import load_run, load_queries         # noqa: E402
 from scipy.stats import kendalltau                # noqa: E402
 from sklearn.model_selection import KFold, GroupKFold  # noqa: E402
 from mv2_qsd import event_groups                  # noqa: E402
+from mv2_nested_calibration import (apply_fraction, calibration_split,
+                                    choose_fraction)  # noqa: E402
 
 _ROOT = os.path.dirname(os.path.dirname(HERE))
 DATA = os.path.join(_ROOT, "data", "multivent2")
@@ -68,10 +71,14 @@ def recall_only(path):
         pred = np.array([c["pred"][q] for q in qids])
         ndA = np.array([d["per_query"][q]["ndA"] for q in qids])
         ndB = np.array([d["per_query"][q]["ndB"] for q in qids])
-        chk = float(np.where(pred > 0, ndB, ndA).mean())
+        if c.get("decision_rule") == "nested_fraction" and "decisions" in c:
+            decisions = np.array(list(c["decisions"])) == "1"
+        else:
+            decisions = pred > 0
+        chk = float(np.where(decisions, ndB, ndA).mean())
         ok = abs(chk - c["routed_ndcg10"]) < 1e-9
         recA, recB = load_cell_recall(cell, qids)
-        rec = None if recA is None else float(np.where(pred > 0, recB, recA).mean())
+        rec = None if recA is None else float(np.where(decisions, recB, recA).mean())
         if not ok:
             print(f"{cell}: stored predictions give {chk:.6f}, file says "
                   f"{c['routed_ndcg10']:.6f} -- recall not written")
@@ -79,9 +86,9 @@ def recall_only(path):
         c["routed_recall100"] = rec
         c["recall_cheap"] = float(recA.mean()) if recA is not None else None
         c["recall_uniform"] = float(recB.mean()) if recB is not None else None
-        c["frac_escalated"] = float((pred > 0).mean())
+        c["frac_escalated"] = float(decisions.mean())
         c["qids"] = qids
-        c["decisions"] = "".join("1" if p > 0 else "0" for p in pred)
+        c["decisions"] = "".join("1" if x else "0" for x in decisions)
         print(f"{cell}: nDCG@10 {chk:.4f} reproduced; "
               + (f"R@100 {rec:.4f} (A {recA.mean():.4f}, B {recB.mean():.4f})"
                  if rec is not None else "no verified recall for this cell"))
@@ -89,7 +96,7 @@ def recall_only(path):
     print(f"wrote {path}")
 
 
-def fit_bi(queries, qids, texts, g, tr, te, a, torch):
+def fit_bi(queries, qids, texts, g, tr, te, a, torch, seed):
     """The bi-encoder variant: encode query and document separately, score their dot product.
 
     One shared encoder rather than two, which is the usual Siamese arrangement and halves the parameters;
@@ -105,31 +112,42 @@ def fit_bi(queries, qids, texts, g, tr, te, a, torch):
     and if it degenerates the same way the expensive one does, that is worth knowing.
     """
     from transformers import AutoTokenizer, AutoModel
+    np.random.seed(seed)
+    torch.manual_seed(seed)
+    if a.device == "cuda":
+        torch.cuda.manual_seed_all(seed)
     tok = AutoTokenizer.from_pretrained(a.model)
-    enc = AutoModel.from_pretrained(a.model)
-    opt = torch.optim.AdamW(enc.parameters(), lr=2e-5)
+    enc = AutoModel.from_pretrained(a.model).to(a.device)
+    opt = torch.optim.AdamW(enc.parameters(), lr=a.lr)
     lossf = torch.nn.MSELoss()
+    scaler = torch.amp.GradScaler("cuda", enabled=a.amp)
 
     def embed(strings, max_len):
         b = tok(strings, padding=True, truncation=True, max_length=max_len, return_tensors="pt")
+        b = {k: v.to(a.device) for k, v in b.items()}
         out = enc(**b).last_hidden_state
         mask = b["attention_mask"].unsqueeze(-1).float()
         return (out * mask).sum(1) / mask.sum(1).clamp(min=1e-9)
 
     enc.train()
     idx = np.array(tr)
+    rng = np.random.default_rng(seed)
     for _ in range(a.epochs):
-        np.random.default_rng(0).shuffle(idx)
+        rng.shuffle(idx)
         for s in range(0, len(idx), a.batch):
             chunk = idx[s:s + a.batch]
             if len(chunk) < 2:
                 continue
-            qe = embed([queries[qids[i]] for i in chunk], 64)
-            de = embed([texts[i] for i in chunk], a.max_len)
-            score = (qe * de).sum(-1)
-            loss = lossf(score, torch.tensor([float(g[i]) for i in chunk]))
-            loss.backward()
-            opt.step()
+            with torch.autocast(device_type="cuda", dtype=torch.float16, enabled=a.amp):
+                qe = embed([queries[qids[i]] for i in chunk], 64)
+                de = embed([texts[i] for i in chunk], a.max_len)
+                score = (qe * de).sum(-1)
+                target = torch.as_tensor([float(g[i]) for i in chunk],
+                                         dtype=torch.float32, device=a.device)
+                loss = lossf(score, target)
+            scaler.scale(loss).backward()
+            scaler.step(opt)
+            scaler.update()
             opt.zero_grad()
 
     enc.eval()
@@ -137,11 +155,40 @@ def fit_bi(queries, qids, texts, g, tr, te, a, torch):
     with torch.no_grad():
         for s in range(0, len(te), 32):
             chunk = te[s:s + 32]
-            qe = embed([queries[qids[i]] for i in chunk], 64)
-            de = embed([texts[i] for i in chunk], a.max_len)
-            out.extend((qe * de).sum(-1).tolist())
+            with torch.autocast(device_type="cuda", dtype=torch.float16, enabled=a.amp):
+                qe = embed([queries[qids[i]] for i in chunk], 64)
+                de = embed([texts[i] for i in chunk], a.max_len)
+                score = (qe * de).sum(-1)
+            out.extend(score.float().cpu().tolist())
     del enc
+    if a.device == "cuda":
+        torch.cuda.empty_cache()
     return np.array(out)
+
+
+def fit_cross(queries, qids, texts, g, tr, te, a, torch, seed):
+    """Fit one cross-encoder and return predictions for `te`."""
+    from sentence_transformers import CrossEncoder, InputExample
+    from torch.utils.data import DataLoader
+
+    np.random.seed(seed)
+    torch.manual_seed(seed)
+    if a.device == "cuda":
+        torch.cuda.manual_seed_all(seed)
+    ex = [InputExample(texts=[queries[qids[i]], texts[i]], label=float(g[i])) for i in tr]
+    generator = torch.Generator().manual_seed(seed)
+    dl = DataLoader(ex, shuffle=True, batch_size=a.batch, generator=generator)
+    model = CrossEncoder(a.model, num_labels=1, max_length=a.max_len, device=a.device)
+    # CrossEncoder defaults to BCEWithLogitsLoss for a scalar head, but escalation gain is signed.
+    model.fit(train_dataloader=dl, epochs=a.epochs, warmup_steps=max(10, len(dl) // 10),
+              loss_fct=torch.nn.MSELoss(), optimizer_params={"lr": a.lr},
+              show_progress_bar=False, use_amp=a.amp)
+    pred = np.asarray(model.predict([[queries[qids[i]], texts[i]] for i in te],
+                                    batch_size=32, show_progress_bar=False))
+    del model
+    if a.device == "cuda":
+        torch.cuda.empty_cache()
+    return pred
 
 
 def main():
@@ -151,7 +198,17 @@ def main():
     ap.add_argument("--epochs", type=int, default=1)
     ap.add_argument("--batch", type=int, default=8)
     ap.add_argument("--max-len", type=int, default=256)
+    ap.add_argument("--lr", type=float, default=2e-5)
     ap.add_argument("--threads", type=int, default=12)
+    ap.add_argument("--device", default="cpu", choices=["cpu", "cuda"],
+                    help="CUDA is accepted only when CUDA_VISIBLE_DEVICES names nonzero physical GPUs")
+    ap.add_argument("--amp", action="store_true",
+                    help="use CUDA mixed precision; requires --device cuda")
+    ap.add_argument("--seed", type=int, default=0)
+    ap.add_argument("--nested-calibration", action="store_true",
+                    help="choose an escalation fraction on a group-disjoint subset of each outer "
+                         "training fold, never on outer-test labels")
+    ap.add_argument("--calibration-size", type=float, default=0.2)
     ap.add_argument("--limit", type=int, default=0, help="debug: only this many queries")
     ap.add_argument("--group-cv", action="store_true",
                     help="split by event group, not by query. Needed here for the same reason as QSD: "
@@ -178,9 +235,17 @@ def main():
         return
 
     import torch
+    if a.device == "cuda":
+        visible = [x.strip() for x in os.environ.get("CUDA_VISIBLE_DEVICES", "").split(",") if x.strip()]
+        if not visible or "0" in visible:
+            sys.exit("refusing CUDA: set CUDA_VISIBLE_DEVICES to nonzero physical GPU indices only")
+        if not torch.cuda.is_available():
+            sys.exit("CUDA requested but unavailable under the current visibility mask")
+    if a.amp and a.device != "cuda":
+        sys.exit("--amp requires --device cuda")
+    if a.nested_calibration and not a.group_cv:
+        sys.exit("--nested-calibration requires --group-cv")
     torch.set_num_threads(a.threads)
-    from sentence_transformers import CrossEncoder, InputExample
-    from torch.utils.data import DataLoader
 
     visual = load_run(os.path.join(DATA, "10pyscene_clip.json"))
     queries = load_queries(os.path.join(DATA, "multivent_2_test_queries.csv"))
@@ -212,6 +277,7 @@ def main():
         print(f"{cell}: {len(qids)} queries, {n_missing} without a caption for their top doc",
               flush=True)
 
+        grp = None
         if a.group_cv:
             from mv2_io import load_qrels
             qrels, _ = load_qrels(os.path.join(DATA, "multivent_2_test_judgments.jsonl"))
@@ -222,47 +288,53 @@ def main():
             splits = list(KFold(5, shuffle=True, random_state=0).split(np.arange(len(qids))))
 
         pred = np.zeros(len(qids))
+        nested_decisions = np.zeros(len(qids), dtype=bool)
+        calibration = []
         t0 = time.time()
         for fi, (tr, te) in enumerate(splits):
-            if a.variant == "bi":
-                pred[te] = fit_bi(queries, qids, texts, g, tr, te, a, torch)
+            fit_predict = fit_bi if a.variant == "bi" else fit_cross
+            if a.nested_calibration:
+                fit, cal = calibration_split(tr, grp, a.calibration_size, a.seed + fi)
+                cal_pred = fit_predict(queries, qids, texts, g, fit, cal, a, torch,
+                                       a.seed + 100 * fi)
+                fraction, cal_utility = choose_fraction(cal_pred, ndA[cal], ndB[cal])
+                calibration.append({"fold": fi, "fraction": fraction,
+                                    "calibration_utility": cal_utility,
+                                    "n_fit": len(fit), "n_calibration": len(cal)})
+                pred[te] = fit_predict(queries, qids, texts, g, tr, te, a, torch,
+                                       a.seed + 100 * fi + 1)
+                nested_decisions[te] = apply_fraction(pred[te], fraction)
             else:
-                ex = [InputExample(texts=[queries[qids[i]], texts[i]], label=float(g[i])) for i in tr]
-                dl = DataLoader(ex, shuffle=True, batch_size=a.batch)
-                m = CrossEncoder(a.model, num_labels=1, max_length=a.max_len, device="cpu")
-                # CrossEncoder defaults to BCEWithLogitsLoss when num_labels == 1, which expects targets
-                # in [0, 1]. Our target is an escalation gain in roughly [-1, 1], so the default
-                # objective is invalid: an earlier run reached tau +0.240 yet escalated every query,
-                # because the ranking carried signal while the zero-crossing was meaningless. Their setup
-                # avoids this because a ranking metric is already in [0, 1]. Regress the gain with MSE.
-                m.fit(train_dataloader=dl, epochs=a.epochs, warmup_steps=max(10, len(dl) // 10),
-                      loss_fct=torch.nn.MSELoss(), show_progress_bar=False)
-                pred[te] = m.predict([[queries[qids[i]], texts[i]] for i in te],
-                                     batch_size=32, show_progress_bar=False)
-                del m
+                pred[te] = fit_predict(queries, qids, texts, g, tr, te, a, torch,
+                                       a.seed + fi)
             print(f"  fold {fi+1}/5 done ({(time.time()-t0)/60:.1f} min elapsed)", flush=True)
 
         tau = float(kendalltau(pred, g).statistic)
-        routed = float(np.where(pred > 0, ndB, ndA).mean())
-        # a regression head's zero-crossing may still be off even under MSE, so report the best
-        # escalation fraction too: it separates ranking quality from calibration
-        order = np.argsort(-pred)
-        best_v, best_f = routed, 0.0
-        for f in np.arange(0.02, 1.0, 0.02):
-            k = int(round(f * len(qids)))
-            mask = np.zeros(len(qids), bool); mask[order[:k]] = True
-            v = float(np.where(mask, ndB, ndA).mean())
-            if v > best_v:
-                best_v, best_f = v, float(f)
+        zero_decisions = pred > 0
+        decisions = nested_decisions if a.nested_calibration else zero_decisions
+        routed = float(np.where(decisions, ndB, ndA).mean())
+        routed_zero = float(np.where(zero_decisions, ndB, ndA).mean())
+        from mv2_recall_sidecar import load_cell_recall
+        recA, recB = load_cell_recall(cell, qids)
+        recall = None if recA is None else float(np.where(decisions, recB, recA).mean())
         out[cell] = {"tau": tau, "routed_ndcg10": routed,
-                     "routed_best_f": best_v, "best_f": best_f, "n": len(qids),
+                     "routed_recall100": recall, "frac_escalated": float(decisions.mean()),
+                     "routed_ndcg10_zero": routed_zero,
+                     "frac_escalated_zero": float(zero_decisions.mean()), "n": len(qids),
                      "cheap": float(ndA.mean()), "uniform": float(ndB.mean()),
                      "model": a.model, "epochs": a.epochs, "group_cv": bool(a.group_cv),
-                     "variant": a.variant,
+                     "variant": a.variant, "device": a.device,
+                     "precision": "amp-fp16" if a.amp else "fp32",
+                     "batch_size": a.batch, "max_length": a.max_len, "seed": a.seed,
+                     "decision_rule": "nested_fraction" if a.nested_calibration else "zero",
+                     "nested_calibration": calibration,
+                     "qids": qids,
+                     "decisions": "".join("1" if x else "0" for x in decisions),
+                     "zero_decisions": "".join("1" if x else "0" for x in zero_decisions),
                      "pred": {q: float(p) for q, p in zip(qids, pred)}}
         json.dump(out, open(a.out, "w"), indent=2)
-        print(f"{cell}: tau={tau:+.3f}  routed nDCG@10={routed:.4f} (thresh>0)  "
-              f"{best_v:.4f} @f={best_f:.2f} (best)  "
+        print(f"{cell}: tau={tau:+.3f}  routed nDCG@10={routed:.4f}  "
+              f"zero={routed_zero:.4f}  esc={100*decisions.mean():.1f}%  "
               f"(cheap {ndA.mean():.4f}, uniform {ndB.mean():.4f})", flush=True)
 
     print(f"wrote {a.out}", flush=True)

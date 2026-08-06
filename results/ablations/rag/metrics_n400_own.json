@@ -1,6 +1,9 @@
 {
   "evidence": "own",
-  "n_queries": 400,
+  "n_queries": 395,
+  "requested_n": 400,
+  "judge_model": "qwen2.5:14b-instruct",
+  "judge_tag": null,
   "rows": [
     {
       "policy": "routed",

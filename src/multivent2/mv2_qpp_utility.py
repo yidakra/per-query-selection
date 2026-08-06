@@ -6,10 +6,10 @@ selectors, and that changes the quantity that matters. A selector is used once p
 binary decision, and only the sign of its prediction at the decision boundary is consulted. Kendall tau
 scores the whole ordering; the decision reads one point of it.
 
-Those two need not agree, and here they do not. Across the table's predictor-cell rows the relationship
-between tau and utility is *negative*, and it gets stronger when the inert rows are dropped -- so it is
-not the artifact you would first suspect, where a predictor that never escalates scores exactly zero
-utility and is thereby counted harmless.
+Those two need not agree.  The original zero-crossing analysis found a negative relationship, but that
+comparison confounded ranking quality with an uncalibrated operating point for the learned methods.
+The optional nested mode replaces QSD and BERT-QPP with their group-disjoint, nested-calibration runs so
+that we can measure which part of that conclusion survives honest operating-point selection.
 
 Utility is measured against the best FIXED policy in the cell, not against the cheap channel. A selector
 that beats cheap-only but loses to always-fusing has bought nothing: the practitioner would have run the
@@ -23,7 +23,7 @@ Three populations, because the artifact objection has to be answered rather than
 
 CPU only, reads three JSONs.
 
-  python src/multivent2/mv2_qpp_utility.py [--tag _grouped]
+  python src/multivent2/mv2_qpp_utility.py [--tag _grouped] [--nested]
 """
 import os
 import sys
@@ -40,18 +40,22 @@ ABL = os.path.join(_ROOT, "results", "ablations")
 SNAKE = {"ASR-shipped": "asr_shipped", "ASR-dense": "asr_dense", "OCR": "ocr"}
 
 
-def collect(tag):
+def collect(tag, nested=False):
     """-> list of rows, one per (predictor, cell). Each carries its cell's two fixed policies too, so
     utility can be computed against whichever of them is stronger there."""
     tab = json.load(open(os.path.join(ABL, f"mv2_qpp_table{tag}.json")))
-    qsd = json.load(open(os.path.join(ABL, f"mv2_qsd{tag}.json")))
-    bert = json.load(open(os.path.join(ABL, f"mv2_bertqpp{tag}.json")))
-    p_bi = os.path.join(ABL, f"mv2_bertqpp_bi{tag}.json")
+    qsd = json.load(open(os.path.join(
+        ABL, "mv2_qsd_pre_nested_grouped.json" if nested else f"mv2_qsd{tag}.json")))
+    bert = json.load(open(os.path.join(
+        ABL, "mv2_bertqpp_cross_3ep_nested_grouped.json" if nested else f"mv2_bertqpp{tag}.json")))
+    p_bi = os.path.join(ABL, "mv2_bertqpp_bi_3ep_nested_grouped.json"
+                        if nested else f"mv2_bertqpp_bi{tag}.json")
     bert_bi = json.load(open(p_bi)) if os.path.exists(p_bi) else {}
-    p_qp = os.path.join(ABL, f"mv2_qsd_post{tag}.json")
+    p_qp = os.path.join(ABL, "mv2_qsd_post_5ep_nested_grouped.json"
+                        if nested else f"mv2_qsd_post{tag}.json")
     qsd_post = json.load(open(p_qp)) if os.path.exists(p_qp) else {}
     # QSD's neighbourhood size is chosen per split scheme, matching how the table reports it
-    qsd_k = "100_inv_dist" if tag.endswith("_grouped") else "5_inv_dist"
+    qsd_k = "100_inv_dist" if tag.endswith("_grouped") or nested else "5_inv_dist"
 
     rows = []
     for cell, c in tab.items():
@@ -101,13 +105,16 @@ def report(rows, label):
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--tag", default="_grouped")
+    ap.add_argument("--nested", action="store_true",
+                    help="use the matched nested-calibration QSD and BERT-QPP artifacts")
     a = ap.parse_args()
 
-    rows = collect(a.tag)
+    rows = collect(a.tag, a.nested)
     print(f"{len(rows)} predictor-cell rows\n")
 
     print("Kendall tau against utility over the best fixed policy:")
-    out = {"tag": a.tag, "n_rows": len(rows), "populations": {}}
+    out = {"tag": a.tag, "nested_calibration": a.nested,
+           "n_rows": len(rows), "populations": {}}
     pops = [("all rows", rows),
             ("non-degenerate only", [r for r in rows if r["frac"] not in (0.0, 1.0, None)]),
             ("escalating 5-95%", [r for r in rows
@@ -151,7 +158,8 @@ def main():
               f"{bf:>9.4f}{util(r):>+9.4f}{fr:>7}")
 
     out["rows"] = rows
-    dest = os.path.join(ABL, f"mv2_qpp_utility{a.tag}.json")
+    stem = "mv2_qpp_utility_nested" if a.nested else "mv2_qpp_utility"
+    dest = os.path.join(ABL, f"{stem}{a.tag}.json")
     json.dump(out, open(dest, "w"), indent=2)
     print(f"\nwrote {dest}")
 

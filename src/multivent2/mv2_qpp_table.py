@@ -90,14 +90,26 @@ def main():
                     help="orient every predictor on event-grouped folds, so a near-duplicate phrasing "
                          "of the same event cannot sit on both sides of a fold boundary")
     ap.add_argument("--tag", default="", help="suffix for the output files")
+    ap.add_argument("--cell", action="append", default=[], metavar="LABEL=JSON",
+                    help="override the standard three cells; repeat for more than one")
+    ap.add_argument("--index-text", default="asr_text.jsonl",
+                    help="JSONL text corpus used for the lexical pre-retrieval index")
     a = ap.parse_args()
+    cells = CELLS
+    if a.cell:
+        cells = []
+        for spec in a.cell:
+            label, sep, filename = spec.partition("=")
+            if not sep or not label or not filename:
+                ap.error(f"invalid --cell {spec!r}; expected LABEL=JSON")
+            cells.append((label, filename))
     visual = load_run(os.path.join(DATA, "10pyscene_clip.json"))
     queries = load_queries(os.path.join(DATA, "multivent_2_test_queries.csv"))
 
     # lexical index over the ASR transcripts: the speech channel's documents are text, so
     # pre-retrieval QPP exists for it. Nothing equivalent exists for the visual channel.
     asr_texts = []
-    p_asr = os.path.join(DATA, "asr_text.jsonl")
+    p_asr = os.path.join(DATA, a.index_text)
     if os.path.exists(p_asr):
         with open(p_asr) as f:
             for line in f:
@@ -111,7 +123,7 @@ def main():
               f"{len(idx.cf)} vocab", flush=True)
 
     results = {}
-    for label, fn in CELLS:
+    for label, fn in cells:
         d = json.load(open(os.path.join(ABL, fn)))
         qids = [q for q in d["per_query"] if q in visual and q in queries]
         ndA = np.array([d["per_query"][q]["ndA"] for q in qids])
@@ -187,16 +199,16 @@ def main():
 
     json.dump(results, open(os.path.join(ABL, f"mv2_qpp_table{a.tag}.json"), "w"), indent=2)
 
-    labels = [c[0] for c in CELLS]
+    labels = [c[0] for c in cells]
     def fmt(v):
         return f"{v[0]:.4f} | {v[1]:+.3f}"    # markdown here stays nDCG|tau; recall lives in Table 1
     L = []
     L.append("| Category | Method | " + " | ".join(f"{l} nDCG@10 | τ" for l in labels) + " |")
     L.append("|" + "---|" * (2 + 2 * len(labels)))
     L.append("| Original | visual only (cheap) | " +
-             " | ".join(f"{results[l]['cheap']:.4f} | —" for l in labels) + " |")
+             " | ".join(f"{results[l]['cheap']:.4f} | --" for l in labels) + " |")
     L.append("| | uniform fusion (best w) | " +
-             " | ".join(f"{results[l]['uniform']:.4f} | —" for l in labels) + " |")
+             " | ".join(f"{results[l]['uniform']:.4f} | --" for l in labels) + " |")
     for i, n in enumerate(PRE_RETRIEVAL):
         if not results[labels[0]]["pre"]:
             break
@@ -206,7 +218,7 @@ def main():
         cat = "Post-retrieval<br>(score-only)" if i == 0 else ""
         L.append(f"| {cat} | {n} | " + " | ".join(fmt(results[l]["post"][n]) for l in labels) + " |")
     L.append("| Post-retrieval<br>(needs doc text) | clarity | " +
-             " | ".join("n/a for visual" + " | —" for _ in labels) + " |")
+             " | ".join("n/a for visual" + " | --" for _ in labels) + " |")
     L.append("| **Ours** | **cheap-feature gain ridge** | " +
              " | ".join("**" + fmt(results[l]["ours"]) + "**" for l in labels) + " |")
     L.append("| Oracle | route by true gain | " +

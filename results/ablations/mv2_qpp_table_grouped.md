@@ -1,7 +1,7 @@
 | Category | Method | ASR-shipped nDCG@10 | τ | ASR-dense nDCG@10 | τ | OCR nDCG@10 | τ |
 |---|---|---|---|---|---|---|---|
-| Original | visual only (cheap) | 0.3036 | — | 0.3036 | — | 0.3036 | — |
-| | uniform fusion (best w) | 0.2795 | — | 0.3408 | — | 0.2445 | — |
+| Original | visual only (cheap) | 0.3036 | -- | 0.3036 | -- | 0.3036 | -- |
+| | uniform fusion (best w) | 0.2795 | -- | 0.3408 | -- | 0.2445 | -- |
 | Pre-retrieval<br>(ASR text index) | IDF_avg | 0.3031 | -0.033 | 0.3408 | -0.008 | 0.3036 | +0.022 |
 |  | IDF_max | 0.3036 | -0.008 | 0.3408 | +0.024 | 0.3036 | +0.006 |
 |  | IDF_sum | 0.3039 | +0.057 | 0.3400 | +0.044 | 0.3036 | +0.009 |
@@ -23,6 +23,6 @@
 |  | sigma_max | 0.3168 | -0.196 | 0.3507 | -0.144 | 0.3036 | -0.149 |
 |  | sigma_x0.5 | 0.3152 | -0.182 | 0.3446 | -0.122 | 0.3036 | -0.100 |
 |  | max | 0.3070 | -0.124 | 0.3430 | -0.112 | 0.3036 | -0.087 |
-| Post-retrieval<br>(needs doc text) | clarity | n/a for visual | — | n/a for visual | — | n/a for visual | — |
+| Post-retrieval<br>(needs doc text) | clarity | n/a for visual | -- | n/a for visual | -- | n/a for visual | -- |
 | **Ours** | **cheap-feature gain ridge** | **0.3193 | +0.211** | **0.3531 | +0.160** | **0.3036 | +0.154** |
 | Oracle | route by true gain | 0.3653 | +1.000 | 0.3910 | +1.000 | 0.3305 | +1.000 |

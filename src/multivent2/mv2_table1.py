@@ -12,7 +12,7 @@ prose: the pre-retrieval block that is underlined in their table is bare in ours
 Reads what is already computed and writes the table. It runs no experiments, so it is safe to re-run
 and cheap; the columns it cannot fill yet are marked rather than quietly dropped (see COVERAGE below).
 
-  python src/multivent2/mv2_table1.py [--tag _grouped]
+  python src/multivent2/mv2_table1.py [--tag _grouped] [--nested]
 """
 import os
 import sys
@@ -56,15 +56,16 @@ COVERAGE = {"nDCG@10": "complete", "tau": "complete",
                         "difference between all and strict)"}
 
 
-def load(tag):
+def load(tag, nested=False):
     with open(os.path.join(ABL, f"mv2_qpp_table{tag}.json")) as f:
         table = json.load(f)
-    # Arabzadeh et al. give BERT-QPP in both flavours and Jingfen asked for both. They fail differently,
-    # which is the reason to carry two rows: the cross-encoder orders well and cannot decide, the
-    # bi-encoder cannot order at all.
+    # Arabzadeh et al. give BERT-QPP in both flavours. Nested operating-point calibration rescues the
+    # cross-encoder but not the bi-encoder, so both rows remain informative.
     bert, bert_bi, qsd_post = {}, {}, {}
-    for fn, dest in ((f"mv2_bertqpp{tag}", bert), (f"mv2_bertqpp_bi{tag}", bert_bi),
-                     (f"mv2_qsd_post{tag}", qsd_post)):
+    learned = (("mv2_bertqpp_cross_3ep_nested_grouped" if nested else f"mv2_bertqpp{tag}", bert),
+               ("mv2_bertqpp_bi_3ep_nested_grouped" if nested else f"mv2_bertqpp_bi{tag}", bert_bi),
+               ("mv2_qsd_post_5ep_nested_grouped" if nested else f"mv2_qsd_post{tag}", qsd_post))
+    for fn, dest in learned:
         p = os.path.join(ABL, f"{fn}.json")
         if not os.path.exists(p):
             continue
@@ -79,7 +80,7 @@ def load(tag):
     # the duplicate IS the answer, k=100 under event grouping where many neighbours are needed to
     # average the noise out. That reversal is itself the leakage evidence, so the k is not a free knob.
     qsd, qsd_k = {}, "5_inv_dist" if not tag.endswith("_grouped") else "100_inv_dist"
-    p = os.path.join(ABL, f"mv2_qsd{tag}.json")
+    p = os.path.join(ABL, "mv2_qsd_pre_nested_grouped.json" if nested else f"mv2_qsd{tag}.json")
     if os.path.exists(p):
         with open(p) as f:
             raw = json.load(f)
@@ -94,8 +95,10 @@ def load(tag):
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--tag", default="_grouped", help="'_grouped' for event-grouped folds")
+    ap.add_argument("--nested", action="store_true",
+                    help="use the matched nested-calibration QSD and BERT-QPP artifacts")
     a = ap.parse_args()
-    table, bert, bert_bi, qsd_post, qsd = load(a.tag)
+    table, bert, bert_bi, qsd_post, qsd = load(a.tag, a.nested)
     cells = [c for c in CELLS if c in table]
 
     # The row every other row is measured against. Their Original is the unmodified query: the default
@@ -125,7 +128,8 @@ def main():
     # Nugget coverage per row, mixed from two judged runs per cell by mv2_table1_nuggets.py. Absent
     # until that has run, in which case the two columns stay empty rather than being dropped.
     nug = {}
-    p = os.path.join(ABL, f"mv2_table1_nuggets{a.tag}.json")
+    nugstem = "mv2_table1_nuggets_nested" if a.nested else "mv2_table1_nuggets"
+    p = os.path.join(ABL, f"{nugstem}{a.tag}.json")
     if os.path.exists(p):
         nug = json.load(open(p))
 
@@ -178,7 +182,7 @@ def main():
             best[(sec, c)] = max(vs) if vs else None
 
     NCOL = 5 if nug else 3
-    BLANK = " | ".join(["—"] * (NCOL - 1))
+    BLANK = " | ".join(["--"] * (NCOL - 1))
 
     def cellstr(v, sec, c, key):
         if v is None:                       # every sub-column, or the row loses its alignment
@@ -195,11 +199,11 @@ def main():
             s = f"<u>{s}</u>"
         if best.get((sec, c)) is not None and abs(nd - best[(sec, c)]) < 1e-12:
             s = f"**{s}**"
-        s += (f" | {tau:+.3f}" if tau is not None else " | —")
-        s += (f" | {rec:.4f}" if rec is not None else " | —")
+        s += (f" | {tau:+.3f}" if tau is not None else " | --")
+        s += (f" | {rec:.4f}" if rec is not None else " | --")
         if nug:
             n = nug_for(key.get(c) if isinstance(key, dict) else key, c) if key else None
-            s += (f" | {n[0]:.4f} | {n[1]:.4f}" if n else " | — | —")
+            s += (f" | {n[0]:.4f} | {n[1]:.4f}" if n else " | -- | --")
         return s
 
     head = "nDCG@10 | τ | R@100" + (" | N_all | N_strict" if nug else "")
@@ -215,8 +219,7 @@ def main():
     # Which rows never actually choose. A predictor whose routed nDCG lands on the always-escalate or
     # never-escalate policy made one decision for all 2,546 queries, so its nDCG reports that fixed
     # policy and not the predictor. Worth naming: a row can carry a healthy tau and still be degenerate
-    # here -- BERTQPP correlates at +0.24 and escalates every query -- which is exactly the gap between
-    # correlation and decision quality that Arabzadeh et al.'s two metric families are there to expose.
+    # here: learned regressors require a calibrated operating point, while tau alone cannot provide it.
     degen, tally, sec = [], {}, None
     for cat, name, vals, _k in rows:
         if cat:
@@ -245,7 +248,8 @@ def main():
     for k, v in COVERAGE.items():
         print(f"  {k:<12} {v}")
 
-    dest = os.path.join(ABL, f"mv2_table1{a.tag}.md")
+    stem = "mv2_table1_nested" if a.nested else "mv2_table1"
+    dest = os.path.join(ABL, f"{stem}{a.tag}.md")
     with open(dest, "w") as f:
         f.write("# Table 1 (paper layout)\n\n" + out + "\n\n"
                 "underline = beats the Original row; bold = best in section; `n/a` = undefined for "
@@ -256,8 +260,10 @@ def main():
                     f"{table[cells[0]]['n']} queries, so the number in the cell reports a fixed "
                     f"policy and not the predictor. A row can carry a healthy tau and still be "
                     f"degenerate, which is the gap between correlation and decision quality. "
-                    f"Denominators cover the rows that have a fraction on record, so `clarity`, `DM` "
-                    f"and `QSD_post` are excluded rather than counted as non-degenerate.\n\n"
+                    f"Denominators cover the rows that have a fraction on record, so "
+                    + ("`clarity` and `DM` are" if a.nested else
+                       "`clarity`, `DM` and `QSD_post` are")
+                    + " excluded rather than counted as non-degenerate.\n\n"
                     + "\n".join(f"- {s}" for s in summary)
                     + "\n\nFull list: " + "; ".join(degen) + ".\n")
     print(f"\nwrote {dest}")

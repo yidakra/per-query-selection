@@ -16,12 +16,12 @@
 |  | `SCS_apx` | 0.3026 | -0.040 | 0.6028 | 0.3242 | 0.2256 | 0.3408 | -0.014 | 0.7268 | 0.3672 | 0.2621 | 0.3036 | +0.029 | 0.6027 | 0.3235 | 0.2256 |
 |  | `SCS_full` | 0.3027 | -0.043 | 0.6028 | 0.3241 | 0.2256 | 0.3408 | -0.016 | 0.7268 | 0.3672 | 0.2621 | 0.3036 | +0.027 | 0.6027 | 0.3235 | 0.2256 |
 |  | `QL` | 0.3009 | +0.079 | 0.6092 | 0.3208 | 0.2209 | 0.3408 | +0.052 | 0.7268 | 0.3678 | 0.2625 | 0.3036 | -0.004 | 0.6027 | 0.3235 | 0.2256 |
-|  | `QSD_pre` | **<u>0.3137</u>** | +0.164 | 0.6390 | 0.3250 | 0.2276 | **<u>0.3466</u>** | +0.152 | 0.7074 | 0.3545 | 0.2500 | **0.3039** | +0.095 | 0.6028 | 0.3226 | 0.2245 |
+|  | `QSD_pre` | **<u>0.3102</u>** | +0.164 | 0.6509 | 0.3275 | 0.2284 | **<u>0.3469</u>** | +0.152 | 0.7112 | 0.3630 | 0.2559 | **0.3037** | +0.095 | 0.6033 | 0.3218 | 0.2240 |
 |  | `DM` | *n.i.* | -- | -- | -- | -- | *n.i.* | -- | -- | -- | -- | *n.i.* | -- | -- | -- | -- |
 | Post-retrieval | `RSD` | <u>0.3120</u> | -0.127 | 0.6383 | 0.3341 | 0.2330 | 0.3388 | -0.069 | 0.7202 | 0.3660 | 0.2611 | 0.3033 | -0.099 | 0.6026 | 0.3241 | 0.2261 |
 |  | `clarity` | n/a | -- | -- | -- | -- | n/a | -- | -- | -- | -- | n/a | -- | -- | -- | -- |
-|  | `NQC` | **<u>0.3205</u>** | -0.215 | 0.6570 | 0.3365 | 0.2329 | <u>0.3527</u> | -0.163 | 0.7198 | 0.3669 | 0.2630 | **0.3040** | -0.174 | 0.6019 | 0.3220 | 0.2254 |
-|  | `NQC_norm` | <u>0.3172</u> | -0.204 | 0.6591 | 0.3325 | 0.2285 | **<u>0.3541</u>** | -0.154 | 0.7169 | 0.3716 | 0.2671 | 0.3035 | -0.162 | 0.6027 | 0.3231 | 0.2258 |
+|  | `NQC` | **<u>0.3205</u>** | -0.215 | 0.6570 | 0.3365 | 0.2329 | <u>0.3527</u> | -0.163 | 0.7198 | 0.3669 | 0.2630 | 0.3040 | -0.174 | 0.6019 | 0.3220 | 0.2254 |
+|  | `NQC_norm` | <u>0.3172</u> | -0.204 | 0.6591 | 0.3325 | 0.2285 | <u>0.3541</u> | -0.154 | 0.7169 | 0.3716 | 0.2671 | 0.3035 | -0.162 | 0.6027 | 0.3231 | 0.2258 |
 |  | `sigma_max` | <u>0.3168</u> | -0.196 | 0.6500 | 0.3407 | 0.2361 | <u>0.3507</u> | -0.144 | 0.7223 | 0.3676 | 0.2640 | 0.3036 | -0.149 | 0.6027 | 0.3248 | 0.2268 |
 |  | `sigma_0.5` | <u>0.3152</u> | -0.182 | 0.6500 | 0.3340 | 0.2320 | <u>0.3446</u> | -0.122 | 0.7190 | 0.3629 | 0.2572 | 0.3036 | -0.100 | 0.6027 | 0.3235 | 0.2256 |
 |  | `SMV` | <u>0.3197</u> | -0.208 | 0.6556 | 0.3371 | 0.2363 | <u>0.3509</u> | -0.151 | 0.7201 | 0.3682 | 0.2638 | 0.3038 | -0.169 | 0.6024 | 0.3227 | 0.2260 |
@@ -29,9 +29,9 @@
 |  | `WIG` | 0.3036 | +0.006 | 0.6026 | 0.3232 | 0.2256 | 0.3408 | +0.012 | 0.7268 | 0.3672 | 0.2621 | 0.3032 | +0.051 | 0.6025 | 0.3229 | 0.2249 |
 |  | `WIG_norm` | <u>0.3154</u> | -0.168 | 0.6482 | 0.3381 | 0.2364 | 0.3411 | -0.106 | 0.7186 | 0.3649 | 0.2597 | 0.3036 | -0.100 | 0.6027 | 0.3235 | 0.2256 |
 |  | `max` | <u>0.3070</u> | -0.124 | 0.6334 | 0.3345 | 0.2334 | <u>0.3430</u> | -0.112 | 0.7232 | 0.3638 | 0.2608 | 0.3036 | -0.087 | 0.6024 | 0.3243 | 0.2259 |
-|  | `QSD_post` | <u>0.3054</u> | +0.137 | 0.6562 | 0.3265 | 0.2231 | <u>0.3423</u> | +0.102 | 0.6983 | 0.3557 | 0.2496 | 0.3013 | +0.092 | 0.6044 | 0.3186 | 0.2206 |
-|  | `BERTQPP` | 0.2795 | +0.237 | 0.6892 | 0.3167 | 0.2075 | 0.3408 | +0.229 | 0.7268 | 0.3672 | 0.2621 | 0.2445 | +0.167 | 0.6008 | 0.2810 | 0.1903 |
-|  | `BERTQPP_bi` | 0.2954 | -0.016 | 0.6276 | 0.3288 | 0.2284 | 0.3125 | -0.025 | 0.6414 | 0.3443 | 0.2424 | 0.2847 | -0.030 | 0.6031 | 0.3099 | 0.2144 |
+|  | `QSD_post` | <u>0.3104</u> | +0.122 | 0.6583 | 0.3257 | 0.2213 | <u>0.3486</u> | +0.142 | 0.7087 | 0.3705 | 0.2670 | 0.3014 | +0.100 | 0.6053 | 0.3168 | 0.2186 |
+|  | `BERTQPP` | <u>0.3204</u> | +0.223 | 0.6655 | 0.3454 | 0.2374 | **<u>0.3560</u>** | +0.210 | 0.7042 | 0.3748 | 0.2725 | **<u>0.3042</u>** | +0.180 | 0.6050 | 0.3209 | 0.2237 |
+|  | `BERTQPP_bi` | 0.3006 | -0.017 | 0.6153 | 0.3196 | 0.2235 | 0.3403 | -0.029 | 0.7264 | 0.3676 | 0.2624 | 0.3028 | -0.015 | 0.6027 | 0.3234 | 0.2254 |
 | Ours | `cheap-feature gain ridge` | <u>0.3193</u> | +0.211 | 0.6592 | 0.3411 | 0.2364 | <u>0.3531</u> | +0.160 | 0.7207 | 0.3684 | 0.2642 | 0.3036 | +0.154 | 0.6012 | 0.3229 | 0.2258 |
 | Oracle | `route by true gain` | <u>0.3653</u> | +1.000 | 0.6196 | 0.3608 | 0.2586 | <u>0.3910</u> | +1.000 | 0.6286 | 0.3861 | 0.2841 | <u>0.3305</u> | +1.000 | 0.6038 | 0.3395 | 0.2397 |
 
@@ -39,13 +39,12 @@ underline = beats the Original row; bold = best in section; `n/a` = undefined fo
 
 ## Degenerate cells
 
-Counted from each predictor's recorded escalation fraction, degenerate meaning exactly 0 or exactly 1: the same decision for all 2546 queries, so the number in the cell reports a fixed policy and not the predictor. A row can carry a healthy tau and still be degenerate, which is the gap between correlation and decision quality. Denominators cover the rows that have a fraction on record, so `clarity`, `DM` and `QSD_post` are excluded rather than counted as non-degenerate.
+Counted from each predictor's recorded escalation fraction, degenerate meaning exactly 0 or exactly 1: the same decision for all 2546 queries, so the number in the cell reports a fixed policy and not the predictor. A row can carry a healthy tau and still be degenerate, which is the gap between correlation and decision quality. Denominators cover the rows that have a fraction on record, so `clarity` and `DM` are excluded rather than counted as non-degenerate.
 
 - Pre-retrieval / ASR-shipped: 3/12
 - Pre-retrieval / ASR-dense: 6/12
 - Pre-retrieval / OCR: 11/12
-- Post-retrieval / ASR-shipped: 1/13
-- Post-retrieval / ASR-dense: 2/13
-- Post-retrieval / OCR: 2/13
+- Post-retrieval / ASR-dense: 1/13
+- Post-retrieval / OCR: 1/13
 
-Full list: IDF_avg/ASR-dense (always fuse); IDF_avg/OCR (never fuse); IDF_max/ASR-shipped (never fuse); IDF_max/OCR (never fuse); IDF_sum/OCR (never fuse); IDF_std/ASR-shipped (never fuse); IDF_std/ASR-dense (always fuse); IDF_std/OCR (never fuse); ICTF_avg/ASR-dense (always fuse); ICTF_avg/OCR (never fuse); SCQ_avg/ASR-shipped (never fuse); SCQ_avg/ASR-dense (always fuse); SCQ_avg/OCR (never fuse); SCQ_max/OCR (never fuse); SCQ_sum/OCR (never fuse); SCS_apx/ASR-dense (always fuse); SCS_apx/OCR (never fuse); SCS_full/ASR-dense (always fuse); SCS_full/OCR (never fuse); QL/OCR (never fuse); sigma_0.5/OCR (never fuse); WIG/ASR-dense (always fuse); BERTQPP/ASR-shipped (always fuse); BERTQPP/ASR-dense (always fuse); BERTQPP/OCR (always fuse).
+Full list: IDF_avg/ASR-dense (always fuse); IDF_avg/OCR (never fuse); IDF_max/ASR-shipped (never fuse); IDF_max/OCR (never fuse); IDF_sum/OCR (never fuse); IDF_std/ASR-shipped (never fuse); IDF_std/ASR-dense (always fuse); IDF_std/OCR (never fuse); ICTF_avg/ASR-dense (always fuse); ICTF_avg/OCR (never fuse); SCQ_avg/ASR-shipped (never fuse); SCQ_avg/ASR-dense (always fuse); SCQ_avg/OCR (never fuse); SCQ_max/OCR (never fuse); SCQ_sum/OCR (never fuse); SCS_apx/ASR-dense (always fuse); SCS_apx/OCR (never fuse); SCS_full/ASR-dense (always fuse); SCS_full/OCR (never fuse); QL/OCR (never fuse); sigma_0.5/OCR (never fuse); WIG/ASR-dense (always fuse).
