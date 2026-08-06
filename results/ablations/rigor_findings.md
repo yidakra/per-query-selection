@@ -1,7 +1,7 @@
 # Rigor pack: the A→B router on the field's vocabulary and error bars
 
 Puts the positive routing result (`router_findings.md` §2) on the metrics and statistics a
-routing/IR reviewer expects, computed on the existing cached A→B results — no new retrieval.
+routing/IR reviewer expects, computed on the existing cached A→B results; no new retrieval.
 `router_rigor.py`, CPU-only. The per-cell Kendall τ reproduces `router_hetero.py` exactly
 (`[0.121, 0.171, 0.014, 0.057, 0.067, 0.122]`), so this is a re-analysis, not a re-run.
 
@@ -14,11 +14,11 @@ improvement. The one cell that drops is the one that was already weakest.
 ## 1. Frontier envelopes, APGR, and CPT
 
 At each escalation fraction `f`, the router's realized gap lives between two bounds: **random-f**
-(escalate a random fraction; expected gap 0 — the cost-matched chord) and **oracle-f** (escalate the
+(escalate a random fraction; expected gap 0, the cost-matched chord) and **oracle-f** (escalate the
 top-f by *true* gain). Full per-`f` envelopes are in `router_rigor.json`. Two scalar summaries from
 the LLM-routing literature (RouteLLM):
 
-- **APGR** (Average Performance Gap Recovered): mean over `f` of `router_gap(f) / oracle_gap(f)` — the
+- **APGR** (Average Performance Gap Recovered): mean over `f` of `router_gap(f) / oracle_gap(f)`, the
   fraction of the recoverable oracle-over-random headroom the router captures.
 - **CPT** (Call-Performance Threshold): the escalation fraction needed to capture x% of the full
   tier-B improvement. Lower is better.
@@ -42,7 +42,7 @@ router captures half the tier-B gain by escalating just **21%** of queries; even
 MultiVENT cells hit 50% at **33–37%**. Escalating *randomly* would need 50% for 50% by definition, so
 CPT₅₀ < 0.5 everywhere is the efficiency win stated in one number.
 
-## 2. Multiple-comparison correction — the story survives
+## 2. Multiple-comparison correction: the story survives
 
 Six cells means six τ significance tests; uncorrected stars invite a multiplicity objection. Applying
 **Benjamini–Hochberg (FDR)** across the six-cell family:
@@ -56,7 +56,7 @@ Six cells means six τ significance tests; uncorrected stars invite a multiplici
 | MSR-VTT/mCLIP/ASR | .0115 | .0138 | ✓ |
 | MSR-VTT/mCLIP/noASR | .2799 | .2799 | ✗ |
 
-**5 of 6 survive** at FDR < 0.05. The only casualty is MSR-VTT/mCLIP/noASR — the lowest-heterogeneity
+**5 of 6 survive** at FDR < 0.05. The only casualty is MSR-VTT/mCLIP/noASR, the lowest-heterogeneity
 cell (sd(gain) = 7.95, the smallest), whose τ was already non-significant (+0.014) and whose bootstrap
 CIs straddle zero. Correction removes exactly the cell the heterogeneity thesis predicts is dead, and
 leaves every cell the thesis predicts is live. This is corroboration, not a loss.
@@ -76,7 +76,7 @@ real and sized with error bars on 5 of 6 cells, and honestly null on the 6th.
 - Report **APGR + CPT + oracle/random envelopes** as the primary frontier summary (RouterBench /
   RouteLLM vocabulary), not an ad-hoc "% captured".
 - Lead with **BH-FDR-corrected** significance and **bootstrap CIs**; the uncorrected per-cell stars
-  become supporting detail. Foreground that the result survives correction — most routing papers do
+  become supporting detail. Foreground that the result survives correction; most routing papers do
   not report it.
 - Keep the in-sample-oracle caveat visible: APGR's denominator is conservative, and the gold-split
   (§4) is the reason we can say so.

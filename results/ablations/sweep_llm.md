@@ -1,4 +1,4 @@
-## LLM size (LLaMA) ablation — MultiVENT text-only (Q2E − Video), noASR NDCG@10
+## LLM size (LLaMA) ablation: MultiVENT text-only (Q2E − Video), noASR NDCG@10
 
 | variant | NDCG@10 |
 |---|---:|

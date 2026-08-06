@@ -6,7 +6,7 @@ no re-encoding). `src/multivent2/mv2_ab.py` (tiers) + `mv2_router.py` (router).
 
 ## Setup
 - Tier A = the provided CLIP visual run. Our harness scores it at **nDCG@10 = 0.30364**, matching the
-  official evaluator to the last digit — tier A is validated, not reimplemented.
+  official evaluator to the last digit; tier A is validated, not reimplemented.
 - Tier B = rerank tier-A's top-K by fusing the visual rank with a caption rank (TF-IDF cosine of the
   query against the shipped Qwen3-Omni captions, reciprocal-rank fusion). This is the cheap, model-free
   version of the caption tier; a dense/ColBERT scorer is the obvious upgrade and drops into the same
@@ -47,14 +47,14 @@ shipped Qwen captions, same RRF fusion) does *not* help:
 | TF-IDF (lexical) | **0.36052** | +5.69 | 24.58 | 43% / 23% | +0.127 | +2.23 | 0.24 |
 | Dense (MiniLM) | 0.35442 | +5.08 | 22.89 | 43% / 21% | +0.117 | +1.96 | 0.25 |
 
-A small off-the-shelf embedder loses to TF-IDF on these captions — the captions are keyword-dense and
+A small off-the-shelf embedder loses to TF-IDF on these captions: the captions are keyword-dense and
 lexical overlap with the query is a strong signal. The routing result is the same either way (τ ≈ 0.12,
 nested gap ≈ +2), which is the point: the router's job is ordering queries by A→B gain, and it does that
 regardless of which caption scorer produces the gain. A stronger dense tier (a retrieval-tuned or
 ColBERT-style scorer) is still the obvious upgrade, but "any dense model beats lexical" is false here.
 
 ## The Full event tier: barely helps, and can't be routed
-We built the Full tier on 2.0 — the LLM step of the cascade. For each query a local instruction model
+We built the Full tier on 2.0, the LLM step of the cascade. For each query a local instruction model
 (qwen2.5:7b-instruct on GPU1; a 70B like the original Q2E used does not fit on a 15 GB A2, so this is a
 feasible stand-in and a lower bound) writes prequel / during / sequel visual descriptions of the event.
 Each is scored against the candidate captions and fused into tier B. `mv2_events.py` (generation, 213
@@ -66,7 +66,7 @@ sweeping the weight on the test set:
 
 | event weight w | Full nDCG@10 | Δ vs tier B |
 |---|---|---|
-| 0 (tier B) | 0.35403 | — |
+| 0 (tier B) | 0.35403 | -- |
 | 0.1 | 0.35587 | +0.18 |
 | **0.25 (best)** | **0.35960** | **+0.56** |
 | 0.5 | 0.35794 | +0.39 |
@@ -74,7 +74,7 @@ sweeping the weight on the test set:
 | 2.0 | 0.28995 | −6.41 |
 
 Even at the weight picked *on the test set* (an optimistic ceiling), the event tier adds **+0.56 nDCG**,
-with low per-query heterogeneity (sd 7.54, 25% help / 20% hurt) — a quarter of the A→B tier's sd. This
+with low per-query heterogeneity (sd 7.54, 25% help / 20% hurt), a quarter of the A→B tier's sd. This
 replicates the project's earlier "Tier C is dead" conclusion, now on the community benchmark our
 collaborators built.
 
@@ -88,17 +88,17 @@ features (out-of-fold ridge, same protocol):
 | APGR | 0.065 | 0.217 |
 
 τ is statistically zero and the nested gap is negligible: from tier-B confidence there is no signal for
-which queries the event tier will help — the same negative we found on the small cells, now at 10× scale.
+which queries the event tier will help, the same negative we found on the small cells, now at 10× scale.
 
 **This is the paper's point, shown in both directions on real data.** The A→B step gives a large,
-heterogeneous, *predictable* gain — route it, and the router captures +2.23 nDCG. The B→Full step gives
-a tiny, fragile, *unpredictable* gain for ~213 LLM tokens/query plus the event-scoring cost — so a good
+heterogeneous, *predictable* gain: route it, and the router captures +2.23 nDCG. The B→Full step gives
+a tiny, fragile, *unpredictable* gain for ~213 LLM tokens/query plus the event-scoring cost, so a good
 router declines it, and you should not buy the Full tier at all. The value of routing is not uniform
 across a cascade; it concentrates where the per-query gain is both large and predictable.
 
 ## The energy frontier: the Full tier is dominated
 We measured what the Full tier actually costs. `tier_cost.py` priced the similarity components in joules
-but explicitly *excluded* the LLM generations — which on 2.0 are the dominant cost. `mv2_energy.py`
+but explicitly *excluded* the LLM generations, which on 2.0 are the dominant cost. `mv2_energy.py`
 fills that gap: NVML power on physical GPU1 at 5 Hz, integrated, minus a model-loaded idle baseline, over
 40 real queries (GPU0 Whisper never touched).
 
@@ -117,22 +117,22 @@ fills that gap: NVML power on physical GPU1 at 5 Hz, integrated, minus a model-l
 
 Two things kill the Full tier on the energy–accuracy frontier:
 1. **The headroom exists but isn't reachable.** An oracle that escalates only the right ~22% reaches
-   nDCG 0.373 — **+1.84 over tier B**, and **+1.72 over blind (random) escalation at the same cost**;
+   nDCG 0.373: **+1.84 over tier B**, and **+1.72 over blind (random) escalation at the same cost**;
    escalating everyone erases it back to +0.56 because Full *hurts* the majority. The realizable router
-   captures **8% of that +1.72 routing headroom** (+0.13) — noise-level, consistent with τ p=.44. This is
+   captures **8% of that +1.72 routing headroom** (+0.13), noise-level, consistent with τ p=.44. This is
    the same oracle-collapses-under-a-real-predictor pattern the tier-C study found (+5.04 → +0.73).
 2. **Every realizable point is expensive.** Buying the full +0.56 costs **257 J per nDCG@10 point**
    (655 kJ over the 2,544 queries), essentially all of it LLM generation. The router cannot spend that
-   energy selectively, so no fraction of Full-tier spend sits on an efficient frontier — the tier is
+   energy selectively, so no fraction of Full-tier spend sits on an efficient frontier; the tier is
    dominated. Route A→B (cheap, routable); do not buy Full.
 
 ![Full-tier energy frontier](../../reports/figures/mv2_frontier.png)
 
 The frontier figure (`mv2_frontier_fig.py` → `reports/figures/mv2_frontier.{png,pdf}`) shows it directly:
 the oracle plateaus at nDCG 37.28 by escalating only the right ~22%, but the out-of-fold router hugs the
-random-escalation chord — it captures 8% of that headroom — while every point on it costs real joules.
+random-escalation chord (it captures 8% of that headroom) while every point on it costs real joules.
 
-## Does a bigger decomposer rescue the Full tier? (7B → 14B) — no
+## Does a bigger decomposer rescue the Full tier? (7B → 14B): no
 The 7B result carries a caveat: the original Q2E Full tier used a 70B decomposer, so a stronger model
 might write event descriptions that help more *and* are easier to route. We tested it by doubling the
 decomposer to qwen2.5:14b-instruct (still the largest that fits GPU-resident on a 15 GB A2) and re-running
@@ -150,14 +150,14 @@ the whole Full-tier pipeline. `events_qwen14b.jsonl` → `mv2_full_qwen14b.json`
 | energy per nDCG@10 point gained | 257 J | **321 J** |
 
 Two things move, and they cut against each other. The bigger decomposer **does** help more (+0.81 vs +0.56)
-and, unlike the 7B, is **weakly but significantly routable** — τ goes from a flat null (p=.44) to +0.035
+and, unlike the 7B, is **weakly but significantly routable**: τ goes from a flat null (p=.44) to +0.035
 (p=.0045), and the nested gap clears zero at +0.39. So the strong claim "B→Full is unroutable" softens: with
 a 2× decomposer there is a real, orderable signal. But it does **not** rescue the tier:
 
 1. **The signal is still ~6× weaker than A→B.** τ +0.035 vs +0.127; nested gap +0.39 vs +2.23. Even doubling
    the decomposer, B→Full routing is worth a fraction of the caption tier it sits above.
 2. **Cost grows faster than benefit.** The 14B costs 1.8× the joules (259.7 vs 143.5 J/query), so each
-   nDCG@10 point bought gets *more* expensive, not less — 321 J/point vs 257. The tier is more dominated
+   nDCG@10 point bought gets *more* expensive, not less: 321 J/point vs 257. The tier is more dominated
    on the energy frontier, not less.
 3. **The 7B→14B trend argues against the 70B fixing it.** A 2× size step moved routability from .002 to
    .035 while the energy nearly doubled; to reach A→B's routing value the signal would need to grow ~6×
@@ -166,7 +166,7 @@ a 2× decomposer there is a real, orderable signal. But it does **not** rescue t
 
 ## Scope and next step
 - Both cascade steps are now measured on real MultiVENT 2.0: A→B (route it) and B→Full (don't). This is
-  the routing-**quality** result — whether the router orders queries by true gain — and it lands the way
+  the routing-**quality** result (whether the router orders queries by true gain) and it lands the way
   the heterogeneity thesis predicts in both directions.
 - The **cost** axis is now in measured joules (above), not just tokens: the Full tier's 143.5 J/query of
   LLM generation buys +0.56 unroutable nDCG, so it is dominated on the energy–accuracy frontier. The A→B

@@ -1,4 +1,4 @@
-# Two-stage cost cascade on MultiVENT 2.0 — design
+# Two-stage cost cascade on MultiVENT 2.0: design
 
 Our original pipeline scores every query against every video and caches the full score tensor. That
 does not scale here: MultiVENT 2.0 has ~110K test videos, so the query×video product is ~280M pairs
@@ -29,7 +29,7 @@ return tier-B ranking          [stage 2: expensive, top-K only]
 ```
 
 Everything the router needs (stage-1 scores, confidence features) is available before paying for the
-generation, so the escalation decision is cascade-legal — same discipline as the original work.
+generation, so the escalation decision is cascade-legal: same discipline as the original work.
 
 ## What we reuse vs build
 
@@ -41,7 +41,7 @@ Reuse (shipped in the dataset `features/`, ~16 GB, no raw video needed):
   (`validate_harness.py` reproduces the CLIP baseline 0.30364 to the last digit).
 
 Build:
-- **The two-stage top-K reranker** (`retrieve.py`) — the one substantive new component.
+- **The two-stage top-K reranker** (`retrieve.py`), the one substantive new component.
 - Query-side encoding for tier A: the shipped embeddings are video-side only, so we need the matching
   text tower (SigLIP text encoder) to embed the ~2,545 test queries. Small (short texts), one-off.
 - Caption -> ColBERT tokenization for tier B.
@@ -60,17 +60,17 @@ setup with the same NVML method (`tracking.py`); do not reuse the original-Multi
 1. **Reuse the shipped features vs regenerate with our own encoder/captioner.** Reuse is fast, avoids
    200-4,400 GPU-hrs, and decouples us from video link-rot. The cost: our numbers use CLIP/SigLIP +
    Qwen captions, not our own models, so they are not apples-to-apples with the original-MultiVENT
-   runs. Recommendation: **reuse**, and frame MultiVENT 2.0 as a new, larger cell in the grid — the
+   runs. Recommendation: **reuse**, and frame MultiVENT 2.0 as a new, larger cell in the grid: the
    router is encoder-agnostic (transfer result: it moves across encoders), so the routing claim holds
    regardless of which encoder fills each tier. Regenerate only if a reviewer demands own-encoder parity.
 2. **K (rerank depth).** Needs recall@K high enough that stage 2 can find the golds. R@100 of the CLIP
-   baseline is 0.60, R@1000 is 0.84 — so K=1000 keeps ~84% of golds reachable, K=100 keeps ~60%.
+   baseline is 0.60, R@1000 is 0.84, so K=1000 keeps ~84% of golds reachable, K=100 keeps ~60%.
    Start K=1000 for headroom, then sweep down and report the recall/cost trade (K is itself a second
    cost knob the router could exploit).
 
 ## Baseline to beat
 
-MMMORRF (SIGIR'25, Yates/Yang et al.) — 0.586 nDCG@10 on the same test set, using the same shipped
+MMMORRF (SIGIR'25, Yates/Yang et al.): 0.586 nDCG@10 on the same test set, using the same shipped
 features + ColBERT-X, fused by modality-aware RRF. Our target is not to beat it on raw nDCG but to
 sit on a better efficiency-effectiveness frontier: match MMMORRF-class accuracy while escalating the
 expensive tier on only a fraction of queries.
