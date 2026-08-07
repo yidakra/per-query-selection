@@ -57,7 +57,12 @@ COVERAGE = {"nDCG@10": "complete", "tau": "complete",
 
 
 def load(tag, nested=False):
-    with open(os.path.join(ABL, f"mv2_qpp_table{tag}.json")) as f:
+    # under --nested the analytic rows come from the symmetric nested-calibration run
+    # (mv2_qpp_table.py --nested-calibration), so the family comparison carries one protocol
+    src = "mv2_qpp_table_sym_grouped" if nested else f"mv2_qpp_table{tag}"
+    if nested and not os.path.exists(os.path.join(ABL, f"{src}.json")):
+        src = f"mv2_qpp_table{tag}"
+    with open(os.path.join(ABL, f"{src}.json")) as f:
         table = json.load(f)
     # Arabzadeh et al. give BERT-QPP in both flavours. Nested operating-point calibration rescues the
     # cross-encoder but not the bi-encoder, so both rows remain informative.
@@ -76,19 +81,26 @@ def load(tag, nested=False):
             if k in raw:
                 dest[cell] = (raw[k]["routed_ndcg10"], raw[k]["tau"],
                               raw[k].get("routed_recall100"), raw[k].get("frac_escalated"))
-    # QSD_pre reports at the best k for the split, per qpp_baselines.md: k=5 under a plain split where
-    # the duplicate IS the answer, k=100 under event grouping where many neighbours are needed to
-    # average the noise out. That reversal is itself the leakage evidence, so the k is not a free knob.
+    # QSD_pre's k: preferred source is the fully nested row (k, weighting and fraction all chosen on
+    # the inner calibration split, mv2_qsd.py nested_k). The per-split best-k convention below is the
+    # legacy fallback and carries test knowledge; the k-reversal (5 plain vs 100 grouped) stays useful
+    # as leakage evidence but is discussed, not reported as the row.
     qsd, qsd_k = {}, "5_inv_dist" if not tag.endswith("_grouped") else "100_inv_dist"
-    p = os.path.join(ABL, "mv2_qsd_pre_nested_grouped.json" if nested else f"mv2_qsd{tag}.json")
+    p_nk = os.path.join(ABL, "mv2_qsd_pre_nestedk_grouped.json")
+    p = p_nk if (nested and os.path.exists(p_nk)) else os.path.join(
+        ABL, "mv2_qsd_pre_nested_grouped.json" if nested else f"mv2_qsd{tag}.json")
     if os.path.exists(p):
         with open(p) as f:
             raw = json.load(f)
         for k, cell in (("asr_shipped", "ASR-shipped"), ("asr_dense", "ASR-dense"), ("ocr", "OCR")):
-            if k in raw and qsd_k in raw[k]["k"]:
+            if k in raw and "nested_k" in raw[k]:
+                v = raw[k]["nested_k"]
+            elif k in raw and qsd_k in raw[k]["k"]:
                 v = raw[k]["k"][qsd_k]
-                qsd[cell] = (v["routed_ndcg10"], v["tau"], v.get("routed_recall100"),
-                             v.get("frac_escalated"))
+            else:
+                continue
+            qsd[cell] = (v["routed_ndcg10"], v["tau"], v.get("routed_recall100"),
+                         v.get("frac_escalated"))
     return table, bert, bert_bi, qsd_post, qsd
 
 
@@ -109,11 +121,22 @@ def main():
     # the best fixed policy a degenerate predictor scores exactly zero improvement, which is the truth.
     original = {c: max(table[c]["cheap"], table[c]["uniform"]) for c in cells}
 
+    # Clarity over the caption surrogate: the concession row. Absent -> the row stays n/a.
+    clarity = {}
+    p_cl = os.path.join(ABL, "mv2_clarity_surrogate_grouped.json")
+    if a.nested and os.path.exists(p_cl):
+        raw_cl = json.load(open(p_cl))
+        for cell in ("ASR-shipped", "ASR-dense", "OCR"):
+            if cell in raw_cl:
+                v = raw_cl[cell]
+                clarity[cell] = (v["routed_ndcg10"], v["tau"], v.get("routed_recall100"),
+                                 v.get("frac_escalated"))
+
     def get(section, ours_name, cell):
         if ours_name is None:
             return None
         if ours_name == "CLARITY_NA":
-            return "n/a"
+            return clarity.get(cell, "n/a")
         if ours_name == "BERTQPP":
             return bert.get(cell)
         if ours_name == "BERTQPP_BI":
@@ -157,7 +180,10 @@ def main():
                      {c: get("pre", ours, c) for c in cells},
                      f"pre/{ours}" if ours else None))
     for i, (their, ours) in enumerate(POST):
-        rows.append(("Post-retrieval" if i == 0 else "", their,
+        name = their
+        if ours == "CLARITY_NA" and clarity:
+            name = "clarity (caption surrogate)"
+        rows.append(("Post-retrieval" if i == 0 else "", name,
                      {c: get("post", ours, c) for c in cells},
                      f"post/{ours}" if ours and ours != "CLARITY_NA" else None))
     # not the k-way selector: inside a cell the decision is binary (escalate or not), so this is the
@@ -261,7 +287,7 @@ def main():
                     f"policy and not the predictor. A row can carry a healthy tau and still be "
                     f"degenerate, which is the gap between correlation and decision quality. "
                     f"Denominators cover the rows that have a fraction on record, so "
-                    + ("`clarity` and `DM` are" if a.nested else
+                    + (("`DM` is" if clarity else "`clarity` and `DM` are") if a.nested else
                        "`clarity`, `DM` and `QSD_post` are")
                     + " excluded rather than counted as non-degenerate.\n\n"
                     + "\n".join(f"- {s}" for s in summary)

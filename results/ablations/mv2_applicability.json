@@ -1,0 +1,93 @@
+{
+  "target": "ocr",
+  "cell": "mv2_chan_visual_to_ocr_dense_m3.json",
+  "strata_all_present": {
+    "n": 1843,
+    "original": 0.2747995096101558,
+    "pre_underlined": 0,
+    "of": 11,
+    "rows": {
+      "IDF_avg": {
+        "routed": 0.26481457444896356,
+        "tau": 0.027474767097551592,
+        "frac": 0.20021703743895822,
+        "underlined": false
+      },
+      "IDF_max": {
+        "routed": 0.2730389038547103,
+        "tau": 0.014786213525939909,
+        "frac": 0.06782419967444384,
+        "underlined": false
+      },
+      "IDF_sum": {
+        "routed": 0.27129738908846707,
+        "tau": -0.005044499295246826,
+        "frac": 0.05154639175257732,
+        "underlined": false
+      },
+      "IDF_std": {
+        "routed": 0.2707504150677378,
+        "tau": -0.021406813085207015,
+        "frac": 0.11177428106348346,
+        "underlined": false
+      },
+      "SCQ_avg": {
+        "routed": 0.2719941385688624,
+        "tau": 0.019936864551533706,
+        "frac": 0.04774823657080846,
+        "underlined": false
+      },
+      "SCQ_max": {
+        "routed": 0.27269535124411654,
+        "tau": 0.03215057688131165,
+        "frac": 0.05642973412913728,
+        "underlined": false
+      },
+      "SCQ_sum": {
+        "routed": 0.2663049699583751,
+        "tau": -0.009553220978356926,
+        "frac": 0.15138361367335865,
+        "underlined": false
+      },
+      "avgICTF": {
+        "routed": 0.2691326229077008,
+        "tau": 0.03259482754885712,
+        "frac": 0.16060770482908301,
+        "underlined": false
+      },
+      "SCS_1": {
+        "routed": 0.2706883184943251,
+        "tau": 0.03623807382030757,
+        "frac": 0.12805208898534998,
+        "underlined": false
+      },
+      "SCS_2": {
+        "routed": 0.2735424171821642,
+        "tau": 0.03368422962022221,
+        "frac": 0.0759631036353771,
+        "underlined": false
+      },
+      "QL": {
+        "routed": 0.26926386567714355,
+        "tau": -0.02137635896538046,
+        "frac": 0.09929462832338579,
+        "underlined": false
+      }
+    }
+  },
+  "concentration": {
+    "n_absent_gold": 711,
+    "n_present_gold": 1835,
+    "mean_gain_absent_gold": 0.10063256213081957,
+    "mean_gain_present_gold": 0.06634556520696962,
+    "note": "gain = per-query nested selector minus best-fixed-on-train, dense k-way cell"
+  },
+  "availability_flags": {
+    "flags_only_nested_gap": 1.930020939853847,
+    "flags_only_sem": 0.6935926208133072,
+    "score_features_nested_gap": 7.591914140522979,
+    "score_features_sem": 1.0125261842769535,
+    "score_plus_flags_nested_gap": 7.279361784379984,
+    "score_plus_flags_sem": 1.0888586486419223
+  }
+}

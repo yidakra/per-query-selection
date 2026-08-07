@@ -26,6 +26,8 @@ HERE = os.path.dirname(os.path.abspath(__file__)); sys.path.insert(0, HERE)
 from mv2_io import load_run, load_queries  # noqa: E402
 from mv2_qpp_predictors import (score_only_suite, pre_retrieval_suite, Index,  # noqa: E402
                                 SCORE_ONLY, PRE_RETRIEVAL)
+from mv2_nested_calibration import (apply_fraction, calibration_split,  # noqa: E402
+                                    choose_fraction)
 from scipy.stats import kendalltau  # noqa: E402
 from sklearn.linear_model import RidgeCV  # noqa: E402
 from sklearn.preprocessing import StandardScaler  # noqa: E402
@@ -83,6 +85,40 @@ def route(raw, g, ndA, ndB, cv=None, recA=None, recB=None):
             rec, float(esc.mean()), bits(esc))
 
 
+def route_nested(X, g, ndA, ndB, splits, grp, recA=None, recB=None, seed=0, cal_size=0.2):
+    """The identical nested rescue the learned rows get, applied to an analytic predictor.
+
+    Per outer fold: split the training fold into group-disjoint fit and calibration subsets, fit the
+    ridge on fit, choose the escalation fraction on calibration (0.02 grid, work-minimising ties),
+    refit on the full training fold, apply the frozen fraction to the test fold. No outer-test label
+    enters the choice. Same tuple shape as route(), plus per-fold calibration records.
+    """
+    X = np.asarray(X, dtype=np.float64)
+    if X.ndim == 1:
+        X = X.reshape(-1, 1)
+    tau = float(kendalltau(X[:, 0], g).statistic) if X.shape[1] == 1 else None
+    if np.allclose(X.std(axis=0), 0):
+        return (float(ndA.mean()), tau or 0.0,
+                (float(recA.mean()) if recA is not None else None),
+                0.0, "0" * len(ndA)), []
+    esc = np.zeros(len(g), dtype=bool)
+    pred = np.zeros(len(g))
+    cal_log = []
+    for fi, (tr, te) in enumerate(splits):
+        fit, cal = calibration_split(tr, grp, cal_size, seed + fi)
+        cal_pred = mk().fit(X[fit], g[fit]).predict(X[cal])
+        fraction, cal_util = choose_fraction(cal_pred, ndA[cal], ndB[cal])
+        pred[te] = mk().fit(X[tr], g[tr]).predict(X[te])
+        esc[te] = apply_fraction(pred[te], fraction)
+        cal_log.append({"fold": fi, "fraction": fraction, "calibration_utility": cal_util,
+                        "n_fit": len(fit), "n_calibration": len(cal)})
+    if tau is None:
+        tau = float(kendalltau(pred, g).statistic)
+    rec = float(np.where(esc, recB, recA).mean()) if recA is not None else None
+    return (float(np.where(esc, ndB, ndA).mean()), tau, rec,
+            float(esc.mean()), bits(esc)), cal_log
+
+
 def main():
     import argparse
     ap = argparse.ArgumentParser()
@@ -94,7 +130,15 @@ def main():
                     help="override the standard three cells; repeat for more than one")
     ap.add_argument("--index-text", default="asr_text.jsonl",
                     help="JSONL text corpus used for the lexical pre-retrieval index")
+    ap.add_argument("--nested-calibration", action="store_true",
+                    help="give every analytic predictor (and the Ours row) the identical nested "
+                         "escalation-fraction choice the learned rows get, so the family comparison "
+                         "carries no protocol asymmetry")
+    ap.add_argument("--calibration-size", type=float, default=0.2)
+    ap.add_argument("--seed", type=int, default=0)
     a = ap.parse_args()
+    if a.nested_calibration and not a.group_cv:
+        ap.error("--nested-calibration requires --group-cv")
     cells = CELLS
     if a.cell:
         cells = []
@@ -161,7 +205,20 @@ def main():
 
         # decisions are kept out of the reported tuples: one bitstring per predictor, in `qids` order
         dec = {}
-        full = {n: route(post[n], g, ndA, ndB, cv, recA, recB) for n in SCORE_ONLY}
+        cal_records = {}
+
+        def run_family(values, names, key):
+            if a.nested_calibration:
+                out = {}
+                for n in names:
+                    tup, cal_log = route_nested(values[n], g, ndA, ndB, cv, grp, recA, recB,
+                                                seed=a.seed, cal_size=a.calibration_size)
+                    out[n] = tup
+                    cal_records[f"{key}:{n}"] = cal_log
+                return out
+            return {n: route(values[n], g, ndA, ndB, cv, recA, recB) for n in names}
+
+        full = run_family(post, SCORE_ONLY, "post")
         rows = {n: v[:4] for n, v in full.items()}
         dec["post"] = {n: v[4] for n, v in full.items()}
 
@@ -173,26 +230,35 @@ def main():
                 s = pre_retrieval_suite(queries[q].lower().split(), idx)
                 for n in PRE_RETRIEVAL:
                     pre[n].append(s[n])
-            pfull = {n: route(pre[n], g, ndA, ndB, cv, recA, recB) for n in PRE_RETRIEVAL}
+            pfull = run_family(pre, PRE_RETRIEVAL, "pre")
             pre_rows = {n: v[:4] for n, v in pfull.items()}
             dec["pre"] = {n: v[4] for n, v in pfull.items()}
 
-        ours_pred = cross_val_predict(mk(), feats, g,
-                                     cv=cv or KFold(5, shuffle=True, random_state=0))
-        ours = (float(np.where(ours_pred > 0, ndB, ndA).mean()),
-                float(kendalltau(ours_pred, g).statistic),
-                float(np.where(ours_pred > 0, recB, recA).mean()) if recA is not None else None,
-                float((ours_pred > 0).mean()))
+        if a.nested_calibration:
+            ours_full, ours_cal = route_nested(feats, g, ndA, ndB, cv, grp, recA, recB,
+                                               seed=a.seed, cal_size=a.calibration_size)
+            ours = ours_full[:4]
+            dec["ours"] = ours_full[4]
+            cal_records["ours"] = ours_cal
+        else:
+            ours_pred = cross_val_predict(mk(), feats, g,
+                                          cv=cv or KFold(5, shuffle=True, random_state=0))
+            ours = (float(np.where(ours_pred > 0, ndB, ndA).mean()),
+                    float(kendalltau(ours_pred, g).statistic),
+                    float(np.where(ours_pred > 0, recB, recA).mean()) if recA is not None else None,
+                    float((ours_pred > 0).mean()))
+            dec["ours"] = bits(ours_pred > 0)
         oracle = (float(np.where(g > 0, ndB, ndA).mean()), 1.0,
                   float(np.where(g > 0, recB, recA).mean()) if recA is not None else None,
                   float((g > 0).mean()))
 
-        dec["ours"] = bits(ours_pred > 0)
         dec["oracle"] = bits(g > 0)
         results[label] = {"n": len(qids), "cheap": float(ndA.mean()), "uniform": float(ndB.mean()),
                           "recall_cheap": float(recA.mean()) if recA is not None else None,
                           "recall_uniform": float(recB.mean()) if recB is not None else None,
                           "post": rows, "pre": pre_rows, "ours": ours, "oracle": oracle,
+                          "decision_rule": ("nested_fraction" if a.nested_calibration else "zero"),
+                          "nested_calibration": cal_records if a.nested_calibration else None,
                           "qids": qids, "decisions": dec}
         print(f"{label}: n={len(qids)} cheap={ndA.mean():.4f} uniform={ndB.mean():.4f} "
               f"ours={ours[0]:.4f} (tau {ours[1]:+.3f})", flush=True)
