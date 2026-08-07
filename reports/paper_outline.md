@@ -160,13 +160,15 @@ proxy it does not normally get and it still did not help.
 Power has to be addressed here, not in limitations: 2,546 queries against their 56 topics, and a
 confidence interval that excludes anything of practical size. The null is bounded.
 
-Then QSD_pre, which is the section's best paragraph. Under nested calibration it clearly beats fixed in
-the two speech cells and is effectively tied in OCR (0.3102 / 0.3469 / 0.3037), because it reads no
-corpus index at all: only the historical queries nearest this one, and their known effectiveness. So
-the boundary is not the category label the literature organises by. It is document-side language
-statistics. QSD still trails NQC and the control, and 52% of what it has is duplicate detection (§5.5),
-so it sharpens the claim without denting it. The matched five-epoch QSD_post comparison is mixed, ruling
-out consistent benefit or harm from adding document text.
+Then QSD_pre, which is the section's best paragraph. Fully nested (k and fraction both chosen on the
+inner split) it beats fixed in the two speech cells and sits just under it in OCR
+(0.3065 / 0.3466 / 0.3028), because it reads no corpus index at all: only the historical queries
+nearest this one, and their known effectiveness. So the boundary is not the category label the
+literature organises by. It is corpus-aggregate term statistics, worded so BERT-QPP's
+document-reading success does not falsify it. QSD still trails the score cluster and the control, and
+52% of what it has is duplicate detection (§5.5), so it sharpens the claim without denting it. The
+matched QSD_post comparison stays mixed at a few thousandths of nDCG, ruling out consistent benefit
+or harm from adding document text.
 
 #### 5.2 The choice is predictable, from the other family (700 w)
 
@@ -281,16 +283,20 @@ figure carries it alone now. Watch that section.
 | 2 | Their pre-retrieval result | IDF_max .273 → .398; NQC .381 | `related_work_qpp.md` (v1 PDF, recheck v2) |
 | 4 | Per-channel effectiveness | visual .3036, ASR shipped .2666, OCR .1223, ASR dense .3134, +MT .3332 | `mv2_translate_findings.md` |
 | 4 | Event grouping | 536 groups / 2,546 queries | `qpp_baselines.md`, `router_event_groups.py` |
-| 5.1 | Pre-retrieval null | 11 corpus-statistic predictors τ ≈ 0; within .0005 of nothing | `qpp_baselines.md` |
+| 5.1 | Pre-retrieval null, symmetric protocol | 0/33 clear margin; 0/33 survive Holm; 21/33 equivalent within .005 | `mv2_qpp_table_sym_grouped.json`, `mv2_row_inference.json` |
 | 5.1 | Per-channel repair | +0.43 ± .38 / +0.86 ± .52 / +0.81 ± .57; stacked +7.56 ± .89 | `mv2_qpp_prechannel.py`, `.json` |
 | 5.1 | Features do vary | mean relative range 0.09 (SCQ_max) – 0.33 (IDF_std) | `mv2_qpp_prechannel.json` |
-| 5.2 | Positive control | +7.59 ± 1.01, p = .0005; +5.64 ± 0.93 shipped | `mv2_channel_select_dense_m3_grouped.json` |
-| 5.2 | Policy table | .3036 / .3408 / .3531 / .4131 | one-pager |
-| 5.2 | Post-retrieval works | \|τ\| ≈ 0.21 (NQC −0.215) | `qpp_baselines.md` |
-| 5.2 | NQC edges us on binary | .3193 vs .3205; .3531 vs .3541 | `qpp_baselines.md` |
-| 5.2 | Matched QSD | post-minus-pre nDCG +.0001 / +.0017 / −.0023 | `mv2_qsd_pre_nested_grouped.json`, `mv2_qsd_post_5ep_nested_grouped.json` |
-| 5.2 | Nested BERT-QPP cross | .3204 / .3560 / .3042; bi below fixed in all cells | `mv2_bertqpp_cross_3ep_nested_grouped.json`, `mv2_bertqpp_bi_3ep_nested_grouped.json` |
-| 5.2 | τ does not specify utility | all rows −.099, p=.213; 5--95% rows −.244, p=.040 | `mv2_qpp_utility_nested_grouped.json` |
+| 5.1 | Weight sensitivity | pre 0-5/11 only at suboptimal w, post 8-10/10 at every w | `mv2_w_sensitivity_asr_{dense,shipped}.json` |
+| 5.2 | Positive control | +7.59 ± 1.01, group sign-flip p < 5e-4 (pooled and nested); +5.64 ± 0.93 shipped | `mv2_channel_select_dense_m3_grouped.json` |
+| 5.2 | Matched-learner family ratio | QPP features +0.81 best vs score features +7.59, same ridge and folds | `mv2_qpp_prechannel.json` |
+| 5.2 | Policy table | .3036 / .3408 / .3522 / .4131 | one-pager |
+| 5.2 | Post-retrieval works | 17/30 underlined, 8/30 survive Holm (NQC τ −0.215) | `mv2_table1_nested_grouped.md`, `mv2_row_inference.json` |
+| 5.2 | Score cluster on binary | ours .3161 vs NQC .3144; ours .3522 vs σ_max .3532, BERT .3560 | `mv2_qpp_table_sym_grouped.json` |
+| 5.2 | Matched QSD | post-minus-pre nDCG +.0039 / +.0020 / −.0014 | `mv2_qsd_pre_nestedk_grouped.json`, `mv2_qsd_post_5ep_nested_grouped.json` |
+| 5.2 | Nested BERT-QPP cross | .3204 / .3560 / .3042, best post-retrieval row in all cells; bi below fixed | `mv2_bertqpp_cross_3ep_nested_grouped.json`, `mv2_bertqpp_bi_3ep_nested_grouped.json` |
+| 5.2 | Clarity concession row | caption surrogate: .3008 / .3406 / .3036, τ ≈ 0 | `mv2_clarity_surrogate_grouped.json` |
+| 5.2 | τ does not specify utility | all rows −.149, p=.054 descriptive; cheap-only −.057 | `mv2_qpp_utility_nested_sym_grouped.json` |
+| 5.3 | Applicability, measured | flags alone +1.93 ± .69; gains +10.06 absent-gold vs +6.63; null persists on all-present strata 0/11 | `mv2_applicability.json` |
 | 5.2 | Single-channel picks | 72% (76% translated) | `mv2_translate_findings.md` |
 | 5.3 | Gain spread | ASR-shipped -2.41 +/- 24.07, ASR-dense +3.72 +/- 23.12, OCR -5.92 +/- 19.42 | computed from the three cell JSONs, 2 Aug 2026 |
 | 5.3 | Clarity undefined | n/a | `qpp_baselines.md` |

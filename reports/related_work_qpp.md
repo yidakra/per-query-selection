@@ -35,31 +35,66 @@ and what the frames look like. Same shape, and one difference that turns out to 
 
 That sounds like bookkeeping. It sets what a predictor is able to see.
 
+**The boundary has ancestors, and the paper must own them.** Choosing which of several searchable
+sources to query, per query, is the resource selection problem of federated and distributed IR, and
+that literature drew a version of our dividing line thirty years ago: lexicon-based methods that score
+a source by its collection term statistics (CORI, Callan et al., SIGIR 1995; gGlOSS, Gravano and
+Garcia-Molina) were overtaken by sample-based methods that run the query against document samples and
+read retrieval scores back (ReDDE, Si and Callan, SIGIR 2003; CRCS; SUSHI; survey in Shokouhi and Si,
+Federated Search, FnTIR 2011). Taily (Aly et al., SIGIR 2013) is the standing counterexample, a
+shard-selection method built on corpus term statistics that works well, and the paper must engage it
+rather than cite around it: Taily selects among shards of one homogeneous text collection, where every
+shard has term statistics of the same kind, which is precisely the condition the visual channel breaks.
+Vertical selection in aggregated search (Arguello et al., SIGIR 2009; Diaz, WSDM 2009; Arguello, FnTIR
+2017) is the same decision one level up, choosing among media verticals per query, and it too found
+collection-side term evidence weak for verticals without text representations. Our claim is therefore
+not that the dividing line is new. It is that the line re-emerges, measurably and per query, inside
+the QPP-for-selection paradigm on the reference definitions of a published QPP study, in a setting
+with a mechanism text federations lack: a document can lack the channel entirely, so applicability is
+per document, not per collection. The positive control has ancestry too: query-adaptive multimodal
+fusion with score-distribution features was an active TRECVID-era line (Yan, Yang and Hauptmann, ACM
+MM 2004 [verify exact venue]; Wilkins et al., ACM MIR 2006 [verify]), and the selector should be
+presented as the control it is, not as a novelty. Selective query expansion via difficulty prediction
+(Amati et al., ECIR 2004; Yom-Tov et al., SIGIR 2005) and QPP for fusion decisions (Markovits et al.,
+CIKM 2012, the closest precedent to our binary cells) anchor the opening claim that QPP decides how
+much machinery a query gets.
+
 **The corpus-statistic family does not transfer.** We implemented eleven pre-retrieval predictors
 against the same reference repository their definitions come from, so this is a same-vocabulary
 comparison rather than a same-spirit one. All eleven land at τ ≈ 0 and route to within 0.0005 nDCG of
 doing nothing. The score-only post-retrieval family, run identically, reaches |τ| ≈ 0.21.
 
-The escalation fractions make the failure concrete. Calibrating a corpus-statistic predictor against the
-escalation gain does not produce a poor decision rule, it produces a constant one: the fraction of
-queries escalated is pinned at a corner in 20 of the 33 cells, exactly 0% in all eleven of the OCR cell
-and exactly 100% in six of eleven in ASR-dense. The score-only family is at a corner in 5 of 33 and
-otherwise varies query by query. Three of those five corners are BERT-QPP, whose predictions are all
-positive by a margin (minimum +0.38) so its zero-crossing is uninformative while its ordering is the
-strongest in the block, the sharpest illustration in our table of the distinction their two metric
-families exist to draw.
+The protocol is symmetric, which closes the strongest objection to the contrast. Every family gets
+the identical nested operating-point calibration: escalation fraction chosen on a group-disjoint
+subset of each outer training fold, never on a test label. Under that shared protocol the
+corpus-statistic family stops being degenerate (2 of 33 cells at a corner, down from 20 under the
+raw zero crossing) and still clears the source study's margin nowhere, 0 of 33, mostly landing below
+the fixed policy: forcing an operating point onto a noise ordering escalates the wrong queries. The
+score-only family holds 17 of 30 under the same treatment. With per-row inference at the event-group
+level, 0 of 33 corpus-statistic rows beat the fixed policy after Holm correction and 21 of 33 are
+formally equivalent to it within 0.005 nDCG, against 8 of 30 significant score-only rows. The
+zero-crossing degeneracy contrast (20/33 vs 5/33) survives as a diagnostic of raw calibration, not as
+the family evidence.
 
 One pre-retrieval predictor escapes, and it is the exception that fixes the rule. QSD_pre embeds the
 query, finds the historical queries nearest to it, and interpolates their known effectiveness, so it
-reads no corpus index at all. It beats the fixed policy in every cell (0.3137 / 0.3466 / 0.3039), which
-no term-statistic predictor does anywhere. So the boundary is not the pre/post-retrieval split the
-literature organises by. It is whether a predictor needs document-side language statistics.
+reads no corpus index at all. Under the fully nested protocol (neighbourhood size and operating point
+both chosen inside the training fold) it clears the fixed policy in the two speech cells and no
+term-statistic predictor does anywhere. So the boundary is not the pre/post-retrieval split the
+literature organises by. It is whether a predictor depends on corpus-aggregate term statistics,
+collection frequencies read against the query. That wording matters: BERT-QPP's cross-encoder reads
+retrieved document text and sits on the successful side, so "document-side language" would be
+falsified by our own table, while "corpus-aggregate statistics" separates the families cleanly and
+also predicts the gradient inside the score family (WIG, the score predictor with the heaviest
+corpus-score component, fails; NQC, whose corpus dependence is a scale normaliser, succeeds).
 
-Two things stop that from weakening the result. QSD_pre still trails both NQC and our selector. And most
-of what it has is duplicate detection: under a plain query split it reaches τ +0.343 and beats
-everything, and event grouping removes 52% of that (see the methodological note below). The predictor
-that escapes the null is the same one that leaks, and both follow from it reading other queries' labels
-rather than documents.
+Two things stop the exception from weakening the result. QSD_pre still trails both NQC and our
+selector. And most of what it has is duplicate detection: under a plain query split it reaches
+τ +0.343 and beats everything, and event grouping removes 52% of that (see the methodological note
+below). Zendel et al. (SIGIR 2019) is the precedent: other queries of the same information need are
+potent predictors, which is exactly the near-duplicate mechanism the grouping quantifies. QSD_pre is
+less a pre-retrieval anomaly than a third predictor category the pre/post taxonomy has no name for,
+supervision transfer from labelled neighbours, and the paper should present it that way.
 
 The first thing to rule out is our own setup. A pre-retrieval predictor reads query terms against a
 corpus index, and we had built one index, over the speech transcripts, so every predictor returned a
@@ -150,7 +185,7 @@ selection, the worse the recall, monotonically, exactly as their Oracle-ndcg@5 a
 rows diverge. Any table of ours reporting nDCG@10 alone is reporting the metric the selection was fitted
 to, and the paper should say so where it reports one.
 
-One stake stays open. NQC, the predictor that edges our router on the binary escalation
+One stake stays open. NQC, which sits within a point of our router on the binary escalation
 decision, is the same predictor they find correlating at −0.038 with answer quality while correlating at
 0.329 with nDCG. We cannot say from our data whether that inversion is a property of their setting or
 of the predictor, and it is worth posing as a question rather than answering it with a guess.
@@ -184,10 +219,11 @@ of other variants is exposed, and we can quantify the exposure because we have a
   Arabzadeh is an author of both** that paper and the variant-selection paper we bound, so QSD_pre and
   QSD_post are not a neutral third-party baseline. They are the same group's method, which makes the
   QSD_post result a stronger rather than weaker thing to report.
-- Do NOT write that we beat classical QPP. With formulas pinned to their repo and folds grouped by
-  event, NQC edges our router on the binary decision (0.3205 vs 0.3193 shipped, 0.3541 vs 0.3531 dense,
-  |τ| 0.215 vs 0.211). Under story B this costs nothing: NQC is in the family that transfers, so it
-  corroborates the claim. Do not let a later draft turn it back into a wound.
+- Do NOT write that we beat classical QPP. Under the shared nested protocol the cluster is within a
+  point either way per cell: ours 0.3161 vs NQC 0.3144 on shipped, ours 0.3522 vs σ_max 0.3532 and
+  BERT-QPP 0.3560 on dense. Under story B this costs nothing: everything in that cluster is in the
+  family that transfers, so it corroborates the claim. Do not let a later draft turn it into either a
+  wound or a win.
 - The degeneracy counts come from each predictor's recorded escalation fraction, exactly 0 or exactly 1,
   not from its routed nDCG sitting on a fixed policy's. Inferring it from the nDCG at a 5e-4 tolerance
   gave 46 cells against the measured 25, because a predictor that escalates six queries out of 2,546
@@ -215,11 +251,12 @@ of other variants is exposed, and we can quantify the exposure because we have a
   approximation: a report's coverage is a property of the ranked list it was written from. The mix
   aborts unless both endpoints reproduce the judged runs. Do not let a later draft describe these
   columns as estimated or partial.
-- The old τ-versus-utility headline does not survive nested calibration of the learned methods. It is
-  −0.099 over 78 rows (p=.213), −0.189 after exact degeneracies are removed, and −0.244 for 5--95%
-  escalation; against cheap-only it is −0.046. The portable result is that correlation does not supply
-  a deployable operating point, demonstrated by the cross-encoder changing from always-fuse to the
-  strongest learned baseline under inner-fold calibration. Do not reinstate the anti-correlation claim.
+- The old τ-versus-utility headline does not survive symmetric nested calibration. With every row on
+  the shared protocol it is −0.149 over 78 rows (p=.054), −0.168 after exact degeneracies are removed,
+  −0.143 for 5--95% escalation, and −0.057 against cheap-only, with the row p-values descriptive (78
+  dependent rows). The portable result is that correlation does not supply a deployable operating
+  point, demonstrated by the cross-encoder changing from always-fuse to the strongest learned baseline
+  under inner-fold calibration. Do not reinstate the anti-correlation claim.
 - The corpus-axis experiments (1 Aug 2026) are a negative result and belong in the paper as one. In
   sample they look outstanding (100.0% of the ASR-dense gain at 38% of the corpus, an oracle document
   set beating full extraction by +0.069), and every bit of it is selection-on-test. Train and held-out
