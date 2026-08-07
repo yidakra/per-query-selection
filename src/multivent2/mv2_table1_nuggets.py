@@ -80,9 +80,17 @@ def main():
         sys.exit(f"not judged yet: {', '.join(missing)}. Run mv2_rag_nuggets.py generate+assign "
                  f"after adding them to POLICIES.")
 
-    table = json.load(open(os.path.join(ABL, f"mv2_qpp_table{a.tag}.json")))
-    qsd = json.load(open(os.path.join(
-        ABL, "mv2_qsd_pre_nested_grouped.json" if a.nested else f"mv2_qsd{a.tag}.json")))
+    # under --nested the analytic decisions come from the symmetric nested-calibration table and the
+    # QSD_pre decisions from the fully nested (k chosen on the inner split) artifact, matching
+    # mv2_table1.py's sources
+    tab_src = "mv2_qpp_table_sym_grouped" if a.nested else f"mv2_qpp_table{a.tag}"
+    if a.nested and not os.path.exists(os.path.join(ABL, f"{tab_src}.json")):
+        tab_src = f"mv2_qpp_table{a.tag}"
+    table = json.load(open(os.path.join(ABL, f"{tab_src}.json")))
+    p_nk = os.path.join(ABL, "mv2_qsd_pre_nestedk_grouped.json")
+    qsd_src = p_nk if (a.nested and os.path.exists(p_nk)) else os.path.join(
+        ABL, "mv2_qsd_pre_nested_grouped.json" if a.nested else f"mv2_qsd{a.tag}.json")
+    qsd = json.load(open(qsd_src))
     bert = json.load(open(os.path.join(
         ABL, "mv2_bertqpp_cross_3ep_nested_grouped.json"
         if a.nested else f"mv2_bertqpp{a.tag}.json")))
@@ -129,7 +137,9 @@ def main():
         for sec in ("pre", "post"):
             for name, d in dec.get(sec, {}).items():
                 rows[f"{sec}/{name}"] = mix(d)
-        rows["pre/QSD_PRE"] = mix(qsd[SNAKE[cell]]["k"][qsd_k]["decisions"])
+        qcell = qsd[SNAKE[cell]]
+        rows["pre/QSD_PRE"] = mix(qcell["nested_k"]["decisions"] if "nested_k" in qcell
+                                  else qcell["k"][qsd_k]["decisions"])
         rows["post/BERTQPP"] = mix(bert[SNAKE[cell]]["decisions"])
         if SNAKE[cell] in bert_bi and "decisions" in bert_bi[SNAKE[cell]]:
             rows["post/BERTQPP_BI"] = mix(bert_bi[SNAKE[cell]]["decisions"])

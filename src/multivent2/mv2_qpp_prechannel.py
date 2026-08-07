@@ -117,7 +117,7 @@ def main():
     print(f"\n{'feature set':<38} {'nested gap':>12} {'sem':>7}  {'features':>9}")
     print("-" * 72)
     for label, X in sets.items():
-        gap, sem, folds = nested_selection(X, Y, splits=splits)
+        gap, sem, folds, *_ = nested_selection(X, Y, splits=splits)
         out["sets"][label] = {"nested_gap": gap, "nested_sem": sem, "n_features": int(X.shape[1]),
                              "folds": folds}
         print(f"{label:<38} {gap:>+11.2f} {sem:>7.2f}  {X.shape[1]:>9}")

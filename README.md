@@ -10,9 +10,9 @@ The router is built on a **faithful reproduction of Q2E** (Dipta & Ferraro, IJCN
 [arXiv:2506.10202](https://arxiv.org/abs/2506.10202)) as its validated base. Official code:
 https://github.com/dipta007/Q2E (cloned to `external/q2e_official`, commit `a1c09da`).
 
-> **Private, pre-publication.** Unpublished findings; keep private until write-up.
+> **Private, pre-publication.** Unpublished findings. Keep private until write-up.
 
-Three tiers over Q2E's components, nested so escalation is free; a cascade pays only for what it
+Three tiers over Q2E's components, nested so escalation is free. A cascade pays only for what it
 ends up scoring:
 
 | tier | components | LLM calls / query |
@@ -27,7 +27,7 @@ ends up scoring:
 
 The ECIR 2027 paper is written in a separate repository, `yidakra/project_a`. This one keeps the
 experiments, the generated tables under `results/ablations/`, and the evidence documents in `reports/`
-that those tables are verified against. Prose lives over there; numbers are re-derived here.
+that those tables are verified against. Prose lives over there. Numbers are re-derived here.
 
 The mapping from a claim in the paper to the artifact behind it is the evidence map in
 `reports/paper_outline.md`.
@@ -59,14 +59,14 @@ order queries by true gain?"*, exactly permutation-testable.
 Significance is a broad plateau over `f ≈ 0.35–0.90`, not one lucky point. The operating point is
 chosen by nested CV, so it carries no selection bias.
 
-**Caveats, stated up front.** The router **never beats Fixed-B in absolute nDCG**; at cost 0.39 it
+**Caveats, stated up front.** The router **never beats Fixed-B in absolute nDCG**. At cost 0.39 it
 reaches 74.15 vs Fixed-B's 74.28. Its win lives *strictly between* Fixed-A and Fixed-B, where the only
 fixed alternative is a cost-matched random mixture (the chord). This is an accuracy–compute frontier
 claim, **not** "we beat Q2E".
 
 **The Full tier is never purchased.** B→Full gain is far less predictable than A→B (ρ = +0.094,
-p = .07 on noASR; +0.137, p = .011 on ASR; the ASR cell is significant, so the honest statement is
-*weakly* predictable, not unpredictable). What kills the escalation is the size of the prize: the
+p = .07 on noASR; +0.137, p = .011 on ASR). The ASR cell is significant, so the honest statement is
+*weakly* predictable, not unpredictable. What kills the escalation is the size of the prize: the
 oracle B→Full gap is only +2.55 / +2.56, and §5 shows that figure is itself an in-sample quantity
 whose advantage does not survive a held-out label split (optimism 3.36 / 3.76). Event decomposition's
 per-query benefit is not worth buying, which is itself a finding, and it bounds the approach.
@@ -163,12 +163,12 @@ Consequences, carefully scoped:
 - The **nested gaps (+0.73 / +1.68) are out-of-fold and unaffected.** Only the oracle *denominator*
   moves. The "% of oracle captured" framing is **retired**.
 - A negative out-of-sample gap does **not** mean achievable gain is negative. That oracle estimates
-  each query's gain from ~4 golds and is variance-dominated; the nested-CV router pools across
+  each query's gain from ~4 golds and is variance-dominated. The nested-CV router pools across
   training queries and wins. A pooled learner beating a per-query oracle fed noisy labels is no paradox.
 - The ceiling is still a **valid bound** on a fixed label set, just a very loose one. Bound, not target.
 - **MSR-VTT cannot be audited this way** (1.01 golds/query). Its ceilings stay labelled in-sample.
 - Consequently the heterogeneity thesis (§2) is carried by the **achieved-gap** correlation, which is
-  out-of-fold; the oracle-headroom correlation is corroborative at best.
+  out-of-fold. The oracle-headroom correlation is corroborative at best.
 
 A refuted hypothesis, recorded so it is not re-proposed: optimism does **not** grow with the size of
 the oracle's choice space (3 tiers → optimism 10.55; 2^24 subsets → 4.89). It tracks the **spread in
@@ -246,7 +246,7 @@ Read before trusting any energy number:
   pinned to GPU1 sees `cuda:0` in torch but must tell CodeCarbon `[1]`. CPU-only jobs pass `[]`.
   `track()` refuses `gpu_ids=None` rather than guess.
 - **CPU energy is a TDP-based estimate**, not a measurement (no RAPL powercap exposed). GPU energy is
-  measured. We record which mode was used per run; never sum them into one unqualified headline.
+  measured. We record which mode was used per run. Never sum them into one unqualified headline.
 - Carbon intensity is CodeCarbon's bundled **annual** grid mix (NLD, 267.6 gCO2e/kWh), not live.
 
 Per-run records land in `results/energy/{emissions.csv,runs.jsonl}`, which are append-only, so **merge

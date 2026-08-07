@@ -23,7 +23,7 @@ MMMORRF. Translation is not what separates us from them.
 
 ## Per language
 
-Queries are English; the language belongs to the video. And 22.5% of queries have relevant videos in
+Queries are English. The language belongs to the video. And 22.5% of queries have relevant videos in
 more than one language, so tagging each query with a single language throws information away. Instead
 the judgments are restricted one language at a time: keep the judgments whose `video_language` is L,
 keep the queries that still have something relevant to find, score the unchanged ranked lists against
@@ -66,8 +66,8 @@ The audit did settle something else. Arabic has the least reliable transcripts i
 wrong script and 15.8% degenerate, and Arabic is the language translation helps most. The gain tracks
 how badly the original-language channel was being served, not how far the language sits from English.
 
-**English gets worse, and that is not a bug.** English documents were passed through untouched; 35.3%
-of the corpus comes out byte-identical, and spot checks confirm English transcripts are unchanged. The
+**English gets worse, and that is not a bug.** English documents were passed through untouched, and 35.3%
+of the corpus comes out byte-identical, with spot checks confirming English transcripts are unchanged. The
 drop is contention. Once Russian and Arabic and Korean transcripts read as English, they compete for
 English queries and push English relevant documents down the same ranked list. The per-language subtask
 restricts the qrels to English relevant documents, so that reshuffling shows up as a loss. Spanish loses
@@ -105,7 +105,7 @@ channel suits which query rather than the average weakness of any one channel: m
 does not make it better for the queries it was already wrong for. The share of queries answered from a
 single channel rises with it (72% to 76%), which points the same way.
 
-This is not proof that the gain survives arbitrarily strong channels; MMMORRF's are still far above
+This is not proof that the gain survives arbitrarily strong channels. MMMORRF's are still far above
 ours, and only they can settle that. It does rule out the cheapest version of the objection.
 
 ## Caveats

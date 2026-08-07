@@ -6,7 +6,7 @@
 > there, tiers A and B are CPU-only and cost ~0.01 J and ~1 J per query. Do not mix the two tables.
 
 
-Ladder (cost = **measured GPU energy per query**, J; normalized so Full = 1.0). Single source of
+Ladder (cost = **measured GPU energy per query**, J, normalized so Full = 1.0). Single source of
 truth `tier_cost.py`; measurement in `cost_model_findings.md`.
 
 | tier | components | J/query | cost (Full = 1) |
@@ -16,7 +16,7 @@ truth `tier_cost.py`; measurement in `cost_model_findings.md`.
 | Full | all 5 (adds LLM event decomposition) | 1418.36 | 1.0 |
 
 A's component is a **subset** of B's, which is a subset of Full's, so a cascade pays only for the
-components it ends up scoring. Escalation is free; there is no re-scoring penalty.
+components it ends up scoring. Escalation is free. There is no re-scoring penalty.
 
 > **The cost axis is measured energy, not a component count.** Earlier figures used
 > `cost = # similarity components scored` ({A,B,Full} = {0.2, 0.4, 1.0}); that proxy rated all five
@@ -75,12 +75,12 @@ Significance is a broad plateau over `f ≈ 0.35–0.90`, not a single lucky poi
 
 > **Both correlations are reported, following the QPP-benchmark convention.** iQPP (Poesina et al.,
 > 2023) and VQPP (Lutu et al., 2026) grade a query-performance predictor by its Pearson *r* **and**
-> Kendall *τ* against true effectiveness; our per-query gain predictor is a (differential) QPP model,
+> Kendall *τ* against true effectiveness. Our per-query gain predictor is a (differential) QPP model,
 > so we report the same pair. ρ is linear; τ is rank-only and outlier-robust, and both are computed
 > on the same OOF predictions with a shared 2000-shuffle permutation null. τ agrees with ρ on the
 > five stronger cells (all p < .05). The exception is the lowest-heterogeneity cell, MSR-VTT/mCLIP/
-> noASR, whose rank association is not significant (τ = +0.014, p = .28) though its linear ρ grazes it;
-> the honest reading is that its per-query signal is marginal, exactly as its low sd(gain) predicts.
+> noASR, whose rank association is not significant (τ = +0.014, p = .28) though its linear ρ grazes it.
+> The honest reading is that its per-query signal is marginal, exactly as its low sd(gain) predicts.
 > **What we predict is a *differential* (nDCG_B − nDCG_A), not absolute AP**, a noisier target than
 > the single-system effectiveness those benchmarks predict, so these magnitudes are not comparable to
 > iQPP's τ ≈ 0.65 ceiling.
@@ -88,7 +88,7 @@ Significance is a broad plateau over `f ≈ 0.35–0.90`, not a single lucky poi
 **Baselines the router is measured against** (`baselines_findings.md`, `router_baselines.py`). The
 learned multi-feature router beats routing on the best single classical QPP predictor (max score, SD,
 NQC (Shtok 2012), WIG (Zhou & Croft 2007), Clarity (Cronen-Townsend 2002)) on the routing objective
-(mean gap +0.78 vs +0.43) and on average τ (+0.092 vs +0.078). The real win is robustness: *which*
+(mean gap +0.78 vs +0.43) and on average τ (+0.092 vs +0.078). The real win is consistency across cells: *which*
 single predictor is best flips across regimes (WIG on MultiVENT, NQC / max on MSR-VTT, with max going
 negative on MultiVENT), reproducing iQPP's "no predictor is consistently best" result, so the learned
 combination is the only signal positive on all six cells. A model-class ablation confirms the estimator
@@ -143,13 +143,13 @@ gap with **Spearman ρ = +0.943** (n = 6; one-tailed critical value at α = .05 
 > share any relevant video and counts connected components: **every query is its own component in all
 > six cells** (259/259 on MultiVENT v1, 995/995 on each MSR-VTT cell). GroupKFold therefore reduces to
 > KFold and nothing here needs rerunning. MultiVENT v1 pairs one query with ~9.24 relevant videos but
-> gives each event a single query, and MSR-VTT is effectively single-gold; only MultiVENT 2.0 carries
+> gives each event a single query, and MSR-VTT is effectively single-gold. Only MultiVENT 2.0 carries
 > several phrasings of one event. The leakage is a property of that benchmark, not of the method.
 
 Crucially the driver is heterogeneity, *not dataset identity*: MSR-VTT/internvideo2/ASR has
 sd = 13.81, close to MultiVENT's 15.22, and its gap (+0.96) lands where the trend predicts,
 despite 1.01 gold/query. The fraction of headroom the router *captures* stays roughly flat
-(14–31%); it is the headroom itself that scales.
+(14–31%). It is the headroom itself that scales.
 
 Related: **17% of MultiVENT queries are actively hurt** by adding captions (vs 2–4% on MSR-VTT).
 That is what a router is for, and it is the quiet critique of Q2E's one-size-fits-all fusion.
@@ -210,7 +210,7 @@ never purchasable.
 §3 correlates `sd(gain)` with *both* the oracle headroom and the achieved gap (ρ = +0.943 for each).
 The first of those correlations inherits this contamination. The second does not: `nested gap` is
 out-of-fold, and on its own it carries the claim. Report the achieved-gap correlation as the
-load-bearing one; the oracle-headroom correlation is at best corroborative and is partly a statement
+load-bearing one. The oracle-headroom correlation is at best corroborative and is partly a statement
 about how much label noise each cell has.
 
 ### Methodological upshot

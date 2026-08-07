@@ -206,6 +206,42 @@ def main():
                                                "pred": {q: float(p) for q, p in zip(qids, pred)}}
                 print(f"  k={k:<4} {tag:<13} tau={tau:+.3f}  routed nDCG@10={routed:.4f}"
                       + (f"  R@100={rec:.4f}" if rec is not None else ""), flush=True)
+
+        if a.nested_calibration:
+            # the reported row must not pick k with test knowledge: choose k, weighting and the
+            # escalation fraction together on the inner calibration split, per outer fold
+            ks = [int(x) for x in a.ks.split(",")]
+            pred = np.zeros(len(qids))
+            decisions = np.zeros(len(qids), dtype=bool)
+            chosen = []
+            for fi, (tr, te) in enumerate(splits):
+                fit, cal = calibration_split(tr, grp, a.calibration_size, a.seed + fi)
+                best = None
+                for k in ks:
+                    for weighted, tag in ((True, "inv_dist"), (False, "uniform_mean")):
+                        cal_pred = qsd_predict(E, g, fit, cal, k, weighted)
+                        fraction, util = choose_fraction(cal_pred, ndA[cal], ndB[cal])
+                        if best is None or util > best[0]:
+                            best = (util, k, weighted, tag, fraction)
+                util, k, weighted, tag, fraction = best
+                pred[te] = qsd_predict(E, g, tr, te, k, weighted)
+                decisions[te] = apply_fraction(pred[te], fraction)
+                chosen.append({"fold": fi, "k": k, "weighting": tag,
+                               "fraction": fraction, "calibration_utility": util})
+            tau = float(kendalltau(pred, g).statistic)
+            routed = float(np.where(decisions, ndB, ndA).mean())
+            rec = routed_recall(decisions)
+            cell_out["nested_k"] = {"tau": tau, "routed_ndcg10": routed, "routed_recall100": rec,
+                                    "frac_escalated": float(decisions.mean()),
+                                    "decision_rule": "nested_fraction_and_k",
+                                    "chosen": chosen, "decisions": bits(decisions),
+                                    "pred": {q: float(p) for q, p in zip(qids, pred)}}
+            print("  nested-k picks: " + "  ".join(
+                f"fold{c['fold']}: k={c['k']} {c['weighting']} f={c['fraction']:.2f}"
+                for c in chosen), flush=True)
+            print(f"  nested-k row  tau={tau:+.3f}  routed nDCG@10={routed:.4f}"
+                  + (f"  R@100={rec:.4f}" if rec is not None else ""), flush=True)
+
         # same splits, our cheap-feature router and the best analytic predictor, so the comparison is
         # not confounded by a different CV scheme
         from sklearn.linear_model import RidgeCV

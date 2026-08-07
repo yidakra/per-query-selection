@@ -69,7 +69,7 @@ def main():
         Yhat = cross_val_predict(factory(), X, Y, cv=KFold(5, shuffle=True, random_state=0))
         sel = np.argmax(Yhat, axis=1)
         oof = float(Y[np.arange(n), sel].mean())
-        ng, ngs, _ = nested_selection(X, Y, model=factory)
+        ng, ngs, *_ = nested_selection(X, Y, model=factory)
         models[name] = {"selected_oof": oof, "nested_gap": ng, "nested_sem": ngs}
         print(f"{name:<6} selected {oof:.5f}  nested {ng:+.2f} +/- {ngs:.2f}")
 

@@ -9,7 +9,7 @@ from `paper2_scope.md`: every item here tests the boundary-condition paper.
 - Within each outer training fold, a group-disjoint 20% calibration subset chooses an escalation
   fraction from 0 to 1 in increments of 0.02. The model is then fitted on the full outer training fold
   and that fixed fraction is applied to the outer test fold. No test label selects an operating point.
-- QSD_post receives five epochs; BERT-QPP cross and bi receive three epochs on bert-base with AMP. QSD_pre
+- QSD_post receives five epochs. BERT-QPP cross and bi receive three epochs on bert-base with AMP. QSD_pre
   is closed-form but receives the identical nested fraction choice for its matched comparison.
 - Every artifact stores out-of-fold predictions and decision bits. All predictions are finite, all
   decision strings contain 2,546 bits, their one-counts reproduce the recorded escalation fractions,
@@ -41,7 +41,8 @@ The boundary replicates, while universal score-only transfer does not. Artifact:
 | ASR-dense | 0.3469 / +0.152 | 0.3486 / +0.142 | +0.0017 / −0.010 |
 | OCR | 0.3037 / +0.095 | 0.3014 / +0.100 | −0.0023 / +0.005 |
 
-The earlier one-epoch claim that adding document text makes QSD worse is not robust. The supported
+The earlier one-epoch claim that adding document text makes QSD worse does not survive the matched
+comparison. The supported
 result is no consistent benefit or harm. Artifacts: `mv2_qsd_pre_nested_grouped.json` and
 `mv2_qsd_post_5ep_nested_grouped.json`.
 
@@ -63,16 +64,16 @@ strongest learned QPP row. The bi-encoder remains below fixed in every cell. Art
 ### Correlation versus utility
 
 Using the nested learned decisions, Kendall τ against utility over the best fixed policy is −0.099 over
-78 rows (p=0.213; Pearson −0.182), rather than the old zero-crossing estimate of −0.213. It is −0.189
+78 rows (p=0.213, Pearson −0.182), rather than the old zero-crossing estimate of −0.213. It is −0.189
 over 56 non-degenerate rows (p=0.040), −0.244 over the 35 rows escalating 5--95% (p=0.040), and −0.046
-against cheap-only (p=0.558). The anti-correlation headline is retracted; the supported claim is that
+against cheap-only (p=0.558). The anti-correlation headline is retracted. The supported claim is that
 rank correlation does not supply a deployable operating point. Artifact:
 `mv2_qpp_utility_nested_grouped.json`.
 
 ### Second nugget assignment judge
 
 The 7B assignment pass holds the 14B-produced gold nuggets and reports fixed, changing only the
-checkpoint that labels support. This isolates assignment sensitivity; it does not test nuggetization or
+checkpoint that labels support. This isolates assignment sensitivity. It does not test nuggetization or
 generation sensitivity. Both checkpoints are Qwen2.5, so this is not a cross-family judge test.
 
 | grounding | assigner | routed vital | fixed vital | delta | paired p |

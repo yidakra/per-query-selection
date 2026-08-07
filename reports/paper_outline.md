@@ -1,8 +1,8 @@
 # ECIR 2027 full paper: outline and evidence map
 
 **Story: B with A as the engine** (agreed 31 Jul 2026). The claim is a boundary condition on
-QPP-for-selection. Per-query channel routing is the positive control that makes the boundary
-interpretable, not the headline. An earlier version of this file assumed story A and has been replaced.
+QPP-for-selection, and per-query channel routing is the positive control that makes the boundary
+interpretable. An earlier version of this file assumed story A and has been replaced.
 
 Working document, not for commit.
 
@@ -30,11 +30,11 @@ be anonymised, and the MultiVENT collaboration cannot be named in a way that ide
 artifact story before writing rather than after.
 
 **Appendices counting toward the 12 pages** removes the obvious parking space. The full RQ2 table is 33
-rows × 4 metrics × 3 cells and cannot be a free appendix; it has to be either cut down for the body or
+rows × 4 metrics × 3 cells and cannot be a free appendix. It has to be either cut down for the body or
 held for a companion artifact. The one-pager's approach (full rows and all four metrics for one cell,
 the other two summarised) is the version that fits.
 
-Authorship with the JHU collaborators unsettled and now more consequential; see open items. Under a
+Authorship with the JHU collaborators unsettled and now more consequential. See open items. Under a
 21 Sep abstract deadline this is the item with the least slack, since an author list is required before
 there is a paper.
 
@@ -85,7 +85,7 @@ system claim does not. That was the reason for choosing B.
 1. QPP has been recast from *how hard is this query* to *which candidate should I run*, and it works:
    cheap pre-retrieval predictors are competitive at picking among LLM query variants.
 2. The natural next question is what else that selects. Retrieval systems choose among more than
-   rewritings; in multimodal video retrieval they choose among evidence channels on every query.
+   rewritings. In multimodal video retrieval they choose among evidence channels on every query.
 3. We run the same predictor families, implemented to the same reference definitions, on that choice.
    The result inverts: corpus-statistic prediction collapses, score-only post-retrieval carries it.
 4. State the spine (above) in three sentences. This is the introduction's real work.
@@ -127,14 +127,14 @@ of that sentence, so it is worth its own section rather than a paragraph in the 
 
 ### 4. Setup and method (900 w)
 
-- Channels and the 7-policy space; weighted RRF, k = 60. Table 1: per-channel nDCG@10.
+- Channels and the 7-policy space. Weighted RRF, k = 60. Table 1: per-channel nDCG@10.
 - Predictors evaluated: 11 corpus-statistic pre-retrieval, 10 score-only post-retrieval, plus supervised
   BERT-QPP and both halves of QSD, all to the QPP-4-RAG definitions. Analytic rows use an out-of-fold
   one-feature ridge; learned rows use group-disjoint nested operating-point calibration.
 - The positive-control selector: 30 features (per-channel confidence shape + pairwise top-10/top-100
   overlap), multi-target RidgeCV, argmax. Say here that every feature reads scores the cascade has
   already computed, and give the 1.04 ms in one clause.
-- Protocol: nested outer CV with the best fixed policy re-chosen per training fold; event-grouped folds
+- Protocol: nested outer CV with the best fixed policy re-chosen per training fold. Event-grouped folds
   from union-find over shared relevant documents, 536 groups over 2,546 queries. Both cost us margin.
 - MultiVENT 2.0 test, 2,546 queries, **109,724 videos** (109,488 carry speech; 98,805 carry on-screen
   text), nDCG@10, **2,000-sample** permutation tests. Both figures were wrong in an earlier version of
@@ -158,15 +158,17 @@ One sentence conceding the surrogate, plainly. The honest framing is that we han
 proxy it does not normally get and it still did not help.
 
 Power has to be addressed here, not in limitations: 2,546 queries against their 56 topics, and a
-confidence interval that excludes anything of practical size. This is a bounded null, not a shrug.
+confidence interval that excludes anything of practical size. The null is bounded.
 
-Then QSD_pre, which is the section's best paragraph. Under nested calibration it clearly beats fixed in
-the two speech cells and is effectively tied in OCR (0.3102 / 0.3469 / 0.3037), because it reads no
-corpus index at all: only the historical queries nearest this one, and their known effectiveness. So
-the boundary is not the category label the literature organises by; it is document-side language
-statistics. QSD still trails NQC and the control, and 52% of what it has is duplicate detection (§5.5),
-so it sharpens the claim without denting it. The matched five-epoch QSD_post comparison is mixed, ruling
-out consistent benefit or harm from adding document text.
+Then QSD_pre, which is the section's best paragraph. Fully nested (k and fraction both chosen on the
+inner split) it beats fixed in the two speech cells and sits just under it in OCR
+(0.3065 / 0.3466 / 0.3028), because it reads no corpus index at all: only the historical queries
+nearest this one, and their known effectiveness. So the boundary is not the category label the
+literature organises by. It is corpus-aggregate term statistics, worded so BERT-QPP's
+document-reading success does not falsify it. QSD still trails the score cluster and the control, and
+52% of what it has is duplicate detection (§5.5), so it sharpens the claim without denting it. The
+matched QSD_post comparison stays mixed at a few thousandths of nDCG, ruling out consistent benefit
+or harm from adding document text.
 
 #### 5.2 The choice is predictable, from the other family (700 w)
 
@@ -230,7 +232,7 @@ across modalities is then an open question we can pose but not settle.
   routed gap, +7.59 → +8.01 ± 1.01. In the matched binary cell 3/11 corpus-statistic rows make small
   gains, versus 8/10 score-only rows and a much larger control gain.
 - Second collection: MSR-VTT-1kA, two encoders × ASR/no-ASR × direct choice/escalation. Corpus-statistic
-  rows 0/88; the direct task has 5.57--10.37 nDCG oracle headroom and the control clears fixed in 4/4.
+  rows 0/88. The direct task has 5.57--10.37 nDCG oracle headroom and the control clears fixed in 4/4.
   Score-only transfer is mixed (5/80), which bounds the generalisation claim.
 - Leakage taxonomy: predictors consuming other queries' performance leak (QSD −52%, BERT-QPP −10 to
   −29% under event grouping); predictors reading only the current query's scores lose ≤ 2%. Their
@@ -281,16 +283,20 @@ figure carries it alone now. Watch that section.
 | 2 | Their pre-retrieval result | IDF_max .273 → .398; NQC .381 | `related_work_qpp.md` (v1 PDF, recheck v2) |
 | 4 | Per-channel effectiveness | visual .3036, ASR shipped .2666, OCR .1223, ASR dense .3134, +MT .3332 | `mv2_translate_findings.md` |
 | 4 | Event grouping | 536 groups / 2,546 queries | `qpp_baselines.md`, `router_event_groups.py` |
-| 5.1 | Pre-retrieval null | 11 corpus-statistic predictors τ ≈ 0; within .0005 of nothing | `qpp_baselines.md` |
+| 5.1 | Pre-retrieval null, symmetric protocol | 0/33 clear margin; 0/33 survive Holm; 21/33 equivalent within .005 | `mv2_qpp_table_sym_grouped.json`, `mv2_row_inference.json` |
 | 5.1 | Per-channel repair | +0.43 ± .38 / +0.86 ± .52 / +0.81 ± .57; stacked +7.56 ± .89 | `mv2_qpp_prechannel.py`, `.json` |
 | 5.1 | Features do vary | mean relative range 0.09 (SCQ_max) – 0.33 (IDF_std) | `mv2_qpp_prechannel.json` |
-| 5.2 | Positive control | +7.59 ± 1.01, p = .0005; +5.64 ± 0.93 shipped | `mv2_channel_select_dense_m3_grouped.json` |
-| 5.2 | Policy table | .3036 / .3408 / .3531 / .4131 | one-pager |
-| 5.2 | Post-retrieval works | \|τ\| ≈ 0.21 (NQC −0.215) | `qpp_baselines.md` |
-| 5.2 | NQC edges us on binary | .3193 vs .3205; .3531 vs .3541 | `qpp_baselines.md` |
-| 5.2 | Matched QSD | post-minus-pre nDCG +.0001 / +.0017 / −.0023 | `mv2_qsd_pre_nested_grouped.json`, `mv2_qsd_post_5ep_nested_grouped.json` |
-| 5.2 | Nested BERT-QPP cross | .3204 / .3560 / .3042; bi below fixed in all cells | `mv2_bertqpp_cross_3ep_nested_grouped.json`, `mv2_bertqpp_bi_3ep_nested_grouped.json` |
-| 5.2 | τ does not specify utility | all rows −.099, p=.213; 5--95% rows −.244, p=.040 | `mv2_qpp_utility_nested_grouped.json` |
+| 5.1 | Weight sensitivity | pre 0-5/11 only at suboptimal w, post 8-10/10 at every w | `mv2_w_sensitivity_asr_{dense,shipped}.json` |
+| 5.2 | Positive control | +7.59 ± 1.01, group sign-flip p < 5e-4 (pooled and nested); +5.64 ± 0.93 shipped | `mv2_channel_select_dense_m3_grouped.json` |
+| 5.2 | Matched-learner family ratio | QPP features +0.81 best vs score features +7.59, same ridge and folds | `mv2_qpp_prechannel.json` |
+| 5.2 | Policy table | .3036 / .3408 / .3522 / .4131 | one-pager |
+| 5.2 | Post-retrieval works | 17/30 underlined, 8/30 survive Holm (NQC τ −0.215) | `mv2_table1_nested_grouped.md`, `mv2_row_inference.json` |
+| 5.2 | Score cluster on binary | ours .3161 vs NQC .3144; ours .3522 vs σ_max .3532, BERT .3560 | `mv2_qpp_table_sym_grouped.json` |
+| 5.2 | Matched QSD | post-minus-pre nDCG +.0039 / +.0020 / −.0014 | `mv2_qsd_pre_nestedk_grouped.json`, `mv2_qsd_post_5ep_nested_grouped.json` |
+| 5.2 | Nested BERT-QPP cross | .3204 / .3560 / .3042, best post-retrieval row in all cells; bi below fixed | `mv2_bertqpp_cross_3ep_nested_grouped.json`, `mv2_bertqpp_bi_3ep_nested_grouped.json` |
+| 5.2 | Clarity concession row | caption surrogate: .3008 / .3406 / .3036, τ ≈ 0 | `mv2_clarity_surrogate_grouped.json` |
+| 5.2 | τ does not specify utility | all rows −.149, p=.054 descriptive; cheap-only −.057 | `mv2_qpp_utility_nested_sym_grouped.json` |
+| 5.3 | Applicability, measured | flags alone +1.93 ± .69; gains +10.06 absent-gold vs +6.63; null persists on all-present strata 0/11 | `mv2_applicability.json` |
 | 5.2 | Single-channel picks | 72% (76% translated) | `mv2_translate_findings.md` |
 | 5.3 | Gain spread | ASR-shipped -2.41 +/- 24.07, ASR-dense +3.72 +/- 23.12, OCR -5.92 +/- 19.42 | computed from the three cell JSONs, 2 Aug 2026 |
 | 5.3 | Clarity undefined | n/a | `qpp_baselines.md` |
@@ -324,9 +330,9 @@ No locally runnable experiment in the submission checklist remains open. Remaini
 external decision, a new domain, or new source material:
 
 1. **Authorship and affiliations.** Story B is a boundary condition argued on the JHU benchmark and
-   engages Arabzadeh et al. directly; settle before the abstract deadline.
+   engages Arabzadeh et al. directly. Settle before the abstract deadline.
 2. **Anonymous artifact decision and hosting.** Both repositories are private and cannot be linked from
    the review submission as they stand.
-3. **Beyond-video generalisation or a cross-family judge.** MSR-VTT supplies a second video collection;
-   the second assignment checkpoint is from the same Qwen2.5 family. Neither closes those wider claims.
-4. **Recheck Arabzadeh et al. against any v2** if one appears; current values use the 24 Apr 2026 v1.
+3. **Beyond-video generalisation or a cross-family judge.** MSR-VTT supplies a second video collection.
+   The second assignment checkpoint is from the same Qwen2.5 family. Neither closes those wider claims.
+4. **Recheck Arabzadeh et al. against any v2** if one appears. Current values use the 24 Apr 2026 v1.

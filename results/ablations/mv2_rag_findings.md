@@ -118,7 +118,7 @@ across all three cells, four judged runs cover the entire table.
 
 Every Table 1 row is then arithmetic rather than a judge pass. A predictor executes run A or run B per
 query; a report's nugget coverage is a property of the ranked list it was written from, not of the
-predictor that chose it; so the row's coverage is the per-query mix of the two under that predictor's
+predictor that chose it, so the row's coverage is the per-query mix of the two under that predictor's
 recorded decisions. `mv2_table1_nuggets.py` does the mix and refuses to write unless both endpoints
 reproduce the judged runs exactly, which is what would catch a decision vector misaligned to `qids`.
 That turned roughly thirty judge passes into three.
