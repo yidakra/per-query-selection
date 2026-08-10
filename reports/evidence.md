@@ -258,14 +258,29 @@ coverage under realistic grounding, and it fails only in the arm that isolates r
 ours reporting nDCG@10 alone (every table we have) is reporting the metric the selection was fitted
 to, and should say so.
 
-**Robustness to a stronger channel.** Translating all 109,488 ASR transcripts with NLLB and re-encoding
-raises the speech channel from 0.3134 to 0.3332, and the k-way routed gap goes **+7.59 → +8.01 ± 1.01**.
-The matched binary cell is a useful qualification to the exact null: 3 of 11 corpus-statistic rows beat
-the fixed policy by the source study's $5\times10^{-4}$ margin (IDF_sum, SCQ_sum and token-count QL),
-against 8 of 10 score-only rows. Their scale remains different: the three corpus rows reach
-0.3468--0.3472 from a 0.3452 fixed baseline, while score-only reaches 0.3840 and the multifeature
-control 0.3920 (`mv2_qpp_table_mt_grouped.json`). Improving the channel therefore creates small
-exceptions rather than preserving a literal zero, but strengthens the family contrast.
+**Robustness to a stronger channel.** The channel-strength ladder now has three rungs. Translating
+all 109,488 ASR transcripts with NLLB and re-encoding raises the speech channel from 0.3134 to
+0.3332, and reranking the translated channel's top 100 with bge-reranker-v2-m3
+(`mv2_rerank_channel.py`) raises it to 0.3515, above the previous best *fused* policy. The k-way
+routed gap climbs the ladder with it: **+7.59 → +8.01 → +8.68 ± 0.73**
+(`mv2_channel_select_rr_grouped.json`), with the group sign-flip p below 5e-4 at every rung and
+single-channel picks rising 72% to 78%. The trend over a 1.6-point fixed-baseline improvement is
+monotone against the routing-only-pays-when-channels-are-weak objection, and the top rung contains
+the strong systems' own second stage. The matched binary cell is a useful qualification to the exact
+null: 3 of 11 corpus-statistic rows beat the fixed policy by the source study's $5\times10^{-4}$
+margin (IDF_sum, SCQ_sum and token-count QL), against 8 of 10 score-only rows. Their scale remains
+different: the three corpus rows reach 0.3468--0.3472 from a 0.3452 fixed baseline, while score-only
+reaches 0.3840 and the multifeature control 0.3920 (`mv2_qpp_table_mt_grouped.json`). Improving the
+channel therefore creates small exceptions rather than preserving a literal zero, but strengthens the
+family contrast.
+
+**The embedding-based pre-retrieval probe.** The reworded boundary makes a prediction about
+predictors that aggregate no corpus statistics and observe no option outcomes: query-embedding
+features should fail at source selection too. Four label-free features (embedding norm, neighbourhood
+density, centroid distance, length) and their ridge combination go through the symmetric protocol and
+none clears the margin in any cell; the best τ anywhere is +0.098 and most routed values sit at or
+below the fixed policy (`mv2_embed_probe.py`, `mv2_embed_probe.json`). The prediction holds: what the
+successful family reads is option outcomes, not any particular query-side representation.
 
 **Robustness to a second collection.** We repeated the analytic suite on the 995-query MSR-VTT-1kA
 split under two video encoders and ASR/no-ASR caption evidence. The exact escalation analogue compares

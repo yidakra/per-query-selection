@@ -297,6 +297,8 @@ figure carries it alone now. Watch that section.
 | 5.2 | Clarity concession row | caption surrogate: .3008 / .3406 / .3036, τ ≈ 0 | `mv2_clarity_surrogate_grouped.json` |
 | 5.2 | τ does not specify utility | all rows −.149, p=.054 descriptive; cheap-only −.057 | `mv2_qpp_utility_nested_sym_grouped.json` |
 | 5.3 | Applicability, measured | flags alone +1.93 ± .69; gains +10.06 absent-gold vs +6.63; null persists on all-present strata 0/11 | `mv2_applicability.json` |
+| 5.5 | Channel-strength ladder | fixed .3372/.3428/.3527 → gap +7.59/+8.01/+8.68 ± .73, monotone; picks 72/76/78% | `mv2_channel_select_rr_grouped.json` |
+| 5.1 | Embedding probe | 4 query-embedding features + ridge: 0 underlines, best τ +0.098 | `mv2_embed_probe.json` |
 | 5.2 | Single-channel picks | 72% (76% translated) | `mv2_translate_findings.md` |
 | 5.3 | Gain spread | ASR-shipped -2.41 +/- 24.07, ASR-dense +3.72 +/- 23.12, OCR -5.92 +/- 19.42 | computed from the three cell JSONs, 2 Aug 2026 |
 | 5.3 | Clarity undefined | n/a | `qpp_baselines.md` |

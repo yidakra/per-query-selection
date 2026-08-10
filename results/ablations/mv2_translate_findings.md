@@ -89,24 +89,30 @@ hard to read any other way.
 ## Does a better channel make routing redundant?
 
 The obvious objection to this project is that per-query routing only pays while the channels are weak,
-and that anyone who invests in the channels gets the gain for free. Translation is a clean test of it:
-same selector, same 30 features, same event-grouped folds, one channel replaced by a better version of
-itself.
+and that anyone who invests in the channels gets the gain for free. The ladder now has three rungs:
+the original dense channel, the translated one, and the translated one reranked with a multilingual
+cross-encoder (`mv2_rerank_channel.py`, bge-reranker-v2-m3 over the top 100, single-channel nDCG
+0.3332 to 0.3515). Same selector, same 30 features, same event-grouped folds each time, one channel
+replaced by a better version of itself.
 
 | cell | best fixed policy | selected, out-of-fold | nested gap | single-channel picks |
 |---|---|---|---|---|
 | dense ASR, original language | 0.3372 (asr+visual) | 0.4131 | +7.59 ± 1.01 | 72% |
-| dense ASR, translated | 0.3428 (asr+visual) | 0.4229 | **+8.01 ± 1.01** | 76% |
+| dense ASR, translated | 0.3428 (asr+visual) | 0.4229 | +8.01 ± 1.01 | 76% |
+| dense ASR, translated + reranked | 0.3527 (asr+visual) | 0.4319 | **+8.68 ± 0.73** | 78% |
 
-The gap does not shrink. It grows slightly, and permutation p stays at .0005. Improving a channel
-raises the fixed baseline by 0.6 nDCG and the routed system by 1.0, so the decision layer keeps what it
-had and adds a little. That is what you would expect if routing is exploiting *variation* in which
-channel suits which query rather than the average weakness of any one channel: making speech better
-does not make it better for the queries it was already wrong for. The share of queries answered from a
-single channel rises with it (72% to 76%), which points the same way.
+The gap does not shrink. It grows at every rung, and the group sign-flip p stays below 5e-4
+throughout. Each channel improvement raises the fixed baseline and raises the routed system by more,
+so the decision layer keeps what it had and adds to it. That is what you would expect if routing is
+exploiting *variation* in which channel suits which query rather than the average weakness of any one
+channel: making speech better does not make it better for the queries it was already wrong for. The
+share of queries answered from a single channel rises with the ladder (72% to 76% to 78%), which
+points the same way.
 
 This is not proof that the gain survives arbitrarily strong channels. MMMORRF's are still far above
-ours, and only they can settle that. It does rule out the cheapest version of the objection.
+ours, and only they can settle that. But the trend over a 1.6-point climb in the fixed baseline is
+monotone in the wrong direction for the objection, and the reranked rung has the standard second
+stage of the strong systems' recipe in it.
 
 ## Caveats
 
