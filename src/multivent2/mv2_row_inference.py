@@ -75,9 +75,27 @@ def main():
     table = json.load(open(os.path.join(ABL, a.table)))
     qrels, _ = load_qrels(os.path.join(DATA, "multivent_2_test_judgments.jsonl"))
 
+    # the learned rows (and Ours) carry their decisions in their own artifacts; the review's point
+    # is that the boundary's witnesses must face the same test as the family they indict
+    LEARNED = [
+        ("QSD_pre", "mv2_qsd_pre_nestedk_grouped.json",
+         lambda d, k: d[k]["nested_k"]["decisions"]),
+        ("QSD_post", "mv2_qsd_post_5ep_nested_grouped.json",
+         lambda d, k: d[k]["decisions"]),
+        ("BERTQPP_cross", "mv2_bertqpp_cross_3ep_nested_grouped.json",
+         lambda d, k: d[k]["decisions"]),
+        ("BERTQPP_bi", "mv2_bertqpp_bi_3ep_nested_grouped.json",
+         lambda d, k: d[k]["decisions"]),
+    ]
+    SNAKE = {"ASR-shipped": "asr_shipped", "ASR-dense": "asr_dense", "OCR": "ocr"}
+    LEARNED_QIDS = {
+        "QSD_pre": lambda d, k: d[k]["qids"], "QSD_post": lambda d, k: d[k]["qids"],
+        "BERTQPP_cross": lambda d, k: d[k]["qids"], "BERTQPP_bi": lambda d, k: d[k]["qids"],
+    }
+
     out = {"table": a.table, "delta": a.delta, "rows": []}
-    fam_pvals = {"pre": [], "post": []}
-    fam_keys = {"pre": [], "post": []}
+    fam_pvals = {"pre": [], "post": [], "learned": []}
+    fam_keys = {"pre": [], "post": [], "learned": []}
     for label, fn in CELLS:
         if label not in table:
             continue
@@ -101,16 +119,49 @@ def main():
                 fam_pvals[fam].append(p)
                 fam_keys[fam].append((label, name))
 
-    for fam in ("pre", "post"):
+        def learned_row(name, esc_bits, row_qids):
+            nA = {q: cell["per_query"][q]["ndA"] for q in row_qids}
+            nB = {q: cell["per_query"][q]["ndB"] for q in row_qids}
+            esc = np.frombuffer(esc_bits.encode(), dtype=np.uint8) == ord("1")
+            rt = np.array([nB[q] if e else nA[q] for q, e in zip(row_qids, esc)])
+            fx = np.array([(nB if table[label]["uniform"] >= table[label]["cheap"] else nA)[q]
+                           for q in row_qids])
+            g2 = event_groups(list(row_qids), qrels)
+            p, obs, lo, hi = group_stats(rt - fx, g2)
+            equiv = bool(-a.delta < lo and hi < a.delta)
+            out["rows"].append({"cell": label, "family": "learned", "predictor": name,
+                                "mean_diff": obs, "p_signflip_group": p,
+                                "ci95": [lo, hi], "within_delta": equiv})
+            fam_pvals["learned"].append(p)
+            fam_keys["learned"].append((label, name))
+
+        for name, fn2, getter in LEARNED:
+            p2 = os.path.join(ABL, fn2)
+            if not os.path.exists(p2):
+                continue
+            d2 = json.load(open(p2))
+            k2 = SNAKE[label]
+            if k2 not in d2:
+                continue
+            learned_row(name, getter(d2, k2), LEARNED_QIDS[name](d2, k2))
+        p_cl = os.path.join(ABL, "mv2_clarity_surrogate_grouped.json")
+        if os.path.exists(p_cl):
+            d2 = json.load(open(p_cl))
+            if label in d2:
+                learned_row("clarity_surrogate", d2[label]["decisions"], d2[label]["qids"])
+        if "ours" in table[label].get("decisions", {}):
+            learned_row("ours_ridge", table[label]["decisions"]["ours"], qids)
+
+    for fam in ("pre", "post", "learned"):
         adj = holm(np.array(fam_pvals[fam]))
         lookup = {k: float(v) for k, v in zip(fam_keys[fam], adj)}
         for r in out["rows"]:
             if r["family"] == fam:
                 r["p_holm"] = lookup[(r["cell"], r["predictor"])]
 
-    n_sig = {"pre": 0, "post": 0}
-    n_equiv = {"pre": 0, "post": 0}
-    n_tot = {"pre": 0, "post": 0}
+    n_sig = {"pre": 0, "post": 0, "learned": 0}
+    n_equiv = {"pre": 0, "post": 0, "learned": 0}
+    n_tot = {"pre": 0, "post": 0, "learned": 0}
     for r in out["rows"]:
         f = r["family"]
         n_tot[f] += 1
@@ -120,11 +171,11 @@ def main():
         print(f"{r['cell']:12s} {r['family']:4s} {r['predictor']:10s} "
               f"diff={r['mean_diff']:+.4f} CI[{r['ci95'][0]:+.4f},{r['ci95'][1]:+.4f}] "
               f"p={r['p_signflip_group']:.4f} holm={r['p_holm']:.4f} {flag}")
-    for f in ("pre", "post"):
+    for f in ("pre", "post", "learned"):
         print(f"{f}: {n_sig[f]}/{n_tot[f]} significant above Original after Holm; "
               f"{n_equiv[f]}/{n_tot[f]} equivalent to Original within +/-{a.delta}")
     out["summary"] = {f: {"significant_holm": n_sig[f], "equivalent": n_equiv[f], "of": n_tot[f]}
-                      for f in ("pre", "post")}
+                      for f in ("pre", "post", "learned")}
     json.dump(out, open(a.out, "w"), indent=2)
     print(f"wrote {a.out}")
 
