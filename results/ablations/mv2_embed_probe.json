@@ -1,0 +1,110 @@
+{
+  "model": "sentence-transformers/all-MiniLM-L6-v2",
+  "cells": {
+    "ASR-shipped": {
+      "original": 0.30363779663917684,
+      "rows": {
+        "norm": {
+          "routed": 0.3020365986245961,
+          "tau": 0.018987602131661747,
+          "frac": 0.13982717989002358,
+          "underlined": false
+        },
+        "density10": {
+          "routed": 0.30229501294365574,
+          "tau": 0.0795771256852683,
+          "frac": 0.3444619010212097,
+          "underlined": false
+        },
+        "centroid": {
+          "routed": 0.3051816608661388,
+          "tau": 0.053165225943563335,
+          "frac": 0.08837391987431265,
+          "underlined": true
+        },
+        "length": {
+          "routed": 0.30348336432162104,
+          "tau": 0.07867280764658735,
+          "frac": 0.2321288295365279,
+          "underlined": false
+        },
+        "all4_ridge": {
+          "routed": 0.30152320468610255,
+          "tau": 0.07400875816394593,
+          "frac": 0.2321288295365279,
+          "underlined": false
+        }
+      }
+    },
+    "ASR-dense": {
+      "original": 0.3407957058102931,
+      "rows": {
+        "norm": {
+          "routed": 0.3398541328684996,
+          "tau": 0.010126775006136714,
+          "frac": 0.9838963079340142,
+          "underlined": false
+        },
+        "density10": {
+          "routed": 0.3445849053269774,
+          "tau": 0.09847063859253327,
+          "frac": 0.8000785545954439,
+          "underlined": true
+        },
+        "centroid": {
+          "routed": 0.340189905606899,
+          "tau": 0.08845360234005126,
+          "frac": 0.8915946582875098,
+          "underlined": false
+        },
+        "length": {
+          "routed": 0.33991797337483026,
+          "tau": 0.051523507925429285,
+          "frac": 0.903770620581304,
+          "underlined": false
+        },
+        "all4_ridge": {
+          "routed": 0.3425900360932274,
+          "tau": 0.09517721451431925,
+          "frac": 0.783974862529458,
+          "underlined": true
+        }
+      }
+    },
+    "OCR": {
+      "original": 0.30363779663917684,
+      "rows": {
+        "norm": {
+          "routed": 0.30363779663917684,
+          "tau": -0.0015329856353000345,
+          "frac": 0.0,
+          "underlined": false
+        },
+        "density10": {
+          "routed": 0.30247276337016293,
+          "tau": 0.0773357866881121,
+          "frac": 0.020031421838177535,
+          "underlined": false
+        },
+        "centroid": {
+          "routed": 0.30363779663917684,
+          "tau": 0.05164267649881296,
+          "frac": 0.0,
+          "underlined": false
+        },
+        "length": {
+          "routed": 0.30333181732951436,
+          "tau": -0.004494078150810259,
+          "frac": 0.003927729772191673,
+          "underlined": false
+        },
+        "all4_ridge": {
+          "routed": 0.30304635497700794,
+          "tau": 0.029159192949482084,
+          "frac": 0.007855459544383346,
+          "underlined": false
+        }
+      }
+    }
+  }
+}

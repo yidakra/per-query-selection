@@ -89,24 +89,35 @@ hard to read any other way.
 ## Does a better channel make routing redundant?
 
 The obvious objection to this project is that per-query routing only pays while the channels are weak,
-and that anyone who invests in the channels gets the gain for free. Translation is a clean test of it:
-same selector, same 30 features, same event-grouped folds, one channel replaced by a better version of
-itself.
+and that anyone who invests in the channels gets the gain for free. The ladder now has four rungs: the
+original dense channel, the translated one, the translated one reranked with a multilingual
+cross-encoder (`mv2_rerank_channel.py`, bge-reranker-v2-m3 over the top 100, single-channel nDCG
+0.3332 to 0.3515), and the translated transcripts retrieved with HLTCOE's released translate-distill
+PLAID-X checkpoint (`mv2_plaidx_channel.py`), the retriever family MMMORRF names as its core, at
+0.3673 alone. Same selector, same 30 features, same event-grouped folds each time, one channel
+replaced by a better version of itself.
 
 | cell | best fixed policy | selected, out-of-fold | nested gap | single-channel picks |
 |---|---|---|---|---|
 | dense ASR, original language | 0.3372 (asr+visual) | 0.4131 | +7.59 ± 1.01 | 72% |
-| dense ASR, translated | 0.3428 (asr+visual) | 0.4229 | **+8.01 ± 1.01** | 76% |
+| dense ASR, translated | 0.3428 (asr+visual) | 0.4229 | +8.01 ± 1.01 | 76% |
+| dense ASR, translated + reranked | 0.3527 (asr+visual) | 0.4319 | +8.68 ± 0.73 | 78% |
+| translated + PLAID-X translate-distill | 0.3678 (**asr alone**) | 0.4419 | **+7.41 ± 0.69** | 86% |
 
-The gap does not shrink. It grows slightly, and permutation p stays at .0005. Improving a channel
-raises the fixed baseline by 0.6 nDCG and the routed system by 1.0, so the decision layer keeps what it
-had and adds a little. That is what you would expect if routing is exploiting *variation* in which
-channel suits which query rather than the average weakness of any one channel: making speech better
-does not make it better for the queries it was already wrong for. The share of queries answered from a
-single channel rises with it (72% to 76%), which points the same way.
+The gap does not vanish. Across a 3.1-point climb in the fixed baseline it stays inside a
++7.4 to +8.7 band, rising over the first three rungs and easing at the top one, with the group
+sign-flip p below 5e-4 at every rung. There is no trend toward zero, which is what the objection
+needs. That is what you would expect if routing exploits *variation* in which channel suits which
+query rather than the average weakness of any one channel: making speech better does not make it
+better for the queries it was already wrong for. Two other movements at the top rung point the same
+way. The best fixed policy becomes the speech channel alone, because global RRF fusion with the
+visual channel now costs 2.6 points (0.3418 against 0.3678), and the share of queries answered from a
+single channel rises along the whole ladder, 72% to 86%. The stronger the channels, the more the
+global-fusion default the benchmark's systems use turns into the thing selection replaces.
 
-This is not proof that the gain survives arbitrarily strong channels. MMMORRF's are still far above
-ours, and only they can settle that. It does rule out the cheapest version of the objection.
+This is not proof that the gain survives arbitrarily strong channels. MMMORRF's full system is still
+above ours, and only their run files can settle that. But the ladder now ends at a channel built with
+their own released retriever, and the objection has no measured rung to stand on.
 
 ## Caveats
 

@@ -258,14 +258,32 @@ coverage under realistic grounding, and it fails only in the arm that isolates r
 ours reporting nDCG@10 alone (every table we have) is reporting the metric the selection was fitted
 to, and should say so.
 
-**Robustness to a stronger channel.** Translating all 109,488 ASR transcripts with NLLB and re-encoding
-raises the speech channel from 0.3134 to 0.3332, and the k-way routed gap goes **+7.59 → +8.01 ± 1.01**.
-The matched binary cell is a useful qualification to the exact null: 3 of 11 corpus-statistic rows beat
-the fixed policy by the source study's $5\times10^{-4}$ margin (IDF_sum, SCQ_sum and token-count QL),
-against 8 of 10 score-only rows. Their scale remains different: the three corpus rows reach
-0.3468--0.3472 from a 0.3452 fixed baseline, while score-only reaches 0.3840 and the multifeature
-control 0.3920 (`mv2_qpp_table_mt_grouped.json`). Improving the channel therefore creates small
-exceptions rather than preserving a literal zero, but strengthens the family contrast.
+**Robustness to a stronger channel.** The channel-strength ladder has four rungs. Translating all
+109,488 ASR transcripts with NLLB raises the speech channel from 0.3134 to 0.3332; reranking its top
+100 with bge-reranker-v2-m3 (`mv2_rerank_channel.py`) reaches 0.3515; retrieving the translated
+transcripts with HLTCOE's released translate-distill PLAID-X checkpoint (`mv2_plaidx_channel.py`),
+the retriever family MMMORRF names as its core, reaches 0.3673 alone. The nested routed gap across
+the ladder is **+7.59 → +8.01 → +8.68 → +7.41 ± 0.69** (`mv2_channel_select_rr_grouped.json`,
+`mv2_channel_select_plaidx_grouped.json`): not monotone, but inside a +7.4 to +8.7 band over a
+3.1-point fixed-baseline climb, with the group sign-flip p below 5e-4 at every rung and no trend
+toward zero. Two shifts at the top rung sharpen the story. The best fixed policy becomes the speech
+channel alone (global RRF fusion with visual costs 2.6 points there), and single-channel picks rise
+along the ladder from 72% to 86%: as channels strengthen, selection increasingly replaces fusion
+rather than supplementing it. The matched binary cell is a useful qualification to the exact
+null: 3 of 11 corpus-statistic rows beat the fixed policy by the source study's $5\times10^{-4}$
+margin (IDF_sum, SCQ_sum and token-count QL), against 8 of 10 score-only rows. Their scale remains
+different: the three corpus rows reach 0.3468--0.3472 from a 0.3452 fixed baseline, while score-only
+reaches 0.3840 and the multifeature control 0.3920 (`mv2_qpp_table_mt_grouped.json`). Improving the
+channel therefore creates small exceptions rather than preserving a literal zero, but strengthens the
+family contrast.
+
+**The embedding-based pre-retrieval probe.** The reworded boundary makes a prediction about
+predictors that aggregate no corpus statistics and observe no option outcomes: query-embedding
+features should fail at source selection too. Four label-free features (embedding norm, neighbourhood
+density, centroid distance, length) and their ridge combination go through the symmetric protocol and
+none clears the margin in any cell; the best τ anywhere is +0.098 and most routed values sit at or
+below the fixed policy (`mv2_embed_probe.py`, `mv2_embed_probe.json`). The prediction holds: what the
+successful family reads is option outcomes, not any particular query-side representation.
 
 **Robustness to a second collection.** We repeated the analytic suite on the 995-query MSR-VTT-1kA
 split under two video encoders and ASR/no-ASR caption evidence. The exact escalation analogue compares

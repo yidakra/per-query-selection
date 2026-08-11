@@ -61,7 +61,14 @@ exchangeable unit). The failure above therefore sits with the predictor family. 
 learner plenty to find. We treat this selector as the positive control, and the paper's claim is about
 which predictors can read the signal it proves exists.
 
-The boundary survives two harder checks, with useful qualifications. A translated speech channel raises
+The boundary survives three harder checks, with useful qualifications. Strengthening the speech
+channel does not close the routing gap: across four rungs (original, translated, cross-encoder
+reranked, and PLAID-X translate-distill, the retriever family the benchmark's best system names as
+its core) the best fixed policy climbs 0.3372 to 0.3678 and the nested gap stays inside a
+**+7.4 to +8.7** band with p < 5 × 10⁻⁴ at every rung and no trend toward zero. At the top rung the
+best fixed policy is the speech channel alone, global fusion turns harmful, and 86% of routed queries
+pick a single channel: the stronger the channels, the more selection replaces fusion. A translated
+speech channel raises
 the fixed baseline from 0.3408 to 0.3452: 3 of 11 corpus-statistic rows now clear the 0.0005 margin, but
 only to 0.3468--0.3472, against 8 of 10 score-only rows and 0.3920 for the control. On MSR-VTT-1kA,
 across direct visual-versus-caption choice and visual-to-fusion escalation under two encoders and two
