@@ -7,7 +7,7 @@ what it is standing on. If the two ever disagree, this file is right and the one
 **Claim: QPP-based selection has a boundary, and it is not the one the literature's pre/post-retrieval
 split would suggest. Predictors built on corpus-aggregate term statistics carry roughly an order of
 magnitude less usable evidence-source-selection signal than predictors that read option outcomes from
-retrieval: +0.81 against +7.59 nDCG under a matched learner, folds and protocol. The useful dividing
+retrieval: +0.86 against +7.59 nDCG under a matched learner, folds and protocol. The useful dividing
 line is dependence on collection-frequency aggregates, not the pre/post split.** Every row in the
 study, analytic and learned, gets the identical nested operating-point calibration. Under it, none of
 33 corpus-statistic rows clears the source study's margin, none beats the fixed policy after
@@ -82,6 +82,15 @@ protocol it reaches τ −0.017 / −0.029 / −0.015 and routes 16.0% / 99.2% /
 ordering exists. It cannot create an ordering. Both variants use bert-base with shared bi-encoder
 weights. Larger backbones and budgets remain untested.
 
+**Per-row inference for the learned rows.** The same group-level sign-flip and equivalence machinery
+now covers the learned rows and our selector (`mv2_row_inference.py`, family "learned"). Outcomes:
+BERT-QPP cross is significant above the fixed policy in both speech cells (Holm p = 0.009 each) and
+formally equivalent to it in OCR (+0.0006); our ridge is significant in ASR-dense (Holm p = 0.009),
+marginal in shipped (Holm p = 0.053), equivalent in OCR. QSD_pre's speech-cell margins (+0.0029,
++0.0058) survive the correction nowhere (Holm p = 1.0 and 0.51), so its escape is directional and
+consistent, not individually significant, and the paper says so. QSD_post, the bi-encoder and the
+clarity surrogate clear nothing.
+
 **The aggregate anti-correlation does not survive that correction.** With every row, analytic and
 learned, on the shared nested protocol, Kendall τ against utility over the best fixed policy is
 **−0.149** over 78 predictor-cell rows (p = 0.054, Pearson −0.144); the old zero-crossing estimate
@@ -100,8 +109,9 @@ says. Eleven predictors collapse (IDF, ICTF, SCQ, SCS, QL), and every one of the
 against a corpus index. QSD_pre does not. It embeds the query, finds the historical queries nearest to
 it, and interpolates their known effectiveness, so it needs no index at all. Fully nested (its
 neighbourhood size k and the escalation fraction both chosen on the inner calibration split), it
-reaches 0.3065 / 0.3466 / 0.3028: still the one pre-retrieval predictor that beats the fixed policy
-in the two speech cells, now slightly below it in OCR. The inner split picks k anywhere from 5 to 100
+reaches 0.3065 / 0.3466 / 0.3028: still the only pre-retrieval row above the fixed policy
+anywhere, in both speech cells, though neither margin survives the Holm-corrected group test (see
+the learned-row inference note above), and slightly below the fixed policy in OCR. The inner split picks k anywhere from 5 to 100
 across folds, which is worth a sentence in the paper: the predictor works, and its main hyperparameter
 is not stable under honest selection.
 
@@ -202,7 +212,7 @@ two conventions is what the last column exists to stop.
 |---|---|---|---|
 | visual channel alone | nobody, fixed | 0.3036 | the cheap run both experiments start from |
 | best weighted fusion, one weight setting for every query | chosen offline | 0.3408 | this *is* the fixed baseline for row 3 |
-| binary routing in the ASR-dense cell: visual, or visual + dense ASR | cheap-feature ridge, per query | 0.3531 | +0.0123 over 0.3408 |
+| binary routing in the ASR-dense cell: visual, or visual + dense ASR | cheap-feature ridge, per query | 0.3522 | +0.0114 over 0.3408 |
 | k-way selection over 7 channel subsets | cheap-feature ridge, per query | **0.4131** | **+7.59 ± 1.01** over `asr+visual` 0.3372 |
 
 Multi-target ridge over 30 features: each channel's score-confidence shape, plus how much the channels'
@@ -248,7 +258,7 @@ under Recall@100 as well, the ASR-dense cell reads:
 | | nDCG@10 | R@100 |
 |---|---|---|
 | Original (best fixed policy) | 0.3408 | **0.7268** |
-| our selector | 0.3531 | 0.7207 |
+| our selector | 0.3522 | 0.7214 |
 | oracle, routing by true nDCG gain | **0.3910** | 0.6286 |
 
 **The better the nDCG selection, the worse the recall**, monotonically, and a perfect nDCG selector
@@ -263,7 +273,10 @@ to, and should say so.
 100 with bge-reranker-v2-m3 (`mv2_rerank_channel.py`) reaches 0.3515; retrieving the translated
 transcripts with HLTCOE's released translate-distill PLAID-X checkpoint (`mv2_plaidx_channel.py`),
 the retriever family MMMORRF names as its core, reaches 0.3673 alone. The nested routed gap across
-the ladder is **+7.59 → +8.01 → +8.68 → +7.41 ± 0.69** (`mv2_channel_select_rr_grouped.json`,
+the ladder is **+7.59 → +8.01 → +8.68 → +7.41 ± 0.69 → +7.73 ± 0.68**, the fifth rung pairing the
+strongest speech channel with the dense bge-m3 OCR encoding so the climb is not a single-channel
+artefact; fused-policy picks partially return there (19.1% against 14.3% at the speech-only rung)
+while the gap holds (`mv2_channel_select_rr_grouped.json`, `mv2_channel_select_plaidx_ocrm3_grouped.json`,
 `mv2_channel_select_plaidx_grouped.json`): not monotone, but inside a +7.4 to +8.7 band over a
 3.1-point fixed-baseline climb, with the group sign-flip p below 5e-4 at every rung and no trend
 toward zero. Two shifts at the top rung sharpen the story. The best fixed policy becomes the speech
