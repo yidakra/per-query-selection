@@ -1,0 +1,37 @@
+{
+  "dense original": {
+    "fixed_ndcg": 0.33715160205194816,
+    "routed_ndcg": 0.41307220842657577,
+    "fixed_recall100": 0.7288683564649903,
+    "routed_recall100": 0.6706623172957331,
+    "recall_delta": -0.05820603916925715
+  },
+  "translated": {
+    "fixed_ndcg": 0.34280770516277154,
+    "routed_ndcg": 0.42294003829482424,
+    "fixed_recall100": 0.7232735062046323,
+    "routed_recall100": 0.6524961450978617,
+    "recall_delta": -0.07077736110677058
+  },
+  "translated+reranked": {
+    "fixed_ndcg": 0.3451681904587221,
+    "routed_ndcg": 0.43193644983670776,
+    "fixed_recall100": 0.5828270556772012,
+    "routed_recall100": 0.6429581226768857,
+    "recall_delta": 0.06013106699968451
+  },
+  "plaidx tdist": {
+    "fixed_ndcg": 0.367763099235493,
+    "routed_ndcg": 0.44185696167638955,
+    "fixed_recall100": 0.49271247036802,
+    "routed_recall100": 0.644074537799123,
+    "recall_delta": 0.15136206743110303
+  },
+  "plaidx + ocr bge-m3": {
+    "fixed_ndcg": 0.367763099235493,
+    "routed_ndcg": 0.4450674228328585,
+    "fixed_recall100": 0.49271247036802,
+    "routed_recall100": 0.6488709931471934,
+    "recall_delta": 0.15615852277917341
+  }
+}

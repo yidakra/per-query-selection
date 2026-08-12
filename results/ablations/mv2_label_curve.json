@@ -1,0 +1,39 @@
+{
+  "channels": {
+    "visual": "10pyscene_clip.json",
+    "asr": "asr_dense_bge-m3.json",
+    "ocr": "10pyscene_paddleOCR_clip.json"
+  },
+  "fractions": {
+    "0.05": {
+      "nested_gap_mean": 5.14183568923562,
+      "nested_gap_sd_over_seeds": 1.4956640561758483,
+      "mean_train_queries": 97.06666666666666
+    },
+    "0.1": {
+      "nested_gap_mean": 6.757412444844214,
+      "nested_gap_sd_over_seeds": 0.6288273105986149,
+      "mean_train_queries": 208.2
+    },
+    "0.2": {
+      "nested_gap_mean": 6.8913751578722495,
+      "nested_gap_sd_over_seeds": 0.43288295450079883,
+      "mean_train_queries": 422.8
+    },
+    "0.4": {
+      "nested_gap_mean": 7.798754577849412,
+      "nested_gap_sd_over_seeds": 0.4143914258710225,
+      "mean_train_queries": 785.5333333333333
+    },
+    "0.7": {
+      "nested_gap_mean": 7.5312918199909875,
+      "nested_gap_sd_over_seeds": 0.03878732782724277,
+      "mean_train_queries": 1433.0666666666666
+    },
+    "1.0": {
+      "nested_gap_mean": 7.591914140522979,
+      "nested_gap_sd_over_seeds": 0.0,
+      "mean_train_queries": 2036.8
+    }
+  }
+}
