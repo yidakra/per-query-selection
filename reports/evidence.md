@@ -118,9 +118,10 @@ is not stable under honest selection.
 So the boundary is not pre-retrieval versus post-retrieval. It is whether a predictor depends on
 corpus-aggregate term statistics, collection frequencies read against the query. Not "document-side
 language" in general: BERT-QPP's cross-encoder reads retrieved document text and is the best learned
-row, so that broader wording is falsified by our own table. The narrower wording also predicts the
-gradient inside the score family, where WIG (heaviest corpus-score component) fails and NQC (corpus
-dependence only in a scale normaliser) succeeds. `mv2_qsd.py` predicted the QSD half of this before we
+row, so that broader wording is falsified by our own table. A caution recorded after a fact-check (11 Aug): the WIG-vs-NQC "gradient" is NOT usable as boundary
+evidence, because our adaptation replaces the reference formulas' collection score with the list
+mean on similarity channels (iQPP practice), so our WIG carries no collection-frequency information;
+the within-family variation tracks the shape statistic, not corpus dependence. `mv2_qsd.py` predicted the QSD half of this before we
 measured it, which is the reason it was implemented.
 
 Two things keep QSD from weakening the result. It still trails both NQC and our selector on the honest

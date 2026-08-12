@@ -84,9 +84,10 @@ term-statistic predictor does anywhere. So the boundary is not the pre/post-retr
 literature organises by. It is whether a predictor depends on corpus-aggregate term statistics,
 collection frequencies read against the query. That wording matters: BERT-QPP's cross-encoder reads
 retrieved document text and sits on the successful side, so "document-side language" would be
-falsified by our own table, while "corpus-aggregate statistics" separates the families cleanly and
-also predicts the gradient inside the score family (WIG, the score predictor with the heaviest
-corpus-score component, fails; NQC, whose corpus dependence is a scale normaliser, succeeds).
+falsified by our own table, while "corpus-aggregate statistics" separates the families cleanly. Do
+not cite the WIG-vs-NQC contrast as a corpus-dependence gradient: our adaptation replaces the
+reference formulas' collection score with the list mean on similarity channels, so our WIG carries no
+collection-frequency information (fact-check, 11 Aug).
 
 Two things stop the exception from weakening the result. QSD_pre still trails both NQC and our
 selector. And most of what it has is duplicate detection: under a plain query split it reaches
