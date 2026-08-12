@@ -16,8 +16,9 @@ where retrieval outcomes buy +7.59.
 
 This matters because a recent study (Arabzadeh et al., SIGIR 2026) showed the opposite in a
 neighbouring setting: cheap term-statistic predictors picked well among LLM rewrites of a query.
-The difference is where the options differ. Rewrites differ on the query side, which term
-statistics can see. Evidence channels differ on the document side, which they cannot.
+The difference is where the options differ. Rewrites are different query texts, so a statistic
+computed from the query can tell them apart. Evidence channels share one query and differ only in
+the documents behind them, so to a query-side statistic every channel looks the same.
 
 **Claim.** QPP-based selection has a boundary. Predictors built on corpus term statistics carry
 roughly ten times less usable signal for choosing an evidence source than predictors that read
