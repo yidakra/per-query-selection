@@ -82,7 +82,7 @@ The same protocol on the original MultiVENT and four MSR-VTT cells, with Q2E's c
 components only (`router_kway_select.py`). Selection never beats the best fixed tier there: nested
 gaps run -0.73 to +0.21 across all six cells, and the picks pile onto the dominant tier.
 
-This is the boundary of the claim, and it is the one the heterogeneity law predicts. The original
+This absence of spread is the boundary of the claim, and it is the one the heterogeneity law predicts. The original
 policies form a nested quality ladder where one tier dominates and the margins between adjacent
 tiers are the B-to-Full differences already shown unpredictable. The MultiVENT 2.0 channels are
 genuinely alternative evidence sources with 20-plus-point per-query spreads. Per-query choice

@@ -229,7 +229,7 @@ The calibration set and test set share no event groups, and no outer-test label 
 | ASR-dense | +0.210 | .56 / .58 / .68 / .60 / .84 | .652 | 0.3408 | **0.3560** |
 | OCR | +0.180 | .10 / .14 / .24 / .10 / .02 | .120 | 0.2445 | **0.3042** |
 
-This nearly ties NQC on shipped speech and beats NQC_norm and our control on dense speech. It also clears
+The calibrated cross-encoder nearly ties NQC on shipped speech and beats NQC_norm and our control on dense speech. It also clears
 the OCR underline margin by 0.0006. The earlier held-out sweep (0.3239 / 0.3583 / 0.3045) remains an
 optimistic ordering ceiling, not a reported decision. The nested scores are lower, as they should be.
 The old “best correlation, worst decision” claim was therefore a calibration artefact.
@@ -278,7 +278,7 @@ in shipped speech, modestly better in dense speech and worse in OCR. Its orderin
 and slightly better in one. Adding retrieved document text therefore provides **no consistent benefit or
 harm** over historical-query interpolation.
 
-This no longer locates the family boundary positively. It does close the simpler rescue claim that
+The matched comparison no longer locates the family boundary positively. It does close the simpler rescue claim that
 QSD_pre only lacked document evidence: a stronger transformer with exactly that evidence does not
 consistently improve it. Both decision vectors reproduce the stored routed metrics, and fit, calibration
 and test groups are disjoint (`mv2_qsd_pre_nested_grouped.json`,
