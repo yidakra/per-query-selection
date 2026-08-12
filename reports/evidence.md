@@ -283,7 +283,20 @@ while the gap holds (`mv2_channel_select_rr_grouped.json`, `mv2_channel_select_p
 toward zero. Two shifts at the top rung sharpen the story. The best fixed policy becomes the speech
 channel alone (global RRF fusion with visual costs 2.6 points there), and single-channel picks rise
 along the ladder from 72% to 86%: as channels strengthen, selection increasingly replaces fusion
-rather than supplementing it. The matched binary cell is a useful qualification to the exact
+rather than supplementing it.
+
+**Recall along the ladder** (`mv2_ladder_recall.py`, `mv2_ladder_recall.json`): routing costs
+Recall@100 where the fixed policy is a high-recall fusion (dense −0.058, translated −0.071) and
+regains it where the fixed policy is a precision-oriented single channel (reranked +0.060, PLAID-X
++0.151, both-strengthened +0.156, from fixed-policy recalls of 0.58 and 0.49 against 0.72 for the
+dense fusion). The recall trade-off reported in the binary cells is therefore not a law of routing;
+it depends on what the fixed alternative is. Depth caveat: the reranked channel carries only its
+top 100 and PLAID-X is precision-oriented by design, which is exactly why their fixed recall is low.
+
+**The supervision curve** (`mv2_label_curve.py`, `mv2_label_curve.json`): on the dense cell the
+selector reaches +5.1 nDCG with roughly 100 judged training queries, +6.9 by roughly 400, and is
+within seed noise of the full +7.59 by roughly 800. The selector needs labels, and a few hundred
+buy most of the gap. The matched binary cell is a useful qualification to the exact
 null: 3 of 11 corpus-statistic rows beat the fixed policy by the source study's $5\times10^{-4}$
 margin (IDF_sum, SCQ_sum and token-count QL), against 8 of 10 score-only rows. Their scale remains
 different: the three corpus rows reach 0.3468--0.3472 from a 0.3452 fixed baseline, while score-only
