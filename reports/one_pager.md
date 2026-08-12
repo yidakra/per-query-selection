@@ -29,24 +29,52 @@ on held-out training data only, folds grouped by event so near-duplicate queries
 answers, significance tested with corrections. The eleven term-statistic predictors get 33 chances
 to beat the best fixed policy and succeed zero times; 21 of the 33 outcomes are formally equivalent
 to doing nothing. Giving them a dedicated index per channel does not rescue them. The
-retrieval-outcome predictors clear the bar in 17 of 30 cases. The table shows the densest cell
-(nDCG@10 against a fixed-policy baseline of 0.3408; τ is each predictor's rank correlation with the
-true per-query gain):
+retrieval-outcome predictors clear the bar in 17 of 30 cases. The table shows the densest cell,
+laid out like the source study's own results table. Underline means the predictor beat the fixed
+policy by their margin, bold is best in block, τ is the predictor's rank correlation with the true
+per-query gain, R@100 is recall, and N_all / N_strict are answer-quality (nugget coverage) scores
+from the generation arm. The other two cells are in
+`results/ablations/mv2_table1_nested_grouped.md`.
 
-| Method | nDCG@10 | τ |
-|---|---|---|
-| best fixed policy (no selection) | 0.3408 | -- |
-| best of 11 term-statistic predictors | 0.3406 | +0.052 |
-| QSD_pre (copies outcomes of similar past queries) | 0.3466 | +0.134 |
-| clarity (given a caption index) | 0.3406 | +0.028 |
-| NQC (retrieval score spread) | 0.3514 | −0.163 |
-| BERT-QPP cross-encoder, calibrated | **0.3560** | +0.210 |
-| BERT-QPP bi-encoder (the deployable one) | 0.3403 | −0.029 |
-| our 30-feature score-distribution ridge | 0.3522 | +0.160 |
-| oracle (true best choice per query) | 0.3910 | +1.000 |
+| Category | Method | nDCG@10 | τ | R@100 | N_all | N_strict |
+|---|---|---|---|---|---|---|
+| Original | best fixed policy (no selection) | 0.3408 | -- | 0.7268 | 0.3672 | 0.2621 |
+| | visual only | 0.3036 | -- | 0.6027 | 0.3235 | 0.2256 |
+| | uniform fusion (best w) | 0.3408 | -- | 0.7268 | 0.3672 | 0.2621 |
+| Pre-retrieval | IDF_avg | 0.3397 | −0.008 | 0.7230 | 0.3655 | 0.2601 |
+| | IDF_max | 0.3369 | +0.024 | 0.7075 | 0.3634 | 0.2590 |
+| | IDF_sum | 0.3381 | +0.044 | 0.7204 | 0.3654 | 0.2600 |
+| | IDF_std | 0.3388 | +0.021 | 0.7166 | 0.3648 | 0.2596 |
+| | ICTF_avg | 0.3393 | −0.007 | 0.7235 | 0.3653 | 0.2596 |
+| | SCQ_avg | 0.3396 | −0.013 | 0.7240 | 0.3639 | 0.2598 |
+| | SCQ_max | 0.3398 | +0.037 | 0.7175 | 0.3652 | 0.2612 |
+| | SCQ_sum | 0.3400 | +0.040 | 0.7232 | 0.3672 | 0.2619 |
+| | SCS_apx | 0.3404 | −0.014 | 0.7263 | 0.3660 | 0.2609 |
+| | SCS_full | 0.3406 | −0.016 | 0.7262 | 0.3674 | 0.2621 |
+| | QL | 0.3399 | +0.052 | 0.7184 | 0.3672 | 0.2619 |
+| | **QSD_pre** | **<u>0.3466</u>** | +0.134 | 0.7149 | 0.3616 | 0.2562 |
+| | DM | *n.i.* | -- | -- | -- | -- |
+| Post-retrieval | RSD | 0.3405 | −0.069 | 0.7175 | 0.3755 | 0.2689 |
+| | clarity (caption surrogate) | 0.3406 | +0.028 | 0.7232 | -- | -- |
+| | NQC | <u>0.3514</u> | −0.163 | 0.7228 | 0.3671 | 0.2623 |
+| | NQC_norm | <u>0.3519</u> | −0.154 | 0.7214 | 0.3686 | 0.2631 |
+| | σ_max | <u>0.3532</u> | −0.144 | 0.7212 | 0.3716 | 0.2660 |
+| | σ_50% | <u>0.3469</u> | −0.122 | 0.7148 | 0.3621 | 0.2564 |
+| | SMV | <u>0.3491</u> | −0.151 | 0.7213 | 0.3667 | 0.2615 |
+| | SMV_norm | <u>0.3507</u> | −0.145 | 0.7201 | 0.3677 | 0.2618 |
+| | WIG | 0.3408 | +0.012 | 0.7231 | 0.3678 | 0.2624 |
+| | WIG_norm | <u>0.3449</u> | −0.106 | 0.7161 | 0.3626 | 0.2555 |
+| | max | <u>0.3433</u> | −0.112 | 0.7178 | 0.3585 | 0.2573 |
+| | QSD_post | <u>0.3486</u> | +0.142 | 0.7087 | 0.3705 | 0.2670 |
+| | **BERT-QPP (cross)** | **<u>0.3560</u>** | **+0.210** | 0.7042 | 0.3748 | 0.2725 |
+| | BERT-QPP (bi) | 0.3403 | −0.029 | 0.7264 | 0.3676 | 0.2624 |
+| Ours | cheap-feature gain ridge | <u>0.3522</u> | +0.160 | 0.7214 | 0.3712 | 0.2634 |
+| Oracle | route by true gain | <u>0.3910</u> | +1.000 | 0.6286 | 0.3861 | 0.2841 |
 
-(The best-of-11 row takes each column's own maximum: no single term-statistic predictor achieves
-both.)
+*n.i.* means the study names the predictor but its repository does not contain it, so only the authors
+can say what it was. Clarity is computed over the same caption stand-in every other predictor got,
+and carries no signal in any cell.
+
 
 Three details carry the story. The one "pre-retrieval" predictor above the baseline, QSD_pre, reads
 no index at all: it copies the outcomes of similar previously-seen queries, so it works exactly as
