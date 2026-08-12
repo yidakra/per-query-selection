@@ -9,15 +9,16 @@ make that decision?
 The answer has two parts. The decision is worth making: choosing evidence per query beats the best
 fixed setup by 7.6 nDCG points on MultiVENT 2.0 (2,546 queries, 110K videos), a large gap in
 retrieval terms. But the cheap predictors the QPP literature recommends for decisions like this
-cannot see it. Every predictor that works reads the outcome of retrieval itself. Every predictor
+cannot see that opportunity. Every predictor that works reads the outcome of retrieval itself. Every predictor
 that only reads the query against an index of term statistics fails, and we can bound how badly:
 fed to the same learner under the same conditions, term-statistic features buy at most +0.86 nDCG
 where retrieval outcomes buy +7.59.
 
 This matters because a recent study (Arabzadeh et al., SIGIR 2026) showed the opposite in a
 neighbouring setting: cheap term-statistic predictors picked well among LLM rewrites of a query.
-The difference is where the options differ. Rewrites differ on the query side, which term
-statistics can see. Evidence channels differ on the document side, which they cannot.
+The difference is where the options differ. Rewrites are different query texts, so a statistic
+computed from the query can tell them apart. Evidence channels share one query and differ only in
+the documents behind them, so to a query-side statistic every channel looks the same.
 
 **Claim.** QPP-based selection has a boundary. Predictors built on corpus term statistics carry
 roughly ten times less usable signal for choosing an evidence source than predictors that read
@@ -26,14 +27,15 @@ not mark this line.
 
 **The evidence, in brief.** Every predictor goes through the identical protocol: thresholds chosen
 on held-out training data only, folds grouped by event so near-duplicate queries cannot leak
-answers, significance tested with corrections. The eleven term-statistic predictors get 33 chances
-to beat the best fixed policy and succeed zero times; 21 of the 33 outcomes are formally equivalent
+answers, significance tested with corrections. Each of the eleven term-statistic predictors is tested in three settings (one per text channel:
+shipped speech, dense speech, on-screen text), giving 33 chances to beat the best fixed policy. They
+succeed zero times; 21 of the 33 outcomes are formally equivalent
 to doing nothing. Giving them a dedicated index per channel does not rescue them. The
-retrieval-outcome predictors clear the bar in 17 of 30 cases. The table shows the densest cell,
+retrieval-outcome predictors clear the bar in 17 of 30 cases. The table shows the setting where escalation pays most (dense speech retrieval),
 laid out like the source study's own results table. Underline means the predictor beat the fixed
-policy by their margin, bold is best in block, τ is the predictor's rank correlation with the true
+policy by the source study's margin, bold is best in its block, τ is the predictor's rank correlation with the true
 per-query gain, R@100 is recall, and N_all / N_strict are answer-quality (nugget coverage) scores
-from the generation arm. The other two cells are in
+from a separate answer-generation evaluation. The other two cells are in
 `results/ablations/mv2_table1_nested_grouped.md`.
 
 | Category | Method | nDCG@10 | τ | R@100 | N_all | N_strict |

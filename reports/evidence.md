@@ -19,7 +19,7 @@ is a property of well-tuned baselines; the order-of-magnitude family gap survive
 tested. Not a theorem that a query--collection statistic can never work. MultiVENT folds are grouped
 by event.
 
-Story B, agreed 31 Jul 2026, sharpened the same evening (see "What QSD changed" below). The boundary
+Story B, the paper's framing, was agreed 31 Jul 2026 and sharpened the same evening (see "What QSD changed" below). The boundary
 carries the paper. Per-query channel routing serves as its positive control.
 
 ## Table 1
@@ -62,7 +62,7 @@ of 33 corpus-statistic cells sat at a corner (all eleven at 0% escalation in OCR
 since analytic rows were thresholded while learned rows were calibrated. Forced through the same
 calibration, the corpus-statistic predictors do choose (2 of 33 corners) and mostly land *below* the
 fixed policy, because an operating point placed on a noise ordering escalates the wrong queries.
-Calibration can locate an operating point in a useful ordering; it cannot create one, and that
+Calibration can locate an operating point in a useful ordering; it cannot create an ordering, and that
 sentence is now measured for both families.
 
 **BERT-QPP shows why correlation is not a decision rule, and why calibration must be nested.** The
@@ -118,10 +118,11 @@ is not stable under honest selection.
 So the boundary is not pre-retrieval versus post-retrieval. It is whether a predictor depends on
 corpus-aggregate term statistics, collection frequencies read against the query. Not "document-side
 language" in general: BERT-QPP's cross-encoder reads retrieved document text and is the best learned
-row, so that broader wording is falsified by our own table. The narrower wording also predicts the
-gradient inside the score family, where WIG (heaviest corpus-score component) fails and NQC (corpus
-dependence only in a scale normaliser) succeeds. `mv2_qsd.py` predicted the QSD half of this before we
-measured it, which is the reason it was implemented.
+row, so that broader wording is falsified by our own table. A caution recorded after a fact-check (11 Aug): the WIG-vs-NQC "gradient" is NOT usable as boundary
+evidence, because our adaptation replaces the reference formulas' collection score with the list
+mean on similarity channels (iQPP practice), so our WIG carries no collection-frequency information;
+the within-family variation tracks the shape statistic, not corpus dependence. The reworded boundary predicted the QSD half of this before we
+measured it, which is the reason `mv2_qsd.py` was implemented.
 
 Two things keep QSD from weakening the result. It still trails both NQC and our selector on the honest
 split. And most of what it has is duplicate detection: under a plain query split it scores τ +0.343 and
@@ -138,7 +139,7 @@ measure, and it says what would have to change for the result to flip.
 gains, and the retrieved document text. The first one-epoch run put it below QSD_pre on both metrics in
 all three cells. That result does not survive a stronger and fairer test. We train QSD_post for five
 epochs and choose its escalation fraction on a group-disjoint calibration subset of each outer training
-fold. Because operating calibration itself can change utility, we give QSD_pre the identical nested
+fold. Because operating-point calibration itself can change utility, we give QSD_pre the identical nested
 fraction choice. Neither choice sees outer-test labels:
 
 | cell | fully nested QSD_pre | calibrated QSD_post | Δ nDCG | Δ τ |
@@ -187,7 +188,7 @@ score exactly, and all fit/calibration/test partitions are event-group-disjoint
 
 **The null, and the repair that fails to rescue it.** The obvious objection is that we built one index,
 over speech transcripts, so every predictor returned one number per query regardless of channel. So we
-gave it every index the benchmark allows: transcripts, on-screen text, and the shipped captions as a
+gave the predictors every index the benchmark allows: transcripts, on-screen text, and the shipped captions as a
 text surrogate for the visual channel, which searches frame embeddings and has no term index of its own.
 The features do vary across the three, mean relative range 0.09 to 0.33, so the repair is real. It buys
 +0.43 ± 0.38 from speech alone, +0.86 ± 0.52 with on-screen text, +0.81 ± 0.57 with the visual surrogate
@@ -241,7 +242,7 @@ reports fixed and repeat assignment with a 7B checkpoint from the same model fam
 
 Same ranked lists and same +7.4 nDCG lead throughout. Isolate retrieval and the gain converts under both
 assignment checkpoints; hold each policy to the evidence it chose and neither finds a significant vital
-gain. Exact assignment-label agreement is 0.712 / 0.720 and Cohen's κ is 0.525 / 0.535 in the all/own
+gain. Exact assignment-label agreement is 0.712 / 0.720 and Cohen's κ is 0.525 / 0.535 in the all-text and selected-channels
 arms, so absolute judgments are not interchangeable while the qualitative conclusion is stable. The
 routed system drops more under restricted evidence because it picks a single channel for 73% of these
 queries, and a query routed to the visual channel is then written from captions rather than from what was
