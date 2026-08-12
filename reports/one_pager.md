@@ -1,90 +1,80 @@
 # Adaptive Q2E one-pager
 
-Standard practice in IR is to let a query performance predictor decide how much machinery a query gets.
-Arabzadeh et al. (arXiv:2604.22661) do exactly this to pick among LLM query variants, and it works. We
-ask whether it survives when the choice is *which channel to search* in a video corpus: speech,
-on-screen text, or the frames themselves. The choice is worth making. A learned selector over the
-channels' own score distributions beats the best fixed policy by +7.59 nDCG, and the same learner fed
-the corpus-statistic predictors' own per-channel features buys +0.81 at best: the two feature families,
-matched on learner, folds and protocol, differ by an order of magnitude. Every predictor in the study
-gets the identical leakage-free operating-point calibration, and under that shared protocol the eleven
-corpus-statistic predictors clear the source study's margin in 0 of 33 cells, with 21 of 33 formally
-equivalent to doing nothing within 0.005 nDCG. What separates the families is dependence on
-corpus-aggregate term statistics, collection frequencies read against the query, and in a corpus where
-10% of videos carry no text the statistics a channel does not have cannot be aggregated in the first
-place. Rank correlation, meanwhile, does not specify a decision threshold: nested calibration changes
-BERT-QPP's cross-encoder from an always-fuse failure to the strongest learned QPP baseline and removes
-the apparent overall anti-correlation between τ and utility.
+A video can answer a search query through three kinds of evidence: what was said in it (speech
+transcripts), what is written on screen (OCR), and what the frames show. Most systems search all
+three and merge the results with fixed weights. We asked a simple question: can a system decide,
+for each individual query, which evidence to trust, and can the standard tools of query performance
+prediction (QPP) make that decision?
 
-**Claim.** QPP-based selection has a boundary: predictors built on corpus-aggregate term statistics
-carry roughly an order of magnitude less usable signal for *evidence-source* selection than predictors
-that read option outcomes from retrieval, on this benchmark a gap of +0.81 against +7.59 nDCG under a
-matched learner. The pre/post-retrieval split the literature organises by is the wrong proxy for that
-line: one pre-retrieval predictor that aggregates no corpus statistics (QSD_pre) crosses it, and every
-corpus-statistic predictor stays behind it. The boundary is measured, family-level, and bounded.
-Nothing here proves a query--collection statistic can never help, and at deliberately suboptimal
-fusion weights a few of them do help a little, because routing away from a bad global weight is easy.
-The family contrast survives every weight we tested.
+The answer splits cleanly in two. The decision is worth making: choosing evidence per query beats
+the best fixed setup by 7.6 nDCG points on MultiVENT 2.0, a large gap in retrieval terms. But the
+cheap predictors the QPP literature recommends for decisions like this cannot see it. Every
+predictor that works reads the outcome of retrieval itself. Every predictor that only reads the
+query against an index of term statistics fails, and we can bound how badly: fed to the same
+learner under the same conditions, term-statistic features buy at most +0.86 nDCG where retrieval
+outcomes buy +7.59.
 
-MultiVENT 2.0 test, 2,546 queries, graded multi-gold judgments, folds grouped by event (536 groups).
-Predictor definitions follow `github.com/Narabzad/QPP-4-RAG`. The source study is published at SIGIR
-2026; our quoted numbers are from arXiv v1 and must be re-checked against the camera-ready before
-submission.
+This matters because a recent study (Arabzadeh et al., SIGIR 2026) showed the opposite in a
+neighbouring setting: cheap term-statistic predictors picked well among LLM rewrites of a query.
+Both settings pick one option from several before spending money. The difference is where the
+options differ. Rewrites differ on the query side, which term statistics can see. Evidence channels
+differ on the document side, which they cannot.
 
----
+**Claim.** QPP-based selection has a boundary. Predictors built on corpus term statistics carry
+roughly ten times less usable signal for choosing an evidence source than predictors that read
+retrieval outcomes. The pre-retrieval versus post-retrieval labels the field organises by do not
+mark this line. We do not claim term statistics can never help: when the fixed setup is deliberately
+mistuned, a few of them recover a little of the slack. The ten-to-one contrast is what survives
+everything we tested.
 
-## RQ1. Does QPP-based selection transfer from query variants to evidence sources?
+## How to read the numbers
 
-**Not usefully, for the corpus-statistic family.** Arabzadeh et al. (arXiv:2604.22661) show cheap
-pre-retrieval predictors picking well among 30 LLM query variants, ahead of NQC. Run the same families
-against the same reference definitions on a choice among evidence channels and all eleven land at
-τ ≈ 0. Under the identical nested operating-point protocol every learned row gets, they clear the
-source study's 0.0005 margin in 0 of 33 cells, none beats the fixed policy after Holm-corrected
-group-level tests, and 21 of 33 are equivalent to doing nothing within 0.005 nDCG. The zero is
-protocol-robust and weight-sensitive in an instructive way: rebuilt at deliberately suboptimal fusion
-weights the family gains up to 5 of 11 small underlines in the dense cell, because a bad global weight
-leaves headroom any weak signal can claw back, while the score-only family holds 8 to 10 of 10 at
-every weight. The contrast, roughly ten to one under the matched learner, is the finding; the literal
-zero is a property of the well-tuned baseline.
-
-The obvious objection is that one index over transcripts gives every predictor one number per query
-regardless of channel. So we built an index per channel: transcripts, on-screen text, and the shipped
-captions as a text surrogate for the visual channel, which has none of its own. Features do vary across
-the three (mean relative range 0.09–0.33). The repair buys +0.43 ± 0.38, +0.86 ± 0.52 and +0.81 ± 0.57.
-Stacked on the score features it gives +7.56 ± 0.89, which is the score-feature baseline back again. We
-handed pre-retrieval QPP a proxy it does not normally get and it still did not help.
-
-**The choice itself is predictable.** A selector over the channels' own score distributions beats the
-best fixed policy chosen on the training fold by **+7.59 ± 1.01 nDCG** (group-level sign-flip
-p < 5 × 10⁻⁴ for both the pooled selection gain and the nested gap itself, with events as the
-exchangeable unit). The failure above therefore sits with the predictor family. The task gives a
-learner plenty to find. We treat this selector as the positive control, and the paper's claim is about
-which predictors can read the signal it proves exists.
-
-The boundary survives three harder checks, with useful qualifications. Strengthening the speech
-channel does not close the routing gap: across four rungs (original, translated, cross-encoder
-reranked, and PLAID-X translate-distill, the retriever family the benchmark's best system names as
-its core) the best fixed policy climbs 0.3372 to 0.3678 and the nested gap stays inside a
-**+7.4 to +8.7** band with p < 5 × 10⁻⁴ at every rung and no trend toward zero. At the top rung the
-best fixed policy is the speech channel alone, global fusion turns harmful, and 86% of routed queries
-pick a single channel: the stronger the channels, the more selection replaces fusion. A translated
-speech channel raises
-the fixed baseline from 0.3408 to 0.3452: 3 of 11 corpus-statistic rows now clear the 0.0005 margin, but
-only to 0.3468--0.3472, against 8 of 10 score-only rows and 0.3920 for the control. On MSR-VTT-1kA,
-across direct visual-versus-caption choice and visual-to-fusion escalation under two encoders and two
-evidence conditions, the corpus-statistic family is 0/88. The direct choice has 5.57--10.37 nDCG of
-oracle headroom and the control beats fixed in all four conditions. Score-only transfer on that second
-collection is mixed, so the claim that survives both checks is the corpus-statistic boundary. The
-score-only family earns no universal guarantee from us.
+The benchmark is MultiVENT 2.0: 2,546 queries over 109,724 videos, with graded relevance judgments.
+A **cell** is one binary decision, per query: stay with the cheap visual search, or escalate to a
+fusion with one more channel. There are three cells (shipped speech, dense speech, on-screen text).
+The **fixed policy** is the better of the two options applied to every query. A predictor earns
+credit only for beating it. Every predictor, simple or learned, goes through the identical
+procedure: its threshold is chosen on held-out training data, never on the test queries, and folds
+keep queries about the same event together so near-duplicates cannot leak answers. Significance is
+tested at the event level with a Holm correction, and a null is only called a null when its
+confidence interval fits inside ±0.005 nDCG of the fixed policy.
 
 ---
 
-## RQ2. How do the standard QPP predictors compare when used as routers?
+## RQ1. Does QPP-based selection transfer from query rewrites to evidence sources?
 
-Laid out like Arabzadeh et al.'s Table 1 so the two read side by side: <u>underline</u> beats the
-Original row, **bold** is best in section. Their Original is the unmodified query, so ours is the best
-fixed policy, the default when you do no selection. **ASR-dense cell** below, the one where the
-expensive channel pays. All three cells and the full artifact are in
+Not usefully, for the term-statistic family. We implemented all eleven of the study's term-statistic
+predictors (IDF, ICTF, SCQ, SCS and query length, in their aggregations) from the authors' own
+reference code. Across the three cells, that is 33 chances to beat the fixed policy. They succeed 0
+times. After the significance correction, none comes close, and 21 of the 33 are formally equivalent
+to doing nothing.
+
+The obvious objection: term statistics need an index, and we only had one, over the transcripts. So
+we built one per channel, using the shipped captions as a stand-in index for the visual channel.
+The predictors' values then genuinely differ across channels, and it still does not help: the
+repaired features buy +0.43, +0.86 and +0.81 nDCG (each ± about 0.5), against +7.59 from retrieval
+outcomes under the identical learner. Stacking both feature sets gives +7.56, the retrieval-outcome
+baseline back again.
+
+The signal these predictors miss is real and learnable. A ridge regression over the channels' own
+score distributions, thirty features in total, beats the fixed policy by **+7.59 ± 1.01 nDCG**
+(p < 0.0005 at the event level). So the task is not the problem. The predictor family is.
+
+The result also survives being attacked from its weakest side, the worry that our channels are too
+weak to be representative. We strengthened the speech channel four separate ways, ending with the
+retriever family the benchmark's best system uses, and strengthened two channels at once in a fifth
+test. The fixed baseline climbed from 0.337 to 0.368. The per-query selection gap stayed between
++7.4 and +8.7 the whole way. On a second collection (MSR-VTT), the term-statistic family again
+scored 0 for 88. Retrieval-outcome predictors transferred there only partially, so the claim we
+carry forward is the failure of the term-statistic family, not a guarantee for everything else.
+
+---
+
+## RQ2. How do the standard QPP predictors compare when used as selectors?
+
+The table shows the dense-speech cell, laid out like the source study's own results table so the
+two can be read side by side. Underline means the predictor beat the fixed policy by their margin;
+bold is the best in its block. The other two cells and all metrics are in
 `results/ablations/mv2_table1_nested_grouped.md`.
 
 | Category | Method | nDCG@10 | τ | R@100 | N_all | N_strict |
@@ -122,108 +112,84 @@ expensive channel pays. All three cells and the full artifact are in
 | Ours | cheap-feature gain ridge | <u>0.3522</u> | +0.160 | 0.7214 | 0.3712 | 0.2634 |
 | Oracle | route by true gain | <u>0.3910</u> | +1.000 | 0.6286 | 0.3861 | 0.2841 |
 
-*n.i.* = no equivalent predictor implemented. Every selector row, analytic and learned alike, uses the
-same protocol: out-of-fold prediction with an escalation fraction chosen on a group-disjoint subset of
-each outer training fold and frozen before outer-test prediction. QSD_pre additionally chooses its
-neighbourhood size on the same inner split, so no hyperparameter anywhere reads a test label. Clarity
-is computed over the shipped captions, the same text surrogate the per-channel index repair and
-BERT-QPP's document side were granted; it carries essentially no signal (τ +0.028 here, −0.010 and
-+0.007 in the other cells). Underline follows their rule, a margin above 5 × 10⁻⁴ over the Original
-row. The Ours row is a binary escalate-or-not decision, the only decision this cell offers. The k-way
-selector over all 7 channel subsets is the separate experiment behind the +7.59 in RQ1 and is not a
-row here.
+*n.i.* means the study names the predictor but its repository does not contain it, so only the authors
+can say what it was. Clarity is computed over the same caption stand-in every other predictor got,
+and carries no signal in any cell.
 
-**Across all three cells under the shared protocol, the corpus-statistic block has 0 underlined cells
-out of 33; the score-only block has 17 out of 30.** With inference behind the counts: 0 of 33
-corpus-statistic rows beat the Original row after Holm-corrected group-level sign-flip tests, 21 of 33
-sit inside a ±0.005 nDCG equivalence bound, and 8 of 30 score-only rows are significant after the same
-correction. The nested protocol also settles what the old degeneracy statistic meant: forced to choose
-an operating point, the corpus-statistic predictors do choose (2 of 33 corner cells, down from 20 at
-the raw zero crossing) and mostly land *below* the fixed policy, because an operating point placed on
-a noise ordering escalates the wrong queries. Calibration can locate an operating point in a useful
-ordering; it cannot create one, and that sentence now covers both families.
+Three things stand out.
 
-**The stronger, matched QSD comparison stays mixed.** QSD_post reads the query, neighbouring queries
-and their gains, and retrieved document text. With both variants fully nested, QSD_post is slightly
-ahead in shipped speech (+0.0039 nDCG), slightly ahead in dense speech (+0.0020), and behind in OCR
-(−0.0014). The earlier one-epoch claim that adding documents makes QSD worse did not survive the
-matched comparison. The supported conclusion is narrower: document evidence does not produce a
-consistent benefit, so it does not rescue the family comparison, but this experiment no longer
-positively locates the boundary by itself.
+**The two blocks split.** Across all three cells the term-statistic block earns 0 underlines out of
+33; the retrieval-outcome block earns 17 out of 30, of which 8 survive the significance correction.
+Forced to pick a threshold like everyone else, the term-statistic predictors do make choices now.
+The choices just make things worse: most of their rows land below the fixed policy, because a
+threshold placed on a noise ordering escalates the wrong queries.
 
-**Correlation is not a decision rule, and calibration changes the conclusion.** The three-epoch BERT-QPP
-cross-encoder orders well (τ +0.223 / +0.210 / +0.180), but its predictions remain all positive and its
-raw zero crossing fuses every query. Choosing its escalation fraction on group-disjoint inner folds
-routes 52.4% / 65.2% / 12.0% instead and reaches 0.3204 / 0.3560 / 0.3042, the best post-retrieval
-row in all three cells now that every row shares the nested protocol. On the judged subset its
-N_all also beats both fixed endpoints in the two speech cells.
+**One pre-retrieval predictor stands above the line, and it is the exception that explains the
+rule.** QSD_pre reads no index at all. It finds the most similar previously-seen queries and copies
+their known outcomes. Its margins over the fixed policy (+0.003 and +0.006 in the speech cells) are
+consistent in direction but do not individually survive the significance correction, so we report it
+as suggestive. What it shows is that the pre-retrieval label was never the point: this "pre-retrieval"
+predictor works exactly as far as it smuggles in outcome information from neighbouring queries.
 
-The bi-encoder, the cheaper and deployable one whose document side encodes offline, cannot order at all
-even after the same treatment: τ −0.017 / −0.029 / −0.015 and routed nDCG 0.3006 / 0.3403 / 0.3028,
-below fixed everywhere. Calibration can locate an operating point in a useful ordering; it cannot create
-one.
+**A good ordering is not a decision.** BERT-QPP's cross-encoder ranks queries better than anything
+else in the table (τ +0.21) yet its raw scores are all positive, so thresholding them at zero fuses
+every query and selects nothing. Choosing its threshold on held-out training data instead turns the
+same model into the strongest learned row in the table. Its cheaper sibling, the bi-encoder, cannot
+rank at all and no threshold saves it. The general version of this finding: across all 78
+predictor-cell pairs, a predictor's rank correlation τ correlates at only −0.149 (p = 0.054) with
+the value it actually delivers as a selector. An earlier version of this analysis reported a strong
+anti-correlation (−0.213, p = 0.008). That turned out to be an artifact of thresholding some
+predictors and calibrating others, and we retracted it.
 
-With every row, analytic and learned, on the shared nested protocol, Kendall τ against utility over
-the best fixed policy is **−0.149** over 78 rows (p = 0.054); the old −0.213 (p = 0.008) headline was
-a calibration artefact. Against cheap-only it is −0.057 (p = 0.458). Restricted populations stay
-modestly negative without reaching a headline. The supported lesson is that τ scores an ordering
-while a deployable selector also needs leakage-free operating-point calibration.
+QSD_post, which adds retrieved document text to QSD_pre, changes nothing worth reporting: a few
+thousandths of nDCG in either direction depending on the cell.
 
 ---
 
 ## RQ3. What makes the multimodal case different?
 
-Classical pre-retrieval QPP is built on tf-idf-style corpus statistics. Our documents are video: there
-is no lexical index over frames, and the text channels are noisy, multilingual, and **often absent**.
-Of the 109,724 test videos, **10,919 (10.0%) yield no on-screen text at all** and 236 (0.2%) yield no
-speech.
+Term-statistic QPP assumes every document has terms. Video breaks that assumption. Of the 109,724
+test videos, 10,919 (10.0%) contain no on-screen text at all, and 236 contain no speech. For those
+videos one of the channels does not exist, and no statistic computed from the query alone can know
+that.
 
-For those 10,919 videos there is no on-screen text channel to score. Modality *applicability* is a
-property of the document, and no query-side statistic can see it. Text retrieval never poses the
-question: every document in a text collection has terms, so a modality is always available.
-
-Measured, the mechanism is real and partial, and we scope it to what it explains. A bare
-availability feature (the fraction of top-ranked visual candidates lacking each text channel) routes
-to a +1.93 ± 0.69 nested gap on its own, roughly a quarter of the selector's +7.59, and the
-selector's per-query gains concentrate where applicability bites (+10.06 nDCG on the 711 queries
-with a channel-absent relevant video against +6.63 on the rest). Appending the flags to the score
-features buys nothing (+7.28 ± 1.09), so the score distributions already subsume availability. And
-the corpus-statistic null does not depend on the absence tail: restricted to the 1,843 queries whose
-every relevant document carries on-screen text, the family is still 0 of 11 above the fixed policy.
-Absence explains part of the routing signal; it does not explain the family's failure, which shows
-up just as sharply in the speech cells where absence is 0.2%.
-
-*(The efficiency material, measured joules, p99 latency and risk-coverage, is scoped to a second
-paper, see `paper2_scope.md`.)*
+We measured how much of the story this explains, and the honest answer is: part of the selection
+signal, none of the family's failure. A single feature counting how many top-ranked candidates lack
+a channel routes to +1.93 nDCG on its own, about a quarter of the full +7.59, and the selector's
+gains concentrate on exactly the queries whose relevant videos are missing a channel (+10.06 there
+against +6.63 elsewhere). But the term-statistic predictors fail just as completely on the 1,843
+queries where every relevant video has all its text channels, and just as sharply in the speech
+cells where absence is 0.2%. Missing channels are a real signal the working predictors pick up.
+They are not the reason the failing predictors fail.
 
 ---
 
 ## What we are not claiming
 
-Our channels are deliberately cheap, so absolute numbers sit below MMMORRF (0.586) and OmniEmbed (0.753).
-For this claim the cheap channels are the setting: a boundary condition on someone else's result does
-not need our retrieval to be competitive. We do not claim to beat classical QPP: under the shared
-nested protocol our ridge edges NQC in both speech cells (0.3161 vs 0.3144 shipped, 0.3522 vs 0.3514
-dense) and trails σ_max and calibrated BERT-QPP in dense speech, so the honest statement is that
-several score-family predictors and our router sit within a point of one another on the binary
-decision, and all of them are in the family that transfers. Ceilings get audited: picking each query's best policy on half its golds and grading on the other
-half wipes out 15 of the oracle's 16 points, so we report no "% of oracle captured" anywhere.
+Our channels are deliberately cheap, and our absolute numbers sit below the benchmark's best systems
+(MMMORRF 0.586, OmniEmbed 0.753). That is the setting, not the finding: a boundary on what a
+predictor family can see does not require competitive retrieval, and the channel-strengthening
+ladder above is the check that the boundary is not an artifact of weak channels.
 
-Nor do we claim the selector saves compute. Every predictor that works here reads the channels' own
-retrieval output, so all channels are retrieved before the decision fires: this is selective fusion,
-an accuracy result, and the selector's marginal cost is a feature computation and a ridge pass. The
-compute-saving version of the question, skip a channel before retrieving from it, is exactly what the
-cheap pre-retrieval family would have enabled, and it is the family that fails. That is why the
-boundary matters to practice. Two further scope notes: the translated channel's aggregate gain
-redistributes across languages (Arabic +0.105, English −0.061), so the fused improvement is not
-uniform across users, and MSR-VTT's caption channel uses human-written captions, an upper bound on
-what a production captioner would provide.
+We do not claim to beat classical QPP at its own game. On the binary escalate-or-not decision, our
+ridge, NQC, σ_max and calibrated BERT-QPP all sit within a point of one another, and every one of
+them reads retrieval outcomes.
 
-**Open:** the QPP-4-RAG suite is complete, with every predictor named, BERT-QPP in both flavours, both halves
-of QSD. The one row we cannot fill is DM, which appears in their Table 1, nowhere in their repository,
-and whose row equals their Original row in all eight columns. Only the authors can say what it was.
+We do not claim the selector saves compute. Every working predictor needs all channels retrieved
+first, so this is selective fusion, an accuracy result. The compute-saving version, skipping a
+channel before retrieving from it, is exactly what the cheap family would have enabled, and it is
+the family that fails.
+
+We report no "percent of oracle" anywhere: picking each query's best policy on half its relevance
+judgments and grading on the other half destroys 15 of the oracle's 16 points, so the oracle rows
+are ceilings on these labels, not targets.
+
+Two scope notes. The translated speech channel's average gain redistributes across languages
+(Arabic +0.105, English −0.061), so the improvement is not uniform across users. And the source
+study's numbers are quoted from its arXiv version and need a re-check against the published
+SIGIR 2026 version.
 
 ---
 
-Full evidence, caveats and negative results: `reports/evidence.md`. Complete RQ2 table with all three
-cells: `reports/qpp_baselines.md` and `results/ablations/mv2_table1_nested_grouped.md`.
+Full evidence, caveats and negative results: `reports/evidence.md`. The complete RQ2 table for all
+three cells: `results/ablations/mv2_table1_nested_grouped.md`.
