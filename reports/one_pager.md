@@ -30,7 +30,10 @@ on held-out training data only, folds grouped by event so near-duplicate queries
 answers, significance tested with corrections. Each of the eleven term-statistic predictors is tested in three settings (one per text channel:
 shipped speech, dense speech, on-screen text), giving 33 chances to beat the best fixed policy. They
 succeed zero times; 21 of the 33 outcomes are formally equivalent
-to doing nothing. Giving them a dedicated index per channel does not rescue them. The
+to doing nothing. Giving them a dedicated index per channel does not rescue them: we built one
+index per channel, using the shipped video captions as the document-side index for the visual
+channel, and the repaired features buy at most +0.86 nDCG against +7.59 from retrieval outcomes
+under the same learner (stacking both gives +7.56, nothing added). The
 retrieval-outcome predictors clear the bar in 17 of 30 cases. The table shows the setting where escalation pays most (dense speech retrieval),
 laid out like the source study's own results table. Underline means the predictor beat the fixed
 policy by the source study's margin, bold is best in its block, τ is the predictor's rank correlation with the true
