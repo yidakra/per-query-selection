@@ -130,6 +130,8 @@ def main():
                     help="override the standard three cells; repeat for more than one")
     ap.add_argument("--index-text", default="asr_text.jsonl",
                     help="JSONL text corpus used for the lexical pre-retrieval index")
+    ap.add_argument("--query-list", default="",
+                    help="file with one query id per line; restrict every cell to these queries")
     ap.add_argument("--nested-calibration", action="store_true",
                     help="give every analytic predictor (and the Ours row) the identical nested "
                          "escalation-fraction choice the learned rows get, so the family comparison "
@@ -166,10 +168,17 @@ def main():
         print(f"  index: {idx.n_docs} docs, {idx.total_terms} tokens, "
               f"{len(idx.cf)} vocab", flush=True)
 
+    keep = None
+    if a.query_list:
+        keep = {line.strip() for line in open(a.query_list) if line.strip()}
+        print(f"query list: restricting every cell to {len(keep)} queries", flush=True)
+
     results = {}
     for label, fn in cells:
         d = json.load(open(os.path.join(ABL, fn)))
         qids = [q for q in d["per_query"] if q in visual and q in queries]
+        if keep is not None:
+            qids = [q for q in qids if q in keep]
         ndA = np.array([d["per_query"][q]["ndA"] for q in qids])
         ndB = np.array([d["per_query"][q]["ndB"] for q in qids])
         g = ndB - ndA
