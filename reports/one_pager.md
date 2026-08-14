@@ -23,7 +23,9 @@ the documents behind them, so to a query-side statistic every channel looks the 
 **Claim.** QPP-based selection has a boundary. Predictors built on corpus term statistics carry
 roughly ten times less usable signal for choosing an evidence source than predictors that read
 retrieval outcomes, and the pre-retrieval versus post-retrieval labels the field organises by do
-not mark this line.
+not mark this line. This is an effectiveness claim: per-query selection buys retrieval quality on
+the same channels. It saves no compute, and the costs we report later are deployment context, not
+the contribution.
 
 **The evidence, in brief.** Every predictor goes through the identical protocol: thresholds chosen
 on held-out training data only, folds grouped by event so near-duplicate queries cannot leak
