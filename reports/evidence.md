@@ -215,6 +215,20 @@ not cover is caption quality: the translated transcripts are only as good as the
 caption-quality version of the objection stays open until a stronger captioner's text is tested
 (planned on MSR-VTT with newly generated captions).
 
+**The English-subset control (added 2026-08-14).** The subset version of the same objection: restrict
+the judgment to the 448 queries whose relevant videos are all English (115 event groups), where query
+and relevant-document vocabulary are coherent, and rerun everything, once with the original index and
+once with the translated English index (`--query-list`, artifacts
+`mv2_qpp_table_ensub{,_enidx}_sym_grouped.*`, `mv2_row_inference_ensub{,_enidx}_sym_grouped.json`).
+The family is 0 of 33 significant with either index; the best row is QL at +0.0089 with a CI of
+[−0.019, +0.038]. The score-reading machinery keeps working at this sample size where corpus
+statistics do not: our ridge stays significant in the dense cell (+0.0333, Holm p = 0.039). One
+power caveat, stated rather than hidden: at 448 queries the score family's individual rows also lose
+significance (best NQC_norm +0.0315, Holm p = 0.315) and equivalence bounds are mostly too wide to
+close, so the subset corroborates the full-set translated-index control rather than replacing it.
+English-video queries are also much easier in absolute terms (fixed policy 0.55 against 0.34
+overall), which is consistent with the benchmark's own per-language tables.
+
 **The positive control.**
 
 Two experiments, not one ladder, so each row carries its own baseline. Rows 2–3 are the ASR-dense cell
