@@ -201,6 +201,20 @@ of practical size. And QL makes the structural point on its own, since QPP-4-RAG
 `len(qtokens)`, a number identical across channels by construction, asked to choose between speech,
 text and frames.
 
+**The language-matched control (added 2026-08-13).** A second objection, raised in supervision:
+the queries are English and the transcripts are mostly not, so term statistics computed across that
+divide may fail for vocabulary-mismatch reasons that say nothing about the family. The control is to
+rebuild the lexical index over the NLLB-translated English transcripts (`asr_text_en.jsonl`, 109,488
+documents), so query and corpus share a language, and rerun the full symmetric protocol
+(`mv2_qpp_table.py --index-text asr_text_en.jsonl`, artifacts `mv2_qpp_table_en_sym_grouped.*`,
+`mv2_row_inference_en.json`). Nothing moves. The best corpus-statistic row in the dense cell reaches
+0.3410 against the 0.3408 fixed policy; after the same group sign-flip and Holm machinery the family
+is again 0 of 33 significant, with 22 of 33 statistically equivalent to doing nothing. The score
+family is unchanged at 8 of 30, as expected, since it never touched the index. What this control does
+not cover is caption quality: the translated transcripts are only as good as the shipped ASR, and the
+caption-quality version of the objection stays open until a stronger captioner's text is tested
+(planned on MSR-VTT with newly generated captions).
+
 **The positive control.**
 
 Two experiments, not one ladder, so each row carries its own baseline. Rows 2–3 are the ASR-dense cell

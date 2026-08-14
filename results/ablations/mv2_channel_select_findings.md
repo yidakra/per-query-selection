@@ -22,12 +22,17 @@ part: in the dense cell the selector takes a single channel for 71% of queries (
 and the asr+visual fusion for 25% (644). Fusing everything everywhere is exactly what it learns not
 to do.
 
-## The per-query-best oracle does not survive a gold split
+## The oracle's headroom is mostly annotation luck, measured by splitting the labels
 
-The selection cells report an oracle of 0.4669 (shipped) / 0.5181 (dense). Before anyone divides by
-it: the section-5 gold-split test says it is mostly fitting capacity. Pick each query's best policy on
-one half of its golds, grade on the other half (`mv2_select_goldsplit.py`, 5 seeds, 1,760 splittable
-queries at 5.25 golds/query):
+What this tests, in one sentence: whether the oracle's margin over the fixed policy is real headroom
+a selector could ever reach, or an artifact of picking winners with the same noisy labels that then
+grade them. The oracle takes, for every query, the policy with the highest measured nDCG. But measured
+nDCG depends on which few videos the annotators happened to mark relevant, so the per-query "best"
+policy is partly a lucky draw. The audit: split each query's relevant labels in half, pick the best
+policy using half A only, then grade that pick on half B. A real advantage survives the switch; label
+luck does not (`mv2_select_goldsplit.py`, 5 seeds, 1,760 splittable queries at 5.25 golds/query).
+This is not a claim that the annotations are wrong, only that the oracle's margin cannot be read as
+achievable headroom. The selection cells report an oracle of 0.4669 (shipped) / 0.5181 (dense):
 
 | cell | in-sample | out-of-sample | fixed (chosen on A) | optimism | oos oracle vs fixed |
 |---|---|---|---|---|---|
