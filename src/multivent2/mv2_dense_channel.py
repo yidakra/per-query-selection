@@ -50,6 +50,12 @@ def main():
     ap.add_argument("--topk", type=int, default=1000)
     ap.add_argument("--limit", type=int, default=0, help="debug: only this many docs")
     ap.add_argument("--out", default=None)
+    ap.add_argument("--queries", default=None,
+                    help="override the query CSV (same Query_id,query format); use for variant runs")
+    ap.add_argument("--save-embeddings", default=None,
+                    help="write the corpus window embeddings to this .npz after encoding")
+    ap.add_argument("--load-embeddings", default=None,
+                    help="load corpus window embeddings from this .npz instead of encoding")
     a = ap.parse_args()
 
     os.environ["CUDA_VISIBLE_DEVICES"] = str(a.gpu)
@@ -85,14 +91,31 @@ def main():
     m.max_seq_length = a.max_seq
     m.half()
 
-    t0 = time.time()
-    D = m.encode(chunks, batch_size=a.batch, convert_to_numpy=True, normalize_embeddings=True,
-                 show_progress_bar=True).astype(np.float16)
-    enc_s = time.time() - t0
-    print(f"encoded {len(chunks)} windows in {enc_s/60:.1f} min "
-          f"({len(chunks)/enc_s:.0f} win/s), dim {D.shape[1]}")
+    if a.load_embeddings:
+        cache = np.load(a.load_embeddings, allow_pickle=False)
+        if str(cache["model"]) != a.model or int(cache["win"]) != a.win \
+                or int(cache["overlap"]) != a.overlap:
+            raise RuntimeError(f"embedding cache {a.load_embeddings} was built with "
+                               f"model={cache['model']} win={cache['win']} overlap={cache['overlap']}, "
+                               f"which does not match the requested settings")
+        D = cache["D"]
+        owner = cache["owner"]
+        doc_ids = [str(x) for x in cache["doc_ids"]]
+        enc_s = 0.0
+        print(f"loaded {D.shape[0]} cached window embeddings from {a.load_embeddings}")
+    else:
+        t0 = time.time()
+        D = m.encode(chunks, batch_size=a.batch, convert_to_numpy=True, normalize_embeddings=True,
+                     show_progress_bar=True).astype(np.float16)
+        enc_s = time.time() - t0
+        print(f"encoded {len(chunks)} windows in {enc_s/60:.1f} min "
+              f"({len(chunks)/enc_s:.0f} win/s), dim {D.shape[1]}")
+        if a.save_embeddings:
+            np.savez(a.save_embeddings, D=D, owner=owner,
+                     doc_ids=np.array(doc_ids), model=a.model, win=a.win, overlap=a.overlap)
+            print(f"saved embeddings to {a.save_embeddings}")
 
-    queries = load_queries(os.path.join(DATA, "multivent_2_test_queries.csv"))
+    queries = load_queries(a.queries or os.path.join(DATA, "multivent_2_test_queries.csv"))
     qids = sorted(queries)
     qtexts = [("query: " + queries[q]) if e5 else queries[q] for q in qids]
     t1 = time.time()
