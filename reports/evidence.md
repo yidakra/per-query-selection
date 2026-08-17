@@ -215,6 +215,19 @@ not cover is caption quality: the translated transcripts are only as good as the
 caption-quality version of the objection stays open until a stronger captioner's text is tested
 (planned on MSR-VTT with newly generated captions).
 
+**Route-by-language (added 2026-08-17).** Supervision asked whether the channel choice should depend
+on the query language. Measured with the four NLLB query translations against the two re-runnable
+channels (`mv2_route_by_language.py`): it should not. The best fixed channel is speech in every query
+language, the oracle's headroom over it is nearly constant (+5.5 to +6.2 nDCG), and the oracle's pick
+distribution barely moves (roughly 2,020 speech / 230 OCR / 290 fusion in all five languages). The
+routing structure is language-invariant, so language does not enter the selector (pre-registered
+reading 5, negative branch). The same runs surface a separate, real effect on the query side: on
+judgments restricted to videos in language L, asking the query in L beats asking in English by +9 to
++12 nDCG on the speech channel (Chinese videos 0.18 to 0.31, Korean 0.22 to 0.34, Russian 0.34 to
+0.44, Arabic 0.15 to 0.25), while OCR moves slightly the other way. Language-matched querying is a
+retrieval lever on this benchmark; which language to ask in is a per-query decision our selector
+framework could target, and it is recorded here as future work, not claimed.
+
 **The caption-quality control (added 2026-08-17).** The strongest form of the index objection, raised
 in supervision: the shipped captions are one to two years old, from a weak model, and pre-retrieval
 needs high-quality document text, so the null could be a caption artifact. Supervision provided newly
