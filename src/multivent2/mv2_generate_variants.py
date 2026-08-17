@@ -57,13 +57,15 @@ def main():
                 done.add((r["qid"], r["method"], r["sample"]))
         print(f"resuming: {len(done)} variants already present")
 
-    llm_config = {"model": a.model}
+    # methods read temperature/max_tokens from cfg.llm (not cfg.params), so they go here;
+    # max_tokens 256 matches the toolkit's own example config and caps MuGI's 1024 default
+    llm_config = {"model": a.model, "temperature": TEMPERATURE, "max_tokens": 256}
     if a.base_url:
         llm_config["base_url"] = a.base_url
 
     reformulators = {}
     for meth in METHODS:
-        params = {"temperature": TEMPERATURE}
+        params = {"temperature": TEMPERATURE, "max_tokens": 256}
         if meth == "mugi":
             params["adaptive_times"] = 5
         reformulators[meth] = qg.create_reformulator(meth, model=a.model, params=params,
