@@ -196,11 +196,31 @@ def markdown(results):
 
 
 def main():
+    import argparse
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--index-captions", default=None,
+                    help="JSONL with a caption per video ({'video_id'|'doc_id', 'caption'|'text'}); "
+                         "replaces the cached caption surrogate as the lexical index in every cell")
+    ap.add_argument("--tag", default="", help="suffix for the output files")
+    a = ap.parse_args()
+
+    override = None
+    if a.index_captions:
+        override = []
+        with open(a.index_captions) as f:
+            for line in f:
+                d = json.loads(line)
+                t = (d.get("caption") or d.get("text") or "").strip()
+                if t:
+                    override.append(t)
+        print(f"index override: {len(override)} caption documents from {a.index_captions}",
+              flush=True)
+
     indices = {}
     results = {}
     for encoder, setting in CELLS:
         if setting not in indices:
-            texts = document_texts(setting)
+            texts = override if override is not None else document_texts(setting)
             indices[setting] = Index(texts)
             print(f"{setting}: lexical surrogate has {indices[setting].n_docs} documents", flush=True)
         for task in TASKS:
@@ -216,8 +236,8 @@ def main():
         "protocol": "five-fold OOF; visual versus visual+caption and visual versus caption; 5e-4 above-fixed margin",
         "results": results,
     }
-    json_path = os.path.join(ABL, "mv2_msrvtt_source_replication.json")
-    md_path = os.path.join(ABL, "mv2_msrvtt_source_replication.md")
+    json_path = os.path.join(ABL, f"mv2_msrvtt_source_replication{a.tag}.json")
+    md_path = os.path.join(ABL, f"mv2_msrvtt_source_replication{a.tag}.md")
     with open(json_path, "w") as f:
         json.dump(payload, f, indent=2)
     with open(md_path, "w") as f:
