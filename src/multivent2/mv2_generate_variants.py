@@ -69,7 +69,9 @@ def main():
         reformulators[meth] = qg.create_reformulator(meth, model=a.model, params=params,
                                                      llm_config=llm_config)
 
-    jobs = [(q, meth, s) for q in qids for meth in METHODS for s in range(a.samples)
+    # sample-major order: sample 0 finishes for every query and method before sample 1 starts,
+    # so an interrupted run always leaves a complete 6-method pool at some sample depth
+    jobs = [(q, meth, s) for s in range(a.samples) for q in qids for meth in METHODS
             if (q, meth, s) not in done]
     print(f"{len(jobs)} variants to generate "
           f"({len(qids)} queries x {len(METHODS)} methods x {a.samples} samples)")

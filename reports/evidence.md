@@ -215,6 +215,20 @@ not cover is caption quality: the translated transcripts are only as good as the
 caption-quality version of the objection stays open until a stronger captioner's text is tested
 (planned on MSR-VTT with newly generated captions).
 
+**The caption-quality control (added 2026-08-17).** The strongest form of the index objection, raised
+in supervision: the shipped captions are one to two years old, from a weak model, and pre-retrieval
+needs high-quality document text, so the null could be a caption artifact. Supervision provided newly
+generated captions (Qwen3.5-9B, temperature 0, claim-style, one enumerated caption per video;
+unpublished, held outside the repo and not redistributed). Coverage on MultiVENT 2.0: 55,388 videos,
+97.6% of judged and 99.1% of relevant documents. Rebuilding the lexical index over these captions and
+rerunning the full symmetric protocol changes nothing: the corpus-statistic family is 0 of 33
+significant, 23 of 33 equivalent to doing nothing (`mv2_qpp_table_supcap_sym_grouped.*`,
+`mv2_row_inference_supcap.json`). The same swap on MSR-VTT-1kA, where the caption is the entire
+document side, gives 0 of 11 in all eight cells, 0 of 88 total, identical to the old-caption result
+(`mv2_msrvtt_source_replication_supcap.*`, new `--index-captions` flag). Better captions do not
+rescue corpus statistics on either collection; the caption-quality explanation is closed in both
+directions the supervision meeting asked about.
+
 **The English-subset control (added 2026-08-14).** The subset version of the same objection: restrict
 the judgment to the 448 queries whose relevant videos are all English (115 event groups), where query
 and relevant-document vocabulary are coherent, and rerun everything, once with the original index and
