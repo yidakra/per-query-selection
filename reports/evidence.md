@@ -215,6 +215,22 @@ not cover is caption quality: the translated transcripts are only as good as the
 caption-quality version of the objection stays open until a stronger captioner's text is tested
 (planned on MSR-VTT with newly generated captions).
 
+**Task B, first cut (added 2026-08-18; 6 methods x 1 sample, full 6x5 pool lands within the week).**
+The source study's own task, replicated on this collection per the pre-registration: QueryGym's six
+reformulation methods over all 2,546 queries (self-hosted qwen2.5-7b, temperature 0.6), each pool of
+seven candidates executed against the dense speech channel, predictors ranking the pool
+(`mv2_variant_selection.py`, `mv2_variant_selection_s1.json`). The corpus-statistic family selects a
+variant above the original query 0 of 11 times (best row QL at −0.011; within-need τ between −0.10
+and +0.03, no ordering signal). The score family does it 7 of 10 times (best NQC_norm +0.017,
+τ +0.24). The per-query headroom is real: the oracle over seven candidates reaches 0.4079 against
+the original's 0.3133, and no reformulation method beats the original on average (best, Query2Doc,
+−0.003), so variant value on this benchmark is entirely per-query spread, the same structure as the
+channel result. Two scope notes stated in advance of any claim: this is the retrieval axis
+(nDCG@10), and the source study's own tables also put post above pre on retrieval metrics; their
+pre-retrieval advantage lives on the generation axis (nugget quality), which we test next with the
+existing nugget pipeline. Generator is 7B open-weights rather than GPT-4o, pinned in the committed
+config, consistent with the toolkit's own reproducibility runs.
+
 **Route-by-language (added 2026-08-17).** Supervision asked whether the channel choice should depend
 on the query language. Measured with the four NLLB query translations against the two re-runnable
 channels (`mv2_route_by_language.py`): it should not. The best fixed channel is speech in every query
