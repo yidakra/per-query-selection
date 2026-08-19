@@ -88,6 +88,9 @@ def main():
     ap.add_argument("--variants", default=os.path.join(DATA, "query_variants.jsonl"))
     ap.add_argument("--samples", type=int, default=5)
     ap.add_argument("--tag", default="")
+    ap.add_argument("--save-picks", default="",
+                    help="write per-query picks and top-100 doc lists for the key policies to this "
+                         "JSONL, the input the nugget evaluation needs")
     a = ap.parse_args()
 
     from scipy.stats import kendalltau
@@ -215,6 +218,32 @@ def main():
               f"best-method {per_method[best_m]:.4f} ({best_m})  "
               f"oracle {res['baselines']['oracle']:.4f}  "
               f"best predictor {best[0]} {best[1]['selected_ndcg10']:.4f}", flush=True)
+
+    if a.save_picks:
+        # per-query document lists for the nugget phases: the original, the best pre and post
+        # selectors' picks, the oracle's pick, and the two use-everything baselines, all on the
+        # primary pipeline
+        idx = {ow: i for i, ow in enumerate(owners)}
+        nd1 = {(q, lab): q_asr[f"{q}##{lab}"]["nDCG@10"] for (q, lab) in owners}
+        key_preds = {"sel_pre_QL": "pre:QL", "sel_post_NQC_norm": "post:NQC_norm"}
+        with open(a.save_picks, "w") as fh:
+            for q in complete:
+                row = {"qid": q}
+                row["original"] = {"pick": "original",
+                                   "docs": list(asr_runs[idx[(q, "original")]])[:100]}
+                for name, pred in key_preds.items():
+                    vals = np.array([feats[(q, lab)][pred] for lab in labels])
+                    pick = labels[int(np.argmax(vals))]
+                    row[name] = {"pick": pick, "docs": list(asr_runs[idx[(q, pick)]])[:100]}
+                opick = max(labels, key=lambda lab: nd1[(q, lab)])
+                row["oracle"] = {"pick": opick, "docs": list(asr_runs[idx[(q, opick)]])[:100]}
+                row["concat_all"] = {"pick": "concat_all",
+                                     "docs": list(asr_runs[idx[(q, "concat_all")]])[:100]}
+                fmerged = rrf_multi([asr_runs[idx[(q, lab)]] for lab in labels])
+                row["fuse_all"] = {"pick": "fuse_all",
+                                   "docs": sorted(fmerged, key=fmerged.get, reverse=True)[:100]}
+                fh.write(json.dumps(row) + "\n")
+        print(f"wrote picks to {a.save_picks}")
 
     path = os.path.join(ABL, f"mv2_variant_selection{a.tag}.json")
     json.dump(out, open(path, "w"), indent=2)
