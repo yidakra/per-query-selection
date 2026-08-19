@@ -201,6 +201,61 @@ of practical size. And QL makes the structural point on its own, since QPP-4-RAG
 `len(qtokens)`, a number identical across channels by construction, asked to choose between speech,
 text and frames.
 
+**The language-matched control (added 2026-08-13).** A second objection, raised in supervision:
+the queries are English and the transcripts are mostly not, so term statistics computed across that
+divide may fail for vocabulary-mismatch reasons that say nothing about the family. The control is to
+rebuild the lexical index over the NLLB-translated English transcripts (`asr_text_en.jsonl`, 109,488
+documents), so query and corpus share a language, and rerun the full symmetric protocol
+(`mv2_qpp_table.py --index-text asr_text_en.jsonl`, artifacts `mv2_qpp_table_en_sym_grouped.*`,
+`mv2_row_inference_en.json`). Nothing moves. The best corpus-statistic row in the dense cell reaches
+0.3410 against the 0.3408 fixed policy; after the same group sign-flip and Holm machinery the family
+is again 0 of 33 significant, with 22 of 33 statistically equivalent to doing nothing. The score
+family is unchanged at 8 of 30, as expected, since it never touched the index. What this control does
+not cover is caption quality: the translated transcripts are only as good as the shipped ASR, and the
+caption-quality version of the objection stays open until a stronger captioner's text is tested
+(planned on MSR-VTT with newly generated captions).
+
+**Route-by-language (added 2026-08-17).** Supervision asked whether the channel choice should depend
+on the query language. Measured with the four NLLB query translations against the two re-runnable
+channels (`mv2_route_by_language.py`): it should not. The best fixed channel is speech in every query
+language, the oracle's headroom over it is nearly constant (+5.5 to +6.2 nDCG), and the oracle's pick
+distribution barely moves (roughly 2,020 speech / 230 OCR / 290 fusion in all five languages). The
+routing structure is language-invariant, so language does not enter the selector (pre-registered
+reading 5, negative branch). The same runs surface a separate, real effect on the query side: on
+judgments restricted to videos in language L, asking the query in L beats asking in English by +9 to
++12 nDCG on the speech channel (Chinese videos 0.18 to 0.31, Korean 0.22 to 0.34, Russian 0.34 to
+0.44, Arabic 0.15 to 0.25), while OCR moves slightly the other way. Language-matched querying is a
+retrieval lever on this benchmark; which language to ask in is a per-query decision our selector
+framework could target, and it is recorded here as future work, not claimed.
+
+**The caption-quality control (added 2026-08-17).** The strongest form of the index objection, raised
+in supervision: the shipped captions are one to two years old, from a weak model, and pre-retrieval
+needs high-quality document text, so the null could be a caption artifact. Supervision provided newly
+generated captions (Qwen3.5-9B, temperature 0, claim-style, one enumerated caption per video;
+unpublished, held outside the repo and not redistributed). Coverage on MultiVENT 2.0: 55,388 videos,
+97.6% of judged and 99.1% of relevant documents. Rebuilding the lexical index over these captions and
+rerunning the full symmetric protocol changes nothing: the corpus-statistic family is 0 of 33
+significant, 23 of 33 equivalent to doing nothing (`mv2_qpp_table_supcap_sym_grouped.*`,
+`mv2_row_inference_supcap.json`). The same swap on MSR-VTT-1kA, where the caption is the entire
+document side, gives 0 of 11 in all eight cells, 0 of 88 total, identical to the old-caption result
+(`mv2_msrvtt_source_replication_supcap.*`, new `--index-captions` flag). Better captions do not
+rescue corpus statistics on either collection; the caption-quality explanation is closed in both
+directions the supervision meeting asked about.
+
+**The English-subset control (added 2026-08-14).** The subset version of the same objection: restrict
+the judgment to the 448 queries whose relevant videos are all English (115 event groups), where query
+and relevant-document vocabulary are coherent, and rerun everything, once with the original index and
+once with the translated English index (`--query-list`, artifacts
+`mv2_qpp_table_ensub{,_enidx}_sym_grouped.*`, `mv2_row_inference_ensub{,_enidx}_sym_grouped.json`).
+The family is 0 of 33 significant with either index; the best row is QL at +0.0089 with a CI of
+[−0.019, +0.038]. The score-reading machinery keeps working at this sample size where corpus
+statistics do not: our ridge stays significant in the dense cell (+0.0333, Holm p = 0.039). One
+power caveat, stated rather than hidden: at 448 queries the score family's individual rows also lose
+significance (best NQC_norm +0.0315, Holm p = 0.315) and equivalence bounds are mostly too wide to
+close, so the subset corroborates the full-set translated-index control rather than replacing it.
+English-video queries are also much easier in absolute terms (fixed policy 0.55 against 0.34
+overall), which is consistent with the benchmark's own per-language tables.
+
 **The positive control.**
 
 Two experiments, not one ladder, so each row carries its own baseline. Rows 2–3 are the ASR-dense cell

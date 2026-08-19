@@ -1,0 +1,1214 @@
+{
+  "model": "facebook/nllb-200-distilled-600M",
+  "n": 50,
+  "languages": {
+    "zh": [
+      {
+        "qid": "test_pt2_query_1002",
+        "en": "2021 Mossel Bay skydiving plane incident",
+        "translated": "2021年莫塞尔湾空降飞机事件",
+        "back": "Aircraft crashes in Moselle Bay in 2021"
+      },
+      {
+        "qid": "test_pt2_query_1009",
+        "en": "Homeland Security new process for information requests",
+        "translated": "国内安全对信息请求的新程序",
+        "back": "New procedures for requests for information on national security"
+      },
+      {
+        "qid": "test_pt2_query_1016",
+        "en": "2018-2019 Ingushetia protests",
+        "translated": "2018-2019年英格斯蒂亚抗议活动",
+        "back": "Protests in Ingushetia 2018-2019"
+      },
+      {
+        "qid": "test_pt2_query_1034",
+        "en": "Olympic bobsledding in Garmisch-Partenkirchen",
+        "translated": "在加尔米什-帕特恩基尔琴的奥林匹克滑运动",
+        "back": "Olympic skiing at the Garmisch-Pattenkirchen"
+      },
+      {
+        "qid": "test_pt2_query_1047",
+        "en": "Wang Wenbin denies Chinese hacking Belgium",
+        "translated": "王文宾否认中国入侵比利时",
+        "back": "Wang Wenping denies China's invasion of Belgium"
+      },
+      {
+        "qid": "test_pt2_query_1061",
+        "en": "UAV fighter jet swarm tactics",
+        "translated": "无人机战斗机群战术",
+        "back": "Drone fighter group tactics"
+      },
+      {
+        "qid": "test_pt2_query_1073",
+        "en": "2022 visit by Nancy Pelosi to Taiwan",
+        "translated": "纳西佩洛西2022年访问台湾",
+        "back": "Nasser Pelosi to visit Taiwan in 2022"
+      },
+      {
+        "qid": "test_pt2_query_109",
+        "en": "August 2022 planned East China Sea exercises",
+        "translated": "2022年8月计划东海演习",
+        "back": "Exercises in the East Sea planned for August 2022"
+      },
+      {
+        "qid": "test_pt2_query_1167",
+        "en": "2019 National Taiwan Normal University alumni concert",
+        "translated": "2019年国家台湾普通大学校友音乐会",
+        "back": "National Taiwanese Normal University Alumni Concert 2019"
+      },
+      {
+        "qid": "test_pt2_query_1180",
+        "en": "Smell loss not included in WHO Covid-19 criterion",
+        "translated": "气味损失不包括在世卫组织COVID-19标准中",
+        "back": "Odor loss is not included in WHO's COVID-19 standard"
+      },
+      {
+        "qid": "test_pt2_query_120",
+        "en": "2022 Nigeria economic inflation",
+        "translated": "2022 尼日利亚经济通胀",
+        "back": "Nigerian economic inflation in 2022"
+      },
+      {
+        "qid": "test_pt2_query_1281",
+        "en": "Impact of South Korea-Japan General Security of Military Information Agreement on regional stability",
+        "translated": "韩国-日本军事信息通用安全协定对区域稳定的影响",
+        "back": "Effects of the Korea-Japan General Security Agreement on Military Information on Regional Stability"
+      },
+      {
+        "qid": "test_pt2_query_1393",
+        "en": "Impact of street structures on Itaewon casualties",
+        "translated": "道路结构对伊塔威人造成的影响",
+        "back": "The impact of road structure on the Itawians"
+      },
+      {
+        "qid": "test_pt2_query_1398",
+        "en": "14th Airshow China aircraft exhibition",
+        "translated": "第十四届中国航空展",
+        "back": "The 14th China Airshow"
+      },
+      {
+        "qid": "test_pt2_query_1587",
+        "en": "Elena Quintanilla assaulted on highway",
+        "translated": "在高速公路上,艾琳娜·昆塔尼拉遭到袭击",
+        "back": "On the highway, Elena Quintanilla was attacked"
+      },
+      {
+        "qid": "test_pt2_query_1604",
+        "en": "Category level Hurricane Irma",
+        "translated": "类别级别 风伊尔玛",
+        "back": "Category Levels: Wind and Irma"
+      },
+      {
+        "qid": "test_pt2_query_1626",
+        "en": "Pirate Sports Association established in Rabat",
+        "translated": "拉巴特成立海盗运动协会",
+        "back": "Rabat founded the Pirate Association"
+      },
+      {
+        "qid": "test_pt2_query_1681",
+        "en": "Kim Hye-gyeong comments on Twitter prosecution",
+        "translated": "基姆·希在推特上发表评论",
+        "back": "Kim Shea comments on Twitter"
+      },
+      {
+        "qid": "test_pt2_query_1690",
+        "en": "Foxconn protest arrests Zhengzhou",
+        "translated": "福克斯康抗议者逮捕州",
+        "back": "Foxconn protesters arrested in the state"
+      },
+      {
+        "qid": "test_pt2_query_1892",
+        "en": "2023 Chinese healthcare reform protests",
+        "translated": "2023年中国医疗改革抗议",
+        "back": "Protests against China's healthcare reform in 2023"
+      },
+      {
+        "qid": "test_pt2_query_1919",
+        "en": "CRISPR/CAS9 Nobel Prize in Chemistry",
+        "translated": "CRISPR/CAS9 化学诺贝尔奖",
+        "back": "CRISPR/CAS9 Nobel Prize in Chemistry"
+      },
+      {
+        "qid": "test_pt2_query_1962",
+        "en": "Elite surfers reaction to Nazare waves",
+        "translated": "精英冲浪者对纳扎雷波的反应",
+        "back": "The reaction of elite surfers to Nazarépo"
+      },
+      {
+        "qid": "test_pt2_query_2095",
+        "en": "Website with suggested electric vehicle charging locations",
+        "translated": "建议电动汽车充电地点的网站",
+        "back": "Recommended sites for charging electric cars"
+      },
+      {
+        "qid": "test_pt2_query_2134",
+        "en": "Royal Army of Oman competition with light weaponry",
+        "translated": "奥曼皇家军队与轻型武器竞争",
+        "back": "The Royal Army of Oman competes with light weapons"
+      },
+      {
+        "qid": "test_pt2_query_2147",
+        "en": "Covid vaccine supply South Korea",
+        "translated": "韩国提供冠状病毒疫苗",
+        "back": "South Korea provides coronavirus vaccine"
+      },
+      {
+        "qid": "test_pt2_query_220",
+        "en": "KT leader resignations lead to management vacuum",
+        "translated": "肯塔基领导辞职导致管理真空",
+        "back": "Kentucky's leadership resignation leads to a management vacuum"
+      },
+      {
+        "qid": "test_pt2_query_2227",
+        "en": "2021 sandstorm Mongolian drylands",
+        "translated": "2021年沙风蒙古干旱地区",
+        "back": "Dry areas in sub-Saharan Mongolia in 2021"
+      },
+      {
+        "qid": "test_pt2_query_2230",
+        "en": "Daejang-dong bribery controversy",
+        "translated": "达江东的利争端",
+        "back": "Interest Dispute in Daejeon"
+      },
+      {
+        "qid": "test_pt2_query_2256",
+        "en": "Chicago Public Schools police budget 2019 to 2020",
+        "translated": "芝加哥公立学校2019年至2020年的警察预算",
+        "back": "Chicago Public Schools Police Budget for 2019 to 2020"
+      },
+      {
+        "qid": "test_pt2_query_2265",
+        "en": "Shopping mall affected by Kemerovo fire",
+        "translated": "卡梅罗沃市发生火灾的购物中心",
+        "back": "Shopping centre in the city of Kamelovo after fire"
+      },
+      {
+        "qid": "test_pt2_query_2368",
+        "en": "Columbia archery team tup competitors",
+        "translated": "哥伦比亚射箭队的竞争对手",
+        "back": "Competitors of the Colombian Archery Team"
+      },
+      {
+        "qid": "test_pt2_query_2407",
+        "en": "Starbucks shift supervisor involvement in strikes",
+        "translated": "星巴克班级监督员参与罢工",
+        "back": "Starbucks class supervisors take part in the strike"
+      },
+      {
+        "qid": "test_pt2_query_2427",
+        "en": "President Yoon's Memorial Day comments on national defense",
+        "translated": "总统云的纪念日评论国家国防",
+        "back": "President Yoon's Memorial Day comments on national defense"
+      },
+      {
+        "qid": "test_pt2_query_243",
+        "en": "Jung Ryeo Won MeToo speech Korea Women's Human Rights Agency",
+        "translated": "韩国妇女人权机构",
+        "back": "Women's rights institution in South Korea"
+      },
+      {
+        "qid": "test_pt2_query_2463",
+        "en": "Russian writer speech advocating for political prisoners' rights",
+        "translated": "俄罗斯作家倡导政治犯权利的演讲",
+        "back": "Russian writers advocate for the rights of political prisoners"
+      },
+      {
+        "qid": "test_pt2_query_248",
+        "en": "Scientists in Chicago study increasing shelf-life in produce",
+        "translated": "芝加哥的科学家研究增加产品的保质期",
+        "back": "Scientists in Chicago study to increase product shelf life"
+      },
+      {
+        "qid": "test_pt2_query_2518",
+        "en": "2017 Ulaanbaatar Naadam festival",
+        "translated": "2017年乌兰巴特纳阿姆节",
+        "back": "Ulan Batra Am festival in the year 2017"
+      },
+      {
+        "qid": "test_pt2_query_2531",
+        "en": "Government clinics requesting more space to house patients",
+        "translated": "政府诊所要求更多的空间容纳患者",
+        "back": "Government clinics demand more space for patients"
+      },
+      {
+        "qid": "test_pt2_query_356",
+        "en": "Busan cold wave 2016",
+        "translated": "2016年布山寒波",
+        "back": "The 2016 snowstorm"
+      },
+      {
+        "qid": "test_pt2_query_366",
+        "en": "Military assistance Typhoon Lekima",
+        "translated": "军事援助 雷基马风",
+        "back": "Military aid: Reiki Horse"
+      },
+      {
+        "qid": "test_pt2_query_445",
+        "en": "2023 protests against medicare costs China",
+        "translated": "2023年抗议医疗保健费用中国",
+        "back": "Protests against healthcare spending in China in 2023"
+      },
+      {
+        "qid": "test_pt2_query_541",
+        "en": "Afisha Picnic 2019 usb connectors",
+        "translated": "阿菲沙皮克尼克 2019 连接器",
+        "back": "Affi ShapePicnic 2019 connector"
+      },
+      {
+        "qid": "test_pt2_query_556",
+        "en": "2019 Taiwanese military promotion ceremony",
+        "translated": "2019年台湾军人晋升仪式",
+        "back": "Taiwanese Military Promotion Ceremony 2019"
+      },
+      {
+        "qid": "test_pt2_query_619",
+        "en": "Riyadh Season 2021",
+        "translated": "利雅得2021年赛季",
+        "back": "Riyadh 2021 season"
+      },
+      {
+        "qid": "test_pt2_query_632",
+        "en": "Donald Trump accepting Republican presidential nomination",
+        "translated": "唐纳德特朗普接受共和党总统提名",
+        "back": "Donald Trump accepted the Republican presidential nomination"
+      },
+      {
+        "qid": "test_pt2_query_653",
+        "en": "Iron Mountain and Sky Canyon street racing",
+        "translated": "铁山和天空峡谷街道赛车",
+        "back": "Iron Mountain and Sky Canyon Street Racing"
+      },
+      {
+        "qid": "test_pt2_query_672",
+        "en": "Subway ceiling collapse due to flooding South Korea",
+        "translated": "由于南韩洪水导致地铁天花板崩",
+        "back": "Subway ceilings collapsed due to flooding in South Korea"
+      },
+      {
+        "qid": "test_pt2_query_768",
+        "en": "Department of Industrial and Commercial Resources stance on TPP",
+        "translated": "工业和商业资源部对TPP的立场",
+        "back": "Ministry of Industry and Commercial Resources position on TPP"
+      },
+      {
+        "qid": "test_pt2_query_824",
+        "en": "Jennifer A. Doudna Nobel Prize",
+        "translated": "詹妮弗·阿杜纳诺贝尔奖",
+        "back": "The Nobel Prize in Literature was awarded to Jennifer Adnan."
+      },
+      {
+        "qid": "test_pt2_query_900",
+        "en": "Firefighters responde to Lusail Stadium emergency",
+        "translated": "消防队员响应卢萨尔体育场紧急情况",
+        "back": "Firefighters responding to emergency at Lusal Stadium"
+      }
+    ],
+    "ko": [
+      {
+        "qid": "test_pt2_query_1002",
+        "en": "2021 Mossel Bay skydiving plane incident",
+        "translated": "2021 모셀 베이 낙하산 비행 사고",
+        "back": "2021 Mossel Bay parachute flight crash"
+      },
+      {
+        "qid": "test_pt2_query_1009",
+        "en": "Homeland Security new process for information requests",
+        "translated": "국토안보 정보 요청에 대한 새로운 프로세스",
+        "back": "A new process for requesting national security information"
+      },
+      {
+        "qid": "test_pt2_query_1016",
+        "en": "2018-2019 Ingushetia protests",
+        "translated": "2018-2019 잉구세티아 시위",
+        "back": "2018-2019 Ingushetia protests"
+      },
+      {
+        "qid": "test_pt2_query_1034",
+        "en": "Olympic bobsledding in Garmisch-Partenkirchen",
+        "translated": "가르미쉬-파르텐키르헨에서 올림픽 보브스레딩",
+        "back": "Olympic bobsledding in Garmisch-Partenkirchen"
+      },
+      {
+        "qid": "test_pt2_query_1047",
+        "en": "Wang Wenbin denies Chinese hacking Belgium",
+        "translated": "왕 웬빈은 중국인이 벨기에를 해킹한 것을 부인한다",
+        "back": "King Wenvin denies that the Chinese hacked into Belgium."
+      },
+      {
+        "qid": "test_pt2_query_1061",
+        "en": "UAV fighter jet swarm tactics",
+        "translated": "UAV 전투기 무대 전술",
+        "back": "UAV fighter stage tactics"
+      },
+      {
+        "qid": "test_pt2_query_1073",
+        "en": "2022 visit by Nancy Pelosi to Taiwan",
+        "translated": "2022년 낸시 펠로시의 대만 방문",
+        "back": "Nancy Pelosi's visit to Taiwan in 2022."
+      },
+      {
+        "qid": "test_pt2_query_109",
+        "en": "August 2022 planned East China Sea exercises",
+        "translated": "2022년 8월 동중국해 훈련 계획",
+        "back": "Exercise plan for the East China Sea in August 2022."
+      },
+      {
+        "qid": "test_pt2_query_1167",
+        "en": "2019 National Taiwan Normal University alumni concert",
+        "translated": "2019 국립 대만 일반대학교 졸업생 콘서트",
+        "back": "2019 National Taiwanese General University graduate concert"
+      },
+      {
+        "qid": "test_pt2_query_1180",
+        "en": "Smell loss not included in WHO Covid-19 criterion",
+        "translated": "WHO 코비드-19 기준에 포함되지 않은 냄새 손실",
+        "back": "Smell loss not included in WHO's COVID-19 criteria"
+      },
+      {
+        "qid": "test_pt2_query_120",
+        "en": "2022 Nigeria economic inflation",
+        "translated": "2022 나이지리아 경제 인플레이션",
+        "back": "2022 Nigerian economic inflation"
+      },
+      {
+        "qid": "test_pt2_query_1281",
+        "en": "Impact of South Korea-Japan General Security of Military Information Agreement on regional stability",
+        "translated": "남한-일본 군사 정보보호 협정의 지역 안정에 미치는 영향",
+        "back": "The impact on regional stability of the South Korean-Japanese Military Intelligence Agreement"
+      },
+      {
+        "qid": "test_pt2_query_1393",
+        "en": "Impact of street structures on Itaewon casualties",
+        "translated": "이태원 희생자들에 대한 거리 구조물의 영향",
+        "back": "The impact of street structures on the victims of solar eclipses"
+      },
+      {
+        "qid": "test_pt2_query_1398",
+        "en": "14th Airshow China aircraft exhibition",
+        "translated": "제14회 중국 항공 전시회",
+        "back": "The 14th China Air Show"
+      },
+      {
+        "qid": "test_pt2_query_1587",
+        "en": "Elena Quintanilla assaulted on highway",
+        "translated": "엘레나 Quintanilla 고속도로에서 공격",
+        "back": "Elena Quintanilla was attacked on the highway."
+      },
+      {
+        "qid": "test_pt2_query_1604",
+        "en": "Category level Hurricane Irma",
+        "translated": "카테고리급 허리케인 '아이르마'",
+        "back": "Hurricane Irma is a Category 2 hurricane."
+      },
+      {
+        "qid": "test_pt2_query_1626",
+        "en": "Pirate Sports Association established in Rabat",
+        "translated": "라바트에서 설립된 해적 스포츠 협회",
+        "back": "The Pirate Sports Association was founded in Rabat."
+      },
+      {
+        "qid": "test_pt2_query_1681",
+        "en": "Kim Hye-gyeong comments on Twitter prosecution",
+        "translated": "김혜경은 트위터에서 검찰에 대한 발언을 했습니다.",
+        "back": "Kim Hee-hye commented on the prosecution on Twitter."
+      },
+      {
+        "qid": "test_pt2_query_1690",
+        "en": "Foxconn protest arrests Zhengzhou",
+        "translated": "폭스콘 시위대가 장저우를 체포했다",
+        "back": "Foxconn protesters have arrested Zhangzhou."
+      },
+      {
+        "qid": "test_pt2_query_1892",
+        "en": "2023 Chinese healthcare reform protests",
+        "translated": "2023 중국 의료 개혁 시위가",
+        "back": "In 2023, China's healthcare reform protests"
+      },
+      {
+        "qid": "test_pt2_query_1919",
+        "en": "CRISPR/CAS9 Nobel Prize in Chemistry",
+        "translated": "CRISPR/CAS9 노벨 화학상",
+        "back": "The CRISPR/CAS9 Nobel Prize in Chemistry was awarded"
+      },
+      {
+        "qid": "test_pt2_query_1962",
+        "en": "Elite surfers reaction to Nazare waves",
+        "translated": "엘리트 서퍼들의 반응",
+        "back": "The reaction of the elite superheroes."
+      },
+      {
+        "qid": "test_pt2_query_2095",
+        "en": "Website with suggested electric vehicle charging locations",
+        "translated": "전기차 충전 장소가 제안된 웹사이트",
+        "back": "A proposed site for charging electric vehicles"
+      },
+      {
+        "qid": "test_pt2_query_2134",
+        "en": "Royal Army of Oman competition with light weaponry",
+        "translated": "오만 왕실 육군 경전",
+        "back": "Battle of the Royal Army of Oman"
+      },
+      {
+        "qid": "test_pt2_query_2147",
+        "en": "Covid vaccine supply South Korea",
+        "translated": "한국의 코로나 백신 공급",
+        "back": "South Korea's supply of coronavirus vaccines"
+      },
+      {
+        "qid": "test_pt2_query_220",
+        "en": "KT leader resignations lead to management vacuum",
+        "translated": "KT 리더의 사퇴가 경영 진공으로 이어진다",
+        "back": "The resignation of the KT leader leads to a management vacuum."
+      },
+      {
+        "qid": "test_pt2_query_2227",
+        "en": "2021 sandstorm Mongolian drylands",
+        "translated": "2021 모래 폭풍 몽골 건조지대",
+        "back": "2021 Sandstorm Mongolian dry land"
+      },
+      {
+        "qid": "test_pt2_query_2230",
+        "en": "Daejang-dong bribery controversy",
+        "translated": "대장동 뇌물 논란",
+        "back": "There's a big bribery controversy going on."
+      },
+      {
+        "qid": "test_pt2_query_2256",
+        "en": "Chicago Public Schools police budget 2019 to 2020",
+        "translated": "시카고 공립학교 경찰 예산 2019~2020",
+        "back": "Chicago Public Schools Police Budget 2019 to 2020"
+      },
+      {
+        "qid": "test_pt2_query_2265",
+        "en": "Shopping mall affected by Kemerovo fire",
+        "translated": "케메로보 화재로 인한 쇼핑몰",
+        "back": "Shopping mall destroyed by fire in Kemerovo"
+      },
+      {
+        "qid": "test_pt2_query_2368",
+        "en": "Columbia archery team tup competitors",
+        "translated": "컬럼비아 활사격팀 튜프 경쟁자",
+        "back": "Colombian archery team Tuff competitor."
+      },
+      {
+        "qid": "test_pt2_query_2407",
+        "en": "Starbucks shift supervisor involvement in strikes",
+        "translated": "스타벅스 근무 감독의 파업 참여",
+        "back": "The strike involvement of the head of the Starbucks staff."
+      },
+      {
+        "qid": "test_pt2_query_2427",
+        "en": "President Yoon's Memorial Day comments on national defense",
+        "translated": "윤 대통령의 기념 날 국가보호에 대한 발언",
+        "back": "On the anniversary of President Yoon's speech on national security"
+      },
+      {
+        "qid": "test_pt2_query_243",
+        "en": "Jung Ryeo Won MeToo speech Korea Women's Human Rights Agency",
+        "translated": "정 리오 원 메투 연설 한국 여성 인권 기관",
+        "back": "Jun Ryo Won-Metu's speech to the South Korean women's rights organization"
+      },
+      {
+        "qid": "test_pt2_query_2463",
+        "en": "Russian writer speech advocating for political prisoners' rights",
+        "translated": "러시아 작가가 정치범의 권리를 옹호하는 연설",
+        "back": "A speech by a Russian writer defending the rights of political prisoners"
+      },
+      {
+        "qid": "test_pt2_query_248",
+        "en": "Scientists in Chicago study increasing shelf-life in produce",
+        "translated": "시카고 의 과학자 들 은 생산물 의 수직 기간 을 늘리는 연구 를 하고 있습니다",
+        "back": "Scientists in Chicago are studying how to extend the upper life of a product"
+      },
+      {
+        "qid": "test_pt2_query_2518",
+        "en": "2017 Ulaanbaatar Naadam festival",
+        "translated": "2017 울란바타르 네아담 페스티벌",
+        "back": "The 2017 Ulaanbaatar Neatham Festival"
+      },
+      {
+        "qid": "test_pt2_query_2531",
+        "en": "Government clinics requesting more space to house patients",
+        "translated": "정부 클리닉은 환자를 수용할 수 있는 더 많은 공간을 요구하고 있습니다.",
+        "back": "Government clinics are demanding more space to accommodate patients."
+      },
+      {
+        "qid": "test_pt2_query_356",
+        "en": "Busan cold wave 2016",
+        "translated": "부산 추운 물결 2016",
+        "back": "Unfortunate cold wave 2016"
+      },
+      {
+        "qid": "test_pt2_query_366",
+        "en": "Military assistance Typhoon Lekima",
+        "translated": "군사 지원 태풍 레키마",
+        "back": "Military support Typhoon Rekima"
+      },
+      {
+        "qid": "test_pt2_query_445",
+        "en": "2023 protests against medicare costs China",
+        "translated": "2023년 의료보험에 대한 시위가 중국에",
+        "back": "In 2023, there will be protests against health insurance in China."
+      },
+      {
+        "qid": "test_pt2_query_541",
+        "en": "Afisha Picnic 2019 usb connectors",
+        "translated": "아피샤 피크닉 2019 USB 커넥터",
+        "back": "Apisha picnic 2019 USB connector"
+      },
+      {
+        "qid": "test_pt2_query_556",
+        "en": "2019 Taiwanese military promotion ceremony",
+        "translated": "2019 대만 군사 승진 기념식",
+        "back": "2019 Taiwanese military promotion commemoration"
+      },
+      {
+        "qid": "test_pt2_query_619",
+        "en": "Riyadh Season 2021",
+        "translated": "리야드 2021 시즌",
+        "back": "The 2021 Riyadh season."
+      },
+      {
+        "qid": "test_pt2_query_632",
+        "en": "Donald Trump accepting Republican presidential nomination",
+        "translated": "도널드 트럼프가 공화당 대통령 후보 지명을 받아들이고 있다",
+        "back": "Donald Trump is accepting the Republican presidential nomination."
+      },
+      {
+        "qid": "test_pt2_query_653",
+        "en": "Iron Mountain and Sky Canyon street racing",
+        "translated": "아이언 마운틴과 스카이 캐니언 거리 경주",
+        "back": "Iron Mountain and Sky Canyon Street Race"
+      },
+      {
+        "qid": "test_pt2_query_672",
+        "en": "Subway ceiling collapse due to flooding South Korea",
+        "translated": "남한의 홍수로 인해 지하철 천장 붕괴",
+        "back": "The subway roof collapsed due to flooding in South Korea."
+      },
+      {
+        "qid": "test_pt2_query_768",
+        "en": "Department of Industrial and Commercial Resources stance on TPP",
+        "translated": "TPP에 대한 산업 및 상용자원 부처의 입장은",
+        "back": "The position of the Department of Industrial and Commercial Resources on the TPP"
+      },
+      {
+        "qid": "test_pt2_query_824",
+        "en": "Jennifer A. Doudna Nobel Prize",
+        "translated": "제니퍼 A. 다우드나 노벨상",
+        "back": "Jennifer A. David was awarded the Nobel Prize."
+      },
+      {
+        "qid": "test_pt2_query_900",
+        "en": "Firefighters responde to Lusail Stadium emergency",
+        "translated": "소방사들은 루사일 스타디움에 응원했습니다",
+        "back": "Firefighters are at the Lucille Stadium."
+      }
+    ],
+    "ru": [
+      {
+        "qid": "test_pt2_query_1002",
+        "en": "2021 Mossel Bay skydiving plane incident",
+        "translated": "Инцидент с парашютом самолета в Мосел-Бей 2021 года",
+        "back": "Airplane parachute incident in Mosel Bay in 2021"
+      },
+      {
+        "qid": "test_pt2_query_1009",
+        "en": "Homeland Security new process for information requests",
+        "translated": "Внутренняя безопасность новый процесс для запросов информации",
+        "back": "Internal security A new process for requesting information"
+      },
+      {
+        "qid": "test_pt2_query_1016",
+        "en": "2018-2019 Ingushetia protests",
+        "translated": "Протесты в Ингушетии 2018-2019 гг.",
+        "back": "Protests in Ingushetia 2018-2019"
+      },
+      {
+        "qid": "test_pt2_query_1034",
+        "en": "Olympic bobsledding in Garmisch-Partenkirchen",
+        "translated": "Олимпийское бобследирование в Гармише-Партенкирхене",
+        "back": "Olympic bobsledding in Garmishe-Partenkirchen"
+      },
+      {
+        "qid": "test_pt2_query_1047",
+        "en": "Wang Wenbin denies Chinese hacking Belgium",
+        "translated": "Ван Вэнбин отрицает, что китайцы взломали Бельгию",
+        "back": "Wang Wenbin denies that the Chinese broke into Belgium"
+      },
+      {
+        "qid": "test_pt2_query_1061",
+        "en": "UAV fighter jet swarm tactics",
+        "translated": "БПЛА истребительские самолеты тактика рода",
+        "back": "UAV fighter jets of the tactical type"
+      },
+      {
+        "qid": "test_pt2_query_1073",
+        "en": "2022 visit by Nancy Pelosi to Taiwan",
+        "translated": "Визит Нэнси Пелоси на Тайвань в 2022 году",
+        "back": "Nancy Pelosi's visit to Taiwan in 2022"
+      },
+      {
+        "qid": "test_pt2_query_109",
+        "en": "August 2022 planned East China Sea exercises",
+        "translated": "В августе 2022 года запланированы учения в Восточно-Китайском море",
+        "back": "Exercises in the East China Sea are planned for August 2022"
+      },
+      {
+        "qid": "test_pt2_query_1167",
+        "en": "2019 National Taiwan Normal University alumni concert",
+        "translated": "Концерт выпускников Национального Тайваньского Нормального Университета 2019 года",
+        "back": "Concert of graduates of the National Taiwan Normal University 2019"
+      },
+      {
+        "qid": "test_pt2_query_1180",
+        "en": "Smell loss not included in WHO Covid-19 criterion",
+        "translated": "Потеря запаха не включена в критерий ВОЗ по COVID-19",
+        "back": "Loss of smell not included in WHO's COVID-19 criteria"
+      },
+      {
+        "qid": "test_pt2_query_120",
+        "en": "2022 Nigeria economic inflation",
+        "translated": "2022 Нигерийская экономическая инфляция",
+        "back": "2022 Nigerian economic inflation"
+      },
+      {
+        "qid": "test_pt2_query_1281",
+        "en": "Impact of South Korea-Japan General Security of Military Information Agreement on regional stability",
+        "translated": "Влияние соглашения о военной информационной безопасности между Южной Кореей и Японией на региональную стабильность",
+        "back": "Impact of the Agreement on Military Information Security between South Korea and Japan on Regional Stability"
+      },
+      {
+        "qid": "test_pt2_query_1393",
+        "en": "Impact of street structures on Itaewon casualties",
+        "translated": "Влияние уличных сооружений на жертв в Итауне",
+        "back": "The impact of street structures on victims in Ithaca"
+      },
+      {
+        "qid": "test_pt2_query_1398",
+        "en": "14th Airshow China aircraft exhibition",
+        "translated": "14th Airshow Китайская авиационная выставка",
+        "back": "14th Airshow China Aviation Exhibition"
+      },
+      {
+        "qid": "test_pt2_query_1587",
+        "en": "Elena Quintanilla assaulted on highway",
+        "translated": "Елена Квинтанила напала на шоссе",
+        "back": "Elena Quintanilla attacked on the highway."
+      },
+      {
+        "qid": "test_pt2_query_1604",
+        "en": "Category level Hurricane Irma",
+        "translated": "Уровень категории Ураган Ирма",
+        "back": "Category level of Hurricane Irma"
+      },
+      {
+        "qid": "test_pt2_query_1626",
+        "en": "Pirate Sports Association established in Rabat",
+        "translated": "Ассоциация пиратского спорта создана в Рабате",
+        "back": "Pirate sport association established in Rabat"
+      },
+      {
+        "qid": "test_pt2_query_1681",
+        "en": "Kim Hye-gyeong comments on Twitter prosecution",
+        "translated": "Ким Хё-гён комментирует обвинение в Твиттере",
+        "back": "Kim Hye-gyung commented on the accusation on Twitter"
+      },
+      {
+        "qid": "test_pt2_query_1690",
+        "en": "Foxconn protest arrests Zhengzhou",
+        "translated": "Протестующие Foxconn арестовали Чжэнчжоу",
+        "back": "Foxconn protesters arrested Zhengzhou"
+      },
+      {
+        "qid": "test_pt2_query_1892",
+        "en": "2023 Chinese healthcare reform protests",
+        "translated": "2023 Китайские протесты по реформе здравоохранения",
+        "back": "2023 Chinese protests over healthcare reform"
+      },
+      {
+        "qid": "test_pt2_query_1919",
+        "en": "CRISPR/CAS9 Nobel Prize in Chemistry",
+        "translated": "CRISPR/CAS9 Нобелевская премия по химии",
+        "back": "CRISPR/CAS9 Nobel Prize in Chemistry"
+      },
+      {
+        "qid": "test_pt2_query_1962",
+        "en": "Elite surfers reaction to Nazare waves",
+        "translated": "Элитные серферы реагируют на волны Назаре",
+        "back": "Elite surfers responding to the waves of Nazareth"
+      },
+      {
+        "qid": "test_pt2_query_2095",
+        "en": "Website with suggested electric vehicle charging locations",
+        "translated": "Сайт с рекомендуемыми местами зарядки электромобилей",
+        "back": "Site with recommended charging points for electric vehicles"
+      },
+      {
+        "qid": "test_pt2_query_2134",
+        "en": "Royal Army of Oman competition with light weaponry",
+        "translated": "Соревнования Королевской армии Омана с легким вооружением",
+        "back": "The Royal Army of Oman competes with light weapons"
+      },
+      {
+        "qid": "test_pt2_query_2147",
+        "en": "Covid vaccine supply South Korea",
+        "translated": "Доставка вакцины против коронавируса Южной Корее",
+        "back": "Delivery of coronavirus vaccine to South Korea"
+      },
+      {
+        "qid": "test_pt2_query_220",
+        "en": "KT leader resignations lead to management vacuum",
+        "translated": "Отставка руководителя КТ приводит к пустоте руководства",
+        "back": "The resignation of the head of the KT leads to the emptiness of the leadership"
+      },
+      {
+        "qid": "test_pt2_query_2227",
+        "en": "2021 sandstorm Mongolian drylands",
+        "translated": "2021 песчаная буря Монгольские сухие земли",
+        "back": "2021 Sandstorm Mongolian drylands"
+      },
+      {
+        "qid": "test_pt2_query_2230",
+        "en": "Daejang-dong bribery controversy",
+        "translated": "Конфликт о взяточничестве в Daejang-dong",
+        "back": "Conflict over bribery in Daejang-dong"
+      },
+      {
+        "qid": "test_pt2_query_2256",
+        "en": "Chicago Public Schools police budget 2019 to 2020",
+        "translated": "Бюджет полиции Чикагских государственных школ на 2019-2020 годы",
+        "back": "Chicago State Schools Police Budget for 2019-2020"
+      },
+      {
+        "qid": "test_pt2_query_2265",
+        "en": "Shopping mall affected by Kemerovo fire",
+        "translated": "Торговый центр пострадал от пожара в Кемерово",
+        "back": "Trade center damaged by fire in Kemerovo"
+      },
+      {
+        "qid": "test_pt2_query_2368",
+        "en": "Columbia archery team tup competitors",
+        "translated": "Команды стрельбы с луками Колумбии",
+        "back": "Colombian archery teams"
+      },
+      {
+        "qid": "test_pt2_query_2407",
+        "en": "Starbucks shift supervisor involvement in strikes",
+        "translated": "Участие наблюдателей по смену Starbucks в забастовках",
+        "back": "Participation of Starbucks shift observers in the strike"
+      },
+      {
+        "qid": "test_pt2_query_2427",
+        "en": "President Yoon's Memorial Day comments on national defense",
+        "translated": "Комментарии к Дню памяти президента Юна о национальной обороне",
+        "back": "Comments on the Day of Remembrance of President Yoon on National Defence"
+      },
+      {
+        "qid": "test_pt2_query_243",
+        "en": "Jung Ryeo Won MeToo speech Korea Women's Human Rights Agency",
+        "translated": "Юнг Рьё Won MeToo выступление Корейское женское правовое агентство",
+        "back": "Young Ryo Won MeToo performance by the Korean Women's Legal Agency"
+      },
+      {
+        "qid": "test_pt2_query_2463",
+        "en": "Russian writer speech advocating for political prisoners' rights",
+        "translated": "Выступление русского писателя, выступающего за права политзаключенных",
+        "back": "The speech of a Russian writer advocating for the rights of political prisoners"
+      },
+      {
+        "qid": "test_pt2_query_248",
+        "en": "Scientists in Chicago study increasing shelf-life in produce",
+        "translated": "Ученые в Чикаго изучают увеличение срока хранения продуктов",
+        "back": "Scientists in Chicago are studying extending food storage"
+      },
+      {
+        "qid": "test_pt2_query_2518",
+        "en": "2017 Ulaanbaatar Naadam festival",
+        "translated": "Улан-Батарский фестиваль Наадама 2017",
+        "back": "Ulan-Batar Festival of Naadam 2017"
+      },
+      {
+        "qid": "test_pt2_query_2531",
+        "en": "Government clinics requesting more space to house patients",
+        "translated": "Правительственные клиники требуют больше места для размещения пациентов",
+        "back": "Government clinics are demanding more room to accommodate patients"
+      },
+      {
+        "qid": "test_pt2_query_356",
+        "en": "Busan cold wave 2016",
+        "translated": "Холодная волна в Бусане 2016 года",
+        "back": "The cold wave in Busan in 2016"
+      },
+      {
+        "qid": "test_pt2_query_366",
+        "en": "Military assistance Typhoon Lekima",
+        "translated": "Военная помощь Тайфун Лекима",
+        "back": "Military aid from Typhoon Lekim"
+      },
+      {
+        "qid": "test_pt2_query_445",
+        "en": "2023 protests against medicare costs China",
+        "translated": "В 2023 году протесты против стоимости медицинского страхования в Китае",
+        "back": "Protests against the cost of health insurance in China in 2023"
+      },
+      {
+        "qid": "test_pt2_query_541",
+        "en": "Afisha Picnic 2019 usb connectors",
+        "translated": "Афиша Пикник 2019 USB-соединители",
+        "back": "Afisha Picnic 2019 USB connectors"
+      },
+      {
+        "qid": "test_pt2_query_556",
+        "en": "2019 Taiwanese military promotion ceremony",
+        "translated": "2019 Тайваньская военная церемония продвижения",
+        "back": "2019 Taiwanese military promotion ceremony"
+      },
+      {
+        "qid": "test_pt2_query_619",
+        "en": "Riyadh Season 2021",
+        "translated": "Эр-Рияд Сезон 2021",
+        "back": "Riyadh Season 2021"
+      },
+      {
+        "qid": "test_pt2_query_632",
+        "en": "Donald Trump accepting Republican presidential nomination",
+        "translated": "Дональд Трамп принимает кандидатуру в президенты от Республиканской партии",
+        "back": "Donald Trump is accepting the Republican presidential nomination."
+      },
+      {
+        "qid": "test_pt2_query_653",
+        "en": "Iron Mountain and Sky Canyon street racing",
+        "translated": "Уличные гонки Iron Mountain и Sky Canyon",
+        "back": "Street races at Iron Mountain and Sky Canyon"
+      },
+      {
+        "qid": "test_pt2_query_672",
+        "en": "Subway ceiling collapse due to flooding South Korea",
+        "translated": "Попадание потолка метро из-за наводнений в Южной Корее",
+        "back": "Metro ceiling collapsed due to flooding in South Korea"
+      },
+      {
+        "qid": "test_pt2_query_768",
+        "en": "Department of Industrial and Commercial Resources stance on TPP",
+        "translated": "Позиция Департамента промышленных и коммерческих ресурсов по ТНП",
+        "back": "Position of the Department of Industrial and Commercial Resources on TNP"
+      },
+      {
+        "qid": "test_pt2_query_824",
+        "en": "Jennifer A. Doudna Nobel Prize",
+        "translated": "Дженнифер А. Дудна Нобелевская премия",
+        "back": "Jennifer A. Dudna The Nobel Prize is awarded"
+      },
+      {
+        "qid": "test_pt2_query_900",
+        "en": "Firefighters responde to Lusail Stadium emergency",
+        "translated": "Пожарные реагируют на чрезвычайную ситуацию на стадионе Лусаил .",
+        "back": "Firefighters are responding to an emergency at Lusail Stadium ."
+      }
+    ],
+    "ar": [
+      {
+        "qid": "test_pt2_query_1002",
+        "en": "2021 Mossel Bay skydiving plane incident",
+        "translated": "2021 حادث طائرة قفزة مظلة في خليج موسيل",
+        "back": "2021 Umbrella jumping plane crash in Mossel Bay"
+      },
+      {
+        "qid": "test_pt2_query_1009",
+        "en": "Homeland Security new process for information requests",
+        "translated": "أمن الداخلية عملية جديدة لطلبات المعلومات",
+        "back": "Homeland Security is a new process for requests for information."
+      },
+      {
+        "qid": "test_pt2_query_1016",
+        "en": "2018-2019 Ingushetia protests",
+        "translated": "2018-2019 احتجاجات إنجوشيتيا",
+        "back": "2018-2019 Angosetia protests"
+      },
+      {
+        "qid": "test_pt2_query_1034",
+        "en": "Olympic bobsledding in Garmisch-Partenkirchen",
+        "translated": "سباق البوبل الأولمبي في غارميش-بارتنكيرشن",
+        "back": "The Olympic bobsleigh race in Garmisch-Partenkirchen ."
+      },
+      {
+        "qid": "test_pt2_query_1047",
+        "en": "Wang Wenbin denies Chinese hacking Belgium",
+        "translated": "وانغ وينبين ينكر القرصنة الصينية في بلجيكا",
+        "back": "Wang Wenping has denied Chinese piracy in Belgium."
+      },
+      {
+        "qid": "test_pt2_query_1061",
+        "en": "UAV fighter jet swarm tactics",
+        "translated": "تكتيكات حشد طائرات مقاتلة بدون طيار",
+        "back": "Tactics to crowd drones ."
+      },
+      {
+        "qid": "test_pt2_query_1073",
+        "en": "2022 visit by Nancy Pelosi to Taiwan",
+        "translated": "زيارة نانسي بيلوسي إلى تايوان لعام 2022",
+        "back": "Nancy Pelosi's visit to Taiwan for 2022"
+      },
+      {
+        "qid": "test_pt2_query_109",
+        "en": "August 2022 planned East China Sea exercises",
+        "translated": "أغسطس 2022 التدريبات المخطط لها في بحر الصين الشرقي",
+        "back": "August 2022 scheduled drills in the East China Sea"
+      },
+      {
+        "qid": "test_pt2_query_1167",
+        "en": "2019 National Taiwan Normal University alumni concert",
+        "translated": "حفل خريجي جامعة تايوان الطبيعية الوطنية لعام 2019",
+        "back": "National Taiwan Natural University graduation ceremony for 2019"
+      },
+      {
+        "qid": "test_pt2_query_1180",
+        "en": "Smell loss not included in WHO Covid-19 criterion",
+        "translated": "فقدان الروائح غير مدرج في معايير منظمة الصحة العالمية لفيروس كوفيد-19",
+        "back": "Loss of odors is not in the WHO's COVID-19 standard."
+      },
+      {
+        "qid": "test_pt2_query_120",
+        "en": "2022 Nigeria economic inflation",
+        "translated": "2022 التضخم الاقتصادي في نيجيريا",
+        "back": "2022 Economic inflation in Nigeria"
+      },
+      {
+        "qid": "test_pt2_query_1281",
+        "en": "Impact of South Korea-Japan General Security of Military Information Agreement on regional stability",
+        "translated": "تأثير اتفاقية كوريا الجنوبية اليابان الأمنية العامة للمعلومات العسكرية على الاستقرار الإقليمي",
+        "back": "The impact of the South Korea-Japan Agreement on regional stability"
+      },
+      {
+        "qid": "test_pt2_query_1393",
+        "en": "Impact of street structures on Itaewon casualties",
+        "translated": "تأثير هيكل الشوارع على الضحايا في إيتاوون",
+        "back": "The impact of street structure on the victims in Etown ."
+      },
+      {
+        "qid": "test_pt2_query_1398",
+        "en": "14th Airshow China aircraft exhibition",
+        "translated": "المعرض الرابع عشر للطائرات في الصين",
+        "back": "The 14th Aircraft Show in China ."
+      },
+      {
+        "qid": "test_pt2_query_1587",
+        "en": "Elena Quintanilla assaulted on highway",
+        "translated": "(إيلينا كوينتانيلا) تعرضت للهجوم على الطريق السريع",
+        "back": "Elena Quintanilla was attacked on the highway."
+      },
+      {
+        "qid": "test_pt2_query_1604",
+        "en": "Category level Hurricane Irma",
+        "translated": "مستوى الفئة إعصار إيرما",
+        "back": "Category level of Hurricane Irma ."
+      },
+      {
+        "qid": "test_pt2_query_1626",
+        "en": "Pirate Sports Association established in Rabat",
+        "translated": "تأسيس جمعية الرياضة القراصنة في الرباط",
+        "back": "The founding of the Pirate Sports Association in Rabat"
+      },
+      {
+        "qid": "test_pt2_query_1681",
+        "en": "Kim Hye-gyeong comments on Twitter prosecution",
+        "translated": "كيم هي جيونغ تعليقات على محاكمة تويتر",
+        "back": "Kim Hee-jeong comments on the Twitter trial"
+      },
+      {
+        "qid": "test_pt2_query_1690",
+        "en": "Foxconn protest arrests Zhengzhou",
+        "translated": "احتجاجات فوكسكون اعتقلت تشينغجو",
+        "back": "The Foxconn protests have arrested Qingzhou ."
+      },
+      {
+        "qid": "test_pt2_query_1892",
+        "en": "2023 Chinese healthcare reform protests",
+        "translated": "2023 احتجاجات إصلاح الرعاية الصحية في الصين",
+        "back": "2023 healthcare reform protests in China"
+      },
+      {
+        "qid": "test_pt2_query_1919",
+        "en": "CRISPR/CAS9 Nobel Prize in Chemistry",
+        "translated": "جائزة نوبل في الكيمياء CRISPR/CAS9",
+        "back": "Nobel Prize in Chemistry CRISPR/CAS9"
+      },
+      {
+        "qid": "test_pt2_query_1962",
+        "en": "Elite surfers reaction to Nazare waves",
+        "translated": "رد فعل المتصفحين النخبة على موجات النازار",
+        "back": "The reaction of elite browsers to the Nazarene waves ."
+      },
+      {
+        "qid": "test_pt2_query_2095",
+        "en": "Website with suggested electric vehicle charging locations",
+        "translated": "الموقع الإلكتروني مع مواقع تشغيل المركبات الكهربائية المقترحة",
+        "back": "Website with proposed electric vehicle operating locations"
+      },
+      {
+        "qid": "test_pt2_query_2134",
+        "en": "Royal Army of Oman competition with light weaponry",
+        "translated": "الجيش الملكي عمان المنافسة مع الأسلحة الخفيفة",
+        "back": "The Royal Army of Oman is competing with light weapons."
+      },
+      {
+        "qid": "test_pt2_query_2147",
+        "en": "Covid vaccine supply South Korea",
+        "translated": "تزويد كوريا الجنوبية بتقديم لقاحات كوفيد",
+        "back": "Providing South Korea with covid vaccines ."
+      },
+      {
+        "qid": "test_pt2_query_220",
+        "en": "KT leader resignations lead to management vacuum",
+        "translated": "استقالة زعيم كيه تي تؤدي إلى فراغ إداري",
+        "back": "The resignation of a KT leader leads to a management vacuum."
+      },
+      {
+        "qid": "test_pt2_query_2227",
+        "en": "2021 sandstorm Mongolian drylands",
+        "translated": "عاصفة رملة 2021 مناطق جافة منغولية",
+        "back": "Sandstorm 2021 Mongolian dry areas"
+      },
+      {
+        "qid": "test_pt2_query_2230",
+        "en": "Daejang-dong bribery controversy",
+        "translated": "نزاع الرشوة في دايجانغ دونغ",
+        "back": "The bribery dispute in Daejang Dong"
+      },
+      {
+        "qid": "test_pt2_query_2256",
+        "en": "Chicago Public Schools police budget 2019 to 2020",
+        "translated": "ميزانية شرطة مدرسات شيكاغو العامة 2019 إلى 2020",
+        "back": "Chicago Public Schools Police Budget 2019 to 2020"
+      },
+      {
+        "qid": "test_pt2_query_2265",
+        "en": "Shopping mall affected by Kemerovo fire",
+        "translated": "مركز التسوق المتضرر من حريق كيميروفو",
+        "back": "The mall damaged by the Kimerovo fire."
+      },
+      {
+        "qid": "test_pt2_query_2368",
+        "en": "Columbia archery team tup competitors",
+        "translated": "فريق رماية القوس في كولومبيا منافسين",
+        "back": "The Colombian archers are competing."
+      },
+      {
+        "qid": "test_pt2_query_2407",
+        "en": "Starbucks shift supervisor involvement in strikes",
+        "translated": "مشاركة المشرفين بدورات العمل في ستاربكس في الإضرابات",
+        "back": "Participation of Starbucks supervisors in strikes"
+      },
+      {
+        "qid": "test_pt2_query_2427",
+        "en": "President Yoon's Memorial Day comments on national defense",
+        "translated": "تعليقات يوم ذكرى الرئيس يون عن الدفاع الوطني",
+        "back": "President Yoon's remarks on national defense"
+      },
+      {
+        "qid": "test_pt2_query_243",
+        "en": "Jung Ryeo Won MeToo speech Korea Women's Human Rights Agency",
+        "translated": "جونغ ريو فازت بخطاب \"ميتو\" وكالة حقوق الإنسان للمرأة في كوريا",
+        "back": "Jung-ryu won the speech of Mito, the women's human rights agency in Korea."
+      },
+      {
+        "qid": "test_pt2_query_2463",
+        "en": "Russian writer speech advocating for political prisoners' rights",
+        "translated": "خطاب كاتب روسي دافع عن حقوق السجناء السياسيين",
+        "back": "A speech by a Russian writer defending the rights of political prisoners"
+      },
+      {
+        "qid": "test_pt2_query_248",
+        "en": "Scientists in Chicago study increasing shelf-life in produce",
+        "translated": "علماء في شيكاغو يدرسون زيادة عمر الرف في المنتجات",
+        "back": "Scientists in Chicago are studying increasing shelf life in products."
+      },
+      {
+        "qid": "test_pt2_query_2518",
+        "en": "2017 Ulaanbaatar Naadam festival",
+        "translated": "مهرجان أولان باتار نادام 2017",
+        "back": "The Olan Patar Nadam Festival 2017"
+      },
+      {
+        "qid": "test_pt2_query_2531",
+        "en": "Government clinics requesting more space to house patients",
+        "translated": "العيادات الحكومية تطلب مساحة أكبر لضمان المرضى",
+        "back": "Government clinics require more room to secure patients."
+      },
+      {
+        "qid": "test_pt2_query_356",
+        "en": "Busan cold wave 2016",
+        "translated": "موجة البرد في بوسان 2016",
+        "back": "A cold wave in Busan 2016"
+      },
+      {
+        "qid": "test_pt2_query_366",
+        "en": "Military assistance Typhoon Lekima",
+        "translated": "مساعدات عسكرية إعصار \"ليكيما\"",
+        "back": "Military aid for Hurricane Lekema."
+      },
+      {
+        "qid": "test_pt2_query_445",
+        "en": "2023 protests against medicare costs China",
+        "translated": "احتجاجات 2023 ضد تكاليف الرعاية الطبية في الصين",
+        "back": "2023 protests against healthcare costs in China"
+      },
+      {
+        "qid": "test_pt2_query_541",
+        "en": "Afisha Picnic 2019 usb connectors",
+        "translated": "أجهزة اتصال USB Afisha Picnic 2019",
+        "back": "USB connectors Afisha Picnic 2019"
+      },
+      {
+        "qid": "test_pt2_query_556",
+        "en": "2019 Taiwanese military promotion ceremony",
+        "translated": "2019 حفل ترقية عسكرية تايوانية",
+        "back": "2019 Taiwanese military promotion ceremony"
+      },
+      {
+        "qid": "test_pt2_query_619",
+        "en": "Riyadh Season 2021",
+        "translated": "الرياض موسم 2021",
+        "back": "Riyadh season 2021"
+      },
+      {
+        "qid": "test_pt2_query_632",
+        "en": "Donald Trump accepting Republican presidential nomination",
+        "translated": "دونالد ترامب يقبل الترشيح الرئاسي الجمهوري",
+        "back": "Donald Trump is accepting the Republican presidential nomination."
+      },
+      {
+        "qid": "test_pt2_query_653",
+        "en": "Iron Mountain and Sky Canyon street racing",
+        "translated": "سباقات الشوارع في جبل الحديد و سكاي كانيون",
+        "back": "Street races at Iron Mountain and Sky Canyon ."
+      },
+      {
+        "qid": "test_pt2_query_672",
+        "en": "Subway ceiling collapse due to flooding South Korea",
+        "translated": "انهيار سقف مترو الأنفاق بسبب الفيضانات في كوريا الجنوبية",
+        "back": "Subway roof collapses due to flooding in South Korea"
+      },
+      {
+        "qid": "test_pt2_query_768",
+        "en": "Department of Industrial and Commercial Resources stance on TPP",
+        "translated": "موقف إدارة الموارد الصناعية والتجارية بشأن النقل التجاري",
+        "back": "Position of the Department of Industrial and Commercial Resources on commercial transport"
+      },
+      {
+        "qid": "test_pt2_query_824",
+        "en": "Jennifer A. Doudna Nobel Prize",
+        "translated": "جائزة نوبل جنيفر إيه دودنا",
+        "back": "The Nobel Prize was awarded to Jennifer A. Doddana."
+      },
+      {
+        "qid": "test_pt2_query_900",
+        "en": "Firefighters responde to Lusail Stadium emergency",
+        "translated": "رجال الإطفاء يستجيبون للحالة الطارئة في ملعب \" لوسايل \"",
+        "back": "Firefighters responding to an emergency at Lucille Stadium ."
+      }
+    ]
+  }
+}

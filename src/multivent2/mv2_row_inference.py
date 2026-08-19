@@ -70,6 +70,9 @@ def main():
     ap.add_argument("--delta", type=float, default=0.005,
                     help="smallest effect of practical interest for the equivalence statement")
     ap.add_argument("--out", default=os.path.join(ABL, "mv2_row_inference.json"))
+    ap.add_argument("--no-external-learned", action="store_true",
+                    help="skip learned rows whose decisions live in full-set artifacts; use for "
+                         "subset tables, where only natively computed rows are comparable")
     a = ap.parse_args()
 
     table = json.load(open(os.path.join(ABL, a.table)))
@@ -135,20 +138,21 @@ def main():
             fam_pvals["learned"].append(p)
             fam_keys["learned"].append((label, name))
 
-        for name, fn2, getter in LEARNED:
-            p2 = os.path.join(ABL, fn2)
-            if not os.path.exists(p2):
-                continue
-            d2 = json.load(open(p2))
-            k2 = SNAKE[label]
-            if k2 not in d2:
-                continue
-            learned_row(name, getter(d2, k2), LEARNED_QIDS[name](d2, k2))
-        p_cl = os.path.join(ABL, "mv2_clarity_surrogate_grouped.json")
-        if os.path.exists(p_cl):
-            d2 = json.load(open(p_cl))
-            if label in d2:
-                learned_row("clarity_surrogate", d2[label]["decisions"], d2[label]["qids"])
+        if not a.no_external_learned:
+            for name, fn2, getter in LEARNED:
+                p2 = os.path.join(ABL, fn2)
+                if not os.path.exists(p2):
+                    continue
+                d2 = json.load(open(p2))
+                k2 = SNAKE[label]
+                if k2 not in d2:
+                    continue
+                learned_row(name, getter(d2, k2), LEARNED_QIDS[name](d2, k2))
+            p_cl = os.path.join(ABL, "mv2_clarity_surrogate_grouped.json")
+            if os.path.exists(p_cl):
+                d2 = json.load(open(p_cl))
+                if label in d2:
+                    learned_row("clarity_surrogate", d2[label]["decisions"], d2[label]["qids"])
         if "ours" in table[label].get("decisions", {}):
             learned_row("ours_ridge", table[label]["decisions"]["ours"], qids)
 
