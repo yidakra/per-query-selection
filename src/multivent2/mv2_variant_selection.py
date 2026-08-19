@@ -74,6 +74,15 @@ def rrf(a, b, k=60):
             for d in set(ra) | set(rb)}
 
 
+def rrf_multi(runs, k=60):
+    """Reciprocal-rank fusion over any number of ranked lists."""
+    out = {}
+    for r in runs:
+        for i, d in enumerate(sorted(r, key=r.get, reverse=True)):
+            out[d] = out.get(d, 0.0) + 1.0 / (k + i + 1)
+    return out
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--variants", default=os.path.join(DATA, "query_variants.jsonl"))
@@ -108,6 +117,13 @@ def main():
                 m, s = lab.rsplit("#", 1)
                 texts.append(pool[(q, m, int(s))])
             owners.append((q, lab))
+    # the concatenate-everything baseline: all expansions in one query, retrieved once. It is the
+    # alternative to selecting, so it stays out of the predictors' candidate pool. The encoder
+    # truncates at its max sequence length, which is part of what concatenation costs.
+    for q in complete:
+        joined = " ".join([queries[q]] + [pool[(q, m, 0)] for m in METHODS])
+        texts.append(joined)
+        owners.append((q, "concat_all"))
 
     print(f"scoring {len(texts)} candidates on the dense speech channel", flush=True)
     asr_runs = encode_and_search(texts, os.path.join(_ROOT, "runs", "embcache", "asr_bge-m3.npz"),
@@ -157,6 +173,17 @@ def main():
         rc = {(q, lab): qual[f"{q}##{lab}"]["R@100"] for (q, lab) in owners}
 
         res["baselines"]["original"] = float(np.mean([nd[(q, "original")] for q in complete]))
+        res["baselines"]["concat_all"] = float(np.mean([nd[(q, "concat_all")] for q in complete]))
+
+        # fuse-everything baseline: RRF over all candidates' result lists, immune to any encoder
+        # length limit; the rank-fusion version of "use every subquery at once"
+        idx = {ow: i for i, ow in enumerate(owners)}
+        run_src = asr_runs if pipe == "asr_dense" else fused
+        fused_all = {q: rrf_multi([run_src[idx[(q, lab)]] for lab in labels]) for q in complete}
+        fq = {f"{q}##x": fused_all[q] for q in complete}
+        fqr = {f"{q}##x": qrels[q] for q in complete}
+        vals = {m.query_id: m.value for m in ir_measures.iter_calc([nDCG @ 10], fqr, fq)}
+        res["baselines"]["fuse_all"] = float(np.mean([vals[f"{q}##x"] for q in complete]))
         per_method = {m: float(np.mean([nd[(q, f"{m}#{s}")] for q in complete
                                         for s in range(a.samples)])) for m in METHODS}
         best_m = max(per_method, key=per_method.get)
@@ -184,6 +211,7 @@ def main():
         out["pipelines"][pipe] = res
         best = max(res["predictors"].items(), key=lambda kv: kv[1]["selected_ndcg10"])
         print(f"[{pipe}] original {res['baselines']['original']:.4f}  "
+              f"concat-all {res['baselines']['concat_all']:.4f}  "
               f"best-method {per_method[best_m]:.4f} ({best_m})  "
               f"oracle {res['baselines']['oracle']:.4f}  "
               f"best predictor {best[0]} {best[1]['selected_ndcg10']:.4f}", flush=True)

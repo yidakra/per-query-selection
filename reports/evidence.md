@@ -225,7 +225,20 @@ and +0.03, no ordering signal). The score family does it 7 of 10 times (best NQC
 τ +0.24). The per-query headroom is real: the oracle over seven candidates reaches 0.4079 against
 the original's 0.3133, and no reformulation method beats the original on average (best, Query2Doc,
 −0.003), so variant value on this benchmark is entirely per-query spread, the same structure as the
-channel result. Two scope notes stated in advance of any claim: this is the retrieval axis
+channel result. The two use-everything baselines, added at supervision's request, complete the
+policy table (`mv2_variant_selection_s1.md`): concatenating all six expansions into one query loses
+−0.031 against the original (median 1,908 tokens, untruncated through the encoder's 8,192 limit),
+and fusing all seven candidates' result lists with RRF ties it at +0.002. Selection is the only
+policy that gains, which is "selection replaces fusion" appearing on the query axis.
+
+**Task A (added 2026-08-18): the channel null is formulation-invariant.** The symmetric nested
+protocol on the speech-vs-OCR cell, run separately for the original and each of the six method
+pools (`mv2_variant_task_a.py`, `run_task_a.sh`, artifacts `mv2_qpp_table_va_*.*`,
+`mv2_row_inference_va_*.json`): the corpus-statistic family is 0 of 11 significant in all seven
+formulations, 77 tests without a pass, most rows formally equivalent to doing nothing. The k-way
+{speech, OCR, both} ridge stays significant in every formulation (+1.2 to +1.9 nDCG on this
+two-channel cell, group sign-flip p ≤ 0.005). Pre-registered reading 3, the null branch: the
+formulation confound is closed. Two scope notes stated in advance of any claim: this is the retrieval axis
 (nDCG@10), and the source study's own tables also put post above pre on retrieval metrics; their
 pre-retrieval advantage lives on the generation axis (nugget quality), which we test next with the
 existing nugget pipeline. Generator is 7B open-weights rather than GPT-4o, pinned in the committed
@@ -256,7 +269,18 @@ significant, 23 of 33 equivalent to doing nothing (`mv2_qpp_table_supcap_sym_gro
 document side, gives 0 of 11 in all eight cells, 0 of 88 total, identical to the old-caption result
 (`mv2_msrvtt_source_replication_supcap.*`, new `--index-captions` flag). Better captions do not
 rescue corpus statistics on either collection; the caption-quality explanation is closed in both
-directions the supervision meeting asked about.
+directions the supervision meeting asked about. Two follow-ups from the 2026-08-18 sync, both run
+the same day. The union index, everything the video says about itself in one document per video
+(caption plus transcript plus on-screen text, 109,681 documents), is the strongest document side
+this family can be handed: 0 of 33 significant, 24 of 33 equivalent
+(`mv2_qpp_table_supcap_plus.*`, `mv2_row_inference_supcap_plus.json`). And a six-point audit of the
+caption pipeline found no bug behind the zero: no empty captions (median 3,518 characters, 35.8M
+tokens indexed), ids topically aligned with the transcripts on judged documents, 97.6% judged
+coverage, and the caption index demonstrably changed the features (9% of escalation decisions
+flipped against the ASR-index run). Two footnotes rather than bugs: 10.8% of captions end
+mid-sentence at the captioner's 2,048-token generation cap, and about 42% carry a boilerplate
+preamble, uniform noise in both cases. A 30B-captioner rerun waits on supervision, who may already
+have those captions generated.
 
 **The English-subset control (added 2026-08-14).** The subset version of the same objection: restrict
 the judgment to the 448 queries whose relevant videos are all English (115 event groups), where query

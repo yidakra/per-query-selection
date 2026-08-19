@@ -1,0 +1,309 @@
+{
+  "table": "mv2_qpp_table_va_mugi.json",
+  "delta": 0.005,
+  "rows": [
+    {
+      "cell": "ASRvOCR-mugi",
+      "family": "pre",
+      "predictor": "IDF_avg",
+      "mean_diff": -0.0028782113776586985,
+      "p_signflip_group": 0.9770114942528736,
+      "ci95": [
+        -0.005971780476803274,
+        -0.00015336142857659308
+      ],
+      "within_delta": false,
+      "p_holm": 1.0
+    },
+    {
+      "cell": "ASRvOCR-mugi",
+      "family": "pre",
+      "predictor": "IDF_max",
+      "mean_diff": 0.0,
+      "p_signflip_group": 1.0,
+      "ci95": [
+        0.0,
+        0.0
+      ],
+      "within_delta": true,
+      "p_holm": 1.0
+    },
+    {
+      "cell": "ASRvOCR-mugi",
+      "family": "pre",
+      "predictor": "IDF_sum",
+      "mean_diff": -0.0030691701198461473,
+      "p_signflip_group": 0.9985007496251874,
+      "ci95": [
+        -0.00519591175441029,
+        -0.0010623917680652687
+      ],
+      "within_delta": false,
+      "p_holm": 1.0
+    },
+    {
+      "cell": "ASRvOCR-mugi",
+      "family": "pre",
+      "predictor": "IDF_std",
+      "mean_diff": 0.0,
+      "p_signflip_group": 1.0,
+      "ci95": [
+        0.0,
+        0.0
+      ],
+      "within_delta": true,
+      "p_holm": 1.0
+    },
+    {
+      "cell": "ASRvOCR-mugi",
+      "family": "pre",
+      "predictor": "SCQ_avg",
+      "mean_diff": -0.0016440262820459721,
+      "p_signflip_group": 0.9740129935032483,
+      "ci95": [
+        -0.0038037932249982637,
+        1.86162948329316e-05
+      ],
+      "within_delta": true,
+      "p_holm": 1.0
+    },
+    {
+      "cell": "ASRvOCR-mugi",
+      "family": "pre",
+      "predictor": "SCQ_max",
+      "mean_diff": -0.0003169007945867965,
+      "p_signflip_group": 1.0,
+      "ci95": [
+        -0.0007734978239467105,
+        0.0
+      ],
+      "within_delta": true,
+      "p_holm": 1.0
+    },
+    {
+      "cell": "ASRvOCR-mugi",
+      "family": "pre",
+      "predictor": "SCQ_sum",
+      "mean_diff": -0.0012344580771039139,
+      "p_signflip_group": 0.9620189905047476,
+      "ci95": [
+        -0.0026571368073169768,
+        4.571410227166945e-06
+      ],
+      "within_delta": true,
+      "p_holm": 1.0
+    },
+    {
+      "cell": "ASRvOCR-mugi",
+      "family": "pre",
+      "predictor": "avgICTF",
+      "mean_diff": -0.0019070821892533047,
+      "p_signflip_group": 0.9365317341329336,
+      "ci95": [
+        -0.004552178492968212,
+        0.0004706242987654768
+      ],
+      "within_delta": true,
+      "p_holm": 1.0
+    },
+    {
+      "cell": "ASRvOCR-mugi",
+      "family": "pre",
+      "predictor": "SCS_1",
+      "mean_diff": 0.0,
+      "p_signflip_group": 1.0,
+      "ci95": [
+        0.0,
+        0.0
+      ],
+      "within_delta": true,
+      "p_holm": 1.0
+    },
+    {
+      "cell": "ASRvOCR-mugi",
+      "family": "pre",
+      "predictor": "SCS_2",
+      "mean_diff": -0.001799153391218888,
+      "p_signflip_group": 0.9100449775112444,
+      "ci95": [
+        -0.004388933639897425,
+        0.0007328174654797475
+      ],
+      "within_delta": true,
+      "p_holm": 1.0
+    },
+    {
+      "cell": "ASRvOCR-mugi",
+      "family": "pre",
+      "predictor": "QL",
+      "mean_diff": -0.0012990689250118633,
+      "p_signflip_group": 0.9205397301349325,
+      "ci95": [
+        -0.0031718880316664072,
+        0.00019519664323644026
+      ],
+      "within_delta": true,
+      "p_holm": 1.0
+    },
+    {
+      "cell": "ASRvOCR-mugi",
+      "family": "post",
+      "predictor": "WIG_norm",
+      "mean_diff": 0.0,
+      "p_signflip_group": 1.0,
+      "ci95": [
+        0.0,
+        0.0
+      ],
+      "within_delta": true,
+      "p_holm": 1.0
+    },
+    {
+      "cell": "ASRvOCR-mugi",
+      "family": "post",
+      "predictor": "WIG",
+      "mean_diff": -0.0033030016282304467,
+      "p_signflip_group": 0.9980009995002499,
+      "ci95": [
+        -0.006678942610151034,
+        -0.0007647401007265456
+      ],
+      "within_delta": false,
+      "p_holm": 1.0
+    },
+    {
+      "cell": "ASRvOCR-mugi",
+      "family": "post",
+      "predictor": "NQC_norm",
+      "mean_diff": -0.0004937978290210852,
+      "p_signflip_group": 0.6081959020489756,
+      "ci95": [
+        -0.0035961313195437754,
+        0.0029823256895644885
+      ],
+      "within_delta": true,
+      "p_holm": 1.0
+    },
+    {
+      "cell": "ASRvOCR-mugi",
+      "family": "post",
+      "predictor": "NQC",
+      "mean_diff": 0.00025237865732960436,
+      "p_signflip_group": 0.45377311344327836,
+      "ci95": [
+        -0.003704641666194047,
+        0.004758145451212101
+      ],
+      "within_delta": true,
+      "p_holm": 1.0
+    },
+    {
+      "cell": "ASRvOCR-mugi",
+      "family": "post",
+      "predictor": "SMV_norm",
+      "mean_diff": -0.0010363297316341607,
+      "p_signflip_group": 0.7116441779110445,
+      "ci95": [
+        -0.0037621214044033604,
+        0.0020609920077395345
+      ],
+      "within_delta": true,
+      "p_holm": 1.0
+    },
+    {
+      "cell": "ASRvOCR-mugi",
+      "family": "post",
+      "predictor": "SMV",
+      "mean_diff": 0.0012039051974265247,
+      "p_signflip_group": 0.19440279860069964,
+      "ci95": [
+        -0.0011864899184692815,
+        0.004090125247299053
+      ],
+      "within_delta": true,
+      "p_holm": 1.0
+    },
+    {
+      "cell": "ASRvOCR-mugi",
+      "family": "post",
+      "predictor": "RSD",
+      "mean_diff": -0.000861769126254738,
+      "p_signflip_group": 0.7391304347826086,
+      "ci95": [
+        -0.0033125819390595803,
+        0.001426165866024311
+      ],
+      "within_delta": true,
+      "p_holm": 1.0
+    },
+    {
+      "cell": "ASRvOCR-mugi",
+      "family": "post",
+      "predictor": "sigma_max",
+      "mean_diff": -0.0027567953943063938,
+      "p_signflip_group": 0.7901049475262368,
+      "ci95": [
+        -0.00858873347170186,
+        0.003400802572834611
+      ],
+      "within_delta": false,
+      "p_holm": 1.0
+    },
+    {
+      "cell": "ASRvOCR-mugi",
+      "family": "post",
+      "predictor": "sigma_x0.5",
+      "mean_diff": -0.0018369964940959382,
+      "p_signflip_group": 0.9560219890054973,
+      "ci95": [
+        -0.003980855419182723,
+        0.0002698361252245183
+      ],
+      "within_delta": true,
+      "p_holm": 1.0
+    },
+    {
+      "cell": "ASRvOCR-mugi",
+      "family": "post",
+      "predictor": "max",
+      "mean_diff": -5.0277542775622455e-05,
+      "p_signflip_group": 0.5037481259370314,
+      "ci95": [
+        -0.0031920392817245792,
+        0.0033204219345962568
+      ],
+      "within_delta": true,
+      "p_holm": 1.0
+    },
+    {
+      "cell": "ASRvOCR-mugi",
+      "family": "learned",
+      "predictor": "ours_ridge",
+      "mean_diff": -0.0002145166308993874,
+      "p_signflip_group": 0.5337331334332833,
+      "ci95": [
+        -0.0032824289573818682,
+        0.003211313760733014
+      ],
+      "within_delta": true,
+      "p_holm": 0.5337331334332833
+    }
+  ],
+  "summary": {
+    "pre": {
+      "significant_holm": 0,
+      "equivalent": 9,
+      "of": 11
+    },
+    "post": {
+      "significant_holm": 0,
+      "equivalent": 8,
+      "of": 10
+    },
+    "learned": {
+      "significant_holm": 0,
+      "equivalent": 1,
+      "of": 1
+    }
+  }
+}

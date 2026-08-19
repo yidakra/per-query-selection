@@ -1,0 +1,90 @@
+{
+  "sample": 0,
+  "n_queries": 2546,
+  "formulations": {
+    "original": {
+      "asr": 0.3133156763273221,
+      "ocr": 0.1329536628415092,
+      "both": 0.2141696502312802,
+      "kway_fixed": 0.3133156763273221,
+      "kway_routed": 0.326358915617306,
+      "kway_gap": 1.304323928998391,
+      "kway_p_group_signflip": 0.0004997501249375312,
+      "cell": "/home/ubuntu/adaptive-q2e/results/ablations/mv2_cell_asr_v_ocr_original.json",
+      "queries_csv": "/home/ubuntu/adaptive-q2e/data/multivent2/variant_queries_original.csv",
+      "score_run": "/home/ubuntu/adaptive-q2e/data/multivent2/asr_dense_bge-m3_var_original.json"
+    },
+    "genqr": {
+      "asr": 0.2553709324993625,
+      "ocr": 0.14595375993012039,
+      "both": 0.1638984951959184,
+      "kway_fixed": 0.2553709324993625,
+      "kway_routed": 0.27076522533848674,
+      "kway_gap": 1.5394292839124246,
+      "kway_p_group_signflip": 0.0009995002498750624,
+      "cell": "/home/ubuntu/adaptive-q2e/results/ablations/mv2_cell_asr_v_ocr_genqr.json",
+      "queries_csv": "/home/ubuntu/adaptive-q2e/data/multivent2/variant_queries_genqr.csv",
+      "score_run": "/home/ubuntu/adaptive-q2e/data/multivent2/asr_dense_bge-m3_var_genqr.json"
+    },
+    "genqr_ensemble": {
+      "asr": 0.25305184911426565,
+      "ocr": 0.14300750675050727,
+      "both": 0.15111154862358406,
+      "kway_fixed": 0.25305184911426565,
+      "kway_routed": 0.26765489359322303,
+      "kway_gap": 1.4603044478957383,
+      "kway_p_group_signflip": 0.0004997501249375312,
+      "cell": "/home/ubuntu/adaptive-q2e/results/ablations/mv2_cell_asr_v_ocr_genqr_ensemble.json",
+      "queries_csv": "/home/ubuntu/adaptive-q2e/data/multivent2/variant_queries_genqr_ensemble.csv",
+      "score_run": "/home/ubuntu/adaptive-q2e/data/multivent2/asr_dense_bge-m3_var_genqr_ensemble.json"
+    },
+    "mugi": {
+      "asr": 0.30644362137085324,
+      "ocr": 0.15611312872905733,
+      "both": 0.15709539283639393,
+      "kway_fixed": 0.30644362137085324,
+      "kway_routed": 0.3184144892545686,
+      "kway_gap": 1.1970867883715375,
+      "kway_p_group_signflip": 0.004997501249375313,
+      "cell": "/home/ubuntu/adaptive-q2e/results/ablations/mv2_cell_asr_v_ocr_mugi.json",
+      "queries_csv": "/home/ubuntu/adaptive-q2e/data/multivent2/variant_queries_mugi.csv",
+      "score_run": "/home/ubuntu/adaptive-q2e/data/multivent2/asr_dense_bge-m3_var_mugi.json"
+    },
+    "qa_expand": {
+      "asr": 0.2948968404006319,
+      "ocr": 0.1501899260038882,
+      "both": 0.15867638943877357,
+      "kway_fixed": 0.2948968404006319,
+      "kway_routed": 0.3136187166728455,
+      "kway_gap": 1.8721876272213611,
+      "kway_p_group_signflip": 0.0004997501249375312,
+      "cell": "/home/ubuntu/adaptive-q2e/results/ablations/mv2_cell_asr_v_ocr_qa_expand.json",
+      "queries_csv": "/home/ubuntu/adaptive-q2e/data/multivent2/variant_queries_qa_expand.csv",
+      "score_run": "/home/ubuntu/adaptive-q2e/data/multivent2/asr_dense_bge-m3_var_qa_expand.json"
+    },
+    "query2doc": {
+      "asr": 0.31060385715136435,
+      "ocr": 0.1580508121057274,
+      "both": 0.159922375934896,
+      "kway_fixed": 0.31060385715136435,
+      "kway_routed": 0.3236122329955178,
+      "kway_gap": 1.300837584415343,
+      "kway_p_group_signflip": 0.0009995002498750624,
+      "cell": "/home/ubuntu/adaptive-q2e/results/ablations/mv2_cell_asr_v_ocr_query2doc.json",
+      "queries_csv": "/home/ubuntu/adaptive-q2e/data/multivent2/variant_queries_query2doc.csv",
+      "score_run": "/home/ubuntu/adaptive-q2e/data/multivent2/asr_dense_bge-m3_var_query2doc.json"
+    },
+    "query2e": {
+      "asr": 0.2609526728240449,
+      "ocr": 0.1426667809446417,
+      "both": 0.15853610128381382,
+      "kway_fixed": 0.2609526728240449,
+      "kway_routed": 0.27847475535052724,
+      "kway_gap": 1.7522082526482352,
+      "kway_p_group_signflip": 0.0009995002498750624,
+      "cell": "/home/ubuntu/adaptive-q2e/results/ablations/mv2_cell_asr_v_ocr_query2e.json",
+      "queries_csv": "/home/ubuntu/adaptive-q2e/data/multivent2/variant_queries_query2e.csv",
+      "score_run": "/home/ubuntu/adaptive-q2e/data/multivent2/asr_dense_bge-m3_var_query2e.json"
+    }
+  }
+}

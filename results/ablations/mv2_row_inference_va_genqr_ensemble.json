@@ -1,0 +1,309 @@
+{
+  "table": "mv2_qpp_table_va_genqr_ensemble.json",
+  "delta": 0.005,
+  "rows": [
+    {
+      "cell": "ASRvOCR-genqr_ensemble",
+      "family": "pre",
+      "predictor": "IDF_avg",
+      "mean_diff": -0.0005732544359801942,
+      "p_signflip_group": 0.8715642178910544,
+      "ci95": [
+        -0.001570417228010009,
+        0.00010972043739511499
+      ],
+      "within_delta": true,
+      "p_holm": 1.0
+    },
+    {
+      "cell": "ASRvOCR-genqr_ensemble",
+      "family": "pre",
+      "predictor": "IDF_max",
+      "mean_diff": 0.0,
+      "p_signflip_group": 1.0,
+      "ci95": [
+        0.0,
+        0.0
+      ],
+      "within_delta": true,
+      "p_holm": 1.0
+    },
+    {
+      "cell": "ASRvOCR-genqr_ensemble",
+      "family": "pre",
+      "predictor": "IDF_sum",
+      "mean_diff": -0.005103030519258119,
+      "p_signflip_group": 0.9955022488755623,
+      "ci95": [
+        -0.008851488967963799,
+        -0.0016589220223572868
+      ],
+      "within_delta": false,
+      "p_holm": 1.0
+    },
+    {
+      "cell": "ASRvOCR-genqr_ensemble",
+      "family": "pre",
+      "predictor": "IDF_std",
+      "mean_diff": -0.000241058433426487,
+      "p_signflip_group": 0.6211894052973513,
+      "ci95": [
+        -0.0018253619046747717,
+        0.0013353471248295197
+      ],
+      "within_delta": true,
+      "p_holm": 1.0
+    },
+    {
+      "cell": "ASRvOCR-genqr_ensemble",
+      "family": "pre",
+      "predictor": "SCQ_avg",
+      "mean_diff": 0.0,
+      "p_signflip_group": 1.0,
+      "ci95": [
+        0.0,
+        0.0
+      ],
+      "within_delta": true,
+      "p_holm": 1.0
+    },
+    {
+      "cell": "ASRvOCR-genqr_ensemble",
+      "family": "pre",
+      "predictor": "SCQ_max",
+      "mean_diff": 0.0,
+      "p_signflip_group": 1.0,
+      "ci95": [
+        0.0,
+        0.0
+      ],
+      "within_delta": true,
+      "p_holm": 1.0
+    },
+    {
+      "cell": "ASRvOCR-genqr_ensemble",
+      "family": "pre",
+      "predictor": "SCQ_sum",
+      "mean_diff": -0.012065659216900611,
+      "p_signflip_group": 1.0,
+      "ci95": [
+        -0.018225604084386584,
+        -0.006281359207027193
+      ],
+      "within_delta": false,
+      "p_holm": 1.0
+    },
+    {
+      "cell": "ASRvOCR-genqr_ensemble",
+      "family": "pre",
+      "predictor": "avgICTF",
+      "mean_diff": -0.0028527483521404045,
+      "p_signflip_group": 0.9960019990004998,
+      "ci95": [
+        -0.005730177513823968,
+        -0.0007265785434488338
+      ],
+      "within_delta": false,
+      "p_holm": 1.0
+    },
+    {
+      "cell": "ASRvOCR-genqr_ensemble",
+      "family": "pre",
+      "predictor": "SCS_1",
+      "mean_diff": -0.00043228259852104363,
+      "p_signflip_group": 0.7856071964017991,
+      "ci95": [
+        -0.0014863346434544884,
+        0.00021467285741864325
+      ],
+      "within_delta": true,
+      "p_holm": 1.0
+    },
+    {
+      "cell": "ASRvOCR-genqr_ensemble",
+      "family": "pre",
+      "predictor": "SCS_2",
+      "mean_diff": -0.0054872314951810485,
+      "p_signflip_group": 0.9945027486256871,
+      "ci95": [
+        -0.010032073737073011,
+        -0.001427002364567376
+      ],
+      "within_delta": false,
+      "p_holm": 1.0
+    },
+    {
+      "cell": "ASRvOCR-genqr_ensemble",
+      "family": "pre",
+      "predictor": "QL",
+      "mean_diff": -0.00899787521401985,
+      "p_signflip_group": 0.999000499750125,
+      "ci95": [
+        -0.015091616633581571,
+        -0.0032354858787859582
+      ],
+      "within_delta": false,
+      "p_holm": 1.0
+    },
+    {
+      "cell": "ASRvOCR-genqr_ensemble",
+      "family": "post",
+      "predictor": "WIG_norm",
+      "mean_diff": -0.00030544985312720273,
+      "p_signflip_group": 0.5527236381809095,
+      "ci95": [
+        -0.0041055743068339826,
+        0.003785338847040013
+      ],
+      "within_delta": true,
+      "p_holm": 1.0
+    },
+    {
+      "cell": "ASRvOCR-genqr_ensemble",
+      "family": "post",
+      "predictor": "WIG",
+      "mean_diff": -0.011804929513742332,
+      "p_signflip_group": 1.0,
+      "ci95": [
+        -0.01817939410584685,
+        -0.0052159264386999445
+      ],
+      "within_delta": false,
+      "p_holm": 1.0
+    },
+    {
+      "cell": "ASRvOCR-genqr_ensemble",
+      "family": "post",
+      "predictor": "NQC_norm",
+      "mean_diff": 0.0028387463028682223,
+      "p_signflip_group": 0.06446776611694154,
+      "ci95": [
+        -0.0007542442699885628,
+        0.006826715205979225
+      ],
+      "within_delta": false,
+      "p_holm": 0.6446776611694154
+    },
+    {
+      "cell": "ASRvOCR-genqr_ensemble",
+      "family": "post",
+      "predictor": "NQC",
+      "mean_diff": -0.001486378236516568,
+      "p_signflip_group": 0.6946526736631684,
+      "ci95": [
+        -0.00705386659405716,
+        0.0039144712244357895
+      ],
+      "within_delta": false,
+      "p_holm": 1.0
+    },
+    {
+      "cell": "ASRvOCR-genqr_ensemble",
+      "family": "post",
+      "predictor": "SMV_norm",
+      "mean_diff": -0.00199630210204201,
+      "p_signflip_group": 0.8085957021489255,
+      "ci95": [
+        -0.006765058473644909,
+        0.0028395646900506214
+      ],
+      "within_delta": false,
+      "p_holm": 1.0
+    },
+    {
+      "cell": "ASRvOCR-genqr_ensemble",
+      "family": "post",
+      "predictor": "SMV",
+      "mean_diff": -0.002064751070675059,
+      "p_signflip_group": 0.8130934532733634,
+      "ci95": [
+        -0.006687744778514419,
+        0.0028026154049589093
+      ],
+      "within_delta": false,
+      "p_holm": 1.0
+    },
+    {
+      "cell": "ASRvOCR-genqr_ensemble",
+      "family": "post",
+      "predictor": "RSD",
+      "mean_diff": -0.005620970641198611,
+      "p_signflip_group": 0.9435282358820589,
+      "ci95": [
+        -0.012741953662293951,
+        0.0010657640510423063
+      ],
+      "within_delta": false,
+      "p_holm": 1.0
+    },
+    {
+      "cell": "ASRvOCR-genqr_ensemble",
+      "family": "post",
+      "predictor": "sigma_max",
+      "mean_diff": 1.462923395965151e-05,
+      "p_signflip_group": 0.48825587206396803,
+      "ci95": [
+        -0.005068938677826666,
+        0.005534547211394231
+      ],
+      "within_delta": false,
+      "p_holm": 1.0
+    },
+    {
+      "cell": "ASRvOCR-genqr_ensemble",
+      "family": "post",
+      "predictor": "sigma_x0.5",
+      "mean_diff": 0.00029508771097208055,
+      "p_signflip_group": 0.4447776111944028,
+      "ci95": [
+        -0.0031800156169327484,
+        0.004397247375233643
+      ],
+      "within_delta": true,
+      "p_holm": 1.0
+    },
+    {
+      "cell": "ASRvOCR-genqr_ensemble",
+      "family": "post",
+      "predictor": "max",
+      "mean_diff": -0.003419883802493367,
+      "p_signflip_group": 0.8505747126436781,
+      "ci95": [
+        -0.009584934572146302,
+        0.0028481582659626316
+      ],
+      "within_delta": false,
+      "p_holm": 1.0
+    },
+    {
+      "cell": "ASRvOCR-genqr_ensemble",
+      "family": "learned",
+      "predictor": "ours_ridge",
+      "mean_diff": -0.0018113031579189288,
+      "p_signflip_group": 0.6486756621689156,
+      "ci95": [
+        -0.009267926940411524,
+        0.006531556959882361
+      ],
+      "within_delta": false,
+      "p_holm": 0.6486756621689156
+    }
+  ],
+  "summary": {
+    "pre": {
+      "significant_holm": 0,
+      "equivalent": 6,
+      "of": 11
+    },
+    "post": {
+      "significant_holm": 0,
+      "equivalent": 2,
+      "of": 10
+    },
+    "learned": {
+      "significant_holm": 0,
+      "equivalent": 0,
+      "of": 1
+    }
+  }
+}
