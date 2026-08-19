@@ -73,6 +73,9 @@ def main():
     ap.add_argument("--no-external-learned", action="store_true",
                     help="skip learned rows whose decisions live in full-set artifacts; use for "
                          "subset tables, where only natively computed rows are comparable")
+    ap.add_argument("--cell", action="append", default=[], metavar="LABEL=JSON",
+                    help="override the standard cells, mirroring mv2_qpp_table --cell; required "
+                         "when the table was built with custom cells")
     a = ap.parse_args()
 
     table = json.load(open(os.path.join(ABL, a.table)))
@@ -99,7 +102,10 @@ def main():
     out = {"table": a.table, "delta": a.delta, "rows": []}
     fam_pvals = {"pre": [], "post": [], "learned": []}
     fam_keys = {"pre": [], "post": [], "learned": []}
-    for label, fn in CELLS:
+    cells = CELLS
+    if a.cell:
+        cells = [spec.partition("=")[::2] for spec in a.cell]
+    for label, fn in cells:
         if label not in table:
             continue
         cell = json.load(open(os.path.join(ABL, fn)))
