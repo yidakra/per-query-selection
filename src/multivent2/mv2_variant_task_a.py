@@ -121,7 +121,7 @@ def main():
             fixed_j = int(np.argmax(Y[tr].mean(axis=0)))
             routed[te] = Y[te, sel]; fixed[te] = Y[te, fixed_j]
         gap = 100 * (routed.mean() - fixed.mean())
-        p = group_signflip_p(routed - fixed, grp)
+        p, _ = group_signflip_p(routed - fixed, grp)
 
         out["formulations"][f] = {
             "asr": float(nd["asr"].mean()), "ocr": float(nd["ocr"].mean()),
