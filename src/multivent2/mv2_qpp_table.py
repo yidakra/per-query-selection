@@ -132,6 +132,12 @@ def main():
                     help="JSONL text corpus used for the lexical pre-retrieval index")
     ap.add_argument("--query-list", default="",
                     help="file with one query id per line; restrict every cell to these queries")
+    ap.add_argument("--queries", default=None,
+                    help="override the query CSV (same Query_id,query format); the pre-retrieval "
+                         "features read this text, so variant experiments pass their variant CSV")
+    ap.add_argument("--score-run", default=None,
+                    help="run JSON whose scores feed the score-only features, replacing the shipped "
+                         "visual run; variant cells pass the cheap option's own run")
     ap.add_argument("--nested-calibration", action="store_true",
                     help="give every analytic predictor (and the Ours row) the identical nested "
                          "escalation-fraction choice the learned rows get, so the family comparison "
@@ -149,8 +155,9 @@ def main():
             if not sep or not label or not filename:
                 ap.error(f"invalid --cell {spec!r}; expected LABEL=JSON")
             cells.append((label, filename))
-    visual = load_run(os.path.join(DATA, "10pyscene_clip.json"))
-    queries = load_queries(os.path.join(DATA, "multivent_2_test_queries.csv"))
+    visual = load_run(a.score_run if a.score_run
+                      else os.path.join(DATA, "10pyscene_clip.json"))
+    queries = load_queries(a.queries or os.path.join(DATA, "multivent_2_test_queries.csv"))
 
     # lexical index over the ASR transcripts: the speech channel's documents are text, so
     # pre-retrieval QPP exists for it. Nothing equivalent exists for the visual channel.
