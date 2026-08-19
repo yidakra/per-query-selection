@@ -100,6 +100,19 @@ statistic can know, and a bare channel-availability feature recovers about a qua
 selection gap. But absence does not explain the family's failure, which is just as sharp where
 every channel exists.
 
+**Three named objections, tested.** Language mismatch: with the index rebuilt over
+English-translated transcripts the family is 0 of 33 again, and the same holds on the 448 queries
+whose relevant videos are all English. Caption quality: newly generated Qwen3.5-9B captions as the
+document-side index change nothing on either collection (0 of 33 here, 0 of 88 on MSR-VTT, where
+the caption is the entire document side). Query formulation: we generated query variants with the
+source study's own six reformulation methods and asked the predictors to pick among them. On the
+retrieval metric, term statistics select above the original query 0 of 11 times, while
+score-reading predictors do it 7 of 10, and the per-query oracle gains +9.5. The generation-metric
+version of that test is in progress. A related check: channel choice is not language-driven. Across
+queries asked in five languages, the best channel, the selection headroom, and the oracle's picks
+barely move. What does move is the query itself: asking in the video's own language beats English
+by 9 to 12 nDCG points on the speech channel, a per-query decision our framework could target next.
+
 **What we are not claiming.** Our channels are deliberately cheap; the boundary claim does not need
 competitive retrieval, and the channel-strengthening ladder is the check. We do not beat classical
 QPP at its own binary game: our ridge, NQC and calibrated BERT-QPP sit within a point of one
