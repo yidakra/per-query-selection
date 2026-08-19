@@ -23,7 +23,9 @@ the documents behind them, so to a query-side statistic every channel looks the 
 **Claim.** QPP-based selection has a boundary. Predictors built on corpus term statistics carry
 roughly ten times less usable signal for choosing an evidence source than predictors that read
 retrieval outcomes, and the pre-retrieval versus post-retrieval labels the field organises by do
-not mark this line.
+not mark this line. This is an effectiveness claim: per-query selection buys retrieval quality on
+the same channels. It saves no compute, and the costs we report later are deployment context, not
+the contribution.
 
 **The evidence, in brief.** Every predictor goes through the identical protocol: thresholds chosen
 on held-out training data only, folds grouped by event so near-duplicate queries cannot leak
@@ -97,6 +99,19 @@ mechanism is measurable: 10% of videos have no on-screen text at all, a fact no 
 statistic can know, and a bare channel-availability feature recovers about a quarter of the
 selection gap. But absence does not explain the family's failure, which is just as sharp where
 every channel exists.
+
+**Three named objections, tested.** Language mismatch: with the index rebuilt over
+English-translated transcripts the family is 0 of 33 again, and the same holds on the 448 queries
+whose relevant videos are all English. Caption quality: newly generated Qwen3.5-9B captions as the
+document-side index change nothing on either collection (0 of 33 here, 0 of 88 on MSR-VTT, where
+the caption is the entire document side). Query formulation: we generated query variants with the
+source study's own six reformulation methods and asked the predictors to pick among them. On the
+retrieval metric, term statistics select above the original query 0 of 11 times, while
+score-reading predictors do it 7 of 10, and the per-query oracle gains +9.5. The generation-metric
+version of that test is in progress. A related check: channel choice is not language-driven. Across
+queries asked in five languages, the best channel, the selection headroom, and the oracle's picks
+barely move. What does move is the query itself: asking in the video's own language beats English
+by 9 to 12 nDCG points on the speech channel, a per-query decision our framework could target next.
 
 **What we are not claiming.** Our channels are deliberately cheap; the boundary claim does not need
 competitive retrieval, and the channel-strengthening ladder is the check. We do not beat classical
