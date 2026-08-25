@@ -20,9 +20,10 @@ The difference is where the options differ. Rewrites are different query texts, 
 computed from the query can tell them apart. Evidence channels share one query and differ only in
 the documents behind them, so to a query-side statistic every channel looks the same. We no longer
 have to argue this from theory. We reran their task on our own collection, with their toolkit and
-their pool size, and both halves came out: term statistics picked rewrites that improved generated
-answers, exactly as they report, and still picked nothing when the options were evidence sources.
-Corpus statistics select queries, not sources, on one dataset under one protocol.
+their pool size, and both halves came out: term statistics picked rewrites that trend better on
+generated-answer quality, the direction they report, though not significantly at our sample size,
+and picked nothing when the options were evidence sources. Corpus statistics show query-selection
+signal and no source-selection signal, on one dataset under one protocol.
 
 **Claim.** QPP-based selection has a boundary. Predictors built on corpus term statistics carry
 roughly ten times less usable signal for choosing an evidence source than predictors that read
@@ -115,8 +116,10 @@ query 0 of 11 times while score-reading predictors do it 7 of 10. The channel-se
 holds separately inside every one of the seven formulation pools (77 tests, none pass). Fixed
 alternatives lose too: concatenating all expansions into one query costs 3.1 points and fusing all
 31 result lists costs 0.6. On the generation metric, where the source study's pre-retrieval result
-actually lives, their finding replicates here: the variants that term statistics pick worsen
-ranking yet improve nugget-scored answers, and beat both use-everything policies. Selecting
+actually lives, their pattern appears here: the variants that term statistics pick worsen ranking
+yet sit above the original on every nugget metric and above both use-everything policies. The
+paired tests keep it honest: that gain is directional, not significant, at 395 judged queries,
+while the per-query oracle's generation gain is significant on all four metrics. Selecting
 evidence channels still beats every one of these variant policies on both metrics. A related
 check: channel choice is not language-driven. Across
 queries asked in five languages, the best channel, the selection headroom, and the oracle's picks

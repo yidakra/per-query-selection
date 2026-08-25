@@ -238,16 +238,21 @@ corpus-statistic family selects above the original 0 of 11 (best QL −0.015), t
 dilutes what it tied at seven candidates), oracle +0.124
 (`mv2_variant_selection_full.*`). The generation axis, the last pre-registered test, run with the
 original qwen2.5-14b judge over the 395 judged gold-nugget queries
-(`rag/metrics_n400_all.json`): **the source study's claim replicates where they made it.** The
-QL-selected variants lose on nDCG (0.308 against the original's 0.331) and beat the original on
-every nugget metric (N_strict_all 0.282 against 0.260); the gain is not "any expansion helps
-generation," since the same picks beat both use-everything policies. The boundary claim's cleanest
-form follows, both halves on one collection: corpus statistics can select queries, measured on
-generation quality, and cannot select sources, on any axis in any of our tests. Channel routing
-still dominates every variant policy on both axes (nDCG 0.407, N_strict_vital 0.390); only the
-variant oracle exceeds it. Caveat held open: the pre-selector's generation gain is directional
-until it gets its own paired test; the shipped permutation block tests routed against each policy,
-not each policy against the original.
+(`rag/metrics_n400_all.json`): **the source study's pattern appears where they found it, as a
+trend that does not reach significance at this sample.** The QL-selected variants lose on nDCG
+(0.308 against the original's 0.331) and sit above the original on all four nugget metrics
+(N_strict_all 0.282 against 0.260), also above both use-everything policies, so the direction is
+not expansion volume. The paired tests (`mv2_variant_nugget_tests.py`,
+`rag/variant_vs_original_tests.json`, sign-flip, 10,000 samples) say the rest: no selector-vs-
+original comparison survives (best p = 0.078 for the pre pick, 0.056 for the post pick), while the
+variant oracle is significant on all four metrics (+0.067 to +0.076, p ≤ 0.0002). The honest
+summary: per-query variant headroom on the generation axis is real and large, the cheap selectors
+capture a directionally consistent but statistically unconfirmed slice of it, and the source
+study's 56-need sample could not have distinguished these outcomes either. The boundary statement
+stays: corpus statistics show usable query-selection signal exactly where the source study claimed
+it (generation quality, directional here), and show nothing for source selection on any axis in
+any of our tests. Channel routing still dominates every variant policy on both axes (nDCG 0.407,
+N_strict_vital 0.390); only the variant oracle exceeds it.
 
 **Task A (added 2026-08-18): the channel null is formulation-invariant.** The symmetric nested
 protocol on the speech-vs-OCR cell, run separately for the original and each of the six method
