@@ -18,7 +18,11 @@ This matters because a recent study (Arabzadeh et al., SIGIR 2026) showed the op
 neighbouring setting: cheap term-statistic predictors picked well among LLM rewrites of a query.
 The difference is where the options differ. Rewrites are different query texts, so a statistic
 computed from the query can tell them apart. Evidence channels share one query and differ only in
-the documents behind them, so to a query-side statistic every channel looks the same.
+the documents behind them, so to a query-side statistic every channel looks the same. We no longer
+have to argue this from theory. We reran their task on our own collection, with their toolkit and
+their pool size, and both halves came out: term statistics picked rewrites that improved generated
+answers, exactly as they report, and still picked nothing when the options were evidence sources.
+Corpus statistics select queries, not sources, on one dataset under one protocol.
 
 **Claim.** QPP-based selection has a boundary. Predictors built on corpus term statistics carry
 roughly ten times less usable signal for choosing an evidence source than predictors that read
@@ -104,11 +108,17 @@ every channel exists.
 English-translated transcripts the family is 0 of 33 again, and the same holds on the 448 queries
 whose relevant videos are all English. Caption quality: newly generated Qwen3.5-9B captions as the
 document-side index change nothing on either collection (0 of 33 here, 0 of 88 on MSR-VTT, where
-the caption is the entire document side). Query formulation: we generated query variants with the
-source study's own six reformulation methods and asked the predictors to pick among them. On the
-retrieval metric, term statistics select above the original query 0 of 11 times, while
-score-reading predictors do it 7 of 10, and the per-query oracle gains +9.5. The generation-metric
-version of that test is in progress. A related check: channel choice is not language-driven. Across
+the caption is the entire document side). Query formulation: we generated the source study's full
+pool, six reformulation methods, five samples each, 31 candidates per query, and asked the
+predictors to pick among them. On the retrieval metric, term statistics select above the original
+query 0 of 11 times while score-reading predictors do it 7 of 10. The channel-selection null also
+holds separately inside every one of the seven formulation pools (77 tests, none pass). Fixed
+alternatives lose too: concatenating all expansions into one query costs 3.1 points and fusing all
+31 result lists costs 0.6. On the generation metric, where the source study's pre-retrieval result
+actually lives, their finding replicates here: the variants that term statistics pick worsen
+ranking yet improve nugget-scored answers, and beat both use-everything policies. Selecting
+evidence channels still beats every one of these variant policies on both metrics. A related
+check: channel choice is not language-driven. Across
 queries asked in five languages, the best channel, the selection headroom, and the oracle's picks
 barely move. What does move is the query itself: asking in the video's own language beats English
 by 9 to 12 nDCG points on the speech channel, a per-query decision our framework could target next.
