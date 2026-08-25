@@ -61,6 +61,14 @@ POLICIES = {
     "cellB_asr_shipped": ("cellB_asr_shipped.json",   ["captions", "asr"]),
     "cellB_asr_dense":   ("cellB_asr_dense.json",     ["captions", "asr"]),
     "cellB_ocr":         ("cellB_ocr.json",           ["captions", "ocr"]),
+    # Task B variant policies (mv2_variant_selection --save-picks, converted by
+    # mv2_variant_picks_to_runs.py). The original-query row is the existing asr_dense policy.
+    # Run under --evidence all, where the channel list is unused.
+    "varpol_sel_pre":  ("varpol_sel_pre_QL.json",        None),
+    "varpol_sel_post": ("varpol_sel_post_NQC_norm.json", None),
+    "varpol_oracle":   ("varpol_oracle.json",            None),
+    "varpol_concat":   ("varpol_concat_all.json",        None),
+    "varpol_fuse":     ("varpol_fuse_all.json",          None),
 }
 PICKS = {"routed": "routed_dense_m3_picks.json"}
 # selector channel names -> the text that channel can actually hand a generator
