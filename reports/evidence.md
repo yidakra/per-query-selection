@@ -231,6 +231,24 @@ policy table (`mv2_variant_selection_s1.md`): concatenating all six expansions i
 and fusing all seven candidates' result lists with RRF ties it at +0.002. Selection is the only
 policy that gains, which is "selection replaces fusion" appearing on the query axis.
 
+**Task B final, full pool, and the generation axis (added 2026-08-24).** The full 6x5 pool (31
+candidates per query, the source study's size) confirms the first cut on all 2,546 queries: the
+corpus-statistic family selects above the original 0 of 11 (best QL −0.015), the score family 7 of
+10 (best NQC_norm +0.019), concatenation −0.031, fusion −0.006 at this pool size (over-fusion
+dilutes what it tied at seven candidates), oracle +0.124
+(`mv2_variant_selection_full.*`). The generation axis, the last pre-registered test, run with the
+original qwen2.5-14b judge over the 395 judged gold-nugget queries
+(`rag/metrics_n400_all.json`): **the source study's claim replicates where they made it.** The
+QL-selected variants lose on nDCG (0.308 against the original's 0.331) and beat the original on
+every nugget metric (N_strict_all 0.282 against 0.260); the gain is not "any expansion helps
+generation," since the same picks beat both use-everything policies. The boundary claim's cleanest
+form follows, both halves on one collection: corpus statistics can select queries, measured on
+generation quality, and cannot select sources, on any axis in any of our tests. Channel routing
+still dominates every variant policy on both axes (nDCG 0.407, N_strict_vital 0.390); only the
+variant oracle exceeds it. Caveat held open: the pre-selector's generation gain is directional
+until it gets its own paired test; the shipped permutation block tests routed against each policy,
+not each policy against the original.
+
 **Task A (added 2026-08-18): the channel null is formulation-invariant.** The symmetric nested
 protocol on the speech-vs-OCR cell, run separately for the original and each of the six method
 pools (`mv2_variant_task_a.py`, `run_task_a.sh`, artifacts `mv2_qpp_table_va_*.*`,
