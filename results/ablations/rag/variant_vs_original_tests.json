@@ -1,0 +1,206 @@
+{
+  "baseline": "asr_dense",
+  "perm": 10000,
+  "rows": [
+    {
+      "policy": "varpol_sel_pre",
+      "metric": "strict_vital",
+      "n": 395,
+      "delta": 0.013851717902350817,
+      "p_twosided": 0.42005799420057993,
+      "win": 71,
+      "tie": 270,
+      "loss": 54
+    },
+    {
+      "policy": "varpol_sel_pre",
+      "metric": "vital",
+      "n": 395,
+      "delta": 0.01139541892706449,
+      "p_twosided": 0.48005199480051997,
+      "win": 105,
+      "tie": 203,
+      "loss": 87
+    },
+    {
+      "policy": "varpol_sel_pre",
+      "metric": "strict_all",
+      "n": 395,
+      "delta": 0.02249447458308218,
+      "p_twosided": 0.0776922307769223,
+      "win": 110,
+      "tie": 211,
+      "loss": 74
+    },
+    {
+      "policy": "varpol_sel_pre",
+      "metric": "all",
+      "n": 395,
+      "delta": 0.005696567848466585,
+      "p_twosided": 0.6651334866513349,
+      "win": 139,
+      "tie": 131,
+      "loss": 125
+    },
+    {
+      "policy": "varpol_sel_post",
+      "metric": "strict_vital",
+      "n": 395,
+      "delta": 0.022097649186256778,
+      "p_twosided": 0.20507949205079493,
+      "win": 69,
+      "tie": 270,
+      "loss": 56
+    },
+    {
+      "policy": "varpol_sel_post",
+      "metric": "vital",
+      "n": 395,
+      "delta": 0.012426160337552745,
+      "p_twosided": 0.45695430456954306,
+      "win": 103,
+      "tie": 201,
+      "loss": 91
+    },
+    {
+      "policy": "varpol_sel_post",
+      "metric": "strict_all",
+      "n": 395,
+      "delta": 0.02480811733976291,
+      "p_twosided": 0.0560943905609439,
+      "win": 100,
+      "tie": 224,
+      "loss": 71
+    },
+    {
+      "policy": "varpol_sel_post",
+      "metric": "all",
+      "n": 395,
+      "delta": 0.015155624965751553,
+      "p_twosided": 0.2656734326567343,
+      "win": 139,
+      "tie": 133,
+      "loss": 123
+    },
+    {
+      "policy": "varpol_oracle",
+      "metric": "strict_vital",
+      "n": 395,
+      "delta": 0.06669680530440025,
+      "p_twosided": 9.999000099990002e-05,
+      "win": 87,
+      "tie": 270,
+      "loss": 38
+    },
+    {
+      "policy": "varpol_oracle",
+      "metric": "vital",
+      "n": 395,
+      "delta": 0.06894514767932489,
+      "p_twosided": 0.00019998000199980003,
+      "win": 107,
+      "tie": 228,
+      "loss": 60
+    },
+    {
+      "policy": "varpol_oracle",
+      "metric": "strict_all",
+      "n": 395,
+      "delta": 0.07627559500977223,
+      "p_twosided": 9.999000099990002e-05,
+      "win": 121,
+      "tie": 226,
+      "loss": 48
+    },
+    {
+      "policy": "varpol_oracle",
+      "metric": "all",
+      "n": 395,
+      "delta": 0.06850863974281696,
+      "p_twosided": 9.999000099990002e-05,
+      "win": 144,
+      "tie": 162,
+      "loss": 89
+    },
+    {
+      "policy": "varpol_concat",
+      "metric": "strict_vital",
+      "n": 395,
+      "delta": -0.008239903556359248,
+      "p_twosided": 0.6502349765023497,
+      "win": 65,
+      "tie": 266,
+      "loss": 64
+    },
+    {
+      "policy": "varpol_concat",
+      "metric": "vital",
+      "n": 395,
+      "delta": -0.013248945147679327,
+      "p_twosided": 0.42925707429257076,
+      "win": 96,
+      "tie": 203,
+      "loss": 96
+    },
+    {
+      "policy": "varpol_concat",
+      "metric": "strict_all",
+      "n": 395,
+      "delta": -0.007385975487241312,
+      "p_twosided": 0.5692430756924307,
+      "win": 90,
+      "tie": 213,
+      "loss": 92
+    },
+    {
+      "policy": "varpol_concat",
+      "metric": "all",
+      "n": 395,
+      "delta": -0.01621582004493397,
+      "p_twosided": 0.23027697230276972,
+      "win": 121,
+      "tie": 133,
+      "loss": 141
+    },
+    {
+      "policy": "varpol_fuse",
+      "metric": "strict_vital",
+      "n": 395,
+      "delta": -0.005937311633514166,
+      "p_twosided": 0.7168283171682832,
+      "win": 54,
+      "tie": 284,
+      "loss": 57
+    },
+    {
+      "policy": "varpol_fuse",
+      "metric": "vital",
+      "n": 395,
+      "delta": -0.0032157926461723945,
+      "p_twosided": 0.835916408359164,
+      "win": 88,
+      "tie": 214,
+      "loss": 93
+    },
+    {
+      "policy": "varpol_fuse",
+      "metric": "strict_all",
+      "n": 395,
+      "delta": 0.00033636546294774067,
+      "p_twosided": 0.9776022397760225,
+      "win": 84,
+      "tie": 233,
+      "loss": 78
+    },
+    {
+      "policy": "varpol_fuse",
+      "metric": "all",
+      "n": 395,
+      "delta": -0.008651661278243558,
+      "p_twosided": 0.4791520847915208,
+      "win": 120,
+      "tie": 143,
+      "loss": 132
+    }
+  ]
+}
