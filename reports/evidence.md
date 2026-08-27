@@ -231,6 +231,38 @@ policy table (`mv2_variant_selection_s1.md`): concatenating all six expansions i
 and fusing all seven candidates' result lists with RRF ties it at +0.002. Selection is the only
 policy that gains, which is "selection replaces fusion" appearing on the query axis.
 
+**A third selection axis: which language to ask in (added 2026-08-27).** The boundary claim says
+corpus statistics carry selection signal when the options are different query texts and none when
+they are different document sources. Query language is a query-side option, five texts against one
+fixed corpus, so the claim makes a falsifiable prediction, and the four NLLB query translations
+already retrieved against the dense speech channel let us test it without new compute
+(`mv2_language_selection.py`, `mv2_language_selection{,_nozh}.json`). Two facts came out, and they
+do not point the same way.
+
+The headroom is the largest per-query gap in the project outside channel routing: the oracle over
+the five language versions reaches 0.4177 against 0.3134 for always asking in English, +10.4 nDCG,
+and English is the right choice for only 60% of queries (1,516 of 2,546). Asking in the right
+language is a real per-query decision, not a curiosity.
+
+The prediction half fails, in an informative way. Corpus statistics do carry more ordering signal
+here than anywhere else in the study, Kendall τ up to +0.198 against +0.03 to +0.08 in the channel
+cells, which is what the query-side reading predicts. It still converts to nothing: 0 of 11
+predictors beat the English default, none significant, best row −0.0016. The score family manages
+6 of 10 with 3 significant (best NQC +0.017), the same family ordering as everywhere else. The
+reason is option asymmetry rather than blindness: English beats every translation by 4 to 7 nDCG on
+average, so a selector must be right almost always to beat "always English", and an ordering worth
+τ ≈ 0.2 is not that. This is the ladder lesson on a new axis, that routing gains depend on how
+strong the fixed alternative is, and the BERT-QPP lesson restated, that a correlation is not a
+decision rule.
+
+One methodological correction found by audit and applied before reading anything: our whitespace
+tokenizer is degenerate for Chinese (1.08 tokens per query, 99% out of vocabulary), so Chinese
+handed one option broken pre-retrieval features. Dropping Chinese leaves every option with valid
+features (Korean, Russian and Arabic tokenize at 5.6 to 6.9 tokens, 12 to 17% out of vocabulary)
+and the picture is unchanged: oracle 0.3930 against 0.3134, +7.96, corpus statistics still 0 of 11,
+score family 3 of 10. Both runs are committed; the four-language run is the fair test and the
+five-language run is reported for completeness.
+
 **Task B final, full pool, and the generation axis (added 2026-08-24).** The full 6x5 pool (31
 candidates per query, the source study's size) confirms the first cut on all 2,546 queries: the
 corpus-statistic family selects above the original 0 of 11 (best QL −0.015), the score family 7 of
