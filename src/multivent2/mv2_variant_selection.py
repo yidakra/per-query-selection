@@ -88,10 +88,16 @@ def main():
     ap.add_argument("--variants", default=os.path.join(DATA, "query_variants.jsonl"))
     ap.add_argument("--samples", type=int, default=5)
     ap.add_argument("--tag", default="")
+    ap.add_argument("--save-features", default="",
+                    help="write per-candidate confidence features and per-query nDCG to this JSON, "
+                         "the input a learned variant selector needs")
     ap.add_argument("--save-picks", default="",
                     help="write per-query picks and top-100 doc lists for the key policies to this "
                          "JSONL, the input the nugget evaluation needs")
+    ap.add_argument("--gpu", type=int, default=1,
+                    help="physical GPU index; device 0 belongs to another service and is never used")
     a = ap.parse_args()
+    os.environ["CUDA_VISIBLE_DEVICES"] = str(a.gpu)
 
     from scipy.stats import kendalltau
     import ir_measures
@@ -218,6 +224,22 @@ def main():
               f"best-method {per_method[best_m]:.4f} ({best_m})  "
               f"oracle {res['baselines']['oracle']:.4f}  "
               f"best predictor {best[0]} {best[1]['selected_ndcg10']:.4f}", flush=True)
+
+    if a.save_features:
+        from retrieve import conf_features, FEATURE_ORDER
+        idxf = {ow: i for i, ow in enumerate(owners)}
+        feat_rows = []
+        for q in complete:
+            for lab in labels:
+                cf = conf_features(list(asr_runs[idxf[(q, lab)]].values()))
+                feat_rows.append({
+                    "qid": q, "label": lab,
+                    "method": "original" if lab == "original" else lab.rsplit("#", 1)[0],
+                    "x": [cf[k] for k in FEATURE_ORDER],
+                    "ndcg10": q_asr[f"{q}##{lab}"]["nDCG@10"]})
+        json.dump({"feature_order": FEATURE_ORDER, "labels": labels, "rows": feat_rows},
+                  open(a.save_features, "w"))
+        print(f"wrote per-candidate features to {a.save_features} ({len(feat_rows)} rows)")
 
     if a.save_picks:
         # per-query document lists for the nugget phases: the original, the best pre and post
