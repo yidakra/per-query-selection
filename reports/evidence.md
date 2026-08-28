@@ -263,6 +263,20 @@ and the picture is unchanged: oracle 0.3930 against 0.3134, +7.96, corpus statis
 score family 3 of 10. Both runs are committed; the four-language run is the fair test and the
 five-language run is reported for completeness.
 
+**The positive control on the language axis (added 2026-08-27).** The analytic half of the language
+axis is a null, and everywhere else in this study a null is only half the story: the same ridge over
+score-distribution features that converts the channel headroom is the control that says whether the
+signal exists at all. Run on the language options with the identical protocol, event-grouped folds
+and the fixed baseline chosen on the training fold (`mv2_language_select_learned.py`,
+`mv2_language_select_learned{,_nozh}.json`, 44 features from each language's own confidence
+statistics plus the pairwise overlap between language result lists), it works: routed 0.3350 against
+0.3134 for always asking in English, **+2.16 nDCG, group sign-flip p = 0.0005**, capturing 21% of the
+oracle's headroom, and it moves 49% of queries off English. Without Chinese the same holds at +1.43
+(p = 0.0005, 18% of headroom). So the third axis behaves exactly like the first: the decision is
+real, corpus statistics cannot make it, and predictors that read retrieval outcomes can. Scope: the
+selector chooses among translations of one query, so its ceiling is the translation quality NLLB
+gives us, and 21% of headroom is a first pass rather than a tuned system.
+
 **Task B final, full pool, and the generation axis (added 2026-08-24).** The full 6x5 pool (31
 candidates per query, the source study's size) confirms the first cut on all 2,546 queries: the
 corpus-statistic family selects above the original 0 of 11 (best QL −0.015), the score family 7 of
