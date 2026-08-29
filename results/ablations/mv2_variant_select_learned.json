@@ -1,0 +1,12 @@
+{
+  "n_queries": 2546,
+  "n_candidates": 78926,
+  "n_features": 15,
+  "method_feature": true,
+  "original": 0.3133156763273221,
+  "selected": 0.31900100798638675,
+  "oracle": 0.43748027432437775,
+  "gap_vs_original": 0.5685331659064652,
+  "p_vs_original": 0.11644177911044477,
+  "fraction_of_oracle_headroom": 0.04578866883779119
+}

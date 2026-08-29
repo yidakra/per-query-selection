@@ -40,7 +40,10 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--variants", default=os.path.join(DATA, "query_variants.jsonl"))
     ap.add_argument("--sample", type=int, default=0, help="which sample index supplies the text")
+    ap.add_argument("--gpu", type=int, default=1,
+                    help="physical GPU index; device 0 belongs to another service and is never used")
     a = ap.parse_args()
+    os.environ["CUDA_VISIBLE_DEVICES"] = str(a.gpu)
 
     from sklearn.model_selection import GroupKFold
     from mv2_channel_select import mk, group_signflip_p

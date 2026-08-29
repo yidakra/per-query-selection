@@ -263,6 +263,32 @@ and the picture is unchanged: oracle 0.3930 against 0.3134, +7.96, corpus statis
 score family 3 of 10. Both runs are committed; the four-language run is the fair test and the
 five-language run is reported for completeness.
 
+**Three axes, one pattern (added 2026-08-28).** The variant axis now has the same positive control
+the other two have (`mv2_variant_select_learned.py`, artifacts
+`mv2_variant_select_learned{,_nomethod,_centred}.json`): a ridge scoring each of the 31 candidates
+from its own confidence statistics plus its generating method, event-grouped folds, argmax within
+query. It reaches 0.3373 against the original query's 0.3133, **+2.39 nDCG, group sign-flip
+p = 0.0005**, 19% of the oracle's headroom. With that cell filled the study says one thing on three
+different kinds of option:
+
+| Axis (what varies per query) | Oracle headroom | Corpus statistics | Best score-reading row | Learned selector |
+|---|---:|---|---:|---|
+| Evidence channel (document side) | large, see the gold-split caveat | 0 of 33 | +1.11 | **+7.59**, p ≤ 0.0005 |
+| Query variant (query side) | +12.4 | 0 of 11 | +1.87 | **+2.39**, p = 0.0005 |
+| Query language (query side) | +10.4 | 0 of 11 | +1.72 | **+2.16**, p = 0.0005 |
+
+Per-query selection pays on all three, corpus-aggregate term statistics convert none of them, and
+predictors reading retrieval outcomes convert all three. The dividing line the paper argues for is
+therefore not specific to evidence channels; it is a property of the feature family, which is a
+stronger claim than the channel result alone supports. The channel axis remains where the money is,
+by a factor of three over either query-side axis.
+
+One implementation lesson worth keeping, because it first looked like a null: an uncentred pointwise
+fit reaches only +0.57 (p = 0.12), losing to a single normalised analytic predictor, because
+regression on raw per-query nDCG spends its capacity on between-query difficulty rather than the
+within-query contrast the argmax needs. Centring features and target within each query recovers the
++2.39. Both runs are committed, the uncentred one as the diagnostic.
+
 **The positive control on the language axis (added 2026-08-27).** The analytic half of the language
 axis is a null, and everywhere else in this study a null is only half the story: the same ridge over
 score-distribution features that converts the channel headroom is the control that says whether the
