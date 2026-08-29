@@ -1,36 +1,51 @@
-# Choosing the right evidence per query: what QPP can and cannot see
+# Three choices worth making per query, and what cheap prediction cannot see
 
-A video can answer a search query through three kinds of evidence: what was said in it (speech
-transcripts), what is written on screen, and what the frames show. Most systems search all three
-and merge the results with fixed weights. We asked: can a system decide, for each individual
-query, which evidence to trust, and can the standard tools of query performance prediction (QPP)
-make that decision?
+A retrieval system settles the same questions for every query it answers, usually by freezing one
+global answer into a configuration file. On a multilingual video collection there are at least three
+such questions. Which evidence should be searched: what was said in the video, what is written on
+screen, or what the frames show? Which phrasing of the query should be run, the user's own or one of
+its rewritings? And when the videos are not in the language of the query, which language should the
+system ask in? Each of these can instead be decided per query. We measured what the three decisions
+are worth, and whether the standard tools of query performance prediction (QPP) can make them.
 
-The answer has two parts. The decision is worth making: choosing evidence per query beats the best
-fixed setup by 7.6 nDCG points on MultiVENT 2.0 (2,546 queries, 110K videos), a large gap in
-retrieval terms. But the cheap predictors the QPP literature recommends for decisions like this
-cannot see that opportunity. Every predictor that works reads the outcome of retrieval itself. Every predictor
-that only reads the query against an index of term statistics fails, and we can bound how badly:
-fed to the same learner under the same conditions, term-statistic features buy at most +0.86 nDCG
-where retrieval outcomes buy +7.59.
+All three are worth making. One family of predictors makes none of them.
 
-This matters because a recent study (Arabzadeh et al., SIGIR 2026) showed the opposite in a
-neighbouring setting: cheap term-statistic predictors picked well among LLM rewrites of a query.
-The difference is where the options differ. Rewrites are different query texts, so a statistic
-computed from the query can tell them apart. Evidence channels share one query and differ only in
-the documents behind them, so to a query-side statistic every channel looks the same. We no longer
-have to argue this from theory. We reran their task on our own collection, with their toolkit and
-their pool size, and both halves came out: term statistics picked rewrites that trend better on
-generated-answer quality, the direction they report, though not significantly at our sample size,
-and picked nothing when the options were evidence sources. Corpus statistics show query-selection
-signal and no source-selection signal, on one dataset under one protocol.
+| Decided per query | Best possible choice is worth | Corpus term statistics | Model reading retrieval outcomes |
+|---|---|---|---|
+| Which evidence channel to search | see the caveat below | 0 of 33 | **+7.59** |
+| Which rewriting of the query to run | +12.4 | 0 of 11 | **+2.39** |
+| Which language to ask in | +10.4 | 0 of 11 | **+2.16** |
 
-**Claim.** QPP-based selection has a boundary. Predictors built on corpus term statistics carry
-roughly ten times less usable signal for choosing an evidence source than predictors that read
-retrieval outcomes, and the pre-retrieval versus post-retrieval labels the field organises by do
-not mark this line. This is an effectiveness claim: per-query selection buys retrieval quality on
-the same channels. It saves no compute, and the costs we report later are deployment context, not
-the contribution.
+Gains are nDCG@10 against the default the decision replaces: the best fixed channel policy, the
+user's original query, and asking in English. Every gain in the last column is significant under
+group-level tests with corrections. The middle column counts how many of the individual
+term-statistic predictors beat that same default, across 55 tests in total, and the answer is none
+of them anywhere.
+
+This is the result the project now rests on. Choosing per query is worth having, on three different
+kinds of choice. Predictors built from corpus term statistics, the cheap pre-retrieval family the
+QPP literature recommends for exactly this job, convert none of the three. Predictors that read what
+retrieval actually returned convert all three. The line that separates the two families is not the
+pre-retrieval versus post-retrieval split the field organises by, and it is not whether the options
+differ as queries or as documents, since the query-side decisions fail for the cheap family too. It
+is whether the predictor gets to see an outcome.
+
+There is one exception, and it belongs to the study that motivated this work. Arabzadeh et al.
+(SIGIR 2026) report that cheap term-statistic predictors pick well among LLM rewritings of a query
+when the rewritings are judged by the quality of the answer generated from them, rather than by
+ranking. We reran their task here, with their toolkit and their pool size, and scored it their way.
+Their effect appears in our data too, in their direction: the rewritings our term statistics pick
+produce better nugget-scored answers than the original query, while ranking worse. That gain is not
+significant at our 395 judged queries, so we call it consistent rather than confirmed, and note that
+their own 56 information needs could not have separated these outcomes either.
+
+**Claim.** Cheap corpus-statistic QPP does not convert per-query selection decisions. We tested
+three decisions of different kinds on one collection under one protocol, and the family fails on all
+three when the measure is ranking quality. The signal it does carry, in the setting the source study
+identified, is about generated-answer quality on query rewritings, and is directional here. What
+works instead is reading retrieval outcomes, which converts every one of the three decisions. This
+is an effectiveness claim: selection buys retrieval quality on the same channels. It saves no
+compute, and the costs reported later are deployment context, not the contribution.
 
 **The evidence, in brief.** Every predictor goes through the identical protocol: thresholds chosen
 on held-out training data only, folds grouped by event so near-duplicate queries cannot leak
@@ -105,28 +120,28 @@ statistic can know, and a bare channel-availability feature recovers about a qua
 selection gap. But absence does not explain the family's failure, which is just as sharp where
 every channel exists.
 
-**Three named objections, tested.** Language mismatch: with the index rebuilt over
-English-translated transcripts the family is 0 of 33 again, and the same holds on the 448 queries
-whose relevant videos are all English. Caption quality: newly generated Qwen3.5-9B captions as the
-document-side index change nothing on either collection (0 of 33 here, 0 of 88 on MSR-VTT, where
-the caption is the entire document side). Query formulation: we generated the source study's full
-pool, six reformulation methods, five samples each, 31 candidates per query, and asked the
-predictors to pick among them. On the retrieval metric, term statistics select above the original
-query 0 of 11 times while score-reading predictors do it 7 of 10. The channel-selection null also
-holds separately inside every one of the seven formulation pools (77 tests, none pass). Fixed
-alternatives lose too: concatenating all expansions into one query costs 3.1 points and fusing all
-31 result lists costs 0.6. On the generation metric, where the source study's pre-retrieval result
-actually lives, their pattern appears here: the variants that term statistics pick worsen ranking
-yet sit above the original on every nugget metric and above both use-everything policies. The
-paired tests keep it honest: that gain is directional, not significant, at 395 judged queries,
-while the per-query oracle's generation gain is significant on all four metrics. Selecting
-evidence channels still beats every one of these variant policies on both metrics. A related
-check: channel choice is not language-driven. Across
-queries asked in five languages, the best channel, the selection headroom, and the oracle's picks
-barely move. What does move is the query itself: asking in the video's own language beats English
-by 9 to 12 nDCG points on the speech channel, a per-query decision our framework could target next.
+**The objections we were given, tested.** Language mismatch, raised because the queries are English
+and most videos are not: with the lexical index rebuilt over English-translated transcripts the
+family is 0 of 33 again, and the same holds on the 448 queries whose relevant videos are all
+English. Caption quality, raised because the shipped captions are old and weak: newly generated
+Qwen3.5-9B captions as the document-side index change nothing on either collection (0 of 33 here, 0
+of 88 on MSR-VTT, where the caption is the entire document side), and neither does a union index
+holding each video's caption, transcript and on-screen text together. Query formulation, raised
+because we had tested only one phrasing: the channel-selection null holds separately inside each of
+seven formulation pools, 77 tests without a pass. Fixed alternatives to selecting lose as well.
+Concatenating every expansion into one query costs 3.1 points against the original, and fusing all
+31 candidates' result lists costs 0.6. A related check answers the question of whether routing
+should depend on language: it should not. Across queries asked in five languages the best channel,
+the headroom, and the oracle's picks barely move, so language carries no channel-routing signal even
+though choosing the language itself is worth 10.4 points.
 
-**What we are not claiming.** Our channels are deliberately cheap; the boundary claim does not need
+**What we are not claiming.** The oracle columns are upper bounds, not targets. Picking each query's
+best option with the same relevance labels that then grade the pick rewards label luck as well as
+real advantage, and we measured how much: for the channel decision, choosing on half of each query's
+labels and grading on the other half removes 15 of the oracle's 16 points, which is why that row
+carries no number and why we never report a percentage of oracle captured. The two query-side
+oracles are optimistic for the same reason and are quoted only to show that a decision exists to be
+made. Our channels are deliberately cheap; the boundary claim does not need
 competitive retrieval, and the channel-strengthening ladder is the check. We do not beat classical
 QPP at its own binary game: our ridge, NQC and calibrated BERT-QPP sit within a point of one
 another, and all of them read retrieval outcomes. The selector saves no compute, since all channels
