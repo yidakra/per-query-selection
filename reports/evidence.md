@@ -263,6 +263,27 @@ and the picture is unchanged: oracle 0.3930 against 0.3134, +7.96, corpus statis
 score family 3 of 10. Both runs are committed; the four-language run is the fair test and the
 five-language run is reported for completeness.
 
+**The two query-side axes, under the channel axis's battery (added 2026-08-28).** The headline table
+puts three decisions side by side, so the two newer rows were put through the same machinery the
+channel row has carried since the review: group-level sign-flip tests, Holm correction within
+family, cluster-bootstrap 95% intervals and the same ±0.005 equivalence bound
+(`mv2_axis_inference.py`, `mv2_axis_inference.json`). The counts hold, and one thing sharpens.
+
+On the language axis no corpus-statistic row is significant after correction, and **none is
+equivalent to the default either**: the best row (SCQ_avg) sits at −0.0016 with an interval of
+[−0.009, +0.007] that straddles zero, and the rest run down to IDF_std at −0.070 with an interval
+excluding zero on the wrong side. Three score-reading rows are significantly positive (NQC +0.017,
+NQC_norm +0.016, σ_max +0.015). The single score features behave the same way on the variant axis,
+with maxp at +0.012 (Holm 0.056, marginal) and entropy at −0.070.
+
+That is a different and stronger statement than the channel result. On the channel axis, acting on a
+corpus-statistic ordering was mostly a harmless no-op, 21 of 33 rows formally equivalent to doing
+nothing, because the nested escalation fraction limits how much damage a noisy ordering can do. On
+the query-side axes there is no such brake: the selector must commit to one option out of five or
+thirty-one, the options differ by 4 to 7 nDCG in expectation, and a predictor that orders them badly
+loses most of that spread. Following cheap predictors here does not merely fail to help, it costs up
+to 7 nDCG points. Both readings are now stated wherever the axes appear.
+
 **Three axes, one pattern (added 2026-08-28).** The variant axis now has the same positive control
 the other two have (`mv2_variant_select_learned.py`, artifacts
 `mv2_variant_select_learned{,_nomethod,_centred}.json`): a ridge scoring each of the 31 candidates
