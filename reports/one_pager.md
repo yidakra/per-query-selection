@@ -25,6 +25,12 @@ commit to one option rather than adjust a fraction of queries, a predictor that 
 badly loses much of the spread between them, and the worst of these predictors costs 7 nDCG points
 against simply keeping the default.
 
+The three decisions are also close to independent. Giving one selector all fifteen combinations of
+language and channel returns +3.71 nDCG against asking in English on the speech channel, which is
+the sum of what those two decisions return separately (+2.55 and +1.17) to the second decimal, and
+the same additivity holds at the oracle level (+15.96 jointly against +16.00 predicted). A system
+that already routes channels collects the language decision's full value by adding it.
+
 This is the result the project now rests on. Choosing per query is worth having, on three different
 kinds of choice. Predictors built from corpus term statistics, the cheap pre-retrieval family the
 QPP literature recommends for exactly this job, convert none of the three. Predictors that read what

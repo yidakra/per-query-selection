@@ -263,6 +263,27 @@ and the picture is unchanged: oracle 0.3930 against 0.3134, +7.96, corpus statis
 score family 3 of 10. Both runs are committed; the four-language run is the fair test and the
 five-language run is reported for completeness.
 
+**The axes compose (added 2026-08-28).** Three decisions measured separately leave the question a
+deployer asks first: make both, and do you collect both gains? The option space is every (language,
+channel) pair, fifteen of them, scored per query from runs that already existed, with the same ridge
+and the same event-grouped protocol (`mv2_joint_selection.py`, `mv2_joint_selection.json`). The
+answer is that the two decisions are close to perfectly orthogonal, and it holds at both levels.
+
+At the achievable level, against the same default of asking in English on the speech channel: the
+channel decision alone is worth +1.17 (CI +0.42 to +2.02), the language decision alone +2.55 (CI
++1.83 to +3.28), and the joint selector over all fifteen options +3.71 (CI +2.80 to +4.72), which is
+the sum of the two to the second decimal. At the oracle level the same thing: +5.57 and +10.43
+separately against +15.96 jointly, where adding them would predict +16.00, a composition ratio of
+0.998. The joint selector moves 1,591 of 2,546 queries off the default pair.
+
+Two scope notes, because this cell is easy to over-read. The channel axis here is the two-channel
+dense version, speech against on-screen text and their fusion, worth +1.17; it is not the
+three-channel headline decision worth +7.59, because the visual channel ships as a frozen ranked
+list with no way to retrieve it with a translated query. And orthogonality is a statement about
+these two decisions on this collection, not a general law about selection axes. What it does buy is
+a concrete recommendation: a system that already routes channels gains the language decision's full
+value by adding it, and the reverse holds too.
+
 **The two query-side axes, under the channel axis's battery (added 2026-08-28).** The headline table
 puts three decisions side by side, so the two newer rows were put through the same machinery the
 channel row has carried since the review: group-level sign-flip tests, Holm correction within
