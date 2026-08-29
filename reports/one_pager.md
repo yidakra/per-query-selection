@@ -29,7 +29,10 @@ The three decisions are also close to independent. Giving one selector all fifte
 language and channel returns +3.71 nDCG against asking in English on the speech channel, which is
 the sum of what those two decisions return separately (+2.55 and +1.17) to the second decimal, and
 the same additivity holds at the oracle level (+15.96 jointly against +16.00 predicted). A system
-that already routes channels collects the language decision's full value by adding it.
+that already routes channels collects the language decision's full value by adding it, at a price
+worth naming: every option has to be run before the decision can be made, so a five-language choice
+costs four translations and five retrievals per query, and the selector needs about 400 judged
+queries before it beats simply asking in English, against roughly 100 for the channel decision.
 
 This is the result the project now rests on. Choosing per query is worth having, on three different
 kinds of choice. Predictors built from corpus term statistics, the cheap pre-retrieval family the

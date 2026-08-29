@@ -1,0 +1,37 @@
+{
+  "n_queries": 2546,
+  "default": 0.31336306446775974,
+  "oracle": 0.4176969806059133,
+  "fractions": {
+    "0.05": {
+      "gap_mean": -0.5546263378807935,
+      "gap_sd_over_seeds": 0.05453654805920098,
+      "mean_train_queries": 97.06666666666666
+    },
+    "0.1": {
+      "gap_mean": -0.15234538433355502,
+      "gap_sd_over_seeds": 0.32245724553374716,
+      "mean_train_queries": 208.2
+    },
+    "0.2": {
+      "gap_mean": 1.055667894463933,
+      "gap_sd_over_seeds": 0.15178496259229152,
+      "mean_train_queries": 422.8
+    },
+    "0.4": {
+      "gap_mean": 1.6870596074163469,
+      "gap_sd_over_seeds": 0.12335314574970586,
+      "mean_train_queries": 785.5333333333333
+    },
+    "0.7": {
+      "gap_mean": 2.142725424551118,
+      "gap_sd_over_seeds": 0.04832544952047516,
+      "mean_train_queries": 1433.0666666666666
+    },
+    "1.0": {
+      "gap_mean": 2.163848017361806,
+      "gap_sd_over_seeds": 0.0,
+      "mean_train_queries": 2036.8
+    }
+  }
+}

@@ -263,6 +263,29 @@ and the picture is unchanged: oracle 0.3930 against 0.3134, +7.96, corpus statis
 score family 3 of 10. Both runs are committed; the four-language run is the fair test and the
 five-language run is reported for completeness.
 
+**What the language decision costs to make (added 2026-08-28).** Two prices, both worth stating
+before anyone treats the +2.16 as free.
+
+The first is compute, and it is structural. Every predictor that converts any of these decisions
+reads score distributions, so every option has to be executed before the decision can be made. For
+the channel decision that means retrieving each channel, which the system was doing anyway under
+fusion. For the language decision it means translating the query into each candidate language and
+running retrieval once per language, so a five-language decision costs four translations and five
+retrievals per query where the default costs one of each. The joint fifteen-option selector needs
+ten retrievals. The router itself remains about a millisecond. Selection on the query-side axes does
+not just fail to save compute, it multiplies it, and a deployment would want the language set cut to
+the two or three languages its collection actually contains.
+
+The second is supervision, and it separates the axes more sharply than anything else we have
+measured (`mv2_language_curve.py`, `mv2_language_curve.json`, event-grouped subsampling, three seeds).
+The channel selector reaches +5.1 of its +7.59 with roughly 100 judged queries. The language
+selector at that budget is at **−0.55, worse than not deciding at all**, is still negative at 208
+queries, first breaks even somewhere near 400, and needs about 1,400 to reach +2.14 of its +2.16.
+The two facts fit together: a decision that commits to one option out of five has no escalation
+fraction to fall back on, so an under-trained selector spends the spread between the options instead
+of banking it, exactly as the analytic predictors do. The channel decision degrades gracefully and
+the language decision does not.
+
 **The axes compose (added 2026-08-28).** Three decisions measured separately leave the question a
 deployer asks first: make both, and do you collect both gains? The option space is every (language,
 channel) pair, fifteen of them, scored per query from runs that already existed, with the same ridge
