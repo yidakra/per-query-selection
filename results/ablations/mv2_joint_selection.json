@@ -1,0 +1,67 @@
+{
+  "policies": [
+    "en|asr",
+    "en|ocr",
+    "en|both",
+    "zh|asr",
+    "zh|ocr",
+    "zh|both",
+    "ko|asr",
+    "ko|ocr",
+    "ko|both",
+    "ru|asr",
+    "ru|ocr",
+    "ru|both",
+    "ar|asr",
+    "ar|ocr",
+    "ar|both"
+  ],
+  "n_queries": 2546,
+  "channel_only": {
+    "routed": 0.32502902412436635,
+    "fixed_nested": 0.31336306446775974,
+    "vs_default_en_asr": 1.1665959656606606,
+    "p_vs_default": 0.0009995002498750624,
+    "ci95_vs_default": [
+      0.41916247296714304,
+      2.021990503145768
+    ],
+    "n_options": 3,
+    "picks_off_default": 531
+  },
+  "language_only": {
+    "routed": 0.3388182174147561,
+    "fixed_nested": 0.31336306446775974,
+    "vs_default_en_asr": 2.5455152946996353,
+    "p_vs_default": 0.0004997501249375312,
+    "ci95_vs_default": [
+      1.8275103664565882,
+      3.275233779693545
+    ],
+    "n_options": 5,
+    "picks_off_default": 1299
+  },
+  "joint": {
+    "routed": 0.3504295038847749,
+    "fixed_nested": 0.31336306446775974,
+    "vs_default_en_asr": 3.706643941701515,
+    "p_vs_default": 0.0004997501249375312,
+    "ci95_vs_default": [
+      2.804602613524476,
+      4.7157502393081945
+    ],
+    "n_options": 15,
+    "picks_off_default": 1591
+  },
+  "reference": {
+    "default_en_asr": 0.31336306446775974,
+    "best_fixed_pair": 0.3133630644677594,
+    "best_fixed_pair_name": "en|asr",
+    "oracle_joint": 0.472967678495237,
+    "oracle_channel_only": 0.3690152061148633,
+    "oracle_language_only": 0.4176969806059133,
+    "sum_of_separate_gains": 3.712111260360296,
+    "joint_gain": 3.706643941701515,
+    "composition_ratio": 0.9985271673515922
+  }
+}
