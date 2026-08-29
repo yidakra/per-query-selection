@@ -20,7 +20,10 @@ Gains are nDCG@10 against the default the decision replaces: the best fixed chan
 user's original query, and asking in English. Every gain in the last column is significant under
 group-level tests with corrections. The middle column counts how many of the individual
 term-statistic predictors beat that same default, across 55 tests in total, and the answer is none
-of them anywhere.
+of them anywhere. On the two query-side decisions they do worse than that. Because the system has to
+commit to one option rather than adjust a fraction of queries, a predictor that orders the options
+badly loses much of the spread between them, and the worst of these predictors costs 7 nDCG points
+against simply keeping the default.
 
 This is the result the project now rests on. Choosing per query is worth having, on three different
 kinds of choice. Predictors built from corpus term statistics, the cheap pre-retrieval family the
