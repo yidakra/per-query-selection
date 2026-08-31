@@ -442,6 +442,17 @@ mid-sentence at the captioner's 2,048-token generation cap, and about 42% carry 
 preamble, uniform noise in both cases. A 30B-captioner rerun waits on supervision, who may already
 have those captions generated.
 
+**The 27B captioner rung (added 2026-08-31).** Supervision's remaining caption question was whether a
+larger captioner changes the verdict, and she generated the captions herself (Qwen3.5-27B, same
+claim-style prompt). Same swap, same protocol, both collections
+(`mv2_qpp_table_supcap27b_sym_grouped.*`, `mv2_row_inference_supcap27b.json`,
+`mv2_msrvtt_source_replication_supcap27b.*`): 0 of 33 significant on MultiVENT 2.0 with 22 of 33
+equivalent to doing nothing, and 0 of 88 on MSR-VTT, identical to the 9B result and to the shipped
+captions before that. The caption axis is now a two-rung captioner ladder, 9B and 27B, and neither
+rung moves a single cell. One caveat stated before reading anything: the 27B set covers 66.9% of
+judged documents against the 9B set's 97.6%, so this batch may be partial on her side; the verdict
+matches the three complete-coverage caption tests, and a rerun is one command if she completes it.
+
 **The English-subset control (added 2026-08-14).** The subset version of the same objection: restrict
 the judgment to the 448 queries whose relevant videos are all English (115 event groups), where query
 and relevant-document vocabulary are coherent, and rerun everything, once with the original index and
