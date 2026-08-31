@@ -135,10 +135,10 @@ every channel exists.
 **The objections we were given, tested.** Language mismatch, raised because the queries are English
 and most videos are not: with the lexical index rebuilt over English-translated transcripts the
 family is 0 of 33 again, and the same holds on the 448 queries whose relevant videos are all
-English. Caption quality, raised because the shipped captions are old and weak: newly generated
-Qwen3.5-9B captions as the document-side index change nothing on either collection (0 of 33 here, 0
-of 88 on MSR-VTT, where the caption is the entire document side), and neither does a union index
-holding each video's caption, transcript and on-screen text together. Query formulation, raised
+English. Caption quality, raised because the shipped captions are old and weak: newly generated captions
+from two captioner sizes, Qwen3.5-9B and Qwen3.5-27B, change nothing as the document-side index on
+either collection (0 of 33 here and 0 of 88 on MSR-VTT for both sizes), and neither does a union
+index holding each video's caption, transcript and on-screen text together. Query formulation, raised
 because we had tested only one phrasing: the channel-selection null holds separately inside each of
 seven formulation pools, 77 tests without a pass. Fixed alternatives to selecting lose as well.
 Concatenating every expansion into one query costs 3.1 points against the original, and fusing all
