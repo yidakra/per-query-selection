@@ -311,13 +311,13 @@ value by adding it, and the reverse holds too.
 centrepiece of the supervision research plan's RQ2, run on all three axes
 (`mv2_error_tolerance.py`, `mv2_error_tolerance.json`): start from the oracle, replace its pick
 with a uniformly drawn alternative at a controlled rate, and find where the delivered gain crosses
-zero. The break-even oracle-agreement rates are 75.3% for the two-channel decision (3 options),
-44.6% for the language decision (5 options) and 23.3% for the variant decision (31 options). Read
+zero. The break-even oracle-agreement rates are 75.4% for the two-channel decision (3 options),
+45.0% for the language decision (5 options) and 22.5% for the variant decision (31 options). Read
 absolutely, the bars look wildly different; read against chance agreement (33%, 20%, 3.2%) they
-say something cleaner: channel and language demand the same discrimination, about 2.2 times
-chance, while the variant decision demands 7.2 times chance, which explains in one number why the
+say something cleaner: channel and language demand the same discrimination, about 2.3 times
+chance, while the variant decision demands 7 times chance, which explains in one number why the
 variant axis was the hardest for the learned selector despite carrying the largest oracle
-(+12.4). A fully random pick loses on every axis (−16.8, −8.5, −3.8), the cheap-predictors-hurt
+(+12.4). A fully random pick loses on every axis (−16.8, −8.2, −3.8), the cheap-predictors-hurt
 finding derived from first principles rather than observed. Version-1 scope, stated: the error
 model substitutes uniformly among the non-oracle options, so it prices all mistakes equally;
 placing the real selectors' observed agreement rates on these curves is the follow-up, and a

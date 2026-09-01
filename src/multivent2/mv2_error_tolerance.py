@@ -33,7 +33,7 @@ SUFFIX = {"en": "", "zh": "_qzh", "ko": "_qko", "ru": "_qru", "ar": "_qar"}
 
 
 def axis_matrices():
-    """Per-axis (Y, default_column_index, axis_name)."""
+    """Per-axis dict: name -> (Y matrix of per-query nDCG per option, default column index)."""
     qrels, _ = load_qrels(os.path.join(DATA, "multivent_2_test_judgments.jsonl"))
     out = {}
 
@@ -81,8 +81,10 @@ def main():
         oracle = Y.argmax(axis=1)
         base = Y[:, dflt].mean()
         curve = []
-        rng = np.random.default_rng(0)
-        for acc in [float(x) for x in a.accuracies.split(",")]:
+        for ai, acc in enumerate([float(x) for x in a.accuracies.split(",")]):
+            # a fresh generator per accuracy level, so curve points are independent of how many
+            # trials earlier levels consumed and of the order the levels are listed in
+            rng = np.random.default_rng(1000 + ai)
             gains = []
             for _ in range(a.seeds):
                 pick = oracle.copy()
@@ -94,22 +96,23 @@ def main():
                 gains.append(100 * (Y[np.arange(n), pick].mean() - base))
             curve.append({"accuracy": acc, "gain_mean": float(np.mean(gains)),
                           "gain_sd": float(np.std(gains))})
-        # linear interpolation for the break-even accuracy
+        # linear interpolation for the break-even accuracy, on the curve sorted by accuracy so
+        # the result does not depend on the order the levels were passed in
+        pts = sorted(curve, key=lambda c: c["accuracy"])
         be = None
-        for lo, hi in zip(curve[::-1], curve[::-1][1:]):
-            pass
-        xs = [c["accuracy"] for c in curve][::-1]
-        ys = [c["gain_mean"] for c in curve][::-1]
-        for i in range(len(xs) - 1):
-            if ys[i] <= 0 <= ys[i + 1]:
-                be = xs[i] + (xs[i + 1] - xs[i]) * (0 - ys[i]) / (ys[i + 1] - ys[i])
+        for lo, hi in zip(pts, pts[1:]):
+            if lo["gain_mean"] <= 0 <= hi["gain_mean"]:
+                be = lo["accuracy"] + (hi["accuracy"] - lo["accuracy"]) * \
+                    (0 - lo["gain_mean"]) / (hi["gain_mean"] - lo["gain_mean"])
                 break
+        oracle_gain = 100 * (Y.max(axis=1).mean() - base)
+        random_gain = next((c["gain_mean"] for c in pts if c["accuracy"] == 0.0), None)
         res["axes"][axis] = {"n_options": int(k), "default_mean": float(base),
-                             "oracle_gain": curve[0]["gain_mean"],
+                             "oracle_gain": float(oracle_gain),
                              "curve": curve, "break_even_accuracy": be}
-        print(f"{axis:12s} k={k:2d} oracle {curve[0]['gain_mean']:+.2f} | "
+        print(f"{axis:12s} k={k:2d} oracle {oracle_gain:+.2f} | "
               f"break-even accuracy {be if be is None else round(be, 3)} | "
-              f"random-pick gain {curve[-1]['gain_mean']:+.2f}", flush=True)
+              f"random-pick gain {random_gain}", flush=True)
 
     json.dump(res, open(a.out, "w"), indent=2)
     print(f"wrote {a.out}")
