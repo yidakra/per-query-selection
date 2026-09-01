@@ -206,24 +206,25 @@ of other variants is exposed, and we can quantify the exposure because we have a
 
 ---
 
-## VQPP, the first video QPP benchmark (added 2026-09-01)
+## VQPP, the first video QPP benchmark
 
 Lutu, Poesina and Ionescu, "VQPP: Video Query Performance Prediction Benchmark"
-(arXiv:2602.17814, Feb 2026), from the same group whose iQPP adaptations our predictor
-implementations follow. Two text-to-video datasets (MSR-VTT, VATEX), two retrievers (GRAM, VAST),
+(arXiv:2602.17814, Feb 2026). The group also built iQPP, and our predictor implementations follow
+their iQPP adaptations. Two text-to-video datasets (MSR-VTT, VATEX), two retrievers (GRAM, VAST),
 56K English queries, and the classic task: correlate a predicted difficulty with per-query
 performance. No selection anywhere; queries, systems and sources are never chosen, so the benchmark
 and our study do not overlap in contribution, and it becomes the natural citation for "QPP has
 reached video."
 
 Two of their findings do work for us. Their best predictor across all four scenarios is a
-fine-tuned BERT regression on the query text, which they file under pre-retrieval; it is trained on
+fine-tuned BERT regressor on the query text, which they file under pre-retrieval. It is trained on
 per-query outcome labels, so in our terms it reads outcomes at training time, exactly as BERT-QPP
 cross does in our table. Their own benchmark is therefore another instance of the pre/post label
 failing to mark the useful line. And their post-retrieval predictors underperform for a stated
-mechanical reason, one relevant video per query starving score-distribution signals, which explains
-cleanly why our score family works on MultiVENT 2.0 (multiple judged relevants per query) while
-theirs disappoints, before a reviewer reads the two results as a contradiction.
+mechanical reason: with one relevant video per query, score-distribution signals starve. That is
+why our score family works on MultiVENT 2.0, which has multiple judged relevants per query, while
+theirs disappoints, and stating the cause up front keeps a reviewer from reading the two results as
+a contradiction.
 
 They also fine-tune an LLM for query reformulation with the BERT predictor as a DPO reward, which
 sits upstream of our variant axis: they improve the pool, we choose from it. Both papers should
