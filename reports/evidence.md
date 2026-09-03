@@ -307,6 +307,33 @@ these two decisions on this collection, not a general law about selection axes. 
 a concrete recommendation: a system that already routes channels gains the language decision's full
 value by adding it, and the reverse holds too.
 
+**Four additions from the research plan, one artifact (added 2026-09-02).** The plan's RQ1 asked for
+two baselines we lacked and one strategy we had never run, and its RQ2 asked for the real selectors
+to be placed on the error-tolerance curves. All four are in `mv2_plan_additions.py`,
+`mv2_plan_additions.json`, same runs, same protocol, same event-grouped folds.
+
+The fixed-fusion baselines make selection look better, not worse. Fusing all five language lists
+costs −1.79 against simply asking in English, because pooling translations dilutes the one good
+list, and fusing speech with on-screen text costs −9.95, because OCR poisons any fixed mixture.
+Query-conditioned fusion, the plan's fourth strategy with out-of-fold predicted gains softmaxed
+into per-query RRF weights, beats fixed fusion everywhere but loses to hard selection on both axes:
++1.15 against +2.03 on language, −1.05 against +1.47 on the two-channel decision, where even
+query-conditioned weights leave too much mass on the bad list. "Selection replaces fusion" survives
+its strongest challenger so far. The composed-selectors arm of the joint experiment lands at +2.88
+against English-speech (p = 0.0005), against +3.71 for the jointly trained selector over all
+fifteen pairs: composing independently trained selectors collects 78% of the joint gain, so joint
+training pays but is not where most of the value lives.
+
+The sharpest result is the placement of the real selectors on the error-tolerance curves. The
+language selector agrees with its oracle on 45.7% of queries, and its curve breaks even at 45.0%.
+The channel selector agrees on 73.5%, and its curve breaks even at 75.4%. Both real selectors
+operate within two points of the accuracy where acting starts to pay at all, which is why both
+deliver small gains relative to their oracles, and it is the research plan's central hypothesis,
+that a prediction-quality threshold explains success and failure, confirmed quantitatively on the
+first attempt. Note the hard-selection numbers here (+2.03, +1.47) differ slightly from the
+dedicated runs (+2.16, +1.43) because this script's overlap features use a shared builder; the
+protocol is otherwise identical and the differences sit inside the intervals.
+
 **How accurate a selector must be, measured with simulated error (added 2026-09-01).** The
 centrepiece of the supervision research plan's RQ2, run on all three axes
 (`mv2_error_tolerance.py`, `mv2_error_tolerance.json`): start from the oracle, replace its pick
