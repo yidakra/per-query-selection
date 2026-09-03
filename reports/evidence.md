@@ -307,6 +307,24 @@ these two decisions on this collection, not a general law about selection axes. 
 a concrete recommendation: a system that already routes channels gains the language decision's full
 value by adding it, and the reverse holds too.
 
+**How accurate a selector must be, measured with simulated error (added 2026-09-01).** The
+centrepiece of the supervision research plan's RQ2, run on all three axes
+(`mv2_error_tolerance.py`, `mv2_error_tolerance.json`): start from the oracle, replace its pick
+with a uniformly drawn alternative at a controlled rate, and find where the delivered gain crosses
+zero. The break-even oracle-agreement rates are 75.4% for the two-channel decision (3 options),
+45.0% for the language decision (5 options) and 22.5% for the variant decision (31 options). Read
+absolutely, the bars look wildly different; read against chance agreement (33%, 20%, 3.2%) they
+say something cleaner: channel and language demand the same discrimination, about 2.3 times
+chance, while the variant decision demands 7 times chance, which explains in one number why the
+variant axis was the hardest for the learned selector despite carrying the largest oracle
+(+12.4). A fully random pick loses on every axis (−16.8, −8.2, −3.8), the cheap-predictors-hurt
+finding derived from first principles rather than observed. Version-1 scope, stated: the error
+model substitutes uniformly among the non-oracle options, so it prices all mistakes equally;
+placing the real selectors' observed agreement rates on these curves is the follow-up, and a
+confusion-weighted error model is the refinement if the uniform one proves too coarse. The
+two-channel decision here is the dense speech-versus-OCR one from the joint experiment, not the
+three-channel headline cell.
+
 **The two query-side axes, under the channel axis's battery (added 2026-08-28).** The headline table
 puts three decisions side by side, so the two newer rows were put through the same machinery the
 channel row has carried since the review: group-level sign-flip tests, Holm correction within
