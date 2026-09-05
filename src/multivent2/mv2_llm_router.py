@@ -83,18 +83,37 @@ def main():
     qrels, _ = load_qrels(os.path.join(DATA, "multivent_2_test_judgments.jsonl"))
     qids = sorted(q for q in queries if q in qrels)
 
+    # the cache is only reusable for the same model and the same prompts; a sidecar records both
+    # and a mismatch moves the old cache aside instead of mixing choices from different setups
+    import hashlib
+    prompt_hash = hashlib.sha256((CHANNEL_PROMPT + LANG_PROMPT).encode()).hexdigest()[:12]
+    meta_path = a.cache + ".meta.json"
+    if os.path.exists(a.cache):
+        if os.path.exists(meta_path):
+            meta = json.load(open(meta_path))
+            if meta.get("model") != a.model or meta.get("prompt_hash") != prompt_hash:
+                stale = a.cache + f".stale-{meta.get('model','?').replace(':', '_')}-{meta.get('prompt_hash','?')}"
+                os.replace(a.cache, stale)
+                print(f"cache was for {meta.get('model')} / {meta.get('prompt_hash')}; moved to {stale}",
+                      flush=True)
+        else:
+            print(f"cache has no sidecar; adopting it for {a.model} / {prompt_hash} (it was produced "
+                  f"by a single model and prompt version)", flush=True)
+    json.dump({"model": a.model, "prompt_hash": prompt_hash}, open(meta_path, "w"))
     done = {}
     if os.path.exists(a.cache):
         for line in open(a.cache):
             r = json.loads(line)
-            done[r["qid"]] = r
+            if r.get("model", a.model) == a.model and r.get("prompt_hash", prompt_hash) == prompt_hash:
+                done[r["qid"]] = r
     with open(a.cache, "a") as fh:
         for i, q in enumerate(qids):
             if q in done:
                 continue
             rc = ask(client, a.model, CHANNEL_PROMPT.format(q=queries[q]))
             rl = ask(client, a.model, LANG_PROMPT.format(q=queries[q]))
-            rec = {"qid": q, "channel_raw": rc, "channel": parse_channel(rc),
+            rec = {"qid": q, "model": a.model, "prompt_hash": prompt_hash,
+                   "channel_raw": rc, "channel": parse_channel(rc),
                    "lang_raw": rl, "lang": parse_lang(rl)}
             done[q] = rec
             fh.write(json.dumps(rec) + "\n")
