@@ -1,0 +1,881 @@
+{
+  "table": "mv2_qpp_table_depth50.json",
+  "delta": 0.005,
+  "rows": [
+    {
+      "cell": "ASR-shipped",
+      "family": "pre",
+      "predictor": "IDF_avg",
+      "mean_diff": -0.00730618125478702,
+      "p_signflip_group": 0.991504247876062,
+      "ci95": [
+        -0.013546047553442941,
+        -0.001633430124747811
+      ],
+      "within_delta": false,
+      "p_holm": 1.0
+    },
+    {
+      "cell": "ASR-shipped",
+      "family": "pre",
+      "predictor": "IDF_max",
+      "mean_diff": 0.0001952055093968229,
+      "p_signflip_group": 0.27636181909045476,
+      "ci95": [
+        -0.00019521896061543847,
+        0.0007409452313702996
+      ],
+      "within_delta": true,
+      "p_holm": 1.0
+    },
+    {
+      "cell": "ASR-shipped",
+      "family": "pre",
+      "predictor": "IDF_sum",
+      "mean_diff": -0.0012494052465764206,
+      "p_signflip_group": 0.7336331834082959,
+      "ci95": [
+        -0.005543128539560464,
+        0.0028104442326593523
+      ],
+      "within_delta": false,
+      "p_holm": 1.0
+    },
+    {
+      "cell": "ASR-shipped",
+      "family": "pre",
+      "predictor": "IDF_std",
+      "mean_diff": -0.000910368235925041,
+      "p_signflip_group": 0.9365317341329336,
+      "ci95": [
+        -0.002191960050563193,
+        0.00014524850914991714
+      ],
+      "within_delta": true,
+      "p_holm": 1.0
+    },
+    {
+      "cell": "ASR-shipped",
+      "family": "pre",
+      "predictor": "SCQ_avg",
+      "mean_diff": -0.00054834140925139,
+      "p_signflip_group": 0.8000999500249875,
+      "ci95": [
+        -0.0017961165871230396,
+        0.0006415251837904679
+      ],
+      "within_delta": true,
+      "p_holm": 1.0
+    },
+    {
+      "cell": "ASR-shipped",
+      "family": "pre",
+      "predictor": "SCQ_max",
+      "mean_diff": -0.005168474619613526,
+      "p_signflip_group": 0.8710644677661169,
+      "ci95": [
+        -0.013748138199168407,
+        0.0038251826124516635
+      ],
+      "within_delta": false,
+      "p_holm": 1.0
+    },
+    {
+      "cell": "ASR-shipped",
+      "family": "pre",
+      "predictor": "SCQ_sum",
+      "mean_diff": -0.0010652353080904597,
+      "p_signflip_group": 0.6976511744127936,
+      "ci95": [
+        -0.005451273089757311,
+        0.0030802990117687907
+      ],
+      "within_delta": false,
+      "p_holm": 1.0
+    },
+    {
+      "cell": "ASR-shipped",
+      "family": "pre",
+      "predictor": "avgICTF",
+      "mean_diff": -0.004063247117592103,
+      "p_signflip_group": 0.9260369815092454,
+      "ci95": [
+        -0.009536664975908623,
+        0.0011819888295854825
+      ],
+      "within_delta": false,
+      "p_holm": 1.0
+    },
+    {
+      "cell": "ASR-shipped",
+      "family": "pre",
+      "predictor": "SCS_1",
+      "mean_diff": -0.004819207813324827,
+      "p_signflip_group": 0.953023488255872,
+      "ci95": [
+        -0.010833336813741582,
+        0.0009069770605942762
+      ],
+      "within_delta": false,
+      "p_holm": 1.0
+    },
+    {
+      "cell": "ASR-shipped",
+      "family": "pre",
+      "predictor": "SCS_2",
+      "mean_diff": -0.005957123064042399,
+      "p_signflip_group": 0.9730134932533733,
+      "ci95": [
+        -0.012114428778365558,
+        -9.844521507424999e-05
+      ],
+      "within_delta": false,
+      "p_holm": 1.0
+    },
+    {
+      "cell": "ASR-shipped",
+      "family": "pre",
+      "predictor": "QL",
+      "mean_diff": -0.0001544323175557763,
+      "p_signflip_group": 0.5217391304347826,
+      "ci95": [
+        -0.006748176491430464,
+        0.006484058624663146
+      ],
+      "within_delta": false,
+      "p_holm": 1.0
+    },
+    {
+      "cell": "ASR-shipped",
+      "family": "post",
+      "predictor": "WIG_norm",
+      "mean_diff": 0.008763541539185748,
+      "p_signflip_group": 0.0074962518740629685,
+      "ci95": [
+        0.0019491682847144398,
+        0.015056570814112175
+      ],
+      "within_delta": false,
+      "p_holm": 0.14992503748125938
+    },
+    {
+      "cell": "ASR-shipped",
+      "family": "post",
+      "predictor": "WIG",
+      "mean_diff": -0.003878170588620354,
+      "p_signflip_group": 0.8580709645177411,
+      "ci95": [
+        -0.010818565409548913,
+        0.0027028450006320566
+      ],
+      "within_delta": false,
+      "p_holm": 1.0
+    },
+    {
+      "cell": "ASR-shipped",
+      "family": "post",
+      "predictor": "NQC_norm",
+      "mean_diff": 0.014345722074205404,
+      "p_signflip_group": 0.0014992503748125937,
+      "ci95": [
+        0.006594196907624912,
+        0.022133541443519502
+      ],
+      "within_delta": false,
+      "p_holm": 0.034482758620689655
+    },
+    {
+      "cell": "ASR-shipped",
+      "family": "post",
+      "predictor": "NQC",
+      "mean_diff": 0.016082440010260757,
+      "p_signflip_group": 0.0004997501249375312,
+      "ci95": [
+        0.006473047482082449,
+        0.02485729389727098
+      ],
+      "within_delta": false,
+      "p_holm": 0.014992503748125937
+    },
+    {
+      "cell": "ASR-shipped",
+      "family": "post",
+      "predictor": "SMV_norm",
+      "mean_diff": 0.011590036349954261,
+      "p_signflip_group": 0.0014992503748125937,
+      "ci95": [
+        0.004396768556888799,
+        0.019342366764213765
+      ],
+      "within_delta": false,
+      "p_holm": 0.034482758620689655
+    },
+    {
+      "cell": "ASR-shipped",
+      "family": "post",
+      "predictor": "SMV",
+      "mean_diff": 0.011637279181776062,
+      "p_signflip_group": 0.005497251374312844,
+      "ci95": [
+        0.003779734169982964,
+        0.019642340662187376
+      ],
+      "within_delta": false,
+      "p_holm": 0.11544227886056972
+    },
+    {
+      "cell": "ASR-shipped",
+      "family": "post",
+      "predictor": "RSD",
+      "mean_diff": 0.0028639232435102666,
+      "p_signflip_group": 0.24287856071964017,
+      "ci95": [
+        -0.005379262582064604,
+        0.01056478776331181
+      ],
+      "within_delta": false,
+      "p_holm": 1.0
+    },
+    {
+      "cell": "ASR-shipped",
+      "family": "post",
+      "predictor": "sigma_max",
+      "mean_diff": 0.009067273189218582,
+      "p_signflip_group": 0.014992503748125937,
+      "ci95": [
+        0.0006930995180523291,
+        0.017866937462641078
+      ],
+      "within_delta": false,
+      "p_holm": 0.2848575712143928
+    },
+    {
+      "cell": "ASR-shipped",
+      "family": "post",
+      "predictor": "sigma_x0.5",
+      "mean_diff": 0.01022747404143915,
+      "p_signflip_group": 0.0004997501249375312,
+      "ci95": [
+        0.004201255906962994,
+        0.01571946751590679
+      ],
+      "within_delta": false,
+      "p_holm": 0.014992503748125937
+    },
+    {
+      "cell": "ASR-shipped",
+      "family": "post",
+      "predictor": "max",
+      "mean_diff": 0.004480818476736298,
+      "p_signflip_group": 0.1184407796101949,
+      "ci95": [
+        -0.002966675617648415,
+        0.011738391500573405
+      ],
+      "within_delta": false,
+      "p_holm": 1.0
+    },
+    {
+      "cell": "ASR-shipped",
+      "family": "learned",
+      "predictor": "ours_ridge",
+      "mean_diff": 0.012444309166780562,
+      "p_signflip_group": 0.0004997501249375312,
+      "ci95": [
+        0.003982914504723329,
+        0.02059115549677684
+      ],
+      "within_delta": false,
+      "p_holm": 0.0014992503748125937
+    },
+    {
+      "cell": "ASR-dense",
+      "family": "pre",
+      "predictor": "IDF_avg",
+      "mean_diff": -0.0011055697595716766,
+      "p_signflip_group": 0.8905547226386806,
+      "ci95": [
+        -0.003039984568220964,
+        0.0005357617507112146
+      ],
+      "within_delta": true,
+      "p_holm": 1.0
+    },
+    {
+      "cell": "ASR-dense",
+      "family": "pre",
+      "predictor": "IDF_max",
+      "mean_diff": -0.003922240066351082,
+      "p_signflip_group": 0.9830084957521239,
+      "ci95": [
+        -0.007204657887324369,
+        -0.0005749633086290809
+      ],
+      "within_delta": false,
+      "p_holm": 1.0
+    },
+    {
+      "cell": "ASR-dense",
+      "family": "pre",
+      "predictor": "IDF_sum",
+      "mean_diff": -0.002717441948393849,
+      "p_signflip_group": 0.9870064967516242,
+      "ci95": [
+        -0.005331813328332186,
+        -0.00033017952063432943
+      ],
+      "within_delta": false,
+      "p_holm": 1.0
+    },
+    {
+      "cell": "ASR-dense",
+      "family": "pre",
+      "predictor": "IDF_std",
+      "mean_diff": -0.0020102684231483496,
+      "p_signflip_group": 0.8760619690154923,
+      "ci95": [
+        -0.005172942182423073,
+        0.001389663675893169
+      ],
+      "within_delta": false,
+      "p_holm": 1.0
+    },
+    {
+      "cell": "ASR-dense",
+      "family": "pre",
+      "predictor": "SCQ_avg",
+      "mean_diff": -0.001173881030475265,
+      "p_signflip_group": 0.8580709645177411,
+      "ci95": [
+        -0.003235829079770847,
+        0.0010311967812365493
+      ],
+      "within_delta": true,
+      "p_holm": 1.0
+    },
+    {
+      "cell": "ASR-dense",
+      "family": "pre",
+      "predictor": "SCQ_max",
+      "mean_diff": -0.0009686942415906412,
+      "p_signflip_group": 0.728135932033983,
+      "ci95": [
+        -0.004241766013071396,
+        0.0024208308072824506
+      ],
+      "within_delta": true,
+      "p_holm": 1.0
+    },
+    {
+      "cell": "ASR-dense",
+      "family": "pre",
+      "predictor": "SCQ_sum",
+      "mean_diff": -0.0008426804900640672,
+      "p_signflip_group": 0.8505747126436781,
+      "ci95": [
+        -0.002468562450128723,
+        0.0005727979876978889
+      ],
+      "within_delta": true,
+      "p_holm": 1.0
+    },
+    {
+      "cell": "ASR-dense",
+      "family": "pre",
+      "predictor": "avgICTF",
+      "mean_diff": -0.0014953649867150173,
+      "p_signflip_group": 0.974512743628186,
+      "ci95": [
+        -0.0033263321372765243,
+        -4.600654780831904e-05
+      ],
+      "within_delta": true,
+      "p_holm": 1.0
+    },
+    {
+      "cell": "ASR-dense",
+      "family": "pre",
+      "predictor": "SCS_1",
+      "mean_diff": -0.0004293523634186921,
+      "p_signflip_group": 0.8265867066466767,
+      "ci95": [
+        -0.0012173827364018825,
+        0.00018918879565929774
+      ],
+      "within_delta": true,
+      "p_holm": 1.0
+    },
+    {
+      "cell": "ASR-dense",
+      "family": "pre",
+      "predictor": "SCS_2",
+      "mean_diff": -0.00014832292999724238,
+      "p_signflip_group": 0.7061469265367316,
+      "ci95": [
+        -0.000520074257137161,
+        0.00013598230938657423
+      ],
+      "within_delta": true,
+      "p_holm": 1.0
+    },
+    {
+      "cell": "ASR-dense",
+      "family": "pre",
+      "predictor": "QL",
+      "mean_diff": -0.0008777324354628012,
+      "p_signflip_group": 0.7401299350324838,
+      "ci95": [
+        -0.0034819407308008038,
+        0.0016726500532882943
+      ],
+      "within_delta": true,
+      "p_holm": 1.0
+    },
+    {
+      "cell": "ASR-dense",
+      "family": "post",
+      "predictor": "WIG_norm",
+      "mean_diff": 0.0048767037349003815,
+      "p_signflip_group": 0.02498750624687656,
+      "ci95": [
+        7.499686374184897e-05,
+        0.010461938197832595
+      ],
+      "within_delta": false,
+      "p_holm": 0.4497751124437781
+    },
+    {
+      "cell": "ASR-dense",
+      "family": "post",
+      "predictor": "WIG",
+      "mean_diff": -0.0003148951941729315,
+      "p_signflip_group": 0.7616191904047976,
+      "ci95": [
+        -0.001166591491820815,
+        0.0005068378488815741
+      ],
+      "within_delta": true,
+      "p_holm": 1.0
+    },
+    {
+      "cell": "ASR-dense",
+      "family": "post",
+      "predictor": "NQC_norm",
+      "mean_diff": 0.010545134671401675,
+      "p_signflip_group": 0.0004997501249375312,
+      "ci95": [
+        0.005468434564832771,
+        0.016442929850010453
+      ],
+      "within_delta": false,
+      "p_holm": 0.014992503748125937
+    },
+    {
+      "cell": "ASR-dense",
+      "family": "post",
+      "predictor": "NQC",
+      "mean_diff": 0.010744623918631244,
+      "p_signflip_group": 0.0004997501249375312,
+      "ci95": [
+        0.00521617798073182,
+        0.01647852035528572
+      ],
+      "within_delta": false,
+      "p_holm": 0.014992503748125937
+    },
+    {
+      "cell": "ASR-dense",
+      "family": "post",
+      "predictor": "SMV_norm",
+      "mean_diff": 0.011642890809944776,
+      "p_signflip_group": 0.0004997501249375312,
+      "ci95": [
+        0.006203987073318949,
+        0.017898005514345786
+      ],
+      "within_delta": false,
+      "p_holm": 0.014992503748125937
+    },
+    {
+      "cell": "ASR-dense",
+      "family": "post",
+      "predictor": "SMV",
+      "mean_diff": 0.010816043664131643,
+      "p_signflip_group": 0.0004997501249375312,
+      "ci95": [
+        0.0047169583632085,
+        0.017389750454632504
+      ],
+      "within_delta": false,
+      "p_holm": 0.014992503748125937
+    },
+    {
+      "cell": "ASR-dense",
+      "family": "post",
+      "predictor": "RSD",
+      "mean_diff": -0.0002615292907363639,
+      "p_signflip_group": 0.5487256371814093,
+      "ci95": [
+        -0.0047175139927824695,
+        0.004105807579959058
+      ],
+      "within_delta": true,
+      "p_holm": 1.0
+    },
+    {
+      "cell": "ASR-dense",
+      "family": "post",
+      "predictor": "sigma_max",
+      "mean_diff": 0.012417798070450983,
+      "p_signflip_group": 0.0004997501249375312,
+      "ci95": [
+        0.0072897547353482145,
+        0.017731475292967834
+      ],
+      "within_delta": false,
+      "p_holm": 0.014992503748125937
+    },
+    {
+      "cell": "ASR-dense",
+      "family": "post",
+      "predictor": "sigma_x0.5",
+      "mean_diff": 0.0061464396241112575,
+      "p_signflip_group": 0.041979010494752625,
+      "ci95": [
+        -0.00016991095100409349,
+        0.013419344584778893
+      ],
+      "within_delta": false,
+      "p_holm": 0.7136431784107946
+    },
+    {
+      "cell": "ASR-dense",
+      "family": "post",
+      "predictor": "max",
+      "mean_diff": 0.0025271950045591147,
+      "p_signflip_group": 0.15542228885557222,
+      "ci95": [
+        -0.001971218248973094,
+        0.007546453956351863
+      ],
+      "within_delta": false,
+      "p_holm": 1.0
+    },
+    {
+      "cell": "ASR-dense",
+      "family": "learned",
+      "predictor": "ours_ridge",
+      "mean_diff": 0.011436255168276281,
+      "p_signflip_group": 0.0004997501249375312,
+      "ci95": [
+        0.005372483513161929,
+        0.018036192494137775
+      ],
+      "within_delta": false,
+      "p_holm": 0.0014992503748125937
+    },
+    {
+      "cell": "OCR",
+      "family": "pre",
+      "predictor": "IDF_avg",
+      "mean_diff": -0.003120805056528786,
+      "p_signflip_group": 0.9975012493753124,
+      "ci95": [
+        -0.005300900659681165,
+        -0.0009864274533165193
+      ],
+      "within_delta": false,
+      "p_holm": 1.0
+    },
+    {
+      "cell": "OCR",
+      "family": "pre",
+      "predictor": "IDF_max",
+      "mean_diff": 0.0004973310599764066,
+      "p_signflip_group": 0.07196401799100449,
+      "ci95": [
+        -0.0001274936849446269,
+        0.0011813067373211625
+      ],
+      "within_delta": true,
+      "p_holm": 1.0
+    },
+    {
+      "cell": "OCR",
+      "family": "pre",
+      "predictor": "IDF_sum",
+      "mean_diff": 0.0,
+      "p_signflip_group": 1.0,
+      "ci95": [
+        0.0,
+        0.0
+      ],
+      "within_delta": true,
+      "p_holm": 1.0
+    },
+    {
+      "cell": "OCR",
+      "family": "pre",
+      "predictor": "IDF_std",
+      "mean_diff": -0.001089932668161315,
+      "p_signflip_group": 0.9830084957521239,
+      "ci95": [
+        -0.0022277817787882447,
+        -0.0001043519509817248
+      ],
+      "within_delta": true,
+      "p_holm": 1.0
+    },
+    {
+      "cell": "OCR",
+      "family": "pre",
+      "predictor": "SCQ_avg",
+      "mean_diff": -0.00024302286448659818,
+      "p_signflip_group": 0.9415292353823088,
+      "ci95": [
+        -0.0006417178999951423,
+        1.2685114013136376e-05
+      ],
+      "within_delta": true,
+      "p_holm": 1.0
+    },
+    {
+      "cell": "OCR",
+      "family": "pre",
+      "predictor": "SCQ_max",
+      "mean_diff": -0.0011287688668135873,
+      "p_signflip_group": 1.0,
+      "ci95": [
+        -0.0020707471895576707,
+        -0.0003497757811458809
+      ],
+      "within_delta": true,
+      "p_holm": 1.0
+    },
+    {
+      "cell": "OCR",
+      "family": "pre",
+      "predictor": "SCQ_sum",
+      "mean_diff": 0.0,
+      "p_signflip_group": 1.0,
+      "ci95": [
+        0.0,
+        0.0
+      ],
+      "within_delta": true,
+      "p_holm": 1.0
+    },
+    {
+      "cell": "OCR",
+      "family": "pre",
+      "predictor": "avgICTF",
+      "mean_diff": -0.0024727017864434766,
+      "p_signflip_group": 0.9955022488755623,
+      "ci95": [
+        -0.004432574536416509,
+        -0.0007370136266667034
+      ],
+      "within_delta": true,
+      "p_holm": 1.0
+    },
+    {
+      "cell": "OCR",
+      "family": "pre",
+      "predictor": "SCS_1",
+      "mean_diff": -0.0026719666725434628,
+      "p_signflip_group": 0.9985007496251874,
+      "ci95": [
+        -0.00452546450385886,
+        -0.0008661589389454888
+      ],
+      "within_delta": true,
+      "p_holm": 1.0
+    },
+    {
+      "cell": "OCR",
+      "family": "pre",
+      "predictor": "SCS_2",
+      "mean_diff": -0.0024425471287734157,
+      "p_signflip_group": 0.9945027486256871,
+      "ci95": [
+        -0.004267472605227595,
+        -0.0006303266105344106
+      ],
+      "within_delta": true,
+      "p_holm": 1.0
+    },
+    {
+      "cell": "OCR",
+      "family": "pre",
+      "predictor": "QL",
+      "mean_diff": -0.0003059793096624614,
+      "p_signflip_group": 0.9085457271364318,
+      "ci95": [
+        -0.0008715863097475132,
+        5.267506842931724e-05
+      ],
+      "within_delta": true,
+      "p_holm": 1.0
+    },
+    {
+      "cell": "OCR",
+      "family": "post",
+      "predictor": "WIG_norm",
+      "mean_diff": -0.0009489151850442298,
+      "p_signflip_group": 0.9580209895052474,
+      "ci95": [
+        -0.002078898511797704,
+        0.00015089322750199417
+      ],
+      "within_delta": true,
+      "p_holm": 1.0
+    },
+    {
+      "cell": "OCR",
+      "family": "post",
+      "predictor": "WIG",
+      "mean_diff": -0.00014006395431579702,
+      "p_signflip_group": 0.7031484257871065,
+      "ci95": [
+        -0.0006140110412395388,
+        0.00033078425720374987
+      ],
+      "within_delta": true,
+      "p_holm": 1.0
+    },
+    {
+      "cell": "OCR",
+      "family": "post",
+      "predictor": "NQC_norm",
+      "mean_diff": -0.00020873257269040532,
+      "p_signflip_group": 0.784607696151924,
+      "ci95": [
+        -0.0006887300262290757,
+        0.00031948815200327156
+      ],
+      "within_delta": true,
+      "p_holm": 1.0
+    },
+    {
+      "cell": "OCR",
+      "family": "post",
+      "predictor": "NQC",
+      "mean_diff": -0.0007899515781162778,
+      "p_signflip_group": 0.8640679660169915,
+      "ci95": [
+        -0.002165628383104891,
+        0.0006578911781346408
+      ],
+      "within_delta": true,
+      "p_holm": 1.0
+    },
+    {
+      "cell": "OCR",
+      "family": "post",
+      "predictor": "SMV_norm",
+      "mean_diff": -0.0007723868668376606,
+      "p_signflip_group": 0.9120439780109945,
+      "ci95": [
+        -0.0019570384091847056,
+        0.000320319444684094
+      ],
+      "within_delta": true,
+      "p_holm": 1.0
+    },
+    {
+      "cell": "OCR",
+      "family": "post",
+      "predictor": "SMV",
+      "mean_diff": -0.0004262220716283457,
+      "p_signflip_group": 0.7071464267866067,
+      "ci95": [
+        -0.001954177790968442,
+        0.001154042438776609
+      ],
+      "within_delta": true,
+      "p_holm": 1.0
+    },
+    {
+      "cell": "OCR",
+      "family": "post",
+      "predictor": "RSD",
+      "mean_diff": -0.0005755815644595036,
+      "p_signflip_group": 0.8355822088955522,
+      "ci95": [
+        -0.0017203384864785695,
+        0.00031763056187083237
+      ],
+      "within_delta": true,
+      "p_holm": 1.0
+    },
+    {
+      "cell": "OCR",
+      "family": "post",
+      "predictor": "sigma_max",
+      "mean_diff": -0.0006329610600907498,
+      "p_signflip_group": 0.8690654672663668,
+      "ci95": [
+        -0.0017574374209456882,
+        0.0003959320379826273
+      ],
+      "within_delta": true,
+      "p_holm": 1.0
+    },
+    {
+      "cell": "OCR",
+      "family": "post",
+      "predictor": "sigma_x0.5",
+      "mean_diff": -0.0005425392305691151,
+      "p_signflip_group": 0.8255872063968016,
+      "ci95": [
+        -0.0017859304033386136,
+        0.00044177007014844507
+      ],
+      "within_delta": true,
+      "p_holm": 1.0
+    },
+    {
+      "cell": "OCR",
+      "family": "post",
+      "predictor": "max",
+      "mean_diff": -0.00013986819546025044,
+      "p_signflip_group": 0.544727636181909,
+      "ci95": [
+        -0.0027700358933485,
+        0.002279197659429307
+      ],
+      "within_delta": true,
+      "p_holm": 1.0
+    },
+    {
+      "cell": "OCR",
+      "family": "learned",
+      "predictor": "ours_ridge",
+      "mean_diff": 0.00032727589290209257,
+      "p_signflip_group": 0.2943528235882059,
+      "ci95": [
+        -0.0005722205324703505,
+        0.0014914362349863657
+      ],
+      "within_delta": true,
+      "p_holm": 0.2943528235882059
+    }
+  ],
+  "summary": {
+    "pre": {
+      "significant_holm": 0,
+      "equivalent": 21,
+      "of": 33
+    },
+    "post": {
+      "significant_holm": 9,
+      "equivalent": 12,
+      "of": 30
+    },
+    "learned": {
+      "significant_holm": 2,
+      "equivalent": 1,
+      "of": 3
+    }
+  }
+}

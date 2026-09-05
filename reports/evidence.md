@@ -307,6 +307,18 @@ these two decisions on this collection, not a general law about selection axes. 
 a concrete recommendation: a system that already routes channels gains the language decision's full
 value by adding it, and the reverse holds too.
 
+**How much retrieval evidence a score predictor needs (added 2026-09-05).** The research plan's
+shallow-evidence question, answered by rerunning the score-only family with the window of results
+it may read set to 5, 10, 20, 50, 100 and 1000, everything else identical
+(`run_depth_ablation.sh`, `mv2_qpp_table_depth*.*`, `mv2_row_inference_depth*.json`). Significant
+rows after Holm, out of 30: 3, 7, 8, 9, 8 and 3. An inverted U. Ten results already recover most of
+the signal, five are too few for the statistics to stabilise, and a thousand dilute them with the
+long tail until the family is back where five left it. The default of 100 sits on the plateau, 50 is
+marginally best, and the practical reading is that outcome-reading predictors need a shallow
+window, twenty to a hundred results, which bounds what they cost at query time. The corpus-statistic
+family reads the index rather than the results, is unaffected by construction, and stays at 0 of 33
+at every depth.
+
 **Four additions from the research plan, one artifact (added 2026-09-02).** The plan's RQ1 asked for
 two baselines we lacked and one strategy we had never run, and its RQ2 asked for the real selectors
 to be placed on the error-tolerance curves. All four are in `mv2_plan_additions.py`,
