@@ -61,15 +61,18 @@ def features_for(options_runs, qids):
 
 
 def axis_block(name, options_runs, option_names, default_i, qids, qrels, grp, splits, mk,
-               group_stats, out):
+               group_stats, out, fusion_members=None):
+    """`fusion_members`: the runs the fixed-fusion baseline combines. Defaults to every option,
+    which is right when all options are raw lists (the language axis); pass the raw channels only
+    when an option is itself a fusion of the others, so nothing is counted twice."""
     Y = np.stack([np.array([per_query_ndcg(qrels, {q: r[q] for q in qids}).get(q, 0.0)
                             for q in qids]) for r in options_runs], axis=1)
     default = Y[:, default_i]
     X = features_for(options_runs, qids)
 
-    # fixed fusion over all options
-    fused = {q: rrf_weighted([r[q] for r in options_runs], [1.0] * len(options_runs))
-             for q in qids}
+    # fixed fusion over the raw members only
+    members = fusion_members if fusion_members is not None else options_runs
+    fused = {q: rrf_weighted([r[q] for r in members], [1.0] * len(members)) for q in qids}
     pq = per_query_ndcg(qrels, fused)
     fixed_fusion = np.array([pq.get(q, 0.0) for q in qids])
 
@@ -135,7 +138,7 @@ def main():
     both = {q: rrf(lang_runs["en"][q], ocr[q]) for q in qids}
     chan_opts = [lang_runs["en"], ocr, both]
     Yc, _ = axis_block("channel_2ch", chan_opts, ["asr", "ocr", "both"], 0, qids, qrels, grp,
-                       splits, mk, group_stats, out)
+                       splits, mk, group_stats, out, fusion_members=[lang_runs["en"], ocr])
 
     # composed selectors: each axis's own out-of-fold pick, applied together as a (language,
     # channel) pair, scored on the joint policy grid
