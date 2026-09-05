@@ -61,17 +61,19 @@ def features_for(options_runs, qids):
 
 
 def axis_block(name, options_runs, option_names, default_i, qids, qrels, grp, splits, mk,
-               group_stats, out, fusion_members=None):
-    """`fusion_members`: the runs the fixed-fusion baseline combines. Defaults to every option,
-    which is right when all options are raw lists (the language axis); pass the raw channels only
-    when an option is itself a fusion of the others, so nothing is counted twice."""
+               group_stats, out, fusion_idx=None):
+    """`fusion_idx`: indices of the options that both fusion strategies combine. Defaults to every
+    option, which is right when all options are raw lists (the language axis); pass the raw
+    channels' indices when an option is itself a fusion of the others, so nothing is counted twice.
+    Query-conditioned weights are softmaxed over those same options' predictions."""
     Y = np.stack([np.array([per_query_ndcg(qrels, {q: r[q] for q in qids}).get(q, 0.0)
                             for q in qids]) for r in options_runs], axis=1)
     default = Y[:, default_i]
     X = features_for(options_runs, qids)
 
-    # fixed fusion over the raw members only
-    members = fusion_members if fusion_members is not None else options_runs
+    # both fusion strategies combine the raw members only
+    fidx = list(fusion_idx) if fusion_idx is not None else list(range(len(options_runs)))
+    members = [options_runs[i] for i in fidx]
     fused = {q: rrf_weighted([r[q] for r in members], [1.0] * len(members)) for q in qids}
     pq = per_query_ndcg(qrels, fused)
     fixed_fusion = np.array([pq.get(q, 0.0) for q in qids])
@@ -86,11 +88,12 @@ def axis_block(name, options_runs, option_names, default_i, qids, qrels, grp, sp
         pick = np.argmax(pred, axis=1)
         sel[te] = Y[te, pick]
         agree[te] = pick == oracle_pick[te]
-        z = (pred - pred.mean(axis=1, keepdims=True)) / (pred.std(axis=1, keepdims=True) + 1e-9)
+        pm = pred[:, fidx]
+        z = (pm - pm.mean(axis=1, keepdims=True)) / (pm.std(axis=1, keepdims=True) + 1e-9)
         W = np.exp(z); W /= W.sum(axis=1, keepdims=True)
         for row_i, qi in enumerate(te):
             q = qids[qi]
-            qcond_fused_run[q] = rrf_weighted([r[q] for r in options_runs], W[row_i])
+            qcond_fused_run[q] = rrf_weighted([r[q] for r in members], W[row_i])
     pq2 = per_query_ndcg(qrels, qcond_fused_run)
     qcond_fusion = np.array([pq2.get(q, 0.0) for q in qids])
 
@@ -138,7 +141,7 @@ def main():
     both = {q: rrf(lang_runs["en"][q], ocr[q]) for q in qids}
     chan_opts = [lang_runs["en"], ocr, both]
     Yc, _ = axis_block("channel_2ch", chan_opts, ["asr", "ocr", "both"], 0, qids, qrels, grp,
-                       splits, mk, group_stats, out, fusion_members=[lang_runs["en"], ocr])
+                       splits, mk, group_stats, out, fusion_idx=[0, 1])
 
     # composed selectors: each axis's own out-of-fold pick, applied together as a (language,
     # channel) pair, scored on the joint policy grid
