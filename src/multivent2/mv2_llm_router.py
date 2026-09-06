@@ -88,23 +88,21 @@ def main():
     import hashlib
     prompt_hash = hashlib.sha256((CHANNEL_PROMPT + LANG_PROMPT).encode()).hexdigest()[:12]
     meta_path = a.cache + ".meta.json"
-    if os.path.exists(a.cache):
-        if os.path.exists(meta_path):
-            meta = json.load(open(meta_path))
-            if meta.get("model") != a.model or meta.get("prompt_hash") != prompt_hash:
-                stale = a.cache + f".stale-{meta.get('model','?').replace(':', '_')}-{meta.get('prompt_hash','?')}"
-                os.replace(a.cache, stale)
-                print(f"cache was for {meta.get('model')} / {meta.get('prompt_hash')}; moved to {stale}",
-                      flush=True)
-        else:
-            print(f"cache has no sidecar; adopting it for {a.model} / {prompt_hash} (it was produced "
-                  f"by a single model and prompt version)", flush=True)
+    if os.path.exists(a.cache) and os.path.exists(meta_path):
+        meta = json.load(open(meta_path))
+        if meta.get("model") != a.model or meta.get("prompt_hash") != prompt_hash:
+            stale = a.cache + f".stale-{meta.get('model','?').replace(':', '_')}-{meta.get('prompt_hash','?')}"
+            os.replace(a.cache, stale)
+            print(f"cache was for {meta.get('model')} / {meta.get('prompt_hash')}; moved to {stale}",
+                  flush=True)
     json.dump({"model": a.model, "prompt_hash": prompt_hash}, open(meta_path, "w"))
+    # strict provenance: only records that name this exact model and prompt version are reused;
+    # anything without provenance is stale by definition and gets regenerated
     done = {}
     if os.path.exists(a.cache):
         for line in open(a.cache):
             r = json.loads(line)
-            if r.get("model", a.model) == a.model and r.get("prompt_hash", prompt_hash) == prompt_hash:
+            if r.get("model") == a.model and r.get("prompt_hash") == prompt_hash:
                 done[r["qid"]] = r
     with open(a.cache, "a") as fh:
         for i, q in enumerate(qids):
