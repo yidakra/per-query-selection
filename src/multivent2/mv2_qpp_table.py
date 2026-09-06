@@ -135,9 +135,10 @@ def main():
     ap.add_argument("--queries", default=None,
                     help="override the query CSV (same Query_id,query format); the pre-retrieval "
                          "features read this text, so variant experiments pass their variant CSV")
-    ap.add_argument("--score-depth", type=int, default=100,
-                    help="how many top-ranked results the score-only predictors may see; the "
-                         "research plan's shallow-evidence ablation varies this")
+    ap.add_argument("--score-depth", type=int, default=None,
+                    help="how many top-ranked results the score-only predictors may see, applied to "
+                         "every predictor in the family; the research plan's shallow-evidence "
+                         "ablation varies this. Unset reproduces Table 1 exactly")
     ap.add_argument("--score-run", default=None,
                     help="run JSON whose scores feed the score-only features, replacing the shipped "
                          "visual run; variant cells pass the cheap option's own run")
@@ -219,7 +220,7 @@ def main():
         post = {n: [] for n in SCORE_ONLY}
         for q in qids:
             nq = len(queries[q].split())
-            for n, v in score_only_suite(list(visual[q].values()), nq, k=a.score_depth).items():
+            for n, v in score_only_suite(list(visual[q].values()), nq, depth=a.score_depth).items():
                 post[n].append(v)
 
         # decisions are kept out of the reported tuples: one bitstring per predictor, in `qids` order

@@ -71,9 +71,15 @@ def sigma_x(s, x, nq):
     return float(keep.std() / np.sqrt(max(1, nq)))
 
 
-def score_only_suite(scores, nq, k=100, k_rsd=1000):
-    """Every predictor computable from scores alone. `scores` need not be sorted."""
+def score_only_suite(scores, nq, k=100, k_rsd=1000, depth=None):
+    """Every predictor computable from scores alone. `scores` need not be sorted.
+
+    `depth`, when given, is the shallow-evidence window: the predictor sees only the top-`depth`
+    results, so every statistic here, including RSD, sigma_max, sigma_x0.5 and max, is computed on
+    that truncated list. With depth None the behaviour is unchanged and Table 1 is reproduced."""
     s = np.sort(np.asarray(scores, dtype=np.float64))[::-1]
+    if depth is not None:
+        s = s[:max(1, int(depth))]
     k = min(k, len(s))
     kr = min(k_rsd, len(s))
     wig_n, wig_nn = wig(s, k, nq)
