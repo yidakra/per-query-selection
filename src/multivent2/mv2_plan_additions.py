@@ -128,8 +128,14 @@ def main():
     qrels, _ = load_qrels(os.path.join(DATA, "multivent_2_test_judgments.jsonl"))
     lang_runs = {L: load_run(os.path.join(DATA, f"asr_dense_bge-m3{SUFFIX[L]}.json"))
                  for L in LANGS}
-    ocr = load_run(os.path.join(DATA, "ocr_dense_bge-m3.json"))
-    qids = sorted(set(qrels) & set.intersection(*[set(r) for r in lang_runs.values()]) & set(ocr))
+    ocr_runs = {L: load_run(os.path.join(DATA, f"ocr_dense_bge-m3{SUFFIX[L]}.json"))
+                for L in LANGS}
+    ocr = ocr_runs["en"]
+    # every run that any policy will index is intersected into the query set, so no policy can
+    # meet a query it never retrieved for
+    qids = sorted(set(qrels)
+                  & set.intersection(*[set(r) for r in lang_runs.values()])
+                  & set.intersection(*[set(r) for r in ocr_runs.values()]))
     grp = np.asarray(event_groups(qids, qrels))
     splits = list(GroupKFold(5).split(np.arange(len(qids)), groups=grp))
     out = {}
@@ -148,11 +154,7 @@ def main():
     pol_runs = {}
     for L in LANGS:
         pol_runs[(L, "asr")] = lang_runs[L]
-        pol_runs[(L, "ocr")] = ocr if L == "en" else None
-    # OCR runs per language exist on disk; load them for the composed grid
-    for L in LANGS:
-        if L != "en":
-            pol_runs[(L, "ocr")] = load_run(os.path.join(DATA, f"ocr_dense_bge-m3{SUFFIX[L]}.json"))
+        pol_runs[(L, "ocr")] = ocr_runs[L]
     for L in LANGS:
         pol_runs[(L, "both")] = {q: rrf(pol_runs[(L, "asr")][q], pol_runs[(L, "ocr")][q])
                                  for q in qids}
