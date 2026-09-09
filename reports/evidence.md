@@ -333,8 +333,8 @@ rewrites the cost paragraph: the "400 labels and five retrievals" price belongs 
 outcome-reading selector, and the zero-shot router pays neither and gains more. The router makes
 both choices for every query, so the pair it implies is a policy in its own right, and scored as
 one over the fifteen-pair grid it lands at −8.28 against the English-speech default
-(p = 1.0000), which is −11.27 relative to the language marginal alone
-(p = 1.0000): the channel choice, wrong almost everywhere, drags the
+(two-sided p = 0.0005), which is −11.27 relative to the language marginal alone
+(two-sided p = 0.0005): the channel choice, wrong almost everywhere, drags the
 language choice down when the two are applied together, and reporting the marginals alone would
 have hidden that. Run on the shared L4 through our own Ollama on port 11435, released on completion.
 **How much retrieval evidence a score predictor needs (added 2026-09-05, corrected 2026-09-08).** The

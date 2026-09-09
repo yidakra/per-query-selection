@@ -84,6 +84,20 @@ def parse_lang(text):
     return None
 
 
+def two_sided_p(diff, grp, n_draws=2000, seed=0):
+    """Two-sided group-level sign-flip test on the size-weighted mean difference: the fraction of
+    sign-flipped draws whose absolute statistic reaches the observed absolute statistic."""
+    rng = np.random.default_rng(seed)
+    diff = np.asarray(diff, dtype=float); grp = np.asarray(grp)
+    groups = np.unique(grp)
+    dg = np.array([diff[grp == g].mean() for g in groups])
+    wg = np.array([(grp == g).sum() for g in groups], dtype=float); wg /= wg.sum()
+    obs = abs(float((wg * dg).sum()))
+    cnt = sum(1 for _ in range(n_draws)
+              if abs(float((wg * dg * rng.choice([-1.0, 1.0], size=len(dg))).sum())) >= obs)
+    return float((1 + cnt) / (n_draws + 1))
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--model", default="qwen2.5:7b-instruct-q4_K_M")
@@ -162,15 +176,17 @@ def main():
         opick = [max(runs, key=lambda k: Y[k].get(q, 0.0)) for q in decided]
         agree = float(np.mean([c == o for c, o in zip(choices, opick)])) if decided else 0.0
         p, obs, lo, hi = group_stats(routed - base, dgrp) if decided else (1.0, 0.0, 0.0, 0.0)
+        p2 = two_sided_p(routed - base, dgrp) if decided else 1.0
         dist = {k: int(sum(1 for c in choices if c == k)) for k in runs}
         out[axis] = {"n_decided": len(decided), "unparsed": unparsed,
                      "default": float(base.mean()), "routed": float(routed.mean()),
                      "vs_default": float(100 * (routed.mean() - base.mean())),
-                     "p": float(p), "ci95": [float(100 * lo), float(100 * hi)],
+                     "p_greater": float(p), "p_two_sided": float(p2),
+                     "ci95": [float(100 * lo), float(100 * hi)],
                      "oracle": float(oracle.mean()), "oracle_agreement": agree,
                      "choice_distribution": dist}
         print(f"[{axis}] LLM router {routed.mean():.4f} vs default {base.mean():.4f} "
-              f"({out[axis]['vs_default']:+.2f}, p={p:.4f}) on {len(decided)} decided queries "
+              f"({out[axis]['vs_default']:+.2f}, p_two_sided={p2:.4f}) on {len(decided)} decided queries "
               f"| agrees with oracle {100*agree:.1f}% | picks {dist} | unparsed {unparsed}", flush=True)
 
     # the joint policy: the router made both choices for every query, so the pair it implies is a
@@ -191,20 +207,24 @@ def main():
     chan_only = np.array([Yg[("en", pc[1])].get(q, 0.0) for q, pc in zip(dq, pair)])
     oracle_j = np.array([max(Yg[k].get(q, 0.0) for k in grid) for q in dq])
     p, obs, lo, hi = group_stats(joint - base, jgrp)
+    p2 = two_sided_p(joint - base, jgrp)
     p_l, _, _, _ = group_stats(joint - lang_only, jgrp)
+    p_l2 = two_sided_p(joint - lang_only, jgrp)
     out["joint"] = {"n_decided": len(dq), "unparsed": len(qids) - len(dq),
                     "default": float(base.mean()), "routed": float(joint.mean()),
                     "vs_default": float(100 * (joint.mean() - base.mean())),
-                    "p": float(p), "ci95": [float(100 * lo), float(100 * hi)],
+                    "p_greater": float(p), "p_two_sided": float(p2),
+                    "ci95": [float(100 * lo), float(100 * hi)],
                     "vs_language_marginal": float(100 * (joint.mean() - lang_only.mean())),
-                    "p_vs_language_marginal": float(p_l),
+                    "p_greater_vs_language_marginal": float(p_l),
+                    "p_two_sided_vs_language_marginal": float(p_l2),
                     "vs_channel_marginal": float(100 * (joint.mean() - chan_only.mean())),
                     "oracle_joint": float(oracle_j.mean()),
                     "pair_distribution": {f"{L}|{c}": int(sum(1 for pc in pair if pc == (L, c)))
                                           for L in LANGS for c in CHANNELS if any(pc == (L, c) for pc in pair)}}
     print(f"[joint] LLM router pair {joint.mean():.4f} vs default {base.mean():.4f} "
-          f"({out['joint']['vs_default']:+.2f}, p={p:.4f}) | vs language-only marginal "
-          f"{out['joint']['vs_language_marginal']:+.2f} (p={p_l:.4f}) | vs channel-only marginal "
+          f"({out['joint']['vs_default']:+.2f}, p_two_sided={p2:.4f}) | vs language-only marginal "
+          f"{out['joint']['vs_language_marginal']:+.2f} (p_two_sided={p_l2:.4f}) | vs channel-only marginal "
           f"{out['joint']['vs_channel_marginal']:+.2f} | joint oracle {oracle_j.mean():.4f}", flush=True)
 
     json.dump(out, open(a.out, "w"), indent=2)
