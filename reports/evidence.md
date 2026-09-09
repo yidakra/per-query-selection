@@ -310,18 +310,22 @@ value by adding it, and the reverse holds too.
 **How much retrieval evidence a score predictor needs (added 2026-09-05, corrected 2026-09-08).** The
 research plan's shallow-evidence question, answered by rerunning the score-only family with the
 window of results it may read set to 5, 10, 20, 50, 100 and 1000, everything else identical
-(`run_depth_ablation.sh`, `mv2_qpp_table_depth*.*`, `mv2_row_inference_depth*.json`). A review
-finding corrected the first version, in which three of the ten predictors (RSD, σ_max, σ_x0.5) never
-saw the window and were reported as depth-insensitive constants; the window now truncates the score
-list before any statistic is computed, and the default path is byte-identical to before, so Table 1
-is untouched. Significant rows after Holm, out of 30: **0, 8, 9, 11, 11 and 8.** Five results are
-too few for any predictor to stabilise. Ten already recover most of the signal. The plateau sits at
-50 to 100, and a thousand costs a quarter of it as the long tail dilutes the statistics. The
-practical reading is that outcome-reading predictors need a shallow window, of the order of fifty
-results, which bounds what they cost at query time. One consequence worth stating so nobody trips
-on it: the depth-100 row here is 11 of 30 rather than the main table's 8 of 30, because RSD reads
-k=100 in the ablation and k=1000 in Table 1. The corpus-statistic family reads the index rather than
-the results, is unaffected by construction, and stays at 0 of 33 at every depth.
+(`run_depth_ablation.sh`, `mv2_qpp_table_depth*.*`, `mv2_row_inference_depth*.json`). Two review
+findings corrected the first versions. In the first, three of the ten predictors never saw the
+window and were reported as depth-insensitive constants. In the second, truncating the whole list
+made WIG's background mean equal its top-k mean at every depth up to 100 and collapsed WIG_norm to a
+constant. The semantics now: the window bounds what the predictor looks at, so k, k_rsd and the σ and
+max statistics are computed on the top-`depth` results, while the list-level background means in
+the normalised variants (the mean-of-all terms in WIG_norm, NQC_norm and SMV_norm) stay on the full
+returned list, which a system has anyway. With depth unset the code is byte-identical to before, so
+Table 1 is untouched. Significant rows after Holm, out of 30: **1, 8, 9, 12, 11 and 8.** Five
+results are too few for all but one predictor. Ten already recover most of the signal. The plateau
+sits at 50 to 100, and a thousand costs a third of the peak as the long tail dilutes the shape
+statistics. The practical reading is that outcome-reading predictors need a shallow window, of the
+order of fifty results, which bounds what they cost at query time. The depth-100 row (11 of 30)
+does not coincide with the main table's 8 of 30 because RSD reads k=100 in the ablation and k=1000
+in Table 1. The corpus-statistic family reads the index rather than the results, is unaffected by
+construction, and stays at 0 of 33 at every depth.
 
 **Four additions from the research plan, one artifact (added 2026-09-02).** The plan's RQ1 asked for
 two baselines we lacked and one strategy we had never run, and its RQ2 asked for the real selectors

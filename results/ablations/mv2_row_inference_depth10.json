@@ -149,14 +149,14 @@
       "cell": "ASR-shipped",
       "family": "post",
       "predictor": "WIG_norm",
-      "mean_diff": 0.0,
-      "p_signflip_group": 1.0,
+      "mean_diff": 0.012590125439365094,
+      "p_signflip_group": 0.0024987506246876563,
       "ci95": [
-        0.0,
-        0.0
+        0.004207031892621691,
+        0.021092581118912494
       ],
-      "within_delta": true,
-      "p_holm": 1.0
+      "within_delta": false,
+      "p_holm": 0.05497251374312844
     },
     {
       "cell": "ASR-shipped",
@@ -175,14 +175,14 @@
       "cell": "ASR-shipped",
       "family": "post",
       "predictor": "NQC_norm",
-      "mean_diff": 0.013769555569327588,
-      "p_signflip_group": 0.0004997501249375312,
+      "mean_diff": 0.011857727837997987,
+      "p_signflip_group": 0.00849575212393803,
       "ci95": [
-        0.006142417936940217,
-        0.021360606414298006
+        0.002791658616487099,
+        0.02075953127313262
       ],
       "within_delta": false,
-      "p_holm": 0.014992503748125937
+      "p_holm": 0.12743628185907047
     },
     {
       "cell": "ASR-shipped",
@@ -195,20 +195,20 @@
         0.02004219399023173
       ],
       "within_delta": false,
-      "p_holm": 0.06296851574212893
+      "p_holm": 0.05997001499250375
     },
     {
       "cell": "ASR-shipped",
       "family": "post",
       "predictor": "SMV_norm",
-      "mean_diff": 0.00863063797486795,
-      "p_signflip_group": 0.01999000499750125,
+      "mean_diff": 0.013467809103248997,
+      "p_signflip_group": 0.0029985007496251873,
       "ci95": [
-        0.0009092210810113017,
-        0.01688100175078928
+        0.004634996861368654,
+        0.02306325722028778
       ],
       "within_delta": false,
-      "p_holm": 0.33983008495752126
+      "p_holm": 0.05997001499250375
     },
     {
       "cell": "ASR-shipped",
@@ -221,7 +221,7 @@
         0.018840639741151646
       ],
       "within_delta": false,
-      "p_holm": 0.1234382808595702
+      "p_holm": 0.1104447776111944
     },
     {
       "cell": "ASR-shipped",
@@ -234,7 +234,7 @@
         0.01859173960616891
       ],
       "within_delta": false,
-      "p_holm": 0.1234382808595702
+      "p_holm": 0.1104447776111944
     },
     {
       "cell": "ASR-shipped",
@@ -247,7 +247,7 @@
         0.02035788191136262
       ],
       "within_delta": false,
-      "p_holm": 0.07996001999000499
+      "p_holm": 0.07196401799100449
     },
     {
       "cell": "ASR-shipped",
@@ -435,14 +435,14 @@
       "cell": "ASR-dense",
       "family": "post",
       "predictor": "WIG_norm",
-      "mean_diff": -0.03715790917111628,
-      "p_signflip_group": 1.0,
+      "mean_diff": 0.008850858120988073,
+      "p_signflip_group": 0.001999000499750125,
       "ci95": [
-        -0.052140204209363356,
-        -0.02108158979999156
+        0.0026167521937241756,
+        0.015628415987909948
       ],
       "within_delta": false,
-      "p_holm": 1.0
+      "p_holm": 0.047976011994003
     },
     {
       "cell": "ASR-dense",
@@ -461,11 +461,11 @@
       "cell": "ASR-dense",
       "family": "post",
       "predictor": "NQC_norm",
-      "mean_diff": 0.009655216583158112,
+      "mean_diff": 0.011194461450305294,
       "p_signflip_group": 0.0004997501249375312,
       "ci95": [
-        0.0037868956923403745,
-        0.01583504855148031
+        0.00444758367314782,
+        0.01851225375787953
       ],
       "within_delta": false,
       "p_holm": 0.014992503748125937
@@ -481,20 +481,20 @@
         0.018332195777474157
       ],
       "within_delta": false,
-      "p_holm": 0.035982008995502246
+      "p_holm": 0.037481259370314844
     },
     {
       "cell": "ASR-dense",
       "family": "post",
       "predictor": "SMV_norm",
-      "mean_diff": 0.010155451446639614,
+      "mean_diff": 0.010785899227625528,
       "p_signflip_group": 0.0009995002498750624,
       "ci95": [
-        0.004171354057474371,
-        0.016649317420464108
+        0.0039667804854213555,
+        0.01816479556674063
       ],
       "within_delta": false,
-      "p_holm": 0.025987006496751622
+      "p_holm": 0.026986506746626684
     },
     {
       "cell": "ASR-dense",
@@ -520,7 +520,7 @@
         0.014801541030996589
       ],
       "within_delta": false,
-      "p_holm": 0.04597701149425287
+      "p_holm": 0.047976011994003
     },
     {
       "cell": "ASR-dense",
@@ -546,7 +546,7 @@
         0.017670289294443163
       ],
       "within_delta": false,
-      "p_holm": 0.025987006496751622
+      "p_holm": 0.026986506746626684
     },
     {
       "cell": "ASR-dense",
@@ -721,11 +721,11 @@
       "cell": "OCR",
       "family": "post",
       "predictor": "WIG_norm",
-      "mean_diff": 0.0,
-      "p_signflip_group": 1.0,
+      "mean_diff": -0.0008430033771457851,
+      "p_signflip_group": 0.9250374812593704,
       "ci95": [
-        0.0,
-        0.0
+        -0.001937267385250424,
+        0.00023391039188191973
       ],
       "within_delta": true,
       "p_holm": 1.0
@@ -747,11 +747,11 @@
       "cell": "OCR",
       "family": "post",
       "predictor": "NQC_norm",
-      "mean_diff": -0.0006235594917777664,
-      "p_signflip_group": 0.7371314342828585,
+      "mean_diff": -0.00019312134325471934,
+      "p_signflip_group": 0.5832083958020989,
       "ci95": [
-        -0.0021822358922890224,
-        0.0013472746651361448
+        -0.0015805855952395163,
+        0.001678032751390849
       ],
       "within_delta": true,
       "p_holm": 1.0
@@ -773,11 +773,11 @@
       "cell": "OCR",
       "family": "post",
       "predictor": "SMV_norm",
-      "mean_diff": -0.0008860246178454854,
-      "p_signflip_group": 0.8285857071464268,
+      "mean_diff": -0.0007832926523589298,
+      "p_signflip_group": 0.9495252373813093,
       "ci95": [
-        -0.0024546323174963994,
-        0.001056494344484985
+        -0.0016593100280958319,
+        9.211695299788758e-05
       ],
       "within_delta": true,
       "p_holm": 1.0
@@ -869,7 +869,7 @@
     },
     "post": {
       "significant_holm": 8,
-      "equivalent": 12,
+      "equivalent": 11,
       "of": 30
     },
     "learned": {

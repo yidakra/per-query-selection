@@ -149,14 +149,14 @@
       "cell": "ASR-shipped",
       "family": "post",
       "predictor": "WIG_norm",
-      "mean_diff": 0.0,
-      "p_signflip_group": 1.0,
+      "mean_diff": 0.01635794488212747,
+      "p_signflip_group": 0.0024987506246876563,
       "ci95": [
-        0.0,
-        0.0
+        0.006630159644344169,
+        0.02595319843856826
       ],
-      "within_delta": true,
-      "p_holm": 1.0
+      "within_delta": false,
+      "p_holm": 0.07246376811594203
     },
     {
       "cell": "ASR-shipped",
@@ -175,14 +175,14 @@
       "cell": "ASR-shipped",
       "family": "post",
       "predictor": "NQC_norm",
-      "mean_diff": 0.010691048378623788,
-      "p_signflip_group": 0.009495252373813094,
+      "mean_diff": 0.012537484966314755,
+      "p_signflip_group": 0.004497751124437781,
       "ci95": [
-        0.0022119347253153586,
-        0.0196760501262228
+        0.003912042213754287,
+        0.02143961212642948
       ],
       "within_delta": false,
-      "p_holm": 0.25637181409295356
+      "p_holm": 0.12143928035982007
     },
     {
       "cell": "ASR-shipped",
@@ -195,20 +195,20 @@
         0.019757604208892547
       ],
       "within_delta": false,
-      "p_holm": 0.2098950524737631
+      "p_holm": 0.17991004497751123
     },
     {
       "cell": "ASR-shipped",
       "family": "post",
       "predictor": "SMV_norm",
-      "mean_diff": 0.009181740068619146,
-      "p_signflip_group": 0.015492253873063468,
+      "mean_diff": 0.011043589363497319,
+      "p_signflip_group": 0.00849575212393803,
       "ci95": [
-        0.0008513422202312674,
-        0.017872160197214923
+        0.0026609280528873363,
+        0.020212331331955664
       ],
       "within_delta": false,
-      "p_holm": 0.32533733133433285
+      "p_holm": 0.1954022988505747
     },
     {
       "cell": "ASR-shipped",
@@ -221,7 +221,7 @@
         0.017984200265680178
       ],
       "within_delta": false,
-      "p_holm": 0.4937531234382808
+      "p_holm": 0.41579210394802596
     },
     {
       "cell": "ASR-shipped",
@@ -234,7 +234,7 @@
         0.018098560370496078
       ],
       "within_delta": false,
-      "p_holm": 0.4937531234382808
+      "p_holm": 0.41579210394802596
     },
     {
       "cell": "ASR-shipped",
@@ -247,7 +247,7 @@
         0.02005361449110146
       ],
       "within_delta": false,
-      "p_holm": 0.2638680659670165
+      "p_holm": 0.21989005497251377
     },
     {
       "cell": "ASR-shipped",
@@ -260,7 +260,7 @@
         0.02013436557960805
       ],
       "within_delta": false,
-      "p_holm": 0.28735632183908044
+      "p_holm": 0.23738130934532733
     },
     {
       "cell": "ASR-shipped",
@@ -435,14 +435,14 @@
       "cell": "ASR-dense",
       "family": "post",
       "predictor": "WIG_norm",
-      "mean_diff": -0.03715790917111628,
-      "p_signflip_group": 1.0,
+      "mean_diff": 0.0078728309729756,
+      "p_signflip_group": 0.005497251374312844,
       "ci95": [
-        -0.052140204209363356,
-        -0.02108158979999156
+        0.0017417558297862388,
+        0.014138375614727118
       ],
       "within_delta": false,
-      "p_holm": 1.0
+      "p_holm": 0.14292853573213393
     },
     {
       "cell": "ASR-dense",
@@ -461,14 +461,14 @@
       "cell": "ASR-dense",
       "family": "post",
       "predictor": "NQC_norm",
-      "mean_diff": 0.0056587186832073935,
-      "p_signflip_group": 0.004997501249375313,
+      "mean_diff": 0.009899518409110807,
+      "p_signflip_group": 0.0004997501249375312,
       "ci95": [
-        0.0012662052830030807,
-        0.010437647323107833
+        0.0048825899387959035,
+        0.015578494583555893
       ],
       "within_delta": false,
-      "p_holm": 0.14992503748125938
+      "p_holm": 0.014992503748125937
     },
     {
       "cell": "ASR-dense",
@@ -481,20 +481,20 @@
         0.014396098169286742
       ],
       "within_delta": false,
-      "p_holm": 0.28735632183908044
+      "p_holm": 0.23738130934532733
     },
     {
       "cell": "ASR-dense",
       "family": "post",
       "predictor": "SMV_norm",
-      "mean_diff": 0.00594731923618432,
-      "p_signflip_group": 0.030484757621189407,
+      "mean_diff": 0.007470807988910055,
+      "p_signflip_group": 0.0024987506246876563,
       "ci95": [
-        2.5850394670820203e-05,
-        0.012288606803914418
+        0.002414260711299819,
+        0.012979587154777698
       ],
       "within_delta": false,
-      "p_holm": 0.5182408795602199
+      "p_holm": 0.07246376811594203
     },
     {
       "cell": "ASR-dense",
@@ -507,7 +507,7 @@
         0.013045471621249818
       ],
       "within_delta": false,
-      "p_holm": 0.25987006496751625
+      "p_holm": 0.21989005497251377
     },
     {
       "cell": "ASR-dense",
@@ -520,7 +520,7 @@
         0.013028028238498572
       ],
       "within_delta": false,
-      "p_holm": 0.25987006496751625
+      "p_holm": 0.21989005497251377
     },
     {
       "cell": "ASR-dense",
@@ -533,7 +533,7 @@
         0.011973007106332366
       ],
       "within_delta": false,
-      "p_holm": 0.3398300849575212
+      "p_holm": 0.288855572213893
     },
     {
       "cell": "ASR-dense",
@@ -546,7 +546,7 @@
         0.015241699678428308
       ],
       "within_delta": false,
-      "p_holm": 0.2028985507246377
+      "p_holm": 0.17491254372813594
     },
     {
       "cell": "ASR-dense",
@@ -721,11 +721,11 @@
       "cell": "OCR",
       "family": "post",
       "predictor": "WIG_norm",
-      "mean_diff": 0.0,
-      "p_signflip_group": 1.0,
+      "mean_diff": -0.0007592759101602636,
+      "p_signflip_group": 0.9075462268865567,
       "ci95": [
-        0.0,
-        0.0
+        -0.0018083726627036853,
+        0.0003176064839580167
       ],
       "within_delta": true,
       "p_holm": 1.0
@@ -747,13 +747,13 @@
       "cell": "OCR",
       "family": "post",
       "predictor": "NQC_norm",
-      "mean_diff": -0.001341137764796131,
-      "p_signflip_group": 0.9510244877561219,
+      "mean_diff": -0.003082880393803735,
+      "p_signflip_group": 0.9620189905047476,
       "ci95": [
-        -0.0028654448221234487,
-        0.00032730763254636033
+        -0.006642278589212462,
+        0.00024960386592591554
       ],
-      "within_delta": true,
+      "within_delta": false,
       "p_holm": 1.0
     },
     {
@@ -773,11 +773,11 @@
       "cell": "OCR",
       "family": "post",
       "predictor": "SMV_norm",
-      "mean_diff": -0.0005405681964517041,
-      "p_signflip_group": 0.6771614192903548,
+      "mean_diff": -0.0015730114465100785,
+      "p_signflip_group": 0.9135432283858071,
       "ci95": [
-        -0.0024960332796224874,
-        0.0017175432551158698
+        -0.003625785439200781,
+        0.0007009172364835056
       ],
       "within_delta": true,
       "p_holm": 1.0
@@ -868,8 +868,8 @@
       "of": 33
     },
     "post": {
-      "significant_holm": 0,
-      "equivalent": 12,
+      "significant_holm": 1,
+      "equivalent": 10,
       "of": 30
     },
     "learned": {
