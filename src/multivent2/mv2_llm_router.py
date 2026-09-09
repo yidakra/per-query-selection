@@ -48,10 +48,22 @@ Query: "{q}"
 In which language should this query be issued? Reply with exactly one word: English, Chinese, Korean, Russian, or Arabic."""
 
 
-def ask(client, model, prompt):
-    r = client.chat.completions.create(model=model, temperature=0, max_tokens=8,
-                                       messages=[{"role": "user", "content": prompt}])
-    return r.choices[0].message.content.strip().lower()
+def ask(client, model, prompt, retries=3):
+    """One constrained prompt. Empty or missing content comes back as "" (the parsers then return
+    None and the query scores as the default); transient client errors are retried with backoff,
+    and a persistent failure also yields "" rather than aborting the batch."""
+    import time
+    for attempt in range(retries):
+        try:
+            r = client.chat.completions.create(model=model, temperature=0, max_tokens=8,
+                                               messages=[{"role": "user", "content": prompt}])
+            content = r.choices[0].message.content if r.choices else None
+            return (content or "").strip().lower()
+        except Exception as e:  # noqa: BLE001 - transient endpoint errors are retried, then logged
+            if attempt == retries - 1:
+                print(f"  ask() failed after {retries} attempts: {str(e)[:120]}", flush=True)
+                return ""
+            time.sleep(2 ** attempt)
 
 
 def parse_channel(text):
