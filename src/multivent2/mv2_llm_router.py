@@ -84,6 +84,12 @@ def parse_lang(text):
     return None
 
 
+def mean_or_none(x):
+    """Mean of a non-empty array, else None, so an empty decided set never writes NaN to JSON."""
+    x = np.asarray(x, dtype=float)
+    return float(x.mean()) if x.size else None
+
+
 def two_sided_p(diff, grp, n_draws=2000, seed=0):
     """Two-sided group-level sign-flip test on the size-weighted mean difference: the fraction of
     sign-flipped draws whose absolute statistic reaches the observed absolute statistic."""
@@ -132,22 +138,29 @@ def main():
     if os.path.exists(a.cache):
         for line in open(a.cache):
             r = json.loads(line)
-            if (r.get("model") == a.model and r.get("prompt_hash") == prompt_hash
-                    and r.get("channel") is not None and r.get("lang") is not None):
-                done[r["qid"]] = r          # only decided records; anything else is re-asked
+            if r.get("model") == a.model and r.get("prompt_hash") == prompt_hash:
+                done[r["qid"]] = r          # last record per qid wins; axes may be partially decided
     with open(a.cache, "a") as fh:
         for i, q in enumerate(qids):
-            if q in done:
+            prev = done.get(q, {})
+            if prev.get("channel") is not None and prev.get("lang") is not None:
                 continue
-            rc = ask(client, a.model, CHANNEL_PROMPT.format(q=queries[q]))
-            rl = ask(client, a.model, LANG_PROMPT.format(q=queries[q]))
             rec = {"qid": q, "model": a.model, "prompt_hash": prompt_hash,
-                   "channel_raw": rc, "channel": parse_channel(rc),
-                   "lang_raw": rl, "lang": parse_lang(rl)}
-            if rec["channel"] is None or rec["lang"] is None:
-                why = "endpoint failure" if (rc is None or rl is None) else f"unparseable {rc!r}/{rl!r}"
-                print(f"  {q}: {why}; not cached, a rerun will re-ask it", flush=True)
+                   "channel_raw": prev.get("channel_raw"), "channel": prev.get("channel"),
+                   "lang_raw": prev.get("lang_raw"), "lang": prev.get("lang")}
+            if rec["channel"] is None:                       # re-ask only the missing axis
+                rc = ask(client, a.model, CHANNEL_PROMPT.format(q=queries[q]))
+                rec["channel_raw"], rec["channel"] = rc, parse_channel(rc)
+            if rec["lang"] is None:
+                rl = ask(client, a.model, LANG_PROMPT.format(q=queries[q]))
+                rec["lang_raw"], rec["lang"] = rl, parse_lang(rl)
+            if rec["channel"] is None and rec["lang"] is None:
+                print(f"  {q}: neither axis decided ({rec['channel_raw']!r}/{rec['lang_raw']!r}); "
+                      f"not cached, a rerun will re-ask it", flush=True)
                 continue
+            if rec["channel"] is None or rec["lang"] is None:
+                print(f"  {q}: one axis undecided; cached partially, a rerun re-asks that axis",
+                      flush=True)
             done[q] = rec
             fh.write(json.dumps(rec) + "\n")
             if (i + 1) % 200 == 0:
@@ -179,12 +192,15 @@ def main():
         p2 = two_sided_p(routed - base, dgrp) if decided else 1.0
         dist = {k: int(sum(1 for c in choices if c == k)) for k in runs}
         out[axis] = {"n_decided": len(decided), "unparsed": unparsed,
-                     "default": float(base.mean()), "routed": float(routed.mean()),
-                     "vs_default": float(100 * (routed.mean() - base.mean())),
+                     "default": mean_or_none(base), "routed": mean_or_none(routed),
+                     "vs_default": (float(100 * (routed.mean() - base.mean())) if decided else None),
                      "p_greater": float(p), "p_two_sided": float(p2),
                      "ci95": [float(100 * lo), float(100 * hi)],
-                     "oracle": float(oracle.mean()), "oracle_agreement": agree,
+                     "oracle": mean_or_none(oracle), "oracle_agreement": agree,
                      "choice_distribution": dist}
+        if not decided:
+            print(f"[{axis}] no decided queries; statistics written as null", flush=True)
+            continue
         print(f"[{axis}] LLM router {routed.mean():.4f} vs default {base.mean():.4f} "
               f"({out[axis]['vs_default']:+.2f}, p_two_sided={p2:.4f}) on {len(decided)} decided queries "
               f"| agrees with oracle {100*agree:.1f}% | picks {dist} | unparsed {unparsed}", flush=True)
@@ -199,6 +215,15 @@ def main():
         grid[(L, "both")] = {q: rrf(lang_runs[L][q], ocr_runs[L][q]) for q in qids}
     Yg = {k: per_query_ndcg(qrels, {q: r[q] for q in qids}) for k, r in grid.items()}
     dq = [q for q in qids if q in done and done[q]["lang"] is not None and done[q]["channel"] is not None]
+    if not dq:
+        out["joint"] = {"n_decided": 0, "unparsed": len(qids), "default": None, "routed": None,
+                        "vs_default": None, "p_greater": None, "p_two_sided": None, "ci95": None,
+                        "vs_language_marginal": None, "vs_channel_marginal": None,
+                        "oracle_joint": None, "pair_distribution": {}}
+        print("[joint] no query decided on both axes; statistics written as null", flush=True)
+        json.dump(out, open(a.out, "w"), indent=2)
+        print(f"wrote {a.out}")
+        return
     jgrp = np.asarray([grp[qids.index(q)] for q in dq])
     base = np.array([Yg[("en", "speech")].get(q, 0.0) for q in dq])
     pair = [(done[q]["lang"], done[q]["channel"]) for q in dq]
