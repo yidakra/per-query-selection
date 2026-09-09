@@ -330,8 +330,13 @@ evidence channel holds the answer is not; which rewriting will rank best is not.
 term statistics never carried the attribute on any axis, and a model that reads the query
 semantically carries it on the one axis where it is there to read. For the language axis this also
 rewrites the cost paragraph: the "400 labels and five retrievals" price belongs to the
-outcome-reading selector, and the zero-shot router pays neither and gains more. Run on the shared
-L4 through our own Ollama on port 11435, released on completion.
+outcome-reading selector, and the zero-shot router pays neither and gains more. The router makes
+both choices for every query, so the pair it implies is a policy in its own right, and scored as
+one over the fifteen-pair grid it lands at −8.28 against the English-speech default
+(p = 1.0000), which is −11.27 relative to the language marginal alone
+(p = 1.0000): the channel choice, wrong almost everywhere, drags the
+language choice down when the two are applied together, and reporting the marginals alone would
+have hidden that. Run on the shared L4 through our own Ollama on port 11435, released on completion.
 **Four additions from the research plan, one artifact (added 2026-09-02).** The plan's RQ1 asked for
 two baselines we lacked and one strategy we had never run, and its RQ2 asked for the real selectors
 to be placed on the error-tolerance curves. All four are in `mv2_plan_additions.py`,
