@@ -307,6 +307,36 @@ these two decisions on this collection, not a general law about selection axes. 
 a concrete recommendation: a system that already routes channels gains the language decision's full
 value by adding it, and the reverse holds too.
 
+**The zero-shot LLM router, and where query-only information works (added 2026-09-05).** The
+research plan's category-1 strong baseline, and the objection a reviewer would raise first: never
+mind corpus statistics, let a language model read the query and choose. Done with a self-hosted
+qwen2.5-7b, temperature 0, one constrained prompt per decision, scored on the existing runs like
+every other selector (`mv2_llm_router.py`, `mv2_llm_router.json`, choices in
+`mv2_llm_router_choices.jsonl`). The result splits by axis, and the split is the most useful
+refinement of the boundary claim this study has produced.
+
+On the channel decision the router does what a person would: it picks "both" for 2,535 of 2,546
+queries, which is the fixed-fusion policy, and loses 9.90 nDCG against speech alone (11.2% oracle
+agreement, far below the 75.4% break-even). Reading the query does not tell you which evidence
+carries the answer. On the language decision the same router gains **+2.99 nDCG** (group sign-flip
+p = 0.0005, 55.9% oracle agreement against a 45.0% break-even), above the outcome-reading ridge's
++2.16, with zero labels and zero extra retrievals, because the query text says where the coverage
+will be: a query about Taipei politics points at Chinese-language videos, and the model reads that.
+
+So the honest statement about query-only information is narrower than "it carries no selection
+signal" and sharper than "it sometimes does": it converts a decision exactly when the query carries
+the option-relevant attribute. The language of the relevant coverage is in the query; which
+evidence channel holds the answer is not; which rewriting will rank best is not. Corpus-aggregate
+term statistics never carried the attribute on any axis, and a model that reads the query
+semantically carries it on the one axis where it is there to read. For the language axis this also
+rewrites the cost paragraph: the "400 labels and five retrievals" price belongs to the
+outcome-reading selector, and the zero-shot router pays neither and gains more. The router makes
+both choices for every query, so the pair it implies is a policy in its own right, and scored as
+one over the fifteen-pair grid it lands at −8.28 against the English-speech default
+(two-sided p = 0.0005), which is −11.27 relative to the language marginal alone
+(two-sided p = 0.0005): the channel choice, wrong almost everywhere, drags the
+language choice down when the two are applied together, and reporting the marginals alone would
+have hidden that. Run on the shared L4 through our own Ollama on port 11435, released on completion.
 **How much retrieval evidence a score predictor needs (added 2026-09-05, corrected 2026-09-08).** The
 research plan's shallow-evidence question, answered by rerunning the score-only family with the
 window of results it may read set to 5, 10, 20, 50, 100 and 1000, everything else identical

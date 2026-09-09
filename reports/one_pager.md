@@ -33,6 +33,10 @@ that already routes channels collects the language decision's full value by addi
 worth naming: every option has to be run before the decision can be made, so a five-language choice
 costs four translations and five retrievals per query, and the selector needs about 400 judged
 queries before it beats simply asking in English, against roughly 100 for the channel decision.
+One selector escapes that price: a language model that reads only the query text picks the
+language well (+3.0, no labels, no extra retrieval), because the query says where the coverage will
+be. The same model asked to pick the channel chooses "search everything" almost every time and
+loses 9.9 points. Reading the query works exactly where the answer is in the query.
 
 This is the result the project now rests on. Choosing per query is worth having, on three different
 kinds of choice. Predictors built from corpus term statistics, the cheap pre-retrieval family the
