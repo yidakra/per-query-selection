@@ -306,7 +306,8 @@ def main():
             break
         cat = "Pre-retrieval<br>(ASR text index)" if i == 0 else ""
         L.append(f"| {cat} | {n} | " + " | ".join(fmt(results[l]["pre"][n]) for l in labels) + " |")
-    for i, n in enumerate(SCORE_ONLY):
+    present = [n for n in SCORE_ONLY if all(n in results[l]["post"] for l in labels)]
+    for i, n in enumerate(present):
         cat = "Post-retrieval<br>(score-only)" if i == 0 else ""
         L.append(f"| {cat} | {n} | " + " | ".join(fmt(results[l]["post"][n]) for l in labels) + " |")
     L.append("| Post-retrieval<br>(needs doc text) | clarity | " +
