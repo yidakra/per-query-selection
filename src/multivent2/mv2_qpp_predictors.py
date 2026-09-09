@@ -71,15 +71,23 @@ def sigma_x(s, x, nq):
     return float(keep.std() / np.sqrt(max(1, nq)))
 
 
-def score_only_suite(scores, nq, k=100, k_rsd=1000):
-    """Every predictor computable from scores alone. `scores` need not be sorted."""
-    s = np.sort(np.asarray(scores, dtype=np.float64))[::-1]
+def score_only_suite(scores, nq, k=100, k_rsd=1000, depth=None):
+    """Every predictor computable from scores alone. `scores` need not be sorted.
+
+    `depth`, when given, is the shallow-evidence window: the predictor sees only the top-`depth`
+    results, so every statistic here, including RSD, sigma_max, sigma_x0.5 and max, is computed on
+    that truncated list. With depth None the behaviour is unchanged and Table 1 is reproduced."""
+    s_full = np.sort(np.asarray(scores, dtype=np.float64))[::-1]
+    # the window bounds what the predictor looks at (top-k shape statistics, sigma, max); the
+    # list-level background means in the normalised variants stay on the full returned list, which
+    # the system has anyway, so truncation does not collapse WIG_norm's contrast to zero
+    s = s_full[:max(1, int(depth))] if depth is not None else s_full
     k = min(k, len(s))
     kr = min(k_rsd, len(s))
-    wig_n, wig_nn = wig(s, k, nq)
-    nqc_n, nqc_nn = nqc(s, k)
-    smv_n, smv_nn = smv(s, k)
-    _, rsd = smv(s, kr)                      # QPP-4-RAG defines RSD as SMV-no-norm at k=1000
+    wig_n, wig_nn = wig(s_full, k, nq)
+    nqc_n, nqc_nn = nqc(s_full, k)
+    smv_n, smv_nn = smv(s_full, k)
+    _, rsd = smv(s_full, kr)                 # QPP-4-RAG defines RSD as SMV-no-norm at k=1000
     return {
         "WIG_norm": float(wig_n),
         "WIG": float(wig_nn),
