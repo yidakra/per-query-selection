@@ -61,15 +61,20 @@ def features_for(options_runs, qids):
 
 
 def axis_block(name, options_runs, option_names, default_i, qids, qrels, grp, splits, mk,
-               group_stats, out):
+               group_stats, out, fusion_idx=None):
+    """`fusion_idx`: indices of the options that both fusion strategies combine. Defaults to every
+    option, which is right when all options are raw lists (the language axis); pass the raw
+    channels' indices when an option is itself a fusion of the others, so nothing is counted twice.
+    Query-conditioned weights are softmaxed over those same options' predictions."""
     Y = np.stack([np.array([per_query_ndcg(qrels, {q: r[q] for q in qids}).get(q, 0.0)
                             for q in qids]) for r in options_runs], axis=1)
     default = Y[:, default_i]
     X = features_for(options_runs, qids)
 
-    # fixed fusion over all options
-    fused = {q: rrf_weighted([r[q] for r in options_runs], [1.0] * len(options_runs))
-             for q in qids}
+    # both fusion strategies combine the raw members only
+    fidx = list(fusion_idx) if fusion_idx is not None else list(range(len(options_runs)))
+    members = [options_runs[i] for i in fidx]
+    fused = {q: rrf_weighted([r[q] for r in members], [1.0] * len(members)) for q in qids}
     pq = per_query_ndcg(qrels, fused)
     fixed_fusion = np.array([pq.get(q, 0.0) for q in qids])
 
@@ -83,11 +88,12 @@ def axis_block(name, options_runs, option_names, default_i, qids, qrels, grp, sp
         pick = np.argmax(pred, axis=1)
         sel[te] = Y[te, pick]
         agree[te] = pick == oracle_pick[te]
-        z = (pred - pred.mean(axis=1, keepdims=True)) / (pred.std(axis=1, keepdims=True) + 1e-9)
+        pm = pred[:, fidx]
+        z = (pm - pm.mean(axis=1, keepdims=True)) / (pm.std(axis=1, keepdims=True) + 1e-9)
         W = np.exp(z); W /= W.sum(axis=1, keepdims=True)
         for row_i, qi in enumerate(te):
             q = qids[qi]
-            qcond_fused_run[q] = rrf_weighted([r[q] for r in options_runs], W[row_i])
+            qcond_fused_run[q] = rrf_weighted([r[q] for r in members], W[row_i])
     pq2 = per_query_ndcg(qrels, qcond_fused_run)
     qcond_fusion = np.array([pq2.get(q, 0.0) for q in qids])
 
@@ -122,8 +128,14 @@ def main():
     qrels, _ = load_qrels(os.path.join(DATA, "multivent_2_test_judgments.jsonl"))
     lang_runs = {L: load_run(os.path.join(DATA, f"asr_dense_bge-m3{SUFFIX[L]}.json"))
                  for L in LANGS}
-    ocr = load_run(os.path.join(DATA, "ocr_dense_bge-m3.json"))
-    qids = sorted(set(qrels) & set.intersection(*[set(r) for r in lang_runs.values()]) & set(ocr))
+    ocr_runs = {L: load_run(os.path.join(DATA, f"ocr_dense_bge-m3{SUFFIX[L]}.json"))
+                for L in LANGS}
+    ocr = ocr_runs["en"]
+    # every run that any policy will index is intersected into the query set, so no policy can
+    # meet a query it never retrieved for
+    qids = sorted(set(qrels)
+                  & set.intersection(*[set(r) for r in lang_runs.values()])
+                  & set.intersection(*[set(r) for r in ocr_runs.values()]))
     grp = np.asarray(event_groups(qids, qrels))
     splits = list(GroupKFold(5).split(np.arange(len(qids)), groups=grp))
     out = {}
@@ -135,18 +147,14 @@ def main():
     both = {q: rrf(lang_runs["en"][q], ocr[q]) for q in qids}
     chan_opts = [lang_runs["en"], ocr, both]
     Yc, _ = axis_block("channel_2ch", chan_opts, ["asr", "ocr", "both"], 0, qids, qrels, grp,
-                       splits, mk, group_stats, out)
+                       splits, mk, group_stats, out, fusion_idx=[0, 1])
 
     # composed selectors: each axis's own out-of-fold pick, applied together as a (language,
     # channel) pair, scored on the joint policy grid
     pol_runs = {}
     for L in LANGS:
         pol_runs[(L, "asr")] = lang_runs[L]
-        pol_runs[(L, "ocr")] = ocr if L == "en" else None
-    # OCR runs per language exist on disk; load them for the composed grid
-    for L in LANGS:
-        if L != "en":
-            pol_runs[(L, "ocr")] = load_run(os.path.join(DATA, f"ocr_dense_bge-m3{SUFFIX[L]}.json"))
+        pol_runs[(L, "ocr")] = ocr_runs[L]
     for L in LANGS:
         pol_runs[(L, "both")] = {q: rrf(pol_runs[(L, "asr")][q], pol_runs[(L, "ocr")][q])
                                  for q in qids}
