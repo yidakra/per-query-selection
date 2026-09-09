@@ -2,6 +2,8 @@
   "model": "qwen2.5:7b-instruct-q4_K_M",
   "n_queries": 2546,
   "channel": {
+    "n_decided": 2546,
+    "unparsed": 0,
     "default": 0.31336306446775974,
     "routed": 0.21438945091590805,
     "vs_default": -9.897361355185168,
@@ -16,10 +18,11 @@
       "speech": 1,
       "screen_text": 10,
       "both": 2535
-    },
-    "unparsed": 0
+    }
   },
   "language": {
+    "n_decided": 2546,
+    "unparsed": 0,
     "default": 0.31336306446775974,
     "routed": 0.3432772101122111,
     "vs_default": 2.991414564445133,
@@ -36,10 +39,11 @@
       "ko": 268,
       "ru": 244,
       "ar": 76
-    },
-    "unparsed": 0
+    }
   },
   "joint": {
+    "n_decided": 2546,
+    "unparsed": 0,
     "default": 0.31336306446775974,
     "routed": 0.23058825294401722,
     "vs_default": -8.277481152374252,

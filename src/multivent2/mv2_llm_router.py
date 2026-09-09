@@ -62,11 +62,13 @@ def ask(client, model, prompt, retries=3):
         except Exception as e:  # noqa: BLE001 - transient endpoint errors are retried, then logged
             if attempt == retries - 1:
                 print(f"  ask() failed after {retries} attempts: {str(e)[:120]}", flush=True)
-                return ""
+                return None                 # endpoint failure, distinct from an empty answer
             time.sleep(2 ** attempt)
 
 
 def parse_channel(text):
+    if not text:
+        return None
     for c in ("screen_text", "screen", "both", "speech"):
         if c in text:
             return "screen_text" if c == "screen" else c
@@ -74,6 +76,8 @@ def parse_channel(text):
 
 
 def parse_lang(text):
+    if not text:
+        return None
     for code, name in LANG_NAMES.items():
         if name.lower() in text:
             return code
@@ -115,8 +119,8 @@ def main():
         for line in open(a.cache):
             r = json.loads(line)
             if (r.get("model") == a.model and r.get("prompt_hash") == prompt_hash
-                    and r.get("channel_raw") and r.get("lang_raw")):
-                done[r["qid"]] = r          # empty answers are not done; a rerun re-asks them
+                    and r.get("channel") is not None and r.get("lang") is not None):
+                done[r["qid"]] = r          # only decided records; anything else is re-asked
     with open(a.cache, "a") as fh:
         for i, q in enumerate(qids):
             if q in done:
@@ -126,8 +130,9 @@ def main():
             rec = {"qid": q, "model": a.model, "prompt_hash": prompt_hash,
                    "channel_raw": rc, "channel": parse_channel(rc),
                    "lang_raw": rl, "lang": parse_lang(rl)}
-            if not (rc and rl):
-                print(f"  empty answer for {q}; not cached, a rerun will retry it", flush=True)
+            if rec["channel"] is None or rec["lang"] is None:
+                why = "endpoint failure" if (rc is None or rl is None) else f"unparseable {rc!r}/{rl!r}"
+                print(f"  {q}: {why}; not cached, a rerun will re-ask it", flush=True)
                 continue
             done[q] = rec
             fh.write(json.dumps(rec) + "\n")
@@ -145,23 +150,28 @@ def main():
     for axis, runs, default, key in (("channel", chan_runs, "speech", "channel"),
                                      ("language", lang_runs, "en", "lang")):
         Y = {k: per_query_ndcg(qrels, {q: r[q] for q in qids}) for k, r in runs.items()}
-        base = np.array([Y[default].get(q, 0.0) for q in qids])
-        choices = [(done.get(q) or {}).get(key) or default for q in qids]
-        unparsed = sum(1 for q in qids if (done.get(q) or {}).get(key) is None)
-        routed = np.array([Y[c].get(q, 0.0) for q, c in zip(qids, choices)])
-        oracle = np.array([max(Y[k].get(q, 0.0) for k in runs) for q in qids])
-        opick = [max(runs, key=lambda k: Y[k].get(q, 0.0)) for q in qids]
-        agree = float(np.mean([c == o for c, o in zip(choices, opick)]))
-        p, obs, lo, hi = group_stats(routed - base, grp)
+        # only queries the router actually decided count as router decisions; the default is
+        # compared on that same subset, and the excluded count is reported next to it
+        decided = [q for q in qids if (done.get(q) or {}).get(key) is not None]
+        unparsed = len(qids) - len(decided)
+        dgrp = np.asarray([grp[qids.index(q)] for q in decided])
+        base = np.array([Y[default].get(q, 0.0) for q in decided])
+        choices = [done[q][key] for q in decided]
+        routed = np.array([Y[c].get(q, 0.0) for q, c in zip(decided, choices)])
+        oracle = np.array([max(Y[k].get(q, 0.0) for k in runs) for q in decided])
+        opick = [max(runs, key=lambda k: Y[k].get(q, 0.0)) for q in decided]
+        agree = float(np.mean([c == o for c, o in zip(choices, opick)])) if decided else 0.0
+        p, obs, lo, hi = group_stats(routed - base, dgrp) if decided else (1.0, 0.0, 0.0, 0.0)
         dist = {k: int(sum(1 for c in choices if c == k)) for k in runs}
-        out[axis] = {"default": float(base.mean()), "routed": float(routed.mean()),
+        out[axis] = {"n_decided": len(decided), "unparsed": unparsed,
+                     "default": float(base.mean()), "routed": float(routed.mean()),
                      "vs_default": float(100 * (routed.mean() - base.mean())),
                      "p": float(p), "ci95": [float(100 * lo), float(100 * hi)],
                      "oracle": float(oracle.mean()), "oracle_agreement": agree,
-                     "choice_distribution": dist, "unparsed": unparsed}
+                     "choice_distribution": dist}
         print(f"[{axis}] LLM router {routed.mean():.4f} vs default {base.mean():.4f} "
-              f"({out[axis]['vs_default']:+.2f}, p={p:.4f}) | agrees with oracle {100*agree:.1f}% "
-              f"| picks {dist} | unparsed {unparsed}", flush=True)
+              f"({out[axis]['vs_default']:+.2f}, p={p:.4f}) on {len(decided)} decided queries "
+              f"| agrees with oracle {100*agree:.1f}% | picks {dist} | unparsed {unparsed}", flush=True)
 
     # the joint policy: the router made both choices for every query, so the pair it implies is a
     # real policy and is scored as one, against the default pair and against each marginal alone
@@ -172,16 +182,18 @@ def main():
         grid[(L, "screen_text")] = ocr_runs[L]
         grid[(L, "both")] = {q: rrf(lang_runs[L][q], ocr_runs[L][q]) for q in qids}
     Yg = {k: per_query_ndcg(qrels, {q: r[q] for q in qids}) for k, r in grid.items()}
-    base = np.array([Yg[("en", "speech")].get(q, 0.0) for q in qids])
-    pair = [((done.get(q) or {}).get("lang") or "en", (done.get(q) or {}).get("channel") or "speech")
-            for q in qids]
-    joint = np.array([Yg[pc].get(q, 0.0) for q, pc in zip(qids, pair)])
-    lang_only = np.array([Yg[(pc[0], "speech")].get(q, 0.0) for q, pc in zip(qids, pair)])
-    chan_only = np.array([Yg[("en", pc[1])].get(q, 0.0) for q, pc in zip(qids, pair)])
-    oracle_j = np.array([max(Yg[k].get(q, 0.0) for k in grid) for q in qids])
-    p, obs, lo, hi = group_stats(joint - base, grp)
-    p_l, _, _, _ = group_stats(joint - lang_only, grp)
-    out["joint"] = {"default": float(base.mean()), "routed": float(joint.mean()),
+    dq = [q for q in qids if q in done and done[q]["lang"] is not None and done[q]["channel"] is not None]
+    jgrp = np.asarray([grp[qids.index(q)] for q in dq])
+    base = np.array([Yg[("en", "speech")].get(q, 0.0) for q in dq])
+    pair = [(done[q]["lang"], done[q]["channel"]) for q in dq]
+    joint = np.array([Yg[pc].get(q, 0.0) for q, pc in zip(dq, pair)])
+    lang_only = np.array([Yg[(pc[0], "speech")].get(q, 0.0) for q, pc in zip(dq, pair)])
+    chan_only = np.array([Yg[("en", pc[1])].get(q, 0.0) for q, pc in zip(dq, pair)])
+    oracle_j = np.array([max(Yg[k].get(q, 0.0) for k in grid) for q in dq])
+    p, obs, lo, hi = group_stats(joint - base, jgrp)
+    p_l, _, _, _ = group_stats(joint - lang_only, jgrp)
+    out["joint"] = {"n_decided": len(dq), "unparsed": len(qids) - len(dq),
+                    "default": float(base.mean()), "routed": float(joint.mean()),
                     "vs_default": float(100 * (joint.mean() - base.mean())),
                     "p": float(p), "ci95": [float(100 * lo), float(100 * hi)],
                     "vs_language_marginal": float(100 * (joint.mean() - lang_only.mean())),
