@@ -307,6 +307,39 @@ these two decisions on this collection, not a general law about selection axes. 
 a concrete recommendation: a system that already routes channels gains the language decision's full
 value by adding it, and the reverse holds too.
 
+**Four additions from the research plan, one artifact (added 2026-09-02).** The plan's RQ1 asked for
+two baselines we lacked and one strategy we had never run, and its RQ2 asked for the real selectors
+to be placed on the error-tolerance curves. All four are in `mv2_plan_additions.py`,
+`mv2_plan_additions.json`, same runs, same protocol, same event-grouped folds.
+
+The fixed-fusion baselines make selection look better, not worse. Fusing all five language lists
+costs −1.79 against simply asking in English, because pooling translations dilutes the one good
+list, and fusing speech with on-screen text costs −9.92, because OCR poisons any fixed mixture.
+Query-conditioned fusion, the plan's fourth strategy with out-of-fold predicted gains softmaxed
+into per-query RRF weights, beats fixed fusion everywhere but loses to hard selection on both axes:
++1.15 against +2.03 on language, −1.01 against +1.45 on the two-channel decision, where even
+query-conditioned weights leave too much mass on the bad list. "Selection replaces fusion" survives
+its strongest challenger so far. The composed-selectors arm of the joint experiment answers a
+different question from the additivity result, and the two should not be read against each other.
+Additivity (`mv2_joint_selection.json`, ratio 0.998) says the two decisions' values do not overlap:
+a selector trained on the full grid realises the sum of the two separate gains. Composition applies
+two independently made picks together, and realises +2.88 against English-speech (p = 0.0005) where
+the same two shared-builder selectors' separate gains sum to +3.48. About a sixth is lost to
+interaction, because each selector chose with the other axis sitting at its default, so the pair it
+implies was never the pair it evaluated. The statement, then, is that the decisions' values add but
+independently made picks do not compose for free; joint training over the grid is what banks the
+whole sum.
+
+The sharpest result is the placement of the real selectors on the error-tolerance curves. The
+language selector agrees with its oracle on 45.7% of queries, and its curve breaks even at 45.0%.
+The channel selector agrees on 73.4%, and its curve breaks even at 75.4%. Both real selectors
+operate within two points of the accuracy where acting starts to pay at all, which is why both
+deliver small gains relative to their oracles, and it is the research plan's central hypothesis,
+that a prediction-quality threshold explains success and failure, confirmed quantitatively on the
+first attempt. Note the hard-selection numbers here (+2.03, +1.45) differ slightly from the
+dedicated runs (+2.16, +1.43) because this script's overlap features use a shared builder; the
+protocol is otherwise identical and the differences sit inside the intervals.
+
 **How accurate a selector must be, measured with simulated error (added 2026-09-01).** The
 centrepiece of the supervision research plan's RQ2, run on all three axes
 (`mv2_error_tolerance.py`, `mv2_error_tolerance.json`): start from the oracle, replace its pick
