@@ -38,5 +38,30 @@
       "ar": 76
     },
     "unparsed": 0
+  },
+  "joint": {
+    "default": 0.31336306446775974,
+    "routed": 0.23058825294401722,
+    "vs_default": -8.277481152374252,
+    "p": 1.0,
+    "ci95": [
+      -10.102807291181305,
+      -6.419307018648265
+    ],
+    "vs_language_marginal": -11.268895716819385,
+    "p_vs_language_marginal": 1.0,
+    "vs_channel_marginal": 1.6198802028109167,
+    "oracle_joint": 0.472967678495237,
+    "pair_distribution": {
+      "en|screen_text": 6,
+      "en|both": 1650,
+      "zh|screen_text": 3,
+      "zh|both": 299,
+      "ko|both": 268,
+      "ru|speech": 1,
+      "ru|screen_text": 1,
+      "ru|both": 242,
+      "ar|both": 76
+    }
   }
 }

@@ -147,6 +147,37 @@ def main():
               f"({out[axis]['vs_default']:+.2f}, p={p:.4f}) | agrees with oracle {100*agree:.1f}% "
               f"| picks {dist} | unparsed {unparsed}", flush=True)
 
+    # the joint policy: the router made both choices for every query, so the pair it implies is a
+    # real policy and is scored as one, against the default pair and against each marginal alone
+    ocr_runs = {L: load_run(os.path.join(DATA, f"ocr_dense_bge-m3{SUFFIX[L]}.json")) for L in LANGS}
+    grid = {}
+    for L in LANGS:
+        grid[(L, "speech")] = lang_runs[L]
+        grid[(L, "screen_text")] = ocr_runs[L]
+        grid[(L, "both")] = {q: rrf(lang_runs[L][q], ocr_runs[L][q]) for q in qids}
+    Yg = {k: per_query_ndcg(qrels, {q: r[q] for q in qids}) for k, r in grid.items()}
+    base = np.array([Yg[("en", "speech")].get(q, 0.0) for q in qids])
+    pair = [(done[q]["lang"] or "en", done[q]["channel"] or "speech") for q in qids]
+    joint = np.array([Yg[pc].get(q, 0.0) for q, pc in zip(qids, pair)])
+    lang_only = np.array([Yg[(done[q]["lang"] or "en", "speech")].get(q, 0.0) for q in qids])
+    chan_only = np.array([Yg[("en", done[q]["channel"] or "speech")].get(q, 0.0) for q in qids])
+    oracle_j = np.array([max(Yg[k].get(q, 0.0) for k in grid) for q in qids])
+    p, obs, lo, hi = group_stats(joint - base, grp)
+    p_l, _, _, _ = group_stats(joint - lang_only, grp)
+    out["joint"] = {"default": float(base.mean()), "routed": float(joint.mean()),
+                    "vs_default": float(100 * (joint.mean() - base.mean())),
+                    "p": float(p), "ci95": [float(100 * lo), float(100 * hi)],
+                    "vs_language_marginal": float(100 * (joint.mean() - lang_only.mean())),
+                    "p_vs_language_marginal": float(p_l),
+                    "vs_channel_marginal": float(100 * (joint.mean() - chan_only.mean())),
+                    "oracle_joint": float(oracle_j.mean()),
+                    "pair_distribution": {f"{L}|{c}": int(sum(1 for pc in pair if pc == (L, c)))
+                                          for L in LANGS for c in CHANNELS if any(pc == (L, c) for pc in pair)}}
+    print(f"[joint] LLM router pair {joint.mean():.4f} vs default {base.mean():.4f} "
+          f"({out['joint']['vs_default']:+.2f}, p={p:.4f}) | vs language-only marginal "
+          f"{out['joint']['vs_language_marginal']:+.2f} (p={p_l:.4f}) | vs channel-only marginal "
+          f"{out['joint']['vs_channel_marginal']:+.2f} | joint oracle {oracle_j.mean():.4f}", flush=True)
+
     json.dump(out, open(a.out, "w"), indent=2)
     print(f"wrote {a.out}")
 
