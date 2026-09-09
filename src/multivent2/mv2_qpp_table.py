@@ -217,11 +217,17 @@ def main():
             cv = None
 
         # score-only predictors from the cheap visual channel
-        post = {n: [] for n in SCORE_ONLY}
+        # RSD is SMV-no-norm at a k=1000 horizon. When the depth window is at or below the family's
+        # k=100, both horizons cap to the same depth and RSD is numerically SMV, so it is not a
+        # distinct predictor there and is dropped from the family rather than counted twice.
+        score_names = [n for n in SCORE_ONLY
+                       if not (a.score_depth is not None and a.score_depth <= 100 and n == "RSD")]
+        post = {n: [] for n in score_names}
         for q in qids:
             nq = len(queries[q].split())
             for n, v in score_only_suite(list(visual[q].values()), nq, depth=a.score_depth).items():
-                post[n].append(v)
+                if n in post:
+                    post[n].append(v)
 
         # decisions are kept out of the reported tuples: one bitstring per predictor, in `qids` order
         dec = {}
@@ -238,7 +244,7 @@ def main():
                 return out
             return {n: route(values[n], g, ndA, ndB, cv, recA, recB) for n in names}
 
-        full = run_family(post, SCORE_ONLY, "post")
+        full = run_family(post, score_names, "post")
         rows = {n: v[:4] for n, v in full.items()}
         dec["post"] = {n: v[4] for n, v in full.items()}
 
