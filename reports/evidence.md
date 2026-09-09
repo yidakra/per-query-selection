@@ -319,10 +319,16 @@ Query-conditioned fusion, the plan's fourth strategy with out-of-fold predicted 
 into per-query RRF weights, beats fixed fusion everywhere but loses to hard selection on both axes:
 +1.15 against +2.03 on language, −1.01 against +1.45 on the two-channel decision, where even
 query-conditioned weights leave too much mass on the bad list. "Selection replaces fusion" survives
-its strongest challenger so far. The composed-selectors arm of the joint experiment lands at +2.88
-against English-speech (p = 0.0005), against +3.71 for the jointly trained selector over all
-fifteen pairs: composing independently trained selectors collects 78% of the joint gain, so joint
-training pays but is not where most of the value lives.
+its strongest challenger so far. The composed-selectors arm of the joint experiment answers a
+different question from the additivity result, and the two should not be read against each other.
+Additivity (`mv2_joint_selection.json`, ratio 0.998) says the two decisions' values do not overlap:
+a selector trained on the full grid realises the sum of the two separate gains. Composition applies
+two independently made picks together, and realises +2.88 against English-speech (p = 0.0005) where
+the same two shared-builder selectors' separate gains sum to +3.48. About a sixth is lost to
+interaction, because each selector chose with the other axis sitting at its default, so the pair it
+implies was never the pair it evaluated. The statement, then, is that the decisions' values add but
+independently made picks do not compose for free; joint training over the grid is what banks the
+whole sum.
 
 The sharpest result is the placement of the real selectors on the error-tolerance curves. The
 language selector agrees with its oracle on 45.7% of queries, and its curve breaks even at 45.0%.
