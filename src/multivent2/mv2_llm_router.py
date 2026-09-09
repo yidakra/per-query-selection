@@ -114,8 +114,9 @@ def main():
     if os.path.exists(a.cache):
         for line in open(a.cache):
             r = json.loads(line)
-            if r.get("model") == a.model and r.get("prompt_hash") == prompt_hash:
-                done[r["qid"]] = r
+            if (r.get("model") == a.model and r.get("prompt_hash") == prompt_hash
+                    and r.get("channel_raw") and r.get("lang_raw")):
+                done[r["qid"]] = r          # empty answers are not done; a rerun re-asks them
     with open(a.cache, "a") as fh:
         for i, q in enumerate(qids):
             if q in done:
@@ -125,6 +126,9 @@ def main():
             rec = {"qid": q, "model": a.model, "prompt_hash": prompt_hash,
                    "channel_raw": rc, "channel": parse_channel(rc),
                    "lang_raw": rl, "lang": parse_lang(rl)}
+            if not (rc and rl):
+                print(f"  empty answer for {q}; not cached, a rerun will retry it", flush=True)
+                continue
             done[q] = rec
             fh.write(json.dumps(rec) + "\n")
             if (i + 1) % 200 == 0:
@@ -142,8 +146,8 @@ def main():
                                      ("language", lang_runs, "en", "lang")):
         Y = {k: per_query_ndcg(qrels, {q: r[q] for q in qids}) for k, r in runs.items()}
         base = np.array([Y[default].get(q, 0.0) for q in qids])
-        choices = [done[q][key] or default for q in qids]
-        unparsed = sum(1 for q in qids if done[q][key] is None)
+        choices = [(done.get(q) or {}).get(key) or default for q in qids]
+        unparsed = sum(1 for q in qids if (done.get(q) or {}).get(key) is None)
         routed = np.array([Y[c].get(q, 0.0) for q, c in zip(qids, choices)])
         oracle = np.array([max(Y[k].get(q, 0.0) for k in runs) for q in qids])
         opick = [max(runs, key=lambda k: Y[k].get(q, 0.0)) for q in qids]
@@ -169,10 +173,11 @@ def main():
         grid[(L, "both")] = {q: rrf(lang_runs[L][q], ocr_runs[L][q]) for q in qids}
     Yg = {k: per_query_ndcg(qrels, {q: r[q] for q in qids}) for k, r in grid.items()}
     base = np.array([Yg[("en", "speech")].get(q, 0.0) for q in qids])
-    pair = [(done[q]["lang"] or "en", done[q]["channel"] or "speech") for q in qids]
+    pair = [((done.get(q) or {}).get("lang") or "en", (done.get(q) or {}).get("channel") or "speech")
+            for q in qids]
     joint = np.array([Yg[pc].get(q, 0.0) for q, pc in zip(qids, pair)])
-    lang_only = np.array([Yg[(done[q]["lang"] or "en", "speech")].get(q, 0.0) for q in qids])
-    chan_only = np.array([Yg[("en", done[q]["channel"] or "speech")].get(q, 0.0) for q in qids])
+    lang_only = np.array([Yg[(pc[0], "speech")].get(q, 0.0) for q, pc in zip(qids, pair)])
+    chan_only = np.array([Yg[("en", pc[1])].get(q, 0.0) for q, pc in zip(qids, pair)])
     oracle_j = np.array([max(Yg[k].get(q, 0.0) for k in grid) for q in qids])
     p, obs, lo, hi = group_stats(joint - base, grp)
     p_l, _, _, _ = group_stats(joint - lang_only, grp)
