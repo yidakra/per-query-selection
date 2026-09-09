@@ -187,16 +187,23 @@ def main():
         routed = np.array([Y[c].get(q, 0.0) for q, c in zip(decided, choices)])
         oracle = np.array([max(Y[k].get(q, 0.0) for k in runs) for q in decided])
         opick = [max(runs, key=lambda k: Y[k].get(q, 0.0)) for q in decided]
-        agree = float(np.mean([c == o for c, o in zip(choices, opick)])) if decided else 0.0
-        p, obs, lo, hi = group_stats(routed - base, dgrp) if decided else (1.0, 0.0, 0.0, 0.0)
-        p2 = two_sided_p(routed - base, dgrp) if decided else 1.0
         dist = {k: int(sum(1 for c in choices if c == k)) for k in runs}
+        if decided:
+            agree = float(np.mean([c == o for c, o in zip(choices, opick)]))
+            p, obs, lo, hi = group_stats(routed - base, dgrp)
+            p2 = two_sided_p(routed - base, dgrp)
+            stats = {"vs_default": float(100 * (routed.mean() - base.mean())),
+                     "p_greater": float(p), "p_two_sided": float(p2),
+                     "ci95": [float(100 * lo), float(100 * hi)], "oracle_agreement": agree}
+        else:                       # nothing was computed, so nothing may look like a real result
+            stats = {"vs_default": None, "p_greater": None, "p_two_sided": None,
+                     "ci95": None, "oracle_agreement": None}
         out[axis] = {"n_decided": len(decided), "unparsed": unparsed,
                      "default": mean_or_none(base), "routed": mean_or_none(routed),
-                     "vs_default": (float(100 * (routed.mean() - base.mean())) if decided else None),
-                     "p_greater": float(p), "p_two_sided": float(p2),
-                     "ci95": [float(100 * lo), float(100 * hi)],
-                     "oracle": mean_or_none(oracle), "oracle_agreement": agree,
+                     "vs_default": stats["vs_default"],
+                     "p_greater": stats["p_greater"], "p_two_sided": stats["p_two_sided"],
+                     "ci95": stats["ci95"],
+                     "oracle": mean_or_none(oracle), "oracle_agreement": stats["oracle_agreement"],
                      "choice_distribution": dist}
         if not decided:
             print(f"[{axis}] no decided queries; statistics written as null", flush=True)
@@ -218,7 +225,10 @@ def main():
     if not dq:
         out["joint"] = {"n_decided": 0, "unparsed": len(qids), "default": None, "routed": None,
                         "vs_default": None, "p_greater": None, "p_two_sided": None, "ci95": None,
-                        "vs_language_marginal": None, "vs_channel_marginal": None,
+                        "vs_language_marginal": None,
+                        "p_greater_vs_language_marginal": None,
+                        "p_two_sided_vs_language_marginal": None,
+                        "vs_channel_marginal": None,
                         "oracle_joint": None, "pair_distribution": {}}
         print("[joint] no query decided on both axes; statistics written as null", flush=True)
         json.dump(out, open(a.out, "w"), indent=2)
