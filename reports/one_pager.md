@@ -165,5 +165,24 @@ are retrieved before it decides; the compute-saving version of the question is e
 cheap family fails. And an earlier headline from this project, that τ anti-correlates with
 delivered value, did not survive a symmetric protocol and was retracted.
 
+**Abstract draft (ECIR 2027).** Retrieval systems fix most of their choices once and apply
+them to every query. On a multilingual video collection at least three of
+those choices can be made per query instead: which evidence channel to search (speech, on-screen
+text or visual frames), which rewriting of the query to run, and which language to ask in. We measure
+what each decision is worth on MultiVENT 2.0 and test whether query performance prediction (QPP)
+can make it. All three pay. A selector that reads retrieval outcomes gains 7.6, 2.4 and 2.2
+nDCG@10 over the default each decision replaces, all significant under grouped tests with
+correction, and the channel and language gains add when combined. The cheap
+pre-retrieval predictors built from corpus term statistics, the family the QPP literature recommends
+for this job, make none of the three decisions in 55 tests, and on the query-side decisions they
+lose up to 7 points against the default. The null holds under translated indexes, regenerated
+captions, an English-only subset, seven query formulations and a second collection. A language
+model that reads only the query recovers the language decision and fails the channel decision.
+What separates the predictors that work from those that fail is whether they see a retrieval
+outcome.
+
+Keywords: query performance prediction, video retrieval, multilingual retrieval, evidence-channel
+selection, query variant selection.
+
 Full evidence and caveats: `reports/evidence.md`. The complete predictor table, all cells and
 metrics: `results/ablations/mv2_table1_nested_grouped.md`.
