@@ -337,6 +337,27 @@ one over the fifteen-pair grid it lands at −8.28 against the English-speech de
 (two-sided p = 0.0005): the channel choice, wrong almost everywhere, drags the
 language choice down when the two are applied together, and reporting the marginals alone would
 have hidden that. Run on the shared L4 through our own Ollama on port 11435, released on completion.
+**The language oracle is label luck (added 2026-09-11).** The channel oracle was audited long ago
+by splitting each query's relevance labels in half, picking on one half and grading on the other,
+which removed 15.21 of its points and left the honest oracle 0.68 above the best fixed channel.
+The query-side oracles carried the same warning and no number. `mv2_axis_goldsplit.py` runs that
+protocol on any option set, and the language axis now has its number. Over five splits of the 1,760
+queries with at least two relevant videos, the in-sample oracle reads 0.3204 and the out-of-sample
+oracle 0.2124, so the optimism is **10.80 nDCG** against a full-gold oracle gain of 10.43. The
+honest oracle lands **0.52 below simply asking in English**, which is also the best fixed option on
+the held-out half. Every point of the language oracle is label luck.
+
+This does not touch any selector. The learned language selector's +2.16 and the zero-shot router's
++2.99 are graded on the full label set with out-of-fold predictions and never read a label at
+decision time, and both clear grouped sign-flip tests. What the audit kills is the upper bound, not
+the decision. With 5.25 relevant videos per query, a half holds about 2.6, and a per-query argmax
+over five options scored on 2.6 labels is mostly reading noise. So the oracle row for the language
+axis stops being a quantity this collection can estimate, exactly as for the channel axis, and the
+evidence that the decision exists is what it always was: real selectors beating the default by a
+margin that survives the significance test. We continue to report no percentage of oracle captured
+anywhere. The variant axis carries the same warning and still has no number, because its 31 options
+have no stored runs and re-scoring them needs the shared GPU.
+
 **The channel router forced to choose (added 2026-09-11).** The three-way router's "both" answer
 on 2,535 of 2,546 queries left one reading open: given a way not to decide, the model took it, and
 the query might still carry a channel signal that a prompt with no exit would surface. We reran the

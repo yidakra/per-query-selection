@@ -1,0 +1,28 @@
+{
+  "axis": "language",
+  "options": {
+    "en": "/home/ubuntu/adaptive-q2e/data/multivent2/asr_dense_bge-m3.json",
+    "zh": "/home/ubuntu/adaptive-q2e/data/multivent2/asr_dense_bge-m3_qzh.json",
+    "ko": "/home/ubuntu/adaptive-q2e/data/multivent2/asr_dense_bge-m3_qko.json",
+    "ru": "/home/ubuntu/adaptive-q2e/data/multivent2/asr_dense_bge-m3_qru.json",
+    "ar": "/home/ubuntu/adaptive-q2e/data/multivent2/asr_dense_bge-m3_qar.json"
+  },
+  "default": "en",
+  "seeds": 5,
+  "n_queries": 2546,
+  "splittable": 1760,
+  "oracle_full": 0.4176969806059133,
+  "default_full": 0.31336306446775974,
+  "oracle_full_vs_default": 10.433391613815356,
+  "in_sample": 0.32039987873001413,
+  "in_sd": 0.0030139640463057744,
+  "out_of_sample": 0.21242733951935264,
+  "out_sd": 0.0023803119431930163,
+  "fixed_on_A": 0.21760985666402907,
+  "fixed_sd": 0.0021274229333295225,
+  "default_on_B": 0.21760985666402907,
+  "default_sd": 0.0021274229333295225,
+  "optimism": 10.79725392106615,
+  "honest_vs_default": -0.5182517144676435,
+  "honest_vs_fixed": -0.5182517144676435
+}
