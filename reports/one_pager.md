@@ -36,7 +36,9 @@ queries before it beats simply asking in English, against roughly 100 for the ch
 One selector escapes that price: a language model that reads only the query text picks the
 language well (+3.0, no labels, no extra retrieval), because the query says where the coverage will
 be. The same model asked to pick the channel chooses "search everything" almost every time and
-loses 9.9 points. Reading the query works exactly where the answer is in the query.
+loses 9.9 points, and when the prompt forces one channel it loses 11.1, choosing on-screen text
+at the base rate of on-screen text being right. Reading the query works exactly where the answer
+is in the query.
 
 This is the result the project now rests on. Choosing per query is worth having, on three different
 kinds of choice. Predictors built from corpus term statistics, the cheap pre-retrieval family the

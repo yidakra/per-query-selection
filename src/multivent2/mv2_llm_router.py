@@ -41,6 +41,14 @@ Query: "{q}"
 
 Which evidence is most likely to contain this query's answer? Reply with exactly one word: speech, screen_text, or both."""
 
+# The three-way prompt lets the model refuse to choose ("both" is fixed fusion). The binary prompt
+# removes that exit, so the reply is a real channel decision or an off-menu answer.
+CHANNEL_PROMPT_BINARY = """You route search queries over a collection of news videos in many languages. A video can be found through what is spoken in it (speech transcript) or through what is written on screen (on-screen text). Only one of the two will be searched.
+
+Query: "{q}"
+
+Which evidence is more likely to contain this query's answer? Reply with exactly one word: speech or screen_text."""
+
 LANG_PROMPT = """You route search queries over a collection of news videos. The videos are in English, Chinese, Korean, Russian and Arabic. The query can be issued in its original English or translated into one of those languages before searching; asking in the language the relevant videos speak usually works best.
 
 Query: "{q}"
@@ -66,12 +74,15 @@ def ask(client, model, prompt, retries=3):
             time.sleep(2 ** attempt)
 
 
-def parse_channel(text):
+def parse_channel(text, options=tuple(CHANNELS)):
+    """Map a reply to one of the options on the menu; anything else (including "both" when the menu
+    is binary) is None, so an off-menu answer never counts as a decision."""
     if not text:
         return None
     for c in ("screen_text", "screen", "both", "speech"):
         if c in text:
-            return "screen_text" if c == "screen" else c
+            c = "screen_text" if c == "screen" else c
+            return c if c in options else None
     return None
 
 
@@ -110,7 +121,18 @@ def main():
     ap.add_argument("--base-url", default="http://localhost:11434/v1")
     ap.add_argument("--cache", default=os.path.join(ABL, "mv2_llm_router_choices.jsonl"))
     ap.add_argument("--out", default=os.path.join(ABL, "mv2_llm_router.json"))
+    ap.add_argument("--channel-binary", action="store_true",
+                    help="channel axis only, with a two-option prompt (speech or screen_text, no "
+                         "'both'); separate cache and output files")
     a = ap.parse_args()
+    if a.channel_binary:            # its own artifacts, never mixed with the three-way run
+        if a.cache == os.path.join(ABL, "mv2_llm_router_choices.jsonl"):
+            a.cache = os.path.join(ABL, "mv2_llm_router_binary_choices.jsonl")
+        if a.out == os.path.join(ABL, "mv2_llm_router.json"):
+            a.out = os.path.join(ABL, "mv2_llm_router_binary.json")
+    channel_prompt = CHANNEL_PROMPT_BINARY if a.channel_binary else CHANNEL_PROMPT
+    channel_options = ("speech", "screen_text") if a.channel_binary else tuple(CHANNELS)
+    need_lang = not a.channel_binary
     from openai import OpenAI
     from mv2_row_inference import group_stats
     client = OpenAI(base_url=a.base_url, api_key="ollama")
@@ -122,7 +144,7 @@ def main():
     # the cache is only reusable for the same model and the same prompts; a sidecar records both
     # and a mismatch moves the old cache aside instead of mixing choices from different setups
     import hashlib
-    prompt_hash = hashlib.sha256((CHANNEL_PROMPT + LANG_PROMPT).encode()).hexdigest()[:12]
+    prompt_hash = hashlib.sha256((channel_prompt + (LANG_PROMPT if need_lang else "")).encode()).hexdigest()[:12]
     meta_path = a.cache + ".meta.json"
     if os.path.exists(a.cache) and os.path.exists(meta_path):
         meta = json.load(open(meta_path))
@@ -140,25 +162,28 @@ def main():
             r = json.loads(line)
             if r.get("model") == a.model and r.get("prompt_hash") == prompt_hash:
                 done[r["qid"]] = r          # last record per qid wins; axes may be partially decided
+    off_menu = {}                   # raw channel replies that named no option on the menu
     with open(a.cache, "a") as fh:
         for i, q in enumerate(qids):
             prev = done.get(q, {})
-            if prev.get("channel") is not None and prev.get("lang") is not None:
+            if prev.get("channel") is not None and (prev.get("lang") is not None or not need_lang):
                 continue
             rec = {"qid": q, "model": a.model, "prompt_hash": prompt_hash,
                    "channel_raw": prev.get("channel_raw"), "channel": prev.get("channel"),
                    "lang_raw": prev.get("lang_raw"), "lang": prev.get("lang")}
             if rec["channel"] is None:                       # re-ask only the missing axis
-                rc = ask(client, a.model, CHANNEL_PROMPT.format(q=queries[q]))
-                rec["channel_raw"], rec["channel"] = rc, parse_channel(rc)
-            if rec["lang"] is None:
+                rc = ask(client, a.model, channel_prompt.format(q=queries[q]))
+                rec["channel_raw"], rec["channel"] = rc, parse_channel(rc, channel_options)
+                if rc and rec["channel"] is None:
+                    off_menu[rc] = off_menu.get(rc, 0) + 1
+            if need_lang and rec["lang"] is None:
                 rl = ask(client, a.model, LANG_PROMPT.format(q=queries[q]))
                 rec["lang_raw"], rec["lang"] = rl, parse_lang(rl)
             if rec["channel"] is None and rec["lang"] is None:
-                print(f"  {q}: neither axis decided ({rec['channel_raw']!r}/{rec['lang_raw']!r}); "
+                print(f"  {q}: no axis decided ({rec['channel_raw']!r}/{rec['lang_raw']!r}); "
                       f"not cached, a rerun will re-ask it", flush=True)
                 continue
-            if rec["channel"] is None or rec["lang"] is None:
+            if need_lang and (rec["channel"] is None or rec["lang"] is None):
                 print(f"  {q}: one axis undecided; cached partially, a rerun re-asks that axis",
                       flush=True)
             done[q] = rec
@@ -171,11 +196,15 @@ def main():
     ocr = load_run(os.path.join(DATA, "ocr_dense_bge-m3.json"))
     both = {q: rrf(lang_runs["en"][q], ocr[q]) for q in qids}
     chan_runs = {"speech": lang_runs["en"], "screen_text": ocr, "both": both}
+    chan_runs = {k: chan_runs[k] for k in channel_options}
     grp = np.asarray(event_groups(qids, qrels))
-    out = {"model": a.model, "n_queries": len(qids)}
+    out = {"model": a.model, "n_queries": len(qids), "channel_prompt": "binary" if a.channel_binary else "three-way",
+           "channel_options": list(channel_options)}
 
-    for axis, runs, default, key in (("channel", chan_runs, "speech", "channel"),
-                                     ("language", lang_runs, "en", "lang")):
+    axes = [("channel", chan_runs, "speech", "channel")]
+    if need_lang:
+        axes.append(("language", lang_runs, "en", "lang"))
+    for axis, runs, default, key in axes:
         Y = {k: per_query_ndcg(qrels, {q: r[q] for q in qids}) for k, r in runs.items()}
         # only queries the router actually decided count as router decisions; the default is
         # compared on that same subset, and the excluded count is reported next to it
@@ -205,12 +234,19 @@ def main():
                      "ci95": stats["ci95"],
                      "oracle": mean_or_none(oracle), "oracle_agreement": stats["oracle_agreement"],
                      "choice_distribution": dist}
+        if axis == "channel":
+            out[axis]["off_menu_replies"] = off_menu       # this run's replies naming no option
         if not decided:
             print(f"[{axis}] no decided queries; statistics written as null", flush=True)
             continue
         print(f"[{axis}] LLM router {routed.mean():.4f} vs default {base.mean():.4f} "
               f"({out[axis]['vs_default']:+.2f}, p_two_sided={p2:.4f}) on {len(decided)} decided queries "
               f"| agrees with oracle {100*agree:.1f}% | picks {dist} | unparsed {unparsed}", flush=True)
+
+    if not need_lang:               # channel-only run: no language choice, so no joint policy
+        json.dump(out, open(a.out, "w"), indent=2)
+        print(f"wrote {a.out}")
+        return
 
     # the joint policy: the router made both choices for every query, so the pair it implies is a
     # real policy and is scored as one, against the default pair and against each marginal alone
