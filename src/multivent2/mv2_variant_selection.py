@@ -41,29 +41,37 @@ def load_pool(path, samples):
     return by_key
 
 
-def encode_and_search(texts, cache_path, model_name, topk=1000, batch=64):
+def encode_and_search(texts, cache_path, model_name, topk=1000, batch=64, device="cuda"):
+    """Retrieve for every text against the cached document embeddings. `device` exists because the
+    box's single GPU is shared: on "cpu" the maths is identical in float32, only slower."""
     import torch
     from sentence_transformers import SentenceTransformer
     cache = np.load(cache_path, allow_pickle=False)
-    D = torch.from_numpy(cache["D"]).cuda()
-    owner = torch.from_numpy(cache["owner"].astype(np.int64)).cuda()
+    half = device != "cpu"                       # fp16 matmul has no CPU kernel here
+    D = torch.from_numpy(cache["D"]).to(device)
+    owner = torch.from_numpy(cache["owner"].astype(np.int64)).to(device)
     doc_ids = [str(x) for x in cache["doc_ids"]]
-    m = SentenceTransformer(model_name, device="cuda"); m.half()
+    m = SentenceTransformer(model_name, device=device)
+    if half:
+        m.half()
+    else:
+        D = D.float()
     Q = m.encode(texts, batch_size=batch, convert_to_numpy=True, normalize_embeddings=True,
-                 show_progress_bar=True).astype(np.float16)
+                 show_progress_bar=True).astype(np.float16 if half else np.float32)
     ndoc = len(doc_ids)
     runs = []
     for s in range(0, len(texts), 64):
-        qb = torch.from_numpy(Q[s:s + 64]).cuda()
+        qb = torch.from_numpy(Q[s:s + 64]).to(device)
         sims = qb @ D.T
-        pooled = torch.full((sims.shape[0], ndoc), -1e4, device="cuda", dtype=sims.dtype)
+        pooled = torch.full((sims.shape[0], ndoc), -1e4, device=device, dtype=sims.dtype)
         pooled.scatter_reduce_(1, owner.expand(sims.shape[0], -1), sims, reduce="amax")
         vals, idx = torch.topk(pooled.float(), min(topk, ndoc), dim=1)
         for j in range(sims.shape[0]):
             runs.append({doc_ids[int(d)]: float(v)
                          for d, v in zip(idx[j].tolist(), vals[j].tolist())})
     del D, owner
-    import torch as _t; _t.cuda.empty_cache()
+    if half:
+        torch.cuda.empty_cache()
     return runs
 
 

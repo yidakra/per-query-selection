@@ -1,4 +1,8 @@
-# Three choices worth making per query, and what cheap prediction cannot see
+# Selection Needs Outcomes: Three Per-Query Choices in Multilingual Video Retrieval
+
+Working title for ECIR 2027, chosen 2026-09-11. It leads with the mechanism the study found,
+that only a predictor which reads a retrieval outcome converts a decision, and leaves the
+corpus-statistic null as the supporting evidence rather than the headline.
 
 A retrieval system settles the same questions for every query it answers, usually by freezing one
 global answer into a configuration file. On a multilingual video collection there are at least three
