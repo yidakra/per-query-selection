@@ -1,0 +1,29 @@
+{
+  "model": "qwen2.5:7b-instruct-q4_K_M",
+  "n_queries": 2546,
+  "channel_prompt": "binary",
+  "channel_options": [
+    "speech",
+    "screen_text"
+  ],
+  "channel": {
+    "n_decided": 2546,
+    "unparsed": 0,
+    "default": 0.31336306446775974,
+    "routed": 0.20281854643241756,
+    "vs_default": -11.054451803534219,
+    "p_greater": 1.0,
+    "p_two_sided": 0.0004997501249375312,
+    "ci95": [
+      -12.876475770996482,
+      -9.32254035855933
+    ],
+    "oracle": 0.35431675129897716,
+    "oracle_agreement": 0.42733699921445406,
+    "choice_distribution": {
+      "speech": 1007,
+      "screen_text": 1539
+    },
+    "off_menu_replies": {}
+  }
+}

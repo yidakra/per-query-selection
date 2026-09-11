@@ -337,6 +337,25 @@ one over the fifteen-pair grid it lands at −8.28 against the English-speech de
 (two-sided p = 0.0005): the channel choice, wrong almost everywhere, drags the
 language choice down when the two are applied together, and reporting the marginals alone would
 have hidden that. Run on the shared L4 through our own Ollama on port 11435, released on completion.
+**The channel router forced to choose (added 2026-09-11).** The three-way router's "both" answer
+on 2,535 of 2,546 queries left one reading open: given a way not to decide, the model took it, and
+the query might still carry a channel signal that a prompt with no exit would surface. We reran the
+channel axis with a binary prompt, speech or screen_text and nothing else (`--channel-binary`,
+artifacts `mv2_llm_router_binary.json` and `mv2_llm_router_binary_choices.jsonl`, same model,
+temperature 0). Every reply landed on the menu. The router picked on-screen text for 1,539 queries
+and speech for 1,007, and lost **11.05 nDCG** against speech alone (two-sided p = 0.0005, CI
+−12.9 to −9.3), worse than the −9.90 of the "both" run. Its agreement with the two-channel oracle
+is 42.7%, against a 75.4% break-even and against 87.1% for simply always choosing speech. On the
+1,609 queries where the two channels actually differ, speech wins 79.6% of them; the router says
+screen_text on 992 of these and is right 20.7% of the time, which is the base rate of screen text
+being the better channel, and says speech on 617 and is right 79.9%, the base rate again. The picks
+carry no information about which channel holds the answer. The model's prior, that a news headline
+points at what is written on screen, is wrong on this collection, where on-screen text alone
+averages 0.133 nDCG against 0.313 for speech. So "both" was the model's best available move, not an
+artifact of the prompt, and the boundary statement stands as written: reading the query converts
+the language decision and fails the channel decision under either prompt. Run through our Ollama on
+port 11435 on the shared L4, mostly on CPU because the GPU was occupied, released on completion.
+
 **How much retrieval evidence a score predictor needs (added 2026-09-05, corrected 2026-09-08).** The
 research plan's shallow-evidence question, answered by rerunning the score-only family with the
 window of results it may read set to 5, 10, 20, 50, 100 and 1000, everything else identical
