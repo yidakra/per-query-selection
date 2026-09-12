@@ -149,7 +149,14 @@ family is 0 of 33 again, and the same holds on the 448 queries whose relevant vi
 English. Caption quality, raised because the shipped captions are old and weak: newly generated captions
 from two captioner sizes, Qwen3.5-9B and Qwen3.5-27B, change nothing as the document-side index on
 either collection (0 of 33 here and 0 of 88 on MSR-VTT for both sizes), and neither does a union
-index holding each video's caption, transcript and on-screen text together. Query formulation, raised
+index holding each video's caption, transcript and on-screen text together. The stronger form of
+that objection is that a caption is a lossy compression, so the index should carry the video itself:
+we put our queries into the captioner's own embedding space and scored every video by its pooled
+vector, and the channel returns 0.019 nDCG against 0.313 for speech. That space resolves identity
+almost perfectly, since a video's own caption finds its own vector first 58 times in 64 against all
+55,388, so this is a property of the representation and not of our reconstruction. Generative hidden
+states with no contrastive training are not a retrieval space, and indexing the video directly would
+need a projection learned from relevance data. Query formulation, raised
 because we had tested only one phrasing: the channel-selection null holds separately inside each of
 seven formulation pools, 77 tests without a pass. Fixed alternatives to selecting lose as well.
 Concatenating every expansion into one query costs 3.1 points against the original, and fusing all

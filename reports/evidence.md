@@ -614,6 +614,49 @@ mid-sentence at the captioner's 2,048-token generation cap, and about 42% carry 
 preamble, uniform noise in both cases. A 30B-captioner rerun waits on supervision, who may already
 have those captions generated.
 
+**The video-embedding index, supervision's other half (added 2026-09-12).** Her objection had two
+halves. A caption is a lossy compression of the video, so the index should carry the video
+representation and not only caption text. The text half is closed: a union index holding each
+video's caption, transcript and on-screen text together is 0 of 33. The video half was open because
+we had no video vectors and no way to put a query in their space. Both resolved this week. Her 9B
+release ships three pooled vectors per video for the full 55,388-video test split, complete by its
+own metadata, at 4,096 dimensions, and her video ids are our judgment doc ids. We put our queries in
+that space by running the same model over the query text and pooling the same way, then scored every
+video by cosine (`mv2_video_channel.py`). CPU only, because a 9B model in bf16 needs about 18 GB and
+the shared GPU has about 2 free. The vectors stay outside the repo like her captions.
+
+Coverage is not the issue: 4,120 of 4,222 judged documents are in the release, 97.6%, the same as
+the caption text we already indexed. The channel does not retrieve.
+
+| Document side | nDCG@10 |
+|---|---|
+| Dense speech, the default channel | 0.3134 |
+| On-screen text | 0.1330 |
+| Her caption vectors, query scored zero-shot | 0.0185 |
+| Her video vectors, query scored zero-shot | 0.0147 |
+
+Before reading that as a fact about her representation we checked it was not a fact about our
+reconstruction. If our pooling matches hers, a video's own caption must retrieve that video's own
+vector. It does: over 64 videos against all 55,388, the caption ranks its own `mean_caption` vector
+first 58 times, in the top ten 63 times, median rank 1. The pooling is faithful, so the retrieval
+numbers are hers and not ours.
+
+The same test against the video vectors is the more interesting one, because it asks whether text
+and video sit in one space inside the model at all. A video's own caption ranks that video's
+`mean_video` vector first only twice in 64, in the top ten nine times, median rank 482 of 55,388.
+That is far above chance, which would put the median near 27,694, and far below retrieval. Text and
+video occupy loosely related regions of the same hidden space rather than a shared one.
+
+So the answer to the objection is specific rather than a shrug. Her space is an excellent identity
+space for text and not a query-to-video retrieval space, and nothing in it was trained to be one:
+these are generative hidden states with no contrastive objective tying a query to a caption or to a
+video. Even the caption side, which resolves identity almost perfectly, collapses for queries,
+because a query looks nothing like a claim-style caption and nothing bridges that. Indexing the
+video representation directly would need a learned projection trained on relevance data, which is a
+different paper and one whose selector would read retrieval outcomes anyway. The caption text we
+already index is the usable form of that representation, and the caption ladder answers the question
+her objection was really about.
+
 **The 27B captioner rung (added 2026-08-31).** Supervision's remaining caption question was whether a
 larger captioner changes the verdict, and she generated the captions herself (Qwen3.5-27B, same
 claim-style prompt). Same swap, same protocol, both collections

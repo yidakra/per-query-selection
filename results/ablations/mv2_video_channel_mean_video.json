@@ -1,0 +1,11 @@
+{
+  "pooling": "mean_video",
+  "model": "Qwen/Qwen3.5-9B",
+  "n_queries": 2546,
+  "n_videos": 55388,
+  "dims": 4096,
+  "judged_covered": 4120,
+  "judged_total": 4222,
+  "ndcg10": 0.014735470373371426,
+  "run": "video_dense_qwen35-9b_mean_video.json"
+}
