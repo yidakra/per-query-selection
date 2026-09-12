@@ -1,0 +1,10 @@
+{
+  "pooling": "mean_video",
+  "model": "Qwen/Qwen3.5-9B",
+  "n": 64,
+  "rank1": 2,
+  "top10": 9,
+  "median_rank": 482,
+  "n_videos": 55388,
+  "max_len": 1024
+}
