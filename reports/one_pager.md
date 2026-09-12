@@ -163,8 +163,8 @@ oracle is a quantity worth reporting. Picking each query's best option with the 
 labels that then grade the pick rewards label luck as well as real advantage, and we measured how
 much on all three axes: choosing on half of each query's labels and grading on the other half
 removes 15.2 of the channel oracle's points, 10.8 of the language oracle's and 12.5 of the variant
-oracle's, which in every case is the whole thing. What survives is between half a point below the
-default and a third of a point above it. With about five relevant videos per query, a half holds
+oracle's, which in every case is the whole thing. What survives runs from half a point below the
+default to two-thirds of a point above it. With about five relevant videos per query, a half holds
 about two and a half, and an argmax over thirty-one options scored on two and a half labels is
 reading noise. So we quote no oracle and no percentage of oracle captured anywhere. This does not
 touch the selectors: they are graded on the full labels, never read a label when they decide, and
