@@ -337,6 +337,35 @@ one over the fifteen-pair grid it lands at −8.28 against the English-speech de
 (two-sided p = 0.0005): the channel choice, wrong almost everywhere, drags the
 language choice down when the two are applied together, and reporting the marginals alone would
 have hidden that. Run on the shared L4 through our own Ollama on port 11435, released on completion.
+**All three oracles are label luck (added 2026-09-12).** The variant axis was the last one quoted
+with a caveat and no number, because its 31 candidates per query have no stored runs.
+`mv2_variant_goldsplit.py` rebuilds them from the cached document embeddings and hands them to the
+same `audit()` the other two axes went through. The rebuild is faithful: it reproduces the reported
+variant oracle to 12.39 against the 12.4 the axis table carries, so the audited quantity is the one
+the paper quotes. Retrieval ran on CPU over about eleven hours, which kept the shared GPU free.
+
+| Axis | Options | Full-gold oracle gain | Optimism removed | Honest oracle |
+|---|---|---|---|---|
+| Evidence channel | 7 | +18.09 over best fixed | 15.21 | +0.68 over best fixed |
+| Query variant | 31 | +12.39 over the original | 12.49 | +0.33 over the original |
+| Language | 5 | +10.43 over English | 10.80 | −0.52 under English |
+
+The pattern is the same everywhere and the option count does not change it: the optimism equals the
+whole oracle, and what survives sits within a point of doing nothing. The variant oracle is the
+sharpest case, because 31 options give the argmax the most noise to climb. Against the best fixed
+option rather than the default, the honest variant oracle is −0.64, so on the held-out half the
+oracle does not even reach the best single reformulation method.
+
+The reading is about measurement, not about the decisions. A query has about five relevant videos
+here, so a half holds two or three, and a per-query argmax scored on two or three labels is reading
+label placement rather than option quality. MultiVENT 2.0 cannot estimate a per-query oracle, and
+neither can any collection with this judgment density. The consequence for the write-up is that the
+one-pager's oracle column is gone rather than annotated, and no percentage of oracle captured
+appears anywhere. Nothing about the selectors changes: their picks come from out-of-fold predictions
+over label-free features or, for the router, from the query text alone, they are graded on the full
+label set, and their gains still clear the grouped sign-flip tests. The headroom estimate is what
+the audit removes.
+
 **The language oracle is label luck (added 2026-09-11).** The channel oracle was audited long ago
 by splitting each query's relevance labels in half, picking on one half and grading on the other,
 which removed 15.21 of its points and left the honest oracle 0.68 above the best fixed channel.
