@@ -14,11 +14,11 @@ are worth, and whether the standard tools of query performance prediction (QPP) 
 
 All three are worth making. One family of predictors makes none of them.
 
-| Decided per query | Best possible choice is worth | Corpus term statistics | Model reading retrieval outcomes |
-|---|---|---|---|
-| Which evidence channel to search | see the caveat below | 0 of 33 | **+7.59** |
-| Which rewriting of the query to run | +12.4 | 0 of 11 | **+2.39** |
-| Which language to ask in | see the caveat below | 0 of 11 | **+2.16** |
+| Decided per query | Corpus term statistics | Model reading retrieval outcomes |
+|---|---|---|
+| Which evidence channel to search | 0 of 33 | **+7.59** |
+| Which rewriting of the query to run | 0 of 11 | **+2.39** |
+| Which language to ask in | 0 of 11 | **+2.16** |
 
 Gains are nDCG@10 against the default the decision replaces: the best fixed channel policy, the
 user's original query, and asking in English. Every gain in the last column is significant under
@@ -32,7 +32,8 @@ against simply keeping the default.
 The three decisions are also close to independent. Giving one selector all fifteen combinations of
 language and channel returns +3.71 nDCG against asking in English on the speech channel, which is
 the sum of what those two decisions return separately (+2.55 and +1.17) to the second decimal, and
-the same additivity holds at the oracle level (+15.96 jointly against +16.00 predicted). A system
+the same additivity holds at the oracle level, which is a statement about how the upper bounds
+combine and not about reachable gain. A system
 that already routes channels collects the language decision's full value by adding it, at a price
 worth naming: every option has to be run before the decision can be made, so a five-language choice
 costs four translations and five retrievals per query, and the selector needs about 400 judged
@@ -157,23 +158,24 @@ should depend on language: it should not. Across queries asked in five languages
 the headroom, and the oracle's picks barely move, so language carries no channel-routing signal even
 though choosing the language itself is worth 10.4 points.
 
-**What we are not claiming.** The oracle columns are upper bounds, not targets. Picking each
-query's best option with the same relevance labels that then grade the pick rewards label luck as
-well as real advantage, and we measured how much. Choosing on half of each query's labels and
-grading on the other half removes 15 of the channel oracle's 16 points, and removes all 10.4 of
-the language oracle's, leaving it half a point below simply asking in English. Both rows therefore
-carry no number, and we report no percentage of oracle captured anywhere. With about five relevant
-videos per query, a per-query argmax scored on half of them is largely reading noise, so what the
-audit removes is the upper bound rather than the decision: the selectors are graded on the full
-labels, never read a label when they decide, and their gains survive the significance tests
-unchanged. The variant oracle carries the same warning and is quoted only to show that a decision
-exists to be made. Our channels are deliberately cheap; the boundary claim does not need
+**What we are not claiming.** There is no oracle column, because on this collection no per-query
+oracle is a quantity worth reporting. Picking each query's best option with the same relevance
+labels that then grade the pick rewards label luck as well as real advantage, and we measured how
+much on all three axes: choosing on half of each query's labels and grading on the other half
+removes 15.2 of the channel oracle's points, 10.8 of the language oracle's and 12.5 of the variant
+oracle's, which in every case is the whole thing. What survives runs from half a point below the
+default to two-thirds of a point above it. With about five relevant videos per query, a half holds
+about two and a half, and an argmax over thirty-one options scored on two and a half labels is
+reading noise. So we quote no oracle and no percentage of oracle captured anywhere. This does not
+touch the selectors: they are graded on the full labels, never read a label when they decide, and
+their gains survive the significance tests unchanged. What the audit removes is the headroom
+estimate, not the decision. Our channels are deliberately cheap; the boundary claim does not need
 competitive retrieval, and the channel-strengthening ladder is the check. We do not beat classical
 QPP at its own binary game: our ridge, NQC and calibrated BERT-QPP sit within a point of one
-another, and all of them read retrieval outcomes. The selector saves no compute, since all
-channels are retrieved before it decides; the compute-saving version of the question is exactly
-the one the cheap family fails. And an earlier headline from this project, that τ anti-correlates
-with delivered value, did not survive a symmetric protocol and was retracted.
+another, and all of them read retrieval outcomes. The selector saves no compute, since all channels
+are retrieved before it decides; the compute-saving version of the question is exactly the one the
+cheap family fails. And an earlier headline from this project, that τ anti-correlates with delivered
+value, did not survive a symmetric protocol and was retracted.
 
 **Abstract draft (ECIR 2027).** Retrieval systems fix most of their choices once and apply
 them to every query. On a multilingual video collection at least three of
