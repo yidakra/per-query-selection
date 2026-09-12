@@ -11,6 +11,7 @@
   "seeds": 5,
   "n_queries": 2546,
   "splittable": 1760,
+  "n_options": 5,
   "oracle_full": 0.4176969806059133,
   "default_full": 0.31336306446775974,
   "oracle_full_vs_default": 10.433391613815356,
