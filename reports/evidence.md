@@ -636,10 +636,25 @@ The decision is real and the predictors mostly miss it. Headroom is about seven 
 and the systems genuinely disagree: the specialised system wins on 19% of MSR-VTT queries and the
 base on 20%, with the rest tied. The score-only family, which converted the channel decision on
 MultiVENT, clears the best fixed system once in twenty tests here, and its strongest rank
-correlation with the true gain is 0.035. Two differences from our own channel selector are worth
-naming before anyone reads this as a stronger null: these features see one system's score
-distribution rather than both, and the metric has a single relevant document, so the per-query
-signal is a rank discount rather than a graded gain.
+correlation with the true gain is 0.035. Before reading that as a stronger null, the positive control
+has to be checked, and it fails too. One learner over both systems' score distributions and their
+rank agreement, the analogue of the selector that converts the channel decision on MultiVENT, gains
++0.0050 of +0.0686 headroom on MSR-VTT and +0.0030 of +0.0679 on DiDeMo, neither significant
+(two-sided p = 0.377 and 0.372, rank correlation with the true gain +0.069 and +0.073).
+
+That changes what MVEB can be used for. Where nothing converts a decision, the corpus-statistic
+failure carries no information about the family boundary, because a predictor that misses cannot be
+distinguished from a decision nothing predicts. What MVEB does speak to is the oracle. These pools
+are single-gold, so a query's entire score is whether one video landed high, and the apparent seven
+points of headroom is exactly the quantity our label-splitting audit showed to be almost entirely
+label luck on three axes of MultiVENT. Here the audit cannot even be run, because a single gold
+cannot be halved. The symptom is consistent: a large apparent oracle that no predictor, cheap or
+outcome-reading, can convert. More than half the queries are ties, 61% on MSR-VTT and 56% on
+DiDeMo, so most of the remaining spread is one system getting lucky on one document.
+
+We therefore do not plan to claim the boundary result on MVEB. It enters as a second test bed for
+the oracle caution, and as the honest report that a fourth decision type looked available and turned
+out not to be.
 
 The pre-retrieval family is not testable yet. It needs the query text, and the released pools carry
 document captions rather than queries; the run ids are natural video ids while the caption

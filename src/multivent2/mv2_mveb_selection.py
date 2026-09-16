@@ -43,6 +43,17 @@ POOLS = {
 }
 
 
+def sign_flip_p(diff, n_draws=2000, seed=0):
+    """Two-sided sign-flip test over queries. One phrasing per information need here, so queries are
+    exchangeable and there is no event-duplicate grouping to respect."""
+    rng = np.random.default_rng(seed)
+    diff = np.asarray(diff, dtype=float)
+    obs = abs(float(diff.mean()))
+    cnt = sum(1 for _ in range(n_draws)
+              if abs(float((diff * rng.choice([-1.0, 1.0], size=len(diff))).mean())) >= obs)
+    return float((1 + cnt) / (n_draws + 1))
+
+
 def per_query_ndcg10(run, qrels):
     """nDCG@10 with one relevant document, so the ideal gain is 1 and this is a rank discount."""
     out = {}
@@ -86,10 +97,11 @@ def main():
     if a.tag and not a.tag.startswith("_"):
         a.tag = "_" + a.tag
 
-    from sklearn.model_selection import KFold
+    from sklearn.model_selection import KFold, cross_val_predict
     from mv2_qpp_predictors import Index, PRE_RETRIEVAL, SCORE_ONLY, \
         pre_retrieval_suite, score_only_suite
-    from mv2_msrvtt_source_replication import route
+    from mv2_msrvtt_source_replication import route, model
+    from retrieve import FEATURE_ORDER, conf_features
 
     qfiles = dict(s.split("=", 1) for s in a.queries)
     ifiles = dict(s.split("=", 1) for s in a.index)
@@ -129,6 +141,33 @@ def main():
                 score_raw[n].append(feats[n])
         score = {n: route(v, gain, cheap, expensive, cv) for n, v in score_raw.items()}
 
+        # the positive control: one learner over both systems' score distributions and their rank
+        # agreement. Without it a weak score family is unreadable, because a predictor that misses
+        # cannot be told apart from a decision that nothing can predict.
+        feats = []
+        for q in qids:
+            rb, ro = runs["base"][q], runs["01mv"][q]
+            cb = conf_features(np.asarray(sorted(rb.values(), reverse=True), dtype=float))
+            co = conf_features(np.asarray(sorted(ro.values(), reverse=True), dtype=float))
+            row = [cb[k] for k in FEATURE_ORDER] + [co[k] for k in FEATURE_ORDER]
+            for depth in (10, 100):
+                top_b = set(sorted(rb, key=rb.get, reverse=True)[:depth])
+                top_o = set(sorted(ro, key=ro.get, reverse=True)[:depth])
+                row.append(len(top_b & top_o) / max(1, len(top_b | top_o)))
+            feats.append(row)
+        ctrl_pred = cross_val_predict(model(), np.asarray(feats), gain, cv=cv)
+        ctrl_routed = np.where(ctrl_pred > 0, expensive, cheap)
+        best_fixed_vec = cheap if means["base"] >= means["01mv"] else expensive
+        from scipy.stats import kendalltau
+        control = {"tau": float(kendalltau(ctrl_pred, gain).statistic),
+                   "frac_tied": float((np.abs(gain) < 1e-9).mean()),
+                   "oracle_headroom": float(np.maximum(cheap, expensive).mean() - max(means.values())),
+                   "routed_ndcg10": float(ctrl_routed.mean()),
+                   "vs_best_fixed": float(ctrl_routed.mean() - best_fixed_vec.mean()),
+                   "frac_switched": float((ctrl_pred > 0).mean()),
+                   "p_two_sided": sign_flip_p(ctrl_routed - best_fixed_vec),
+                   "n_features": len(feats[0])}
+
         pre = {}
         if pool in qfiles:
             qtext = json.load(open(qfiles[pool]))
@@ -165,12 +204,15 @@ def main():
             "frac_01mv_better": float((gain > 1e-9).mean()),
             "frac_base_better": float((gain < -1e-9).mean()),
             "oracle": float(np.maximum(cheap, expensive).mean()),
-            "pre": pre, "score": score,
+            "pre": pre, "score": score, "control": control,
             "pre_summary": summary(pre), "score_summary": summary(score),
         }
         ps, ss = results[pool]["pre_summary"], results[pool]["score_summary"]
         print(f"[{pool}] oracle {results[pool]['oracle']:.4f} vs best fixed {fixed:.4f}; "
-              f"pre {ps['above_fixed']}/{ps['n']} above fixed, score {ss['above_fixed']}/{ss['n']}",
+              f"pre {ps['above_fixed']}/{ps['n']} above fixed, score {ss['above_fixed']}/{ss['n']}; "
+              f"control {control['routed_ndcg10']:.4f} ({control['vs_best_fixed']:+.4f} of "
+              f"{control['oracle_headroom']:+.4f} headroom, p={control['p_two_sided']:.4f}, "
+              f"tau {control['tau']:+.3f}, tied {100*control['frac_tied']:.1f}%)",
               flush=True)
 
     out = os.path.join(ABL, f"mv2_mveb_selection{a.tag}.json")
@@ -178,14 +220,15 @@ def main():
     lines = ["# MVEB per-query system selection", "",
              "Choose between supervision's two first-stage systems per query. Single-gold identity "
              "judgments, five-fold out-of-fold calibration, no retrieval run here.", "",
-             "| pool | n | base | 01mv | best fixed | oracle | pre above | score above |",
-             "|---|---:|---:|---:|---:|---:|---:|---:|"]
+             "| pool | n | base | 01mv | best fixed | oracle | pre above | score above | control |",
+             "|---|---:|---:|---:|---:|---:|---:|---:|---:|"]
     for pool, r in results.items():
         ps, ss = r["pre_summary"], r["score_summary"]
         pa = "--" if ps["n"] == 0 else f"{ps['above_fixed']}/{ps['n']}"
         lines.append(f"| {pool} | {r['n_queries']} | {r['base']:.4f} | {r['01mv']:.4f} | "
                      f"{r['best_fixed']:.4f} | {r['oracle']:.4f} | {pa} | "
-                     f"{ss['above_fixed']}/{ss['n']} |")
+                     f"{ss['above_fixed']}/{ss['n']} | {r['control']['vs_best_fixed']:+.4f} "
+                     f"(p={r['control']['p_two_sided']:.3f}) |")
     open(os.path.join(ABL, f"mv2_mveb_selection{a.tag}.md"), "w").write("\n".join(lines) + "\n")
     print(f"wrote {out}")
 
