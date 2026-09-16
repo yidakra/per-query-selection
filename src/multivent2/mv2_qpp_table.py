@@ -125,7 +125,8 @@ def main():
     ap.add_argument("--group-cv", action="store_true",
                     help="orient every predictor on event-grouped folds, so a near-duplicate phrasing "
                          "of the same event cannot sit on both sides of a fold boundary")
-    ap.add_argument("--tag", default="", help="suffix for the output files")
+    ap.add_argument("--tag", default="", help="suffix for the output files; a leading "
+                    "underscore is added when missing")
     ap.add_argument("--cell", action="append", default=[], metavar="LABEL=JSON",
                     help="override the standard three cells; repeat for more than one")
     ap.add_argument("--index-text", default="asr_text.jsonl",
@@ -149,6 +150,9 @@ def main():
     ap.add_argument("--calibration-size", type=float, default=0.2)
     ap.add_argument("--seed", type=int, default=0)
     a = ap.parse_args()
+    if a.tag and not a.tag.startswith("_"):
+        a.tag = "_" + a.tag       # the tag is concatenated straight onto the filename, and a missing
+                                  # separator silently writes a second, near-identical artifact
     if a.nested_calibration and not a.group_cv:
         ap.error("--nested-calibration requires --group-cv")
     cells = CELLS

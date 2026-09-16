@@ -664,15 +664,16 @@ claim-style prompt). Same swap, same protocol, both collections
 `mv2_msrvtt_source_replication_supcap27b.*`): 0 of 33 significant on MultiVENT 2.0 with 22 of 33
 equivalent to doing nothing, and 0 of 88 on MSR-VTT, identical to the 9B result and to the shipped
 captions before that. The caption axis is now a two-rung captioner ladder, 9B and 27B, and neither
-rung moves a single cell. One caveat stated before reading anything: the 27B set covers 66.9% of
-judged documents against the 9B set's 97.6%, so the batch is partial. Confirmed on 2026-09-12 from
-the release's own `meta.json`, which records 37,581 captions written of 55,388 intended and names
-the 17,807 that are missing. The release has not changed since 2026-08-30, the day before we
-downloaded it, so the gap is where generation stopped rather than a download error. The same file
-records `n_vectors: 0` with all 55,388 ids under `missing_vectors`, so the 27B embedding arrays
-ship at full size but unfilled. Nothing here touches our result, which indexes caption text and
-never reads those vectors, and the verdict matches the three complete-coverage caption tests. A
-rerun is one command if she finishes the batch.
+rung moves a single cell. This verdict is now on the finished batch. The first delivery was partial,
+37,581 captions of 55,388, which we confirmed from the release's own `meta.json` rather than
+inferring it from our coverage count. Supervision regenerated and re-uploaded it on 2026-09-16, and
+the index now covers 97.6% of judged and 99.1% of relevant documents, matching the 9B set exactly.
+Rerunning the full symmetric protocol over the completed captions moves the individual numbers and
+leaves the verdict where it was: 0 of 33 significant, 22 of 33 equivalent to doing nothing. The
+MSR-VTT half needed no rerun, since that file is byte-identical to the one we already scored. One
+detail worth recording for anyone reaching for these vectors: the 27B `meta.json` still reports
+`n_vectors: 0` with all 55,388 ids under `missing_vectors`, so its three embedding arrays ship at
+full size and unfilled. Nothing here reads them.
 
 **The English-subset control (added 2026-08-14).** The subset version of the same objection: restrict
 the judgment to the 448 queries whose relevant videos are all English (115 event groups), where query
