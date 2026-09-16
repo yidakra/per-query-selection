@@ -614,6 +614,41 @@ mid-sentence at the captioner's 2,048-token generation cap, and about 42% carry 
 preamble, uniform noise in both cases. A 30B-captioner rerun waits on supervision, who may already
 have those captions generated.
 
+**MVEB, a fourth decision and a second test bed (added 2026-09-16, in progress).** Supervision asked
+for one more collection for ECIR and supplied MVEB: nine subsets with 9B captions, and for seven
+pools a pair of finished first-stage runs, her MultiVENT-specialised system and a generic base.
+Neither dominates, with the base ahead on five of seven, so which system to run is a live per-query
+decision of the same shape as the other three and a different kind. The runs exist, so nothing is
+retrieved (`mv2_mveb_selection.py`).
+
+The judgments had to be reconstructed. They are single-gold identity, one relevant video per query,
+and the gold is the entry at the query's own index in the pool id list. The script refuses to
+compute anything until that reconstruction reproduces supervision's own reported nDCG, and on both
+pools where an id list exists it reproduces all four numbers exactly: base 0.6969 and specialised
+0.6913 on MSR-VTT, base 0.5615 and specialised 0.5851 on DiDeMo.
+
+| pool | queries | base | specialised | best fixed | oracle | score family above fixed |
+|---|---|---|---|---|---|---|
+| MSR-VTT | 879 | 0.6969 | 0.6913 | 0.6969 | 0.7655 | 1 of 10 |
+| DiDeMo | 999 | 0.5615 | 0.5851 | 0.5851 | 0.6529 | 0 of 10 |
+
+The decision is real and the predictors mostly miss it. Headroom is about seven points on both pools,
+and the systems genuinely disagree: the specialised system wins on 19% of MSR-VTT queries and the
+base on 20%, with the rest tied. The score-only family, which converted the channel decision on
+MultiVENT, clears the best fixed system once in twenty tests here, and its strongest rank
+correlation with the true gain is 0.035. Two differences from our own channel selector are worth
+naming before anyone reads this as a stronger null: these features see one system's score
+distribution rather than both, and the metric has a single relevant document, so the per-query
+signal is a rank discount rather than a graded gain.
+
+The pre-retrieval family is not testable yet. It needs the query text, and the released pools carry
+document captions rather than queries; the run ids are natural video ids while the caption
+directories key on a content hash, and supervision's row order differs from the public source's, so
+the text cannot be recovered from the release alone. Five of the seven pools also have no id list,
+so their judgments cannot be reconstructed the way MSR-VTT's and DiDeMo's were. Both gaps are one
+request to supervision rather than a computation, and they are the only thing between here and the
+full seven-pool table.
+
 **The video-embedding index, supervision's other half (added 2026-09-12).** Her objection had two
 halves. A caption is a lossy compression of the video, so the index should carry the video
 representation and not only caption text. The text half is closed: a union index holding each
