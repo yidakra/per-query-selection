@@ -614,58 +614,53 @@ mid-sentence at the captioner's 2,048-token generation cap, and about 42% carry 
 preamble, uniform noise in both cases. A 30B-captioner rerun waits on supervision, who may already
 have those captions generated.
 
-**MVEB, a fourth decision and a second test bed (added 2026-09-16, in progress).** Supervision asked
-for one more collection for ECIR and supplied MVEB: nine subsets with 9B captions, and for seven
-pools a pair of finished first-stage runs, her MultiVENT-specialised system and a generic base.
-Neither dominates, with the base ahead on five of seven, so which system to run is a live per-query
-decision of the same shape as the other three and a different kind. The runs exist, so nothing is
-retrieved (`mv2_mveb_selection.py`).
+**MVEB, a fourth decision and a second test bed (added 2026-09-16).** Supervision asked for one
+more collection for ECIR and supplied MVEB: nine subsets with 9B captions, and for seven pools a
+pair of finished first-stage runs, her MultiVENT-specialised system and a generic base. Neither
+dominates, with the base ahead on five of seven, so which system to run is a live per-query decision
+of the same shape as the other three and a different kind. The runs exist, so nothing is retrieved
+(`mv2_mveb_selection.py`). She then released the query text, the id bridge and the judgments for all
+seven pools, which is what made both predictor families testable.
 
-The judgments had to be reconstructed. They are single-gold identity, one relevant video per query,
-and the gold is the entry at the query's own index in the pool id list. The script refuses to
-compute anything until that reconstruction reproduces supervision's own reported nDCG, and on both
-pools where an id list exists it reproduces all four numbers exactly: base 0.6969 and specialised
-0.6913 on MSR-VTT, base 0.5615 and specialised 0.5851 on DiDeMo.
+The judgments are single-gold: one relevant video per query. The script refuses to compute anything
+until its reconstruction reproduces supervision's own reported nDCG for both systems, and on all
+seven pools it reproduces all fourteen numbers exactly. Two joins had to be got right first. Query
+ids are read from the run rather than built from a prefix, because VGGSound writes
+`vggsound_a_q000000` and `vggsound_v_q000000` over one video set. And her id lists are prefixed by
+pool where the runs are prefixed by dataset, so the two VGGSound pools need their gold ids bridged
+from `vgga_` and `vggv_` to `vggsound_`, after which 690 of 696 and 696 of 696 golds are retrieved
+against none unbridged.
 
-| pool | queries | base | specialised | best fixed | oracle | score family above fixed |
-|---|---|---|---|---|---|---|
-| MSR-VTT | 879 | 0.6969 | 0.6913 | 0.6969 | 0.7655 | 1 of 10 |
-| DiDeMo | 999 | 0.5615 | 0.5851 | 0.5851 | 0.6529 | 0 of 10 |
+| pool | queries | best fixed | oracle | headroom | corpus statistics | score family | control |
+|---|---|---|---|---|---|---|---|
+| acaps | 665 | 0.4446 | 0.5164 | +7.2 | 0 of 11 | 0 of 10 | p = 1.000 |
+| anet | 4,884 | 0.6715 | 0.7127 | +4.1 | 0 of 11 | 0 of 10 | p = 0.404 |
+| didemo | 999 | 0.5851 | 0.6529 | +6.8 | 0 of 11 | 0 of 10 | p = 0.372 |
+| mrvmteb | 879 | 0.6969 | 0.7655 | +6.9 | 0 of 11 | 0 of 10 | p = 0.377 |
+| vatex | 1,000 | 0.7928 | 0.8462 | +5.3 | 0 of 11 | 0 of 10 | p = 0.025 |
+| vgga | 696 | 0.3567 | 0.4269 | +7.0 | 0 of 11 | 0 of 10 | p = 0.258 |
+| vggv | 696 | 0.9686 | 0.9833 | +1.5 | 0 of 11 | 0 of 10 | p = 0.552 |
 
-The decision is real and the predictors mostly miss it. Headroom is about seven points on both pools,
-and the systems genuinely disagree: the specialised system wins on 19% of MSR-VTT queries and the
-base on 20%, with the rest tied. The score-only family, which converted the channel decision on
-MultiVENT, clears the best fixed system once in twenty tests here, and its strongest rank
-correlation with the true gain is 0.035. The released runs are top-100 rather than the top-1000 the
-MultiVENT protocol scores over, so the top-k window scales with them and stays at a tenth of the
-list; at the unscaled default the top-k mean would equal the list mean, which empties WIG_norm and
-collapses RSD onto SMV, and the family would have been eight members and two ghosts. Before reading that as a stronger null, the positive control
-has to be checked, and it fails too. One learner over both systems' score distributions and their
-rank agreement, the analogue of the selector that converts the channel decision on MultiVENT, gains
-+0.0050 of +0.0686 headroom on MSR-VTT and +0.0030 of +0.0679 on DiDeMo, neither significant
-(two-sided p = 0.377 and 0.372, rank correlation with the true gain +0.069 and +0.073).
+Nothing converts the decision. The corpus-statistic family is 0 of 77 and the score family 0 of 70,
+each tested against the best fixed system with the sign-flip test and Holm correction the rest of
+this study uses. The positive control, one learner over both systems' score distributions and their
+rank agreement, is the analogue of the selector that converts the channel decision on MultiVENT, and
+it fails on all seven: its best pool is vatex at an uncorrected p = 0.025, which does not survive
+correction across seven pools, and elsewhere it ranges from p = 0.26 to p = 1.00.
 
-That changes what MVEB can be used for. Where nothing converts a decision, the corpus-statistic
+That decides what MVEB can be used for. Where nothing converts a decision, the corpus-statistic
 failure carries no information about the family boundary, because a predictor that misses cannot be
-distinguished from a decision nothing predicts. What MVEB does speak to is the oracle. These pools
-are single-gold, so a query's entire score is whether one video landed high, and the apparent seven
-points of headroom is exactly the quantity our label-splitting audit showed to be almost entirely
-label luck on three axes of MultiVENT. Here the audit cannot even be run, because a single gold
-cannot be halved. The symptom is consistent: a large apparent oracle that no predictor, cheap or
-outcome-reading, can convert. More than half the queries are ties, 61% on MSR-VTT and 56% on
-DiDeMo, so most of the remaining spread is one system getting lucky on one document.
+distinguished from a decision nothing predicts. So we do not claim the boundary result here and the
+0 of 77 is not offered as corroboration.
 
-We therefore do not plan to claim the boundary result on MVEB. It enters as a second test bed for
-the oracle caution, and as the honest report that a fourth decision type looked available and turned
-out not to be.
-
-The pre-retrieval family is not testable yet. It needs the query text, and the released pools carry
-document captions rather than queries; the run ids are natural video ids while the caption
-directories key on a content hash, and supervision's row order differs from the public source's, so
-the text cannot be recovered from the release alone. Five of the seven pools also have no id list,
-so their judgments cannot be reconstructed the way MSR-VTT's and DiDeMo's were. Both gaps are one
-request to supervision rather than a computation, and they are the only thing between here and the
-full seven-pool table.
+What MVEB does speak to is the oracle. Every pool shows headroom, from 1.5 to 7.2 points, that no
+predictor of any family reaches. These are single-gold pools, so a query's whole score is whether
+one video landed high, and between 41% and 88% of queries are ties where the two systems are
+indistinguishable. The apparent headroom is concentrated in the remaining queries and behaves
+exactly like the label luck the splitting audit measured on three axes of MultiVENT, except that
+here the audit cannot be run at all, because a single gold cannot be halved. A large apparent
+oracle that nothing converts is the same finding approached from the other side, and on a second
+collection.
 
 **The video-embedding index, supervision's other half (added 2026-09-12).** Her objection had two
 halves. A caption is a lossy compression of the video, so the index should carry the video
