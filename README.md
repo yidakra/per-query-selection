@@ -29,8 +29,9 @@ The ECIR 2027 paper is written in a separate repository, `yidakra/project_a`. Th
 experiments, the generated tables under `results/ablations/`, and the evidence documents in `reports/`
 that those tables are verified against. Prose lives over there. Numbers are re-derived here.
 
-The mapping from a claim in the paper to the artifact behind it is the evidence map in
-`reports/paper_outline.md`.
+The mapping from a claim in the paper to the artifact behind it is the evidence map in the paper
+repository. This repository holds the experiments, the artifacts and `reports/evidence.md`, which is
+the source of record for every number. No part of the paper lives here.
 
 ---
 
