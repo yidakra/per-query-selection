@@ -636,7 +636,10 @@ The decision is real and the predictors mostly miss it. Headroom is about seven 
 and the systems genuinely disagree: the specialised system wins on 19% of MSR-VTT queries and the
 base on 20%, with the rest tied. The score-only family, which converted the channel decision on
 MultiVENT, clears the best fixed system once in twenty tests here, and its strongest rank
-correlation with the true gain is 0.035. Before reading that as a stronger null, the positive control
+correlation with the true gain is 0.035. The released runs are top-100 rather than the top-1000 the
+MultiVENT protocol scores over, so the top-k window scales with them and stays at a tenth of the
+list; at the unscaled default the top-k mean would equal the list mean, which empties WIG_norm and
+collapses RSD onto SMV, and the family would have been eight members and two ghosts. Before reading that as a stronger null, the positive control
 has to be checked, and it fails too. One learner over both systems' score distributions and their
 rank agreement, the analogue of the selector that converts the channel decision on MultiVENT, gains
 +0.0050 of +0.0686 headroom on MSR-VTT and +0.0030 of +0.0679 on DiDeMo, neither significant

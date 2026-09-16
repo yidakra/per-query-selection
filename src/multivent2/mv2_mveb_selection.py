@@ -144,14 +144,30 @@ def main():
         qtext_pool = json.load(open(qfiles[pool])) if pool in qfiles else None
         if qtext_pool is None:
             print(f"[{pool}] no query text: WIG, WIG_norm and sigma_x0.5 run unnormalised", flush=True)
+        # The released runs are top-100, a tenth of the 1000 the MultiVENT protocol scores over, so
+        # the top-k window shrinks with them and keeps the same 1:10 ratio. At the default k=100 the
+        # top-k mean would equal the list mean and WIG_norm would be identically zero, and RSD,
+        # defined as unnormalised SMV at k=1000, would clamp onto SMV and duplicate it.
+        depth_k = max(1, min(len(r) for r in runs["base"].values()) // 10)
+        print(f"[{pool}] top-k window {depth_k} over runs of {min(len(r) for r in runs['base'].values())}",
+              flush=True)
         score_raw = {n: [] for n in SCORE_ONLY}
         for q in qids:
             srt = sorted(runs["base"][q].values(), reverse=True)
             nq = len(qtext_pool[q].split()) if qtext_pool else 1
-            feats = score_only_suite(np.asarray(srt, dtype=float), max(1, nq))
+            feats = score_only_suite(np.asarray(srt, dtype=float), max(1, nq), k=depth_k)
             for n in SCORE_ONLY:
                 score_raw[n].append(feats[n])
+        dup = [n for n in SCORE_ONLY
+               if n != "SMV" and np.allclose(score_raw[n], score_raw["SMV"])]
+        const = [n for n in SCORE_ONLY if np.allclose(np.std(score_raw[n]), 0)]
+        if dup or const:
+            print(f"[{pool}] dropping {sorted(set(dup + const))}: duplicate of SMV or constant",
+                  flush=True)
+            for n in set(dup + const):
+                score_raw.pop(n)
         score = {n: route(v, gain, cheap, expensive, cv) for n, v in score_raw.items()}
+        results_extra = {"score_k": depth_k, "score_dropped": sorted(set(dup + const))}
 
         # the positive control: one learner over both systems' score distributions and their rank
         # agreement. Without it a weak score family is unreadable, because a predictor that misses
@@ -217,7 +233,7 @@ def main():
             "frac_base_better": float((gain < -1e-9).mean()),
             "query_text": qtext_pool is not None,
             "oracle": float(np.maximum(cheap, expensive).mean()),
-            "pre": pre, "score": score, "control": control,
+            "pre": pre, "score": score, "control": control, **results_extra,
             "pre_summary": summary(pre), "score_summary": summary(score),
         }
         ps, ss = results[pool]["pre_summary"], results[pool]["score_summary"]

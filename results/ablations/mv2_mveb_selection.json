@@ -13,39 +13,39 @@
     "pre": {},
     "score": {
       "WIG_norm": {
-        "tau": 0.0,
-        "routed_ndcg10": 0.696884070844984,
-        "frac_escalated": 0.0,
-        "degenerate": true
+        "tau": 0.013698247742131502,
+        "routed_ndcg10": 0.6967855778406445,
+        "frac_escalated": 0.03526734926052332,
+        "degenerate": false
       },
       "WIG": {
-        "tau": -0.029223368197103843,
-        "routed_ndcg10": 0.6957731755149656,
-        "frac_escalated": 0.18430034129692832,
+        "tau": -0.023083229223620733,
+        "routed_ndcg10": 0.6952668188596781,
+        "frac_escalated": 0.1342434584755404,
         "degenerate": false
       },
       "NQC_norm": {
-        "tau": 0.02341958484945063,
-        "routed_ndcg10": 0.6926526758746476,
-        "frac_escalated": 0.053469852104664393,
+        "tau": -0.02219287609642393,
+        "routed_ndcg10": 0.6939701431297471,
+        "frac_escalated": 0.06370875995449374,
         "degenerate": false
       },
       "NQC": {
-        "tau": 0.004418789594235969,
-        "routed_ndcg10": 0.6919712436679442,
-        "frac_escalated": 0.06484641638225255,
+        "tau": -0.027469042776108666,
+        "routed_ndcg10": 0.6949266063107519,
+        "frac_escalated": 0.10921501706484642,
         "degenerate": false
       },
       "SMV_norm": {
-        "tau": 0.025596003604820585,
-        "routed_ndcg10": 0.6928796935843161,
-        "frac_escalated": 0.05233219567690557,
+        "tau": -0.018275322336758014,
+        "routed_ndcg10": 0.6935938145416207,
+        "frac_escalated": 0.07053469852104664,
         "degenerate": false
       },
       "SMV": {
-        "tau": 0.005896116264547695,
-        "routed_ndcg10": 0.6936874343322448,
-        "frac_escalated": 0.05005688282138794,
+        "tau": -0.024949673186559208,
+        "routed_ndcg10": 0.6954779610185462,
+        "frac_escalated": 0.1080773606370876,
         "degenerate": false
       },
       "RSD": {
@@ -83,6 +83,8 @@
       "p_two_sided": 0.37681159420289856,
       "n_features": 18
     },
+    "score_k": 10,
+    "score_dropped": [],
     "pre_summary": {
       "above_fixed": null,
       "n": 0,
@@ -92,7 +94,7 @@
     "score_summary": {
       "above_fixed": 1,
       "n": 10,
-      "degenerate": 1,
+      "degenerate": 0,
       "max_abs_tau": 0.03478312883582164
     }
   },
@@ -110,40 +112,40 @@
     "pre": {},
     "score": {
       "WIG_norm": {
-        "tau": 0.0,
-        "routed_ndcg10": 0.5614561027578586,
-        "frac_escalated": 0.0,
-        "degenerate": true
+        "tau": -0.01317016595837213,
+        "routed_ndcg10": 0.5851076425222084,
+        "frac_escalated": 0.997997997997998,
+        "degenerate": false
       },
       "WIG": {
-        "tau": 0.010077891828748797,
+        "tau": 0.006011673091370085,
         "routed_ndcg10": 0.585063774903751,
         "frac_escalated": 1.0,
         "degenerate": true
       },
       "NQC_norm": {
-        "tau": -0.0028122650548936604,
-        "routed_ndcg10": 0.585063774903751,
-        "frac_escalated": 0.998998998998999,
+        "tau": -0.055975031469221094,
+        "routed_ndcg10": 0.5829409595568401,
+        "frac_escalated": 0.9269269269269269,
         "degenerate": false
       },
       "NQC": {
-        "tau": -0.009761359831228297,
-        "routed_ndcg10": 0.585063774903751,
-        "frac_escalated": 1.0,
-        "degenerate": true
+        "tau": -0.06315300322837823,
+        "routed_ndcg10": 0.5839755807068215,
+        "frac_escalated": 0.9129129129129129,
+        "degenerate": false
       },
       "SMV_norm": {
-        "tau": 0.006337944534968137,
-        "routed_ndcg10": 0.585063774903751,
-        "frac_escalated": 1.0,
-        "degenerate": true
+        "tau": -0.043182269046354166,
+        "routed_ndcg10": 0.5834928805674882,
+        "frac_escalated": 0.954954954954955,
+        "degenerate": false
       },
       "SMV": {
-        "tau": -0.0012636931285626059,
-        "routed_ndcg10": 0.585063774903751,
-        "frac_escalated": 1.0,
-        "degenerate": true
+        "tau": -0.04906976420023544,
+        "routed_ndcg10": 0.583398438445401,
+        "frac_escalated": 0.9529529529529529,
+        "degenerate": false
       },
       "RSD": {
         "tau": -0.0012636931285626059,
@@ -180,6 +182,8 @@
       "p_two_sided": 0.37181409295352325,
       "n_features": 18
     },
+    "score_k": 10,
+    "score_dropped": [],
     "pre_summary": {
       "above_fixed": null,
       "n": 0,
@@ -189,8 +193,8 @@
     "score_summary": {
       "above_fixed": 0,
       "n": 10,
-      "degenerate": 6,
-      "max_abs_tau": 0.03494269766474365
+      "degenerate": 2,
+      "max_abs_tau": 0.06315300322837823
     }
   }
 }
