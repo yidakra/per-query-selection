@@ -1,10 +1,10 @@
 # Selection Needs Outcomes: Three Per-Query Choices in Multilingual Video Retrieval
 
-Draft 1, 16 Sep 2026. Target: ECIR 2027 short track, 6 pages plus references. Word budget follows
+Draft 2, 16 Sep 2026. All sections written. Target: ECIR 2027 short track, 6 pages plus references. Word budget follows
 `paper_outline_short.md`. Numbers here are the committed ones in `reports/evidence.md`; every claim
 should be checked against that file before submission. Anonymisation is not applied yet.
 
-## Abstract (target 150 to 200 words)
+## Abstract
 
 Retrieval systems fix most of their choices once and apply them to every query. On a multilingual
 video collection at least three of those choices could be made per query instead: which evidence
@@ -20,7 +20,7 @@ language model reading only the query text recovers the language decision and fa
 decision. What separates the predictors that work from those that fail is not the pre-retrieval and
 post-retrieval split the field organises by. It is whether the predictor sees an outcome.
 
-## 1 Introduction (target 480 words)
+## 1 Introduction
 
 A retrieval system settles the same questions for every query it answers, and usually freezes one
 global answer into a configuration. On a multilingual video collection there are at least three such
@@ -52,41 +52,66 @@ at whether the query carries the attribute the decision is about. (iv) We show t
 oracles routinely reported as headroom for this kind of work are, on this collection, almost
 entirely label luck, and we report none.
 
-## 2 Background (target 240 words)
+## 2 Background
 
-TODO. Three paragraphs.
+Query performance prediction estimates how well a system will do on a query. The literature divides
+its predictors by what they are allowed to read. Pre-retrieval predictors read the query and corpus
+term statistics only, which is why they are the family recommended whenever a decision has to be
+made before retrieval runs: inverse document frequency and its variants, collection query
+similarity, simplified clarity. Post-retrieval predictors read the score distribution a retrieval
+already produced, such as weighted information gain, normalised query commitment and score
+magnitude variance. Supervised predictors learn the mapping directly, with BERT-QPP the usual
+reference. We keep this taxonomy explicit because our result cuts across it rather than along it.
 
-Paragraph 1: QPP predictor families. Pre-retrieval from corpus term statistics (IDF, ICTF, SCQ,
-SCS), post-retrieval from the score distribution (WIG, NQC, SMV, sigma), and supervised predictors
-(BERT-QPP). Frame the usual taxonomy explicitly, because the result cuts across it.
+The immediate motivation is Arabzadeh et al. (arXiv:2604.22661), who report that cheap
+pre-retrieval predictors pick well among thirty large language model rewritings of a query. We treat
+that as a replication target rather than as background. We reran their task with their toolkit and
+their pool size and scored it their way, on generated-answer quality: their effect appears in our
+data in their direction, and is not significant at our sample of judged queries, so we call it
+consistent rather than confirmed. Our own question is whether the same predictors transfer to
+ranking quality, which is the setting in which a deployed system would use them.
 
-Paragraph 2: the source study. Cheap predictors selecting among LLM rewritings, judged by
-generated-answer quality. State plainly that we reran their task with their toolkit and pool size,
-and that their effect appears in our data in their direction but is not significant at our sample.
-Replication framing, not motivation framing.
+MultiVENT 2.0 supplies the collection: multilingual news video, with a speech transcript and
+on-screen text per video, and queries in English against video whose spoken language is often not
+English.
 
-Paragraph 3: multimodal video retrieval and MultiVENT 2.0. Enough to make the channels concrete.
+## 3 Setup
 
-## 3 Setup (target 430 words)
+We evaluate on the MultiVENT 2.0 test set: 2,546 queries over 56 events, against multilingual news
+video. Each video carries a speech transcript and its on-screen text, and we use dense retrieval
+over each, plus the shipped sparse speech run, giving three text channels and their fusions.
 
-TODO. Collection: MultiVENT 2.0, 2,546 test queries over 56 topics, multilingual video with
-speech transcripts and on-screen text.
+Three option sets define the three decisions.
 
-The three option sets:
-- Channel: shipped speech, dense speech, on-screen text, and their fusions.
-- Query variant: the original query plus 30 rewritings, six methods at five samples, generated with
-  a self-hosted 7B instruction model at temperature 0.6.
-- Language: the query asked in English, Chinese, Korean, Russian or Arabic, translated with NLLB.
+*Evidence channel.* Retrieve over the speech transcript, over the on-screen text, or over their
+fusion. The default is the best fixed channel policy, chosen offline on the same data, which is the
+strongest baseline a deployer could pick without per-query information.
 
-Protocol, four sentences: thresholds are chosen on held-out training data only. Folds are grouped by
-event, so near-duplicate phrasings of one event cannot sit on both sides of a boundary.
-Significance is a group sign-flip test with Holm correction within family. The equivalence bound of
-0.005 is stated in advance, so that no effect is a measurement rather than a failure to reject.
+*Query variant.* The user's own query plus thirty rewritings, six reformulation methods at five
+samples each, generated with a self-hosted 7B instruction model at temperature 0.6 through a public
+reformulation toolkit. The default is the user's original query.
 
-## 4 The three decisions (target 600 words plus table)
+*Query language.* The query asked in English, Chinese, Korean, Russian or Arabic, translated with a
+public multilingual translation model, each against the speech channel in that language. The default
+is asking in English.
 
-TODO. Lead with the table, then three short paragraphs: what the table says, why a bad ordering
-costs more than no decision, and the confound paragraph.
+Every predictor goes through one protocol. Each predictor is calibrated by a single-feature ridge
+whose sign and scale are fitted out of fold, so a predictor is never penalised for pointing the
+wrong way, and is then used to select: the option with the higher predicted gain is the one the
+system runs. Thresholds are chosen on held-out training data only. Folds are grouped by event, so
+near-duplicate phrasings of one event cannot sit on both sides of a boundary. Significance is a
+group-level sign-flip test with Holm correction within each predictor family, and intervals are
+cluster bootstrap. We state an equivalence bound of 0.005 nDCG in advance, so that a null is a
+measurement rather than a failure to reject.
+
+The decision metric is nDCG@10 after selection, the quantity a deployed system delivers. We also
+report Kendall correlation between the raw predictor and the true per-query gain, because a
+predictor can order queries well and still select badly, and the difference between those two is
+part of what we find.
+
+## 4 The three decisions
+
+All three decisions are worth making, and one family of predictors makes none of them.
 
 | Decided per query | Corpus term statistics | Model reading retrieval outcomes |
 |---|---|---|
@@ -95,63 +120,103 @@ costs more than no decision, and the confound paragraph.
 | Which language to ask in | 0 of 11 | +2.16 |
 
 Gains are nDCG@10 against the default the decision replaces: the best fixed channel policy, the
-user's original query, and asking in English. The middle column counts how many individual
-term-statistic predictors beat that same default.
+user's original query, and asking in English. Every gain in the last column is significant under the
+grouped tests with correction. The middle column counts how many of the individual term-statistic
+predictors beat that same default, across 55 tests in total, and the answer is none of them
+anywhere. Each of the eleven predictors is tested in three channel settings, which is where 33 of
+the tests come from; the query-side decisions admit one setting each.
 
-Paragraph on the cost of a bad ordering: the system commits to one option rather than adjusting a
-fraction of queries, so a predictor that orders the options badly loses much of the spread between
-them, and the worst costs 7 nDCG points against keeping the default.
+On the two query-side decisions the cheap family does worse than nothing. This is a property of
+selection rather than of prediction. A system that selects has to commit to one option per query
+rather than adjust a fraction of them, so a predictor that orders the options badly does not simply
+fail to help, it spends the spread between the options in the wrong direction. The worst of these
+predictors costs 7 nDCG points against keeping the default, which is larger than anything the good
+predictors gain.
 
-Positive control paragraph: the same machinery converts the channel decision, so a predictor that
-misses is distinguishable from a decision that nothing predicts. This is the load-bearing sentence
-of the whole paper and it must not be cut for space.
+The null is a measurement, not an absence of evidence. Of the 33 channel outcomes, 21 fall inside
+the stated equivalence bound of 0.005, meaning the predictor is demonstrably doing nothing rather
+than doing something we cannot detect.
 
-Confound paragraph, one clause each: translated index, English-only subset, two captioner sizes, the
-union index holding caption and transcript and on-screen text together, seven query formulations, a
-second collection, and a six-point pipeline audit. Cite the artefact repository for the full
-accounting.
+**The positive control.** The same machinery, on the same queries, under the same folds, converts
+the channel decision: a ridge over cheap retrieval-outcome features returns 0.3522 against the best
+fixed policy at 0.3408, and a calibrated cross-encoder reaches 0.3560. A predictor that misses is
+therefore distinguishable from a decision that nothing predicts, which is what makes the null
+readable at all.
 
-## 5 Where query-only information works (target 340 words)
+**The null survives the obvious objections.** With the lexical index rebuilt over English-translated
+transcripts the family is 0 of 33 again, and the same holds on the 448 queries whose relevant videos
+are all English, which answers the language-mismatch objection. Newly generated captions from two
+captioner sizes change nothing as the document-side index on either collection, and neither does a
+union index holding each video's caption, transcript and on-screen text together, which answers the
+caption-quality objection. The channel null holds separately inside each of seven query formulation
+pools, 77 tests without a pass, which answers the objection that we tested one phrasing. A six-point
+audit of the pipeline found no bug behind the zero. Strengthening the speech channel four ways
+raises the fixed baseline from 0.337 to 0.368 while the selection gap stays between 7.4 and 8.7
+points throughout, so the result is not an artefact of a weak baseline.
 
-TODO. The router experiment and the sentence it buys.
+## 5 Where query-only information works
 
-A language model reading only the query text, no labels and no extra retrieval, converts the
-language decision at +3.0 nDCG and fails the channel decision at -9.9. Given a three-way prompt it
-answers "search everything" on 2,535 of 2,546 queries, which is the fixed-fusion policy. Forced to
-choose one channel with no third option it loses 11.1, and its picks are right at the base rate of
-each channel being better, so they carry no information about which channel holds the answer.
+The obvious modern objection is that none of this matters because a language model can read the
+query and choose. We ran that baseline: a self-hosted instruction model, temperature 0, one
+constrained prompt per decision, scored on the existing runs exactly like every other selector, with
+no labels and no extra retrieval.
 
-The sentence: query-only information converts a decision exactly when the query carries the
-attribute the decision is about. The language of the relevant coverage is in the query. Which
-evidence channel holds the answer is not, and neither is which rewriting will rank best.
+It converts the language decision and fails the channel decision. On language it gains 2.99 nDCG,
+above the outcome-reading ridge's 2.16, at zero supervision cost. On channel it loses 9.90. Given a
+three-way prompt it answers "search everything" on 2,535 of 2,546 queries, which is simply the fixed
+fusion policy under another name. Forced to choose one channel with no third option it loses 11.05,
+and its picks are right at the base rate of each channel being the better one, so they carry no
+information about which channel holds the answer. Its agreement with the two-channel oracle is
+42.7%, against 87.1% for the rule "always pick speech".
 
-## 6 What an oracle cannot tell you (target 290 words)
+The pattern locates the boundary more precisely than our own selectors do. Query-only information
+converts a decision exactly when the query carries the attribute the decision is about. A query
+about Taipei politics says that the relevant coverage will be in Chinese, and the model reads that.
+Nothing in the words of a query says whether the answer was spoken aloud or written on screen, and
+nothing in them says which rewriting will rank best. This also rewrites the cost of the language
+decision: the supervision and extra retrieval that the outcome-reading selector needs are not
+intrinsic to the decision, they are the price of learning it from labels, and a model that reads the
+query pays neither and gains more.
 
-TODO. The label-splitting audit and why no oracle appears anywhere above.
+## 6 What an oracle cannot tell you
 
-Per-query oracles are the usual way to report headroom for this kind of work. Picking each query's
-best option with the same relevance labels that then grade the pick rewards label luck as well as
-real advantage. We measured how much: choosing on half of each query's labels and grading on the
-other half removes 15.2 points from the channel oracle, 12.5 from the variant oracle and 10.8 from
-the language oracle, which in each case is the whole thing. What survives runs from half a point
-below the default to two thirds of a point above it.
+Work of this kind normally reports a per-query oracle as headroom. We report none, and this section
+is why.
 
-With about five relevant videos per query, a half holds two or three, and an argmax over up to 31
-options scored on two or three labels is reading label placement rather than option quality. We
-therefore report no oracle and no percentage of oracle captured anywhere in this paper. The
-selectors are unaffected, because they are graded on the full labels and never read one when they
-decide.
+An oracle picks each query's best option using the same relevance labels that then grade the pick,
+so it rewards label luck as well as real advantage. We measured how much. Splitting each query's
+relevant documents in half, choosing on one half and grading on the other, removes 15.2 points from
+the channel oracle, 12.5 from the variant oracle and 10.8 from the language oracle. In each case
+that is the entire oracle: what survives runs from half a point below the default to two thirds of a
+point above it. With about five relevant videos per query a half holds two or three, and an argmax
+over up to thirty-one options scored on two or three labels reads label placement rather than option
+quality.
 
-One sentence on the second collection: on a benchmark whose judgments have a single relevant video
-per query, a system-selection decision with seven points of apparent headroom is converted by
-nothing we tried, including the outcome-reading learner that converts the channel decision here,
-which is the same symptom seen from the other side.
+This removes a headroom estimate, not a decision. The selectors are graded on the full labels and
+never read a label when they decide, so their gains are unaffected and still clear the significance
+tests. What disappears is the denominator that a percentage-of-oracle figure would need.
 
-## 7 Conclusion (target 145 words)
+A second collection shows the same thing from the other side. On a seven-pool video retrieval
+benchmark with two finished first-stage systems, choosing between them per query shows 1.5 to 7.2
+points of apparent headroom, and nothing converts it: corpus statistics 0 of 77, score-based
+predictors 0 of 70, and the outcome-reading learner that converts the channel decision here fails on
+all seven pools. Those judgments are single-gold, so the audit above cannot even be run, and between
+41% and 88% of queries are ties. A large apparent oracle that no predictor reaches is what label
+luck looks like when it cannot be measured directly.
 
-TODO. Restate the boundary in two sentences. One sentence on what would move it: a cheap predictor
-that reads something outcome-like without paying for retrieval, or a collection whose judgments are
-dense enough to estimate a per-query oracle.
+## 7 Conclusion
+
+Three per-query decisions on a multilingual video collection are each worth making, and the cheap
+pre-retrieval predictors that the literature recommends for exactly this job convert none of them.
+Predictors that read a retrieval outcome convert all three. The separating line is not the
+pre-retrieval and post-retrieval split that the field organises by, and not whether the options
+differ as queries or as documents, since the cheap family fails on the query-side decisions too. It
+is whether the predictor sees an outcome. The one exception locates the same boundary from outside:
+a language model reading the query alone converts the one decision whose answer the query carries.
+
+Two things would move this result. A cheap predictor that reads something outcome-like without
+paying for retrieval would break the boundary as stated. A collection whose judgments are dense
+enough to estimate a per-query oracle would tell us how much of each decision is really there.
 
 ## Checks before submission
 
