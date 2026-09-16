@@ -614,6 +614,59 @@ mid-sentence at the captioner's 2,048-token generation cap, and about 42% carry 
 preamble, uniform noise in both cases. A 30B-captioner rerun waits on supervision, who may already
 have those captions generated.
 
+**MVEB, a fourth decision and a second test bed (added 2026-09-16, in progress).** Supervision asked
+for one more collection for ECIR and supplied MVEB: nine subsets with 9B captions, and for seven
+pools a pair of finished first-stage runs, her MultiVENT-specialised system and a generic base.
+Neither dominates, with the base ahead on five of seven, so which system to run is a live per-query
+decision of the same shape as the other three and a different kind. The runs exist, so nothing is
+retrieved (`mv2_mveb_selection.py`).
+
+The judgments had to be reconstructed. They are single-gold identity, one relevant video per query,
+and the gold is the entry at the query's own index in the pool id list. The script refuses to
+compute anything until that reconstruction reproduces supervision's own reported nDCG, and on both
+pools where an id list exists it reproduces all four numbers exactly: base 0.6969 and specialised
+0.6913 on MSR-VTT, base 0.5615 and specialised 0.5851 on DiDeMo.
+
+| pool | queries | base | specialised | best fixed | oracle | score family above fixed |
+|---|---|---|---|---|---|---|
+| MSR-VTT | 879 | 0.6969 | 0.6913 | 0.6969 | 0.7655 | 1 of 10 |
+| DiDeMo | 999 | 0.5615 | 0.5851 | 0.5851 | 0.6529 | 0 of 10 |
+
+The decision is real and the predictors mostly miss it. Headroom is about seven points on both pools,
+and the systems genuinely disagree: the specialised system wins on 19% of MSR-VTT queries and the
+base on 20%, with the rest tied. The score-only family, which converted the channel decision on
+MultiVENT, clears the best fixed system once in twenty tests here, and its strongest rank
+correlation with the true gain is 0.035. The released runs are top-100 rather than the top-1000 the
+MultiVENT protocol scores over, so the top-k window scales with them and stays at a tenth of the
+list; at the unscaled default the top-k mean would equal the list mean, which empties WIG_norm and
+collapses RSD onto SMV, and the family would have been eight members and two ghosts. Before reading that as a stronger null, the positive control
+has to be checked, and it fails too. One learner over both systems' score distributions and their
+rank agreement, the analogue of the selector that converts the channel decision on MultiVENT, gains
++0.0050 of +0.0686 headroom on MSR-VTT and +0.0030 of +0.0679 on DiDeMo, neither significant
+(two-sided p = 0.377 and 0.372, rank correlation with the true gain +0.069 and +0.073).
+
+That changes what MVEB can be used for. Where nothing converts a decision, the corpus-statistic
+failure carries no information about the family boundary, because a predictor that misses cannot be
+distinguished from a decision nothing predicts. What MVEB does speak to is the oracle. These pools
+are single-gold, so a query's entire score is whether one video landed high, and the apparent seven
+points of headroom is exactly the quantity our label-splitting audit showed to be almost entirely
+label luck on three axes of MultiVENT. Here the audit cannot even be run, because a single gold
+cannot be halved. The symptom is consistent: a large apparent oracle that no predictor, cheap or
+outcome-reading, can convert. More than half the queries are ties, 61% on MSR-VTT and 56% on
+DiDeMo, so most of the remaining spread is one system getting lucky on one document.
+
+We therefore do not plan to claim the boundary result on MVEB. It enters as a second test bed for
+the oracle caution, and as the honest report that a fourth decision type looked available and turned
+out not to be.
+
+The pre-retrieval family is not testable yet. It needs the query text, and the released pools carry
+document captions rather than queries; the run ids are natural video ids while the caption
+directories key on a content hash, and supervision's row order differs from the public source's, so
+the text cannot be recovered from the release alone. Five of the seven pools also have no id list,
+so their judgments cannot be reconstructed the way MSR-VTT's and DiDeMo's were. Both gaps are one
+request to supervision rather than a computation, and they are the only thing between here and the
+full seven-pool table.
+
 **The video-embedding index, supervision's other half (added 2026-09-12).** Her objection had two
 halves. A caption is a lossy compression of the video, so the index should carry the video
 representation and not only caption text. The text half is closed: a union index holding each
@@ -664,15 +717,16 @@ claim-style prompt). Same swap, same protocol, both collections
 `mv2_msrvtt_source_replication_supcap27b.*`): 0 of 33 significant on MultiVENT 2.0 with 22 of 33
 equivalent to doing nothing, and 0 of 88 on MSR-VTT, identical to the 9B result and to the shipped
 captions before that. The caption axis is now a two-rung captioner ladder, 9B and 27B, and neither
-rung moves a single cell. One caveat stated before reading anything: the 27B set covers 66.9% of
-judged documents against the 9B set's 97.6%, so the batch is partial. Confirmed on 2026-09-12 from
-the release's own `meta.json`, which records 37,581 captions written of 55,388 intended and names
-the 17,807 that are missing. The release has not changed since 2026-08-30, the day before we
-downloaded it, so the gap is where generation stopped rather than a download error. The same file
-records `n_vectors: 0` with all 55,388 ids under `missing_vectors`, so the 27B embedding arrays
-ship at full size but unfilled. Nothing here touches our result, which indexes caption text and
-never reads those vectors, and the verdict matches the three complete-coverage caption tests. A
-rerun is one command if she finishes the batch.
+rung moves a single cell. This verdict is now on the finished batch. The first delivery was partial,
+37,581 captions of 55,388, which we confirmed from the release's own `meta.json` rather than
+inferring it from our coverage count. Supervision regenerated and re-uploaded it on 2026-09-16, and
+the index now covers 97.6% of judged and 99.1% of relevant documents, matching the 9B set exactly.
+Rerunning the full symmetric protocol over the completed captions moves the individual numbers and
+leaves the verdict where it was: 0 of 33 significant, 22 of 33 equivalent to doing nothing. The
+MSR-VTT half needed no rerun, since that file is byte-identical to the one we already scored. One
+detail worth recording for anyone reaching for these vectors: the 27B `meta.json` still reports
+`n_vectors: 0` with all 55,388 ids under `missing_vectors`, so its three embedding arrays ship at
+full size and unfilled. Nothing here reads them.
 
 **The English-subset control (added 2026-08-14).** The subset version of the same objection: restrict
 the judgment to the 448 queries whose relevant videos are all English (115 event groups), where query
