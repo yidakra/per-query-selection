@@ -30,6 +30,8 @@ HERE = os.path.dirname(os.path.abspath(__file__)); sys.path.insert(0, HERE)
 _ROOT = os.path.dirname(os.path.dirname(HERE))
 ABL = os.path.join(_ROOT, "results", "ablations")
 MVEB = "/mnt/data/q2e/mveb"
+MARGIN = 5e-4      # how far above the best fixed system a router must land to count, fixed so that
+                   # loosening the reconstruction tolerance cannot loosen the conclusion
 
 # pool -> (caption directory, suffix on the run filename, supervision's reported nDCG per system)
 POOLS = {
@@ -91,7 +93,8 @@ def main():
     ap.add_argument("--index", action="append", default=[], metavar="POOL=FILE",
                     help="JSONL of {text: ...} for the lexical index; defaults to the pool's captions")
     ap.add_argument("--tol", type=float, default=5e-4,
-                    help="how far the reconstructed nDCG may sit from supervision's own number")
+                    help="how far the reconstructed nDCG may sit from supervision's own number; it "
+                         "gates the reconstruction only and never the above-fixed comparison")
     ap.add_argument("--tag", default="")
     a = ap.parse_args()
     if a.tag and not a.tag.startswith("_"):
@@ -133,10 +136,19 @@ def main():
         gain = expensive - cheap
         cv = list(KFold(5, shuffle=True, random_state=0).split(np.arange(len(qids))))
 
+        # WIG and sigma_x divide by sqrt(query length). Without the query text there is no length to
+        # divide by, so nq is 1 for every query and those three features are not length-normalised.
+        # No routing result moves, because the single-feature ridge standardises its one input and a
+        # constant divisor cannot survive that, but the protocol only matches the sibling study once
+        # the text arrives.
+        qtext_pool = json.load(open(qfiles[pool])) if pool in qfiles else None
+        if qtext_pool is None:
+            print(f"[{pool}] no query text: WIG, WIG_norm and sigma_x0.5 run unnormalised", flush=True)
         score_raw = {n: [] for n in SCORE_ONLY}
         for q in qids:
-            s = sorted(runs["base"][q].values(), reverse=True)
-            feats = score_only_suite(np.asarray(s, dtype=float), max(1, len(q.split())))
+            srt = sorted(runs["base"][q].values(), reverse=True)
+            nq = len(qtext_pool[q].split()) if qtext_pool else 1
+            feats = score_only_suite(np.asarray(srt, dtype=float), max(1, nq))
             for n in SCORE_ONLY:
                 score_raw[n].append(feats[n])
         score = {n: route(v, gain, cheap, expensive, cv) for n, v in score_raw.items()}
@@ -169,8 +181,8 @@ def main():
                    "n_features": len(feats[0])}
 
         pre = {}
-        if pool in qfiles:
-            qtext = json.load(open(qfiles[pool]))
+        if qtext_pool is not None:
+            qtext = qtext_pool
             src = ifiles.get(pool, os.path.join(a.root, POOLS[pool][0], "captions.jsonl"))
             texts = []
             for line in open(src):
@@ -193,7 +205,7 @@ def main():
         def summary(rows):
             if not rows:
                 return {"above_fixed": None, "n": 0, "degenerate": None, "max_abs_tau": None}
-            return {"above_fixed": sum(v["routed_ndcg10"] > fixed + a.tol for v in rows.values()),
+            return {"above_fixed": sum(v["routed_ndcg10"] > fixed + MARGIN for v in rows.values()),
                     "n": len(rows),
                     "degenerate": sum(v["degenerate"] for v in rows.values()),
                     "max_abs_tau": max(abs(v["tau"]) for v in rows.values())}
@@ -203,6 +215,7 @@ def main():
             "best_fixed": fixed, "gain_mean": float(gain.mean()), "gain_sd": float(gain.std()),
             "frac_01mv_better": float((gain > 1e-9).mean()),
             "frac_base_better": float((gain < -1e-9).mean()),
+            "query_text": qtext_pool is not None,
             "oracle": float(np.maximum(cheap, expensive).mean()),
             "pre": pre, "score": score, "control": control,
             "pre_summary": summary(pre), "score_summary": summary(score),

@@ -8,6 +8,7 @@
     "gain_sd": 0.2659904645242338,
     "frac_01mv_better": 0.18885096700796358,
     "frac_base_better": 0.19795221843003413,
+    "query_text": false,
     "oracle": 0.7654963504821317,
     "pre": {},
     "score": {
@@ -104,6 +105,7 @@
     "gain_sd": 0.27922196082198636,
     "frac_01mv_better": 0.24524524524524524,
     "frac_base_better": 0.1941941941941942,
+    "query_text": false,
     "oracle": 0.652930527316867,
     "pre": {},
     "score": {
