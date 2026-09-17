@@ -232,7 +232,9 @@ def main():
             for n, pr, pa in zip(rows, ps, holm(ps)):
                 rows[n]["p_two_sided"] = pr
                 rows[n]["p_holm"] = pa
-                rows[n]["significant"] = bool(pa < 0.05 and rows[n]["routed_ndcg10"] > fixed)
+                # the same margin the above-fixed count uses, so "significant" can never exceed it
+                rows[n]["significant"] = bool(pa < 0.05
+                                              and rows[n]["routed_ndcg10"] > fixed + MARGIN)
             return rows
 
         score = test_family(score_raw)
@@ -287,7 +289,8 @@ def main():
 
         def summary(rows):
             if not rows:
-                return {"above_fixed": None, "n": 0, "degenerate": None, "max_abs_tau": None}
+                return {"above_fixed": None, "significant": None, "n": 0,
+                        "degenerate": None, "max_abs_tau": None}
             return {"above_fixed": sum(v["routed_ndcg10"] > fixed + MARGIN for v in rows.values()),
                     "significant": sum(v.get("significant", False) for v in rows.values()),
                     "n": len(rows),
@@ -308,6 +311,9 @@ def main():
         print(f"[{pool}] oracle {results[pool]['oracle']:.4f} vs best fixed {fixed:.4f}; "
               f"pre {ps['significant']}/{ps['n']} significant ({ps['above_fixed']} above fixed), "
               f"score {ss['significant']}/{ss['n']} significant ({ss['above_fixed']} above fixed); "
+              if ps["n"] else
+              f"pre not run (no query text), score {ss['significant']}/{ss['n']} significant "
+              f"({ss['above_fixed']} above fixed); "
               f"control {control['routed_ndcg10']:.4f} ({control['vs_best_fixed']:+.4f} of "
               f"{control['oracle_headroom']:+.4f} headroom, p={control['p_two_sided']:.4f}, "
               f"tau {control['tau']:+.3f}, tied {100*control['frac_tied']:.1f}%)",

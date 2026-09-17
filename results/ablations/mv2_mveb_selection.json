@@ -93,7 +93,7 @@
         "significant": false
       },
       "SCS_2": {
-        "tau": 0.009626304035110259,
+        "tau": 0.009626325836052238,
         "routed_ndcg10": 0.4445851242953094,
         "frac_escalated": 0.0,
         "degenerate": true,
