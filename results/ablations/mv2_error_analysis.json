@@ -1,0 +1,457 @@
+{
+  "n_queries": 2546,
+  "tied": 937,
+  "live": 1609,
+  "screen_wins_of_live": 329,
+  "tie_threshold": 1e-09,
+  "speech_mean": 0.31336306446775974,
+  "screen_mean": 0.1329536628415092,
+  "breakdown": {
+    "video_language": {
+      "english": {
+        "queries": 577,
+        "tied_pct": 21.837088388214905,
+        "screen_wins_pct": 32.150776053215075,
+        "speech_ndcg": 0.42925323511632396,
+        "screen_ndcg": 0.3264004547300625,
+        "headroom": 0.08674098593472435
+      },
+      "chinese": {
+        "queries": 539,
+        "tied_pct": 41.929499072356215,
+        "screen_wins_pct": 14.696485623003195,
+        "speech_ndcg": 0.2484980316614632,
+        "screen_ndcg": 0.06140850986380439,
+        "headroom": 0.01497111201392673
+      },
+      "korean": {
+        "queries": 463,
+        "tied_pct": 46.436285097192226,
+        "screen_wins_pct": 14.112903225806452,
+        "speech_ndcg": 0.24503432057719207,
+        "screen_ndcg": 0.051575023095288115,
+        "headroom": 0.019508121125080186
+      },
+      "russian": {
+        "queries": 442,
+        "tied_pct": 30.09049773755656,
+        "screen_wins_pct": 8.737864077669903,
+        "speech_ndcg": 0.3263812874383428,
+        "screen_ndcg": 0.04087265848404179,
+        "headroom": 0.009194884239402124
+      },
+      "arabic": {
+        "queries": 330,
+        "tied_pct": 49.696969696969695,
+        "screen_wins_pct": 26.50602409638554,
+        "speech_ndcg": 0.1889444510115019,
+        "screen_ndcg": 0.0693470782517739,
+        "headroom": 0.03821305084415347
+      },
+      "spanish": {
+        "queries": 195,
+        "tied_pct": 37.43589743589744,
+        "screen_wins_pct": 26.229508196721312,
+        "speech_ndcg": 0.49302419537685005,
+        "screen_ndcg": 0.2678886658076691,
+        "headroom": 0.10483283445712022
+      }
+    },
+    "query_event_type": {
+      "emergency": {
+        "queries": 642,
+        "tied_pct": 37.53894080996885,
+        "screen_wins_pct": 20.698254364089774,
+        "speech_ndcg": 0.21661521062765945,
+        "screen_ndcg": 0.08465173639508512,
+        "headroom": 0.03763015825646035
+      },
+      "political development": {
+        "queries": 636,
+        "tied_pct": 32.861635220125784,
+        "screen_wins_pct": 14.285714285714286,
+        "speech_ndcg": 0.36654361580519845,
+        "screen_ndcg": 0.11557671407533285,
+        "headroom": 0.025457268363707708
+      },
+      "other": {
+        "queries": 387,
+        "tied_pct": 44.18604651162791,
+        "screen_wins_pct": 13.88888888888889,
+        "speech_ndcg": 0.4723466361197645,
+        "screen_ndcg": 0.1814607565116343,
+        "headroom": 0.045082982036555974
+      },
+      "launch/discovery": {
+        "queries": 240,
+        "tied_pct": 24.583333333333332,
+        "screen_wins_pct": 22.099447513812155,
+        "speech_ndcg": 0.36245215029352146,
+        "screen_ndcg": 0.20981554538300382,
+        "headroom": 0.05127504720627496
+      },
+      "protests": {
+        "queries": 198,
+        "tied_pct": 39.898989898989896,
+        "screen_wins_pct": 16.80672268907563,
+        "speech_ndcg": 0.23189089740172175,
+        "screen_ndcg": 0.10056521290059113,
+        "headroom": 0.028776074484155867
+      },
+      "social events": {
+        "queries": 175,
+        "tied_pct": 35.42857142857143,
+        "screen_wins_pct": 38.93805309734513,
+        "speech_ndcg": 0.23423378913837115,
+        "screen_ndcg": 0.16008729341207406,
+        "headroom": 0.06297979214815005
+      },
+      "sports": {
+        "queries": 174,
+        "tied_pct": 41.95402298850575,
+        "screen_wins_pct": 34.65346534653465,
+        "speech_ndcg": 0.29172646678674763,
+        "screen_ndcg": 0.16038297682068728,
+        "headroom": 0.06338299745971238
+      },
+      "elections": {
+        "queries": 94,
+        "tied_pct": 45.744680851063826,
+        "screen_wins_pct": 31.372549019607842,
+        "speech_ndcg": 0.1934178404830727,
+        "screen_ndcg": 0.15140372922099052,
+        "headroom": 0.06827456471150606
+      }
+    },
+    "video_type": {
+      "Edited": {
+        "queries": 1095,
+        "tied_pct": 33.05936073059361,
+        "screen_wins_pct": 25.78444747612551,
+        "speech_ndcg": 0.2891445628721284,
+        "screen_ndcg": 0.14132407119213147,
+        "headroom": 0.049815805272598435
+      },
+      "Professional": {
+        "queries": 994,
+        "tied_pct": 32.29376257545272,
+        "screen_wins_pct": 12.035661218424963,
+        "speech_ndcg": 0.4265492475816448,
+        "screen_ndcg": 0.1468733240308258,
+        "headroom": 0.022475117059412242
+      },
+      "Diet Raw": {
+        "queries": 253,
+        "tied_pct": 59.683794466403164,
+        "screen_wins_pct": 32.35294117647059,
+        "speech_ndcg": 0.1360543838718015,
+        "screen_ndcg": 0.10191136975589923,
+        "headroom": 0.08512726926548084
+      },
+      "Raw": {
+        "queries": 204,
+        "tied_pct": 50.490196078431374,
+        "screen_wins_pct": 25.742574257425744,
+        "speech_ndcg": 0.11175173810889755,
+        "screen_ndcg": 0.05869856374615239,
+        "headroom": 0.028638796164518227
+      }
+    },
+    "video_modality": {
+      "multivent_specific": {
+        "queries": 884,
+        "tied_pct": 31.56108597285068,
+        "screen_wins_pct": 25.619834710743802,
+        "speech_ndcg": 0.2028292905177856,
+        "screen_ndcg": 0.11562785198306669,
+        "headroom": 0.03583644899195651
+      },
+      "internvid_base": {
+        "queries": 397,
+        "tied_pct": 47.3551637279597,
+        "screen_wins_pct": 12.440191387559809,
+        "speech_ndcg": 0.3607608949558488,
+        "screen_ndcg": 0.11143998039256094,
+        "headroom": 0.03516944630203589
+      },
+      "internvid_text": {
+        "queries": 349,
+        "tied_pct": 45.27220630372493,
+        "screen_wins_pct": 11.518324607329843,
+        "speech_ndcg": 0.40360143229371487,
+        "screen_ndcg": 0.14670123696244408,
+        "headroom": 0.03871417789529452
+      },
+      "internvid_ocr": {
+        "queries": 336,
+        "tied_pct": 44.642857142857146,
+        "screen_wins_pct": 27.956989247311828,
+        "speech_ndcg": 0.32788556602951535,
+        "screen_ndcg": 0.1917460290055052,
+        "headroom": 0.08313223858981189
+      },
+      "internvid_speech": {
+        "queries": 325,
+        "tied_pct": 32.61538461538461,
+        "screen_wins_pct": 8.219178082191782,
+        "speech_ndcg": 0.4852288789090432,
+        "screen_ndcg": 0.11742212356572189,
+        "headroom": 0.02300876295234322
+      },
+      "multivent_base": {
+        "queries": 255,
+        "tied_pct": 21.96078431372549,
+        "screen_wins_pct": 28.14070351758794,
+        "speech_ndcg": 0.2610719934033697,
+        "screen_ndcg": 0.15002252792549975,
+        "headroom": 0.038058303413080585
+      }
+    }
+  },
+  "examples": {
+    "speech_much_better": [
+      {
+        "qid": "test_pt2_query_1007",
+        "query": "2022 Kyrgyzstan drone base opening",
+        "speech": 1.0,
+        "screen": 0.0,
+        "video_language": "russian",
+        "query_event_type": "launch/discovery",
+        "video_type": "Edited",
+        "video_modality": "internvid_base"
+      },
+      {
+        "qid": "test_pt2_query_1014",
+        "query": "Idlib agriculture industry hurt by rising fuel costs",
+        "speech": 1.0,
+        "screen": 0.0,
+        "video_language": "arabic",
+        "query_event_type": "other",
+        "video_type": "Professional",
+        "video_modality": "internvid_base"
+      },
+      {
+        "qid": "test_pt2_query_102",
+        "query": "KakaoTalk and Naver reservations for extra vaccines",
+        "speech": 1.0,
+        "screen": 0.0,
+        "video_language": "korean",
+        "query_event_type": "other",
+        "video_type": "Professional",
+        "video_modality": "internvid_text"
+      },
+      {
+        "qid": "test_pt2_query_1045",
+        "query": "Colombian motorcycle exploding near police patrol",
+        "speech": 1.0,
+        "screen": 0.0,
+        "video_language": "spanish",
+        "query_event_type": "emergency",
+        "video_type": "Edited",
+        "video_modality": "internvid_text"
+      },
+      {
+        "qid": "test_pt2_query_1047",
+        "query": "Wang Wenbin denies Chinese hacking Belgium",
+        "speech": 1.0,
+        "screen": 0.0,
+        "video_language": "chinese",
+        "query_event_type": "political development",
+        "video_type": "Diet Raw",
+        "video_modality": "internvid_text"
+      },
+      {
+        "qid": "test_pt2_query_1053",
+        "query": "March 2020 Novgorod Covid-19 outbreak",
+        "speech": 1.0,
+        "screen": 0.0,
+        "video_language": "russian",
+        "query_event_type": "emergency",
+        "video_type": "Professional",
+        "video_modality": "internvid_base"
+      },
+      {
+        "qid": "test_pt2_query_1074",
+        "query": "Rodrigo Koxa surfing largest wave ever",
+        "speech": 1.0,
+        "screen": 0.0,
+        "video_language": "arabic",
+        "query_event_type": "sports",
+        "video_type": "Professional",
+        "video_modality": "internvid_text"
+      },
+      {
+        "qid": "test_pt2_query_11",
+        "query": "Malayan tiger in Florida zoo biting man's arm",
+        "speech": 1.0,
+        "screen": 0.0,
+        "video_language": "english",
+        "query_event_type": "political development",
+        "video_type": "Diet Raw",
+        "video_modality": "internvid_text"
+      },
+      {
+        "qid": "test_pt2_query_1102",
+        "query": "Communist party member private business prohibition",
+        "speech": 1.0,
+        "screen": 0.0,
+        "video_language": "chinese",
+        "query_event_type": "political development",
+        "video_type": "Edited",
+        "video_modality": "internvid_ocr"
+      },
+      {
+        "qid": "test_pt2_query_1104",
+        "query": "Research indicating cold weather correlated with drinking alcohol",
+        "speech": 1.0,
+        "screen": 0.0,
+        "video_language": "spanish",
+        "query_event_type": "launch/discovery",
+        "video_type": "Professional",
+        "video_modality": "internvid_text"
+      },
+      {
+        "qid": "test_pt2_query_1113",
+        "query": "Nighttime fighter jet operation considerations",
+        "speech": 1.0,
+        "screen": 0.0,
+        "video_language": "korean",
+        "query_event_type": "launch/discovery",
+        "video_type": "Edited",
+        "video_modality": "internvid_speech"
+      },
+      {
+        "qid": "test_pt2_query_1120",
+        "query": "Malaysian mosque ban on transgender people",
+        "speech": 1.0,
+        "screen": 0.0,
+        "video_language": "russian",
+        "query_event_type": "political development",
+        "video_type": "Edited",
+        "video_modality": "internvid_base"
+      }
+    ],
+    "screen_much_better": [
+      {
+        "qid": "test_pt2_query_1244",
+        "query": "2022 superyacht sinking in Ionian Sea",
+        "speech": 0.0,
+        "screen": 1.0,
+        "video_language": "english",
+        "query_event_type": "emergency",
+        "video_type": "Diet Raw",
+        "video_modality": "internvid_base"
+      },
+      {
+        "qid": "test_pt2_query_1250",
+        "query": "Indian man wielding machete arrested",
+        "speech": 0.0,
+        "screen": 1.0,
+        "video_language": "english",
+        "query_event_type": "other",
+        "video_type": "Diet Raw",
+        "video_modality": "internvid_text"
+      },
+      {
+        "qid": "test_pt2_query_1333",
+        "query": "2014 Intrepid Museum Space & Science festival",
+        "speech": 0.0,
+        "screen": 1.0,
+        "video_language": "arabic",
+        "query_event_type": "social events",
+        "video_type": "Professional",
+        "video_modality": "internvid_base"
+      },
+      {
+        "qid": "test_pt2_query_1437",
+        "query": "2017 Twisted Tower Robot invention",
+        "speech": 0.0,
+        "screen": 1.0,
+        "video_language": "arabic",
+        "query_event_type": "launch/discovery",
+        "video_type": "Edited",
+        "video_modality": "internvid_base"
+      },
+      {
+        "qid": "test_pt2_query_1473",
+        "query": "Missing fisherman after Mangaluru boat accident",
+        "speech": 0.0,
+        "screen": 1.0,
+        "video_language": "english",
+        "query_event_type": "emergency",
+        "video_type": "Diet Raw",
+        "video_modality": "internvid_text"
+      },
+      {
+        "qid": "test_pt2_query_1640",
+        "query": "2014 Intrepid Museum Space & Science festival",
+        "speech": 0.0,
+        "screen": 1.0,
+        "video_language": "arabic",
+        "query_event_type": "social events",
+        "video_type": "Professional",
+        "video_modality": "internvid_ocr"
+      },
+      {
+        "qid": "test_pt2_query_1802",
+        "query": "Phone banking for Tina Kotek",
+        "speech": 0.0,
+        "screen": 1.0,
+        "video_language": "english",
+        "query_event_type": "elections",
+        "video_type": "Diet Raw",
+        "video_modality": "internvid_ocr"
+      },
+      {
+        "qid": "test_pt2_query_1855",
+        "query": "Overseas voting 2017 South Korean elections",
+        "speech": 0.0,
+        "screen": 1.0,
+        "video_language": "korean",
+        "query_event_type": "elections",
+        "video_type": "Edited",
+        "video_modality": "multivent_specific"
+      },
+      {
+        "qid": "test_pt2_query_1861",
+        "query": "Photo of doorway by Curiosity rover",
+        "speech": 0.0,
+        "screen": 1.0,
+        "video_language": "english",
+        "query_event_type": "launch/discovery",
+        "video_type": "Edited",
+        "video_modality": "internvid_ocr"
+      },
+      {
+        "qid": "test_pt2_query_1994",
+        "query": "Police responding to zoo tiger attack",
+        "speech": 0.0,
+        "screen": 1.0,
+        "video_language": "english",
+        "query_event_type": "political development",
+        "video_type": "Diet Raw",
+        "video_modality": "internvid_speech"
+      },
+      {
+        "qid": "test_pt2_query_2052",
+        "query": "Door-shaped fracture at East Cliffs on Mars",
+        "speech": 0.0,
+        "screen": 1.0,
+        "video_language": "english",
+        "query_event_type": "launch/discovery",
+        "video_type": "Edited",
+        "video_modality": "internvid_base"
+      },
+      {
+        "qid": "test_pt2_query_2119",
+        "query": "Indian Coast Guard rescue efforts after shipwreck",
+        "speech": 0.0,
+        "screen": 1.0,
+        "video_language": "english",
+        "query_event_type": "emergency",
+        "video_type": "Diet Raw",
+        "video_modality": "internvid_ocr"
+      }
+    ]
+  }
+}
