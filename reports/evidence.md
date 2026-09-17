@@ -387,6 +387,54 @@ margin that survives the significance test. We continue to report no percentage 
 anywhere. The variant axis carries the same warning and still has no number, because its 31 options
 have no stored runs and re-scoring them needs the shared GPU.
 
+**Qualitative error analysis of the channel decision (added 2026-09-17).** Everything else measures
+whether the decision can be made. This asks where it goes wrong and whether the failures have
+structure a practitioner could act on. The material is the judgment metadata the benchmark ships and
+we had never used: the relevant video's language, the event type, the production style, and which
+modality the relevance was drawn from. Each query takes the labels of its most relevant judged
+video, so these describe the query's target rather than its whole judgment set
+(`mv2_error_analysis.py`, `mv2_error_analysis.json`).
+
+The first finding is that most queries carry no decision at all. On 937 of 2,546 queries, 36.8%, the
+two channels score identically, so a selector cannot be right or wrong about them. The decision is
+live on the remaining 1,609, and on those speech is the better channel four times out of five:
+screen text wins 329 of them, 20.4%.
+
+Where the decision lives is not uniform, and the pattern is legible.
+
+| Cut | Queries | Tied | Screen text wins | Headroom |
+|---|---|---|---|---|
+| English-language video | 577 | 22% | 32% | +8.67 |
+| Chinese | 539 | 42% | 15% | +1.50 |
+| Russian | 442 | 30% | 9% | +0.92 |
+| Professional production | 994 | 32% | 12% | +2.25 |
+| Raw, lightly edited | 253 | 60% | 32% | +8.51 |
+| Elections | 94 | 46% | 31% | +6.83 |
+| Political development | 636 | 33% | 14% | +2.55 |
+
+Three readings. Language decides how much the channel decision is worth: English-language video has
+the most headroom and screen text wins a third of its live queries, while Russian video has almost
+none and screen text wins under one in ten. Production style runs against intuition: professional
+news has strong speech and little to gain from choosing, whereas raw and lightly edited footage ties
+most often and, when it does not, has the most to gain. And the event types where on-screen graphics
+carry the information, elections and sports and social events, are exactly the ones where screen
+text wins most often, at 31% to 39%, against 14% for political development.
+
+The analysis contains its own validity check. The benchmark labels which modality each relevance
+judgment came from, and we never used that label to build anything. Queries whose relevance came
+from on-screen text have the highest headroom of any modality group, +8.31, and screen text wins 28%
+of their live queries. Queries whose relevance came from speech have the lowest screen-text win rate
+of any group, 8%, with headroom of +2.30. A channel decision recovered from retrieval outcomes lines
+up with an independent annotation of where the answer actually was, which is what it should do if
+the decision is real rather than an artefact of scoring.
+
+The failure mode this exposes is the one the selectors already show. The queries where the wrong
+channel costs most are near-total: in the widest cases one channel returns 1.000 and the other
+0.000, on queries like a Kyrgyz drone base opening or a superyacht sinking. There is no partial
+credit to hedge with, which is why a predictor that orders the options badly spends the whole spread
+rather than a fraction of it, and why selection is unforgiving in a way ranking quality alone does
+not suggest.
+
 **The channel router forced to choose (added 2026-09-11).** The three-way router's "both" answer
 on 2,535 of 2,546 queries left one reading open: given a way not to decide, the model took it, and
 the query might still carry a channel signal that a prompt with no exit would surface. We reran the
