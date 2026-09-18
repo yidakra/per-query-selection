@@ -73,6 +73,15 @@ def main():
 
     sp = load_run(os.path.join(DATA, a.speech))
     sc = load_run(os.path.join(DATA, a.screen))
+    # a channel can return nothing for a query, and comparing two channels is only meaningful where
+    # both answered, so the query set is the intersection and the drop is reported rather than hidden
+    present = [q for q in qids if q in sp and q in sc]
+    if len(present) != len(qids):
+        missing_sp = sum(1 for q in qids if q not in sp)
+        missing_sc = sum(1 for q in qids if q not in sc)
+        print(f"dropping {len(qids) - len(present)} of {len(qids)} queries absent from a channel "
+              f"run ({missing_sp} from speech, {missing_sc} from screen text)", flush=True)
+    qids = present
     y_sp = per_query_ndcg(qrels, {q: sp[q] for q in qids})
     y_sc = per_query_ndcg(qrels, {q: sc[q] for q in qids})
 
