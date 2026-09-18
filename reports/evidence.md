@@ -410,8 +410,10 @@ Where the decision lives is not uniform, and the pattern is legible.
 | Korean | 463 | 46% | 14% | +1.95 |
 | Chinese | 539 | 42% | 15% | +1.50 |
 | Russian | 442 | 30% | 9% | +0.92 |
-| Professional production | 994 | 32% | 12% | +2.25 |
-| Raw, lightly edited | 253 | 60% | 32% | +8.51 |
+| Diet Raw production | 253 | 60% | 32% | +8.51 |
+| Edited | 1,095 | 33% | 26% | +4.98 |
+| Raw | 204 | 50% | 26% | +2.86 |
+| Professional | 994 | 32% | 12% | +2.25 |
 | Elections | 94 | 46% | 31% | +6.83 |
 | Political development | 636 | 33% | 14% | +2.55 |
 
@@ -420,9 +422,12 @@ magnitude: Spanish and English video carry +10.48 and +8.67, with screen text wi
 third of their live queries, while Russian carries +0.92 and screen text wins under one in ten. All
 six language groups are listed above rather than the largest few, because neither end of the range
 is one of the two largest groups: the top is Spanish, the smallest group at 195 queries, and the
-bottom is Russian, fourth largest at 442. Production style runs against intuition: professional
-news has strong speech and little to gain from choosing, whereas raw and lightly edited footage ties
-most often and, when it does not, has the most to gain. And the event types where on-screen graphics
+bottom is Russian, fourth largest at 442. Production style splits the two quantities apart, which is the more useful
+finding. The least produced classes tie by far the most, 60% and 50% against 33% and 32% for edited
+and professional footage, so the decision simply does not arise for much of that material. But
+headroom does not follow production style: Diet Raw has the most to gain at +8.51 and plain Raw
+nearly the least at +2.86, below edited footage at +4.98. How often a decision exists and how much
+it is worth are different questions, and production style answers only the first. And the event types where on-screen graphics
 carry the information, elections and sports and social events, are exactly the ones where screen
 text wins most often, at 31% to 39%, against 14% for political development.
 
