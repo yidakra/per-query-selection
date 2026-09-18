@@ -425,13 +425,19 @@ most often and, when it does not, has the most to gain. And the event types wher
 carry the information, elections and sports and social events, are exactly the ones where screen
 text wins most often, at 31% to 39%, against 14% for political development.
 
-The analysis contains its own validity check. The benchmark labels which modality each relevance
-judgment came from, and we never used that label to build anything. Queries whose relevance came
-from on-screen text have the highest headroom of any modality group, +8.31, and screen text wins 28%
-of their live queries. Queries whose relevance came from speech have the lowest screen-text win rate
-of any group, 8%, with headroom of +2.30. A channel decision recovered from retrieval outcomes lines
-up with an independent annotation of where the answer actually was, which is what it should do if
-the decision is real rather than an artefact of scoring.
+One breakdown looks like a validity check and is not one. The benchmark records which modality each
+relevance judgment came from, and the alignment is striking: queries whose relevance came from
+on-screen text have the highest headroom of any modality group, +8.31, and screen text wins 28% of
+their live queries, while queries whose relevance came from speech have the lowest screen-text win
+rate of any group, 8%, with headroom of +2.30.
+
+That agreement cannot be read as independent confirmation, and we do not read it that way. A video
+judged relevant because an on-screen-text system surfaced it for judging is, by construction, a
+video that an on-screen-text channel ranks highly. The label records how the judgment pool was
+built, not where a human decided the answer lay, so the correlation is at least partly mechanical
+and no experiment here can separate the mechanical part from the real one. It is reported as a
+description of how this collection was assembled, which is worth knowing when reading any
+channel-level result on it, and nothing in the study rests on it.
 
 The failure mode this exposes is the one the selectors already show. The queries where the wrong
 channel costs most are near-total: in the widest cases one channel returns 1.000 and the other

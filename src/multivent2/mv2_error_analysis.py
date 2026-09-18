@@ -14,6 +14,11 @@ Three questions, each answered by a breakdown rather than a single number.
 3. What does a losing query look like? The largest individual losses are printed with their text so
    the failure can be read rather than inferred.
 
+One caution about `video_modality`. It records which system surfaced a document for judging, not
+where a human found the answer, so a judgment pooled from an on-screen-text system is one an
+on-screen-text channel ranks highly by construction. The breakdown over that field describes how the
+collection was assembled and must not be read as independent validation of a channel decision.
+
 CPU only, reads the committed runs.
 
   python src/multivent2/mv2_error_analysis.py
