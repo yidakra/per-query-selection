@@ -414,8 +414,14 @@ Where the decision lives is not uniform, and the pattern is legible.
 | Edited | 1,095 | 33% | 26% | +4.98 |
 | Raw | 204 | 50% | 26% | +2.86 |
 | Professional | 994 | 32% | 12% | +2.25 |
+| Social events | 175 | 35% | 39% | +6.30 |
+| Sports | 174 | 42% | 35% | +6.34 |
 | Elections | 94 | 46% | 31% | +6.83 |
+| Launch or discovery | 240 | 25% | 22% | +5.13 |
+| Emergency | 642 | 38% | 21% | +3.76 |
+| Protests | 198 | 40% | 17% | +2.88 |
 | Political development | 636 | 33% | 14% | +2.55 |
+| Other | 387 | 44% | 14% | +4.51 |
 
 Three readings. Language decides how much the channel decision is worth, and it spans an order of
 magnitude: Spanish and English video carry +10.48 and +8.67, with screen text winning a quarter to a
@@ -427,15 +433,18 @@ finding. The least produced classes tie by far the most, 60% and 50% against 33%
 and professional footage, so the decision simply does not arise for much of that material. But
 headroom does not follow production style: Diet Raw has the most to gain at +8.51 and plain Raw
 nearly the least at +2.86, below edited footage at +4.98. How often a decision exists and how much
-it is worth are different questions, and production style answers only the first. And the event types where on-screen graphics
-carry the information, elections and sports and social events, are exactly the ones where screen
-text wins most often, at 31% to 39%, against 14% for political development.
+it is worth are different questions, and production style answers only the first. And the event types whose information sits in on-screen
+graphics take the top three places for how often screen text wins: social events at 39%, sports at
+35% and elections at 31%, against 14% for political development at the bottom. All eight event types
+are listed above, so the ordering can be checked rather than taken on the three that suit the
+reading.
 
 One breakdown looks like a validity check and is not one. The benchmark records which modality each
-relevance judgment came from, and the alignment is striking: queries whose relevance came from
-on-screen text have the highest headroom of any modality group, +8.31, and screen text wins 28% of
-their live queries, while queries whose relevance came from speech have the lowest screen-text win
-rate of any group, 8%, with headroom of +2.30.
+relevance judgment came from, across six groups, and two of them line up strikingly with the channel
+decision: queries whose relevance came from on-screen text have the highest headroom of the six,
++8.31, with screen text winning 28% of their live queries, while queries whose relevance came from
+speech have the lowest screen-text win rate of the six, 8%, and headroom of +2.30. The other four
+groups sit between, from +3.52 to +3.87.
 
 That agreement cannot be read as independent confirmation, and we do not read it that way. A video
 judged relevant because an on-screen-text system surfaced it for judging is, by construction, a
