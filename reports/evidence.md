@@ -969,4 +969,4 @@ in-sample version is exactly the number a less careful paper would have publishe
   calibrated cross-encoder is the first learned row to clear fixed there, by 0.0006. So it is a
   low-base-rate cell rather than a degenerate one, and it is where calibration matters most.
 - **The second paper.** The efficiency material (measured joules, the p99 tail, risk-coverage, and the
-  ρ = 0.943 heterogeneity result) has its own scope note in `paper2_scope.md`.
+  ρ = 0.943 heterogeneity result) has its own scope note, which lives in the paper repository.
