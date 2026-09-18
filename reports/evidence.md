@@ -404,7 +404,10 @@ Where the decision lives is not uniform, and the pattern is legible.
 
 | Cut | Queries | Tied | Screen text wins | Headroom |
 |---|---|---|---|---|
-| English-language video | 577 | 22% | 32% | +8.67 |
+| Spanish-language video | 195 | 37% | 26% | +10.48 |
+| English | 577 | 22% | 32% | +8.67 |
+| Arabic | 330 | 50% | 27% | +3.82 |
+| Korean | 463 | 46% | 14% | +1.95 |
 | Chinese | 539 | 42% | 15% | +1.50 |
 | Russian | 442 | 30% | 9% | +0.92 |
 | Professional production | 994 | 32% | 12% | +2.25 |
@@ -412,9 +415,11 @@ Where the decision lives is not uniform, and the pattern is legible.
 | Elections | 94 | 46% | 31% | +6.83 |
 | Political development | 636 | 33% | 14% | +2.55 |
 
-Three readings. Language decides how much the channel decision is worth: English-language video has
-the most headroom and screen text wins a third of its live queries, while Russian video has almost
-none and screen text wins under one in ten. Production style runs against intuition: professional
+Three readings. Language decides how much the channel decision is worth, and it spans an order of
+magnitude: Spanish and English video carry +10.48 and +8.67, with screen text winning a quarter to a
+third of their live queries, while Russian carries +0.92 and screen text wins under one in ten. All
+six language groups are listed above, because the two extremes are the smallest and the second
+largest group and a table of the largest groups alone would misstate the range. Production style runs against intuition: professional
 news has strong speech and little to gain from choosing, whereas raw and lightly edited footage ties
 most often and, when it does not, has the most to gain. And the event types where on-screen graphics
 carry the information, elections and sports and social events, are exactly the ones where screen
