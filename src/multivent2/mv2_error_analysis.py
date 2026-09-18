@@ -96,11 +96,16 @@ def main():
             g_live = [q for q in group if abs(gain[q]) > a.tie]
             if len(group) < 20:                       # too small to read anything into
                 continue
+            # the two percentages have different denominators on purpose: a tie rate is only
+            # meaningful over the whole group, and a win rate is only meaningful over the queries
+            # where a win is possible. The key names carry the denominator so the pair cannot be
+            # read as a partition of one set.
             rows[label] = {
                 "queries": len(group),
-                "tied_pct": 100 * (len(group) - len(g_live)) / len(group),
-                "screen_wins_pct": (100 * sum(1 for q in g_live if gain[q] > 0) / len(g_live))
-                                   if g_live else None,
+                "live": len(g_live),
+                "tied_pct_of_group": 100 * (len(group) - len(g_live)) / len(group),
+                "screen_wins_pct_of_live": (100 * sum(1 for q in g_live if gain[q] > 0) / len(g_live))
+                                           if g_live else None,
                 "speech_ndcg": float(np.mean([y_sp.get(q, 0.0) for q in group])),
                 "screen_ndcg": float(np.mean([y_sc.get(q, 0.0) for q in group])),
                 "headroom": float(np.mean([max(y_sp.get(q, 0.0), y_sc.get(q, 0.0)) for q in group])
@@ -109,9 +114,9 @@ def main():
         breakdown[field] = rows
         print(f"\n[{field}]", flush=True)
         for label, r in rows.items():
-            sw = "--" if r["screen_wins_pct"] is None else f"{r['screen_wins_pct']:.0f}%"
-            print(f"  {label:24s} n={r['queries']:5d} tied={r['tied_pct']:4.0f}% "
-                  f"screen wins={sw:>4s} speech={r['speech_ndcg']:.3f} "
+            sw = "--" if r["screen_wins_pct_of_live"] is None else f"{r['screen_wins_pct_of_live']:.0f}%"
+            print(f"  {label:24s} n={r['queries']:5d} tied={r['tied_pct_of_group']:4.0f}% of group "
+                  f"screen wins={sw:>4s} of live speech={r['speech_ndcg']:.3f} "
                   f"screen={r['screen_ndcg']:.3f} headroom={100*r['headroom']:+.2f}", flush=True)
 
     # the queries where choosing screen text over speech would cost the most, and the reverse

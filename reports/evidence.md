@@ -402,7 +402,7 @@ the better channel four times out of five: screen text wins 329 of them, 20.4%.
 
 Where the decision lives is not uniform, and the pattern is legible.
 
-| Cut | Queries | Tied | Screen text wins | Headroom |
+| Cut | Queries | Tied, of the group | Screen text wins, of the live queries | Headroom |
 |---|---|---|---|---|
 | Spanish-language video | 195 | 37% | 26% | +10.48 |
 | English | 577 | 22% | 32% | +8.67 |
