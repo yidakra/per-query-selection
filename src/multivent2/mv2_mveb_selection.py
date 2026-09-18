@@ -45,6 +45,16 @@ POOLS = {
 }
 
 
+def holm(pvals):
+    """Holm step-down within a family. Returns the adjusted p in the input order."""
+    order = sorted(range(len(pvals)), key=lambda i: pvals[i])
+    adj, running = [0.0] * len(pvals), 0.0
+    for rank, i in enumerate(order):
+        running = max(running, (len(pvals) - rank) * pvals[i])
+        adj[i] = min(1.0, running)
+    return adj
+
+
 def sign_flip_p(diff, n_draws=2000, seed=0):
     """Two-sided sign-flip test over queries. One phrasing per information need here, so queries are
     exchangeable and there is no event-duplicate grouping to respect."""
@@ -67,20 +77,57 @@ def per_query_ndcg10(run, qrels):
 
 
 def load_pool(pool, root):
-    """Runs, reconstructed qrels and the query order. Raises if the reconstruction is unavailable."""
+    """Runs, judgments, query order and query text.
+
+    The delivery keys everything by id and never by row order. The run files still address queries
+    positionally, so the one ordering assumption left is that the i-th query of a pool is the i-th
+    line of its id list and of its query file, and the reconstruction check below is what licenses
+    it: nDCG computed this way has to reproduce supervision's own number for both systems."""
     d, sfx, _ = POOLS[pool]
-    prefix = "vggsound" if pool in ("vggv", "vgga") else pool
-    ids_file = os.path.join(root, "backfill_request", f"{prefix}_video_ids.txt")
+    run_prefix = "vggsound" if pool in ("vggv", "vgga") else pool
+    ids_file = os.path.join(root, "retrieval_queries", f"{pool}_video_ids.txt")
+    if not os.path.exists(ids_file):                       # the first delivery, two pools only
+        ids_file = os.path.join(root, "backfill_request", f"{pool}_video_ids.txt")
     if not os.path.exists(ids_file):
-        raise FileNotFoundError(f"no id list for {pool}; supervision has it as {prefix}_video_ids.txt")
+        raise FileNotFoundError(f"no id list for {pool}")
     ids = [l.strip() for l in open(ids_file) if l.strip()]
-    qids = [f"{prefix}_q{i:06d}" for i in range(len(ids))]
-    qrels = {q: {v} for q, v in zip(qids, ids)}
     runs = {}
     for sysname in ("base", "01mv"):
-        p = os.path.join(root, "first_stage", f"{prefix}_run_{sysname}_top100{sfx}.json")
-        runs[sysname] = json.load(open(p))
-    return runs, qrels, qids
+        f = os.path.join(root, "first_stage", f"{run_prefix}_run_{sysname}_top100{sfx}.json")
+        runs[sysname] = json.load(open(f))
+    # query ids come from the run rather than from a guessed prefix; VGGSound writes
+    # vggsound_a_q000000 and vggsound_v_q000000 over one video set, which no prefix rule predicts
+    qids = sorted(runs["base"], key=lambda q: int(q.rsplit("q", 1)[1]))
+    if len(qids) != len(ids):
+        raise SystemExit(f"[{pool}] {len(qids)} queries in the run against {len(ids)} ids")
+
+    # the id list is prefixed by pool and the run by dataset, which differ wherever one dataset
+    # yields two pools: vgga_X_000495 against vggsound_X_000495 over the same video
+    docs = set().union(*(set(v) for v in runs["base"].values()))
+    def swap(v):
+        return run_prefix + v[len(pool):] if v.startswith(pool + "_") else v
+    raw_cover = sum(1 for v in ids if v in docs)
+    alt = [swap(v) for v in ids]
+    alt_cover = sum(1 for v in alt if v in docs)
+    if alt_cover > raw_cover:
+        print(f"[{pool}] bridged ids from {pool}_ to {run_prefix}_ "
+              f"({alt_cover} of {len(ids)} golds retrieved, against {raw_cover} unbridged)",
+              flush=True)
+        ids = alt
+    qrels = {q: {v} for q, v in zip(qids, ids)}
+
+    qtext, qfile = None, os.path.join(root, "retrieval_queries", f"{pool}_queries.jsonl")
+    if os.path.exists(qfile):
+        rows = [json.loads(l) for l in open(qfile) if l.strip()]
+        if len(rows) != len(ids):
+            raise SystemExit(f"[{pool}] {len(rows)} queries against {len(ids)} ids")
+        bad = [i for i, r in enumerate(rows) if swap(r["natural_id"]) != ids[i]]
+        if bad:                                            # the delivery is keyed, so this must hold
+            raise SystemExit(f"[{pool}] query file and id list disagree on {len(bad)} rows, "
+                             f"first at {bad[0]}")
+        qtext = {q: r["query"] for q, r in zip(qids, rows)}
+
+    return runs, qrels, qids, qtext
 
 
 def main():
@@ -112,7 +159,7 @@ def main():
     results = {}
     for pool in pools:
         try:
-            runs, qrels, qids = load_pool(pool, a.root)
+            runs, qrels, qids, qtext_delivered = load_pool(pool, a.root)
         except FileNotFoundError as e:
             print(f"[{pool}] skipped: {e}", flush=True)
             continue
@@ -141,7 +188,7 @@ def main():
         # No routing result moves, because the single-feature ridge standardises its one input and a
         # constant divisor cannot survive that, but the protocol only matches the sibling study once
         # the text arrives.
-        qtext_pool = json.load(open(qfiles[pool])) if pool in qfiles else None
+        qtext_pool = json.load(open(qfiles[pool])) if pool in qfiles else qtext_delivered
         if qtext_pool is None:
             print(f"[{pool}] no query text: WIG, WIG_norm and sigma_x0.5 run unnormalised", flush=True)
         # The released runs are top-100, a tenth of the 1000 the MultiVENT protocol scores over, so
@@ -166,7 +213,31 @@ def main():
                   flush=True)
             for n in set(dup + const):
                 score_raw.pop(n)
-        score = {n: route(v, gain, cheap, expensive, cv) for n, v in score_raw.items()}
+        fixed = max(means["base"], means["01mv"])
+        best_fixed_vec_fam = cheap if means["base"] >= means["01mv"] else expensive
+
+        def test_family(raw):
+            """Route each predictor, then test its routed run against the best fixed system with the
+            same group-free sign-flip test the rest of the study uses, Holm corrected within family."""
+            rows, diffs = {}, []
+            for n, v in raw.items():
+                rows[n] = route(v, gain, cheap, expensive, cv)
+                arr = np.asarray(v, dtype=float)
+                if np.allclose(arr.std(), 0):
+                    pred = np.zeros(len(arr))
+                else:
+                    pred = cross_val_predict(model(), arr.reshape(-1, 1), gain, cv=cv)
+                diffs.append(np.where(pred > 0, expensive, cheap) - best_fixed_vec_fam)
+            ps = [sign_flip_p(d) for d in diffs]
+            for n, pr, pa in zip(rows, ps, holm(ps)):
+                rows[n]["p_two_sided"] = pr
+                rows[n]["p_holm"] = pa
+                # the same margin the above-fixed count uses, so "significant" can never exceed it
+                rows[n]["significant"] = bool(pa < 0.05
+                                              and rows[n]["routed_ndcg10"] > fixed + MARGIN)
+            return rows
+
+        score = test_family(score_raw)
         results_extra = {"score_k": depth_k, "score_dropped": sorted(set(dup + const))}
 
         # the positive control: one learner over both systems' score distributions and their rank
@@ -214,14 +285,14 @@ def main():
                 feats = pre_retrieval_suite(toks, index)
                 for n in PRE_RETRIEVAL:
                     pre_raw[n].append(feats[n])
-            pre = {n: route(v, gain, cheap, expensive, cv) for n, v in pre_raw.items()}
-
-        fixed = max(means["base"], means["01mv"])
+            pre = test_family(pre_raw)
 
         def summary(rows):
             if not rows:
-                return {"above_fixed": None, "n": 0, "degenerate": None, "max_abs_tau": None}
+                return {"above_fixed": None, "significant": None, "n": 0,
+                        "degenerate": None, "max_abs_tau": None}
             return {"above_fixed": sum(v["routed_ndcg10"] > fixed + MARGIN for v in rows.values()),
+                    "significant": sum(v.get("significant", False) for v in rows.values()),
                     "n": len(rows),
                     "degenerate": sum(v["degenerate"] for v in rows.values()),
                     "max_abs_tau": max(abs(v["tau"]) for v in rows.values())}
@@ -238,7 +309,11 @@ def main():
         }
         ps, ss = results[pool]["pre_summary"], results[pool]["score_summary"]
         print(f"[{pool}] oracle {results[pool]['oracle']:.4f} vs best fixed {fixed:.4f}; "
-              f"pre {ps['above_fixed']}/{ps['n']} above fixed, score {ss['above_fixed']}/{ss['n']}; "
+              f"pre {ps['significant']}/{ps['n']} significant ({ps['above_fixed']} above fixed), "
+              f"score {ss['significant']}/{ss['n']} significant ({ss['above_fixed']} above fixed); "
+              if ps["n"] else
+              f"pre not run (no query text), score {ss['significant']}/{ss['n']} significant "
+              f"({ss['above_fixed']} above fixed); "
               f"control {control['routed_ndcg10']:.4f} ({control['vs_best_fixed']:+.4f} of "
               f"{control['oracle_headroom']:+.4f} headroom, p={control['p_two_sided']:.4f}, "
               f"tau {control['tau']:+.3f}, tied {100*control['frac_tied']:.1f}%)",
