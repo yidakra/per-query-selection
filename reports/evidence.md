@@ -395,10 +395,10 @@ modality the relevance was drawn from. Each query takes the labels of its most r
 video, so these describe the query's target rather than its whole judgment set
 (`mv2_error_analysis.py`, `mv2_error_analysis.json`).
 
-The first finding is that most queries carry no decision at all. On 937 of 2,546 queries, 36.8%, the
-two channels score identically, so a selector cannot be right or wrong about them. The decision is
-live on the remaining 1,609, and on those speech is the better channel four times out of five:
-screen text wins 329 of them, 20.4%.
+The first finding is that a substantial minority of queries carry no decision at all. On 937 of
+2,546, 36.8%, the two channels score identically, so a selector can be neither right nor wrong about
+them. The decision is live on the remaining 1,609, a clear majority at 63.2%, and on those speech is
+the better channel four times out of five: screen text wins 329 of them, 20.4%.
 
 Where the decision lives is not uniform, and the pattern is legible.
 
