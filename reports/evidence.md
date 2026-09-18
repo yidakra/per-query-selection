@@ -418,8 +418,9 @@ Where the decision lives is not uniform, and the pattern is legible.
 Three readings. Language decides how much the channel decision is worth, and it spans an order of
 magnitude: Spanish and English video carry +10.48 and +8.67, with screen text winning a quarter to a
 third of their live queries, while Russian carries +0.92 and screen text wins under one in ten. All
-six language groups are listed above, because the two extremes are the smallest and the second
-largest group and a table of the largest groups alone would misstate the range. Production style runs against intuition: professional
+six language groups are listed above rather than the largest few, because neither end of the range
+is one of the two largest groups: the top is Spanish, the smallest group at 195 queries, and the
+bottom is Russian, fourth largest at 442. Production style runs against intuition: professional
 news has strong speech and little to gain from choosing, whereas raw and lightly edited footage ties
 most often and, when it does not, has the most to gain. And the event types where on-screen graphics
 carry the information, elections and sports and social events, are exactly the ones where screen
