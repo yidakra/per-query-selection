@@ -395,38 +395,64 @@ modality the relevance was drawn from. Each query takes the labels of its most r
 video, so these describe the query's target rather than its whole judgment set
 (`mv2_error_analysis.py`, `mv2_error_analysis.json`).
 
-The first finding is that most queries carry no decision at all. On 937 of 2,546 queries, 36.8%, the
-two channels score identically, so a selector cannot be right or wrong about them. The decision is
-live on the remaining 1,609, and on those speech is the better channel four times out of five:
-screen text wins 329 of them, 20.4%.
+The first finding is that a substantial minority of queries carry no decision at all. On 937 of
+2,546, 36.8%, the two channels score identically, so a selector can be neither right nor wrong about
+them. The decision is live on the remaining 1,609, a clear majority at 63.2%, and on those speech is
+the better channel four times out of five: screen text wins 329 of them, 20.4%.
 
 Where the decision lives is not uniform, and the pattern is legible.
 
-| Cut | Queries | Tied | Screen text wins | Headroom |
+| Cut | Queries | Tied, of the group | Screen text wins, of the live queries | Headroom |
 |---|---|---|---|---|
-| English-language video | 577 | 22% | 32% | +8.67 |
+| Spanish-language video | 195 | 37% | 26% | +10.48 |
+| English | 577 | 22% | 32% | +8.67 |
+| Arabic | 330 | 50% | 27% | +3.82 |
+| Korean | 463 | 46% | 14% | +1.95 |
 | Chinese | 539 | 42% | 15% | +1.50 |
 | Russian | 442 | 30% | 9% | +0.92 |
-| Professional production | 994 | 32% | 12% | +2.25 |
-| Raw, lightly edited | 253 | 60% | 32% | +8.51 |
+| Diet Raw production | 253 | 60% | 32% | +8.51 |
+| Edited | 1,095 | 33% | 26% | +4.98 |
+| Raw | 204 | 50% | 26% | +2.86 |
+| Professional | 994 | 32% | 12% | +2.25 |
+| Social events | 175 | 35% | 39% | +6.30 |
+| Sports | 174 | 42% | 35% | +6.34 |
 | Elections | 94 | 46% | 31% | +6.83 |
+| Launch or discovery | 240 | 25% | 22% | +5.13 |
+| Emergency | 642 | 38% | 21% | +3.76 |
+| Protests | 198 | 40% | 17% | +2.88 |
 | Political development | 636 | 33% | 14% | +2.55 |
+| Other | 387 | 44% | 14% | +4.51 |
 
-Three readings. Language decides how much the channel decision is worth: English-language video has
-the most headroom and screen text wins a third of its live queries, while Russian video has almost
-none and screen text wins under one in ten. Production style runs against intuition: professional
-news has strong speech and little to gain from choosing, whereas raw and lightly edited footage ties
-most often and, when it does not, has the most to gain. And the event types where on-screen graphics
-carry the information, elections and sports and social events, are exactly the ones where screen
-text wins most often, at 31% to 39%, against 14% for political development.
+Three readings. Language decides how much the channel decision is worth, and it spans an order of
+magnitude: Spanish and English video carry +10.48 and +8.67, with screen text winning a quarter to a
+third of their live queries, while Russian carries +0.92 and screen text wins under one in ten. All
+six language groups are listed above rather than the largest few, because neither end of the range
+is one of the two largest groups: the top is Spanish, the smallest group at 195 queries, and the
+bottom is Russian, fourth largest at 442. Production style splits the two quantities apart, which is the more useful
+finding. The least produced classes tie by far the most, 60% and 50% against 33% and 32% for edited
+and professional footage, so the decision simply does not arise for much of that material. But
+headroom does not follow production style: Diet Raw has the most to gain at +8.51 and plain Raw
+nearly the least at +2.86, below edited footage at +4.98. How often a decision exists and how much
+it is worth are different questions, and production style answers only the first. And the event types whose information sits in on-screen
+graphics take the top three places for how often screen text wins: social events at 39%, sports at
+35% and elections at 31%, against 14% for political development at the bottom. All eight event types
+are listed above, so the ordering can be checked rather than taken on the three that suit the
+reading.
 
-The analysis contains its own validity check. The benchmark labels which modality each relevance
-judgment came from, and we never used that label to build anything. Queries whose relevance came
-from on-screen text have the highest headroom of any modality group, +8.31, and screen text wins 28%
-of their live queries. Queries whose relevance came from speech have the lowest screen-text win rate
-of any group, 8%, with headroom of +2.30. A channel decision recovered from retrieval outcomes lines
-up with an independent annotation of where the answer actually was, which is what it should do if
-the decision is real rather than an artefact of scoring.
+One breakdown looks like a validity check and is not one. The benchmark records which modality each
+relevance judgment came from, across six groups, and two of them line up strikingly with the channel
+decision: queries whose relevance came from on-screen text have the highest headroom of the six,
++8.31, with screen text winning 28% of their live queries, while queries whose relevance came from
+speech have the lowest screen-text win rate of the six, 8%, and headroom of +2.30. The other four
+groups sit between, from +3.52 to +3.87.
+
+That agreement cannot be read as independent confirmation, and we do not read it that way. A video
+judged relevant because an on-screen-text system surfaced it for judging is, by construction, a
+video that an on-screen-text channel ranks highly. The label records how the judgment pool was
+built, not where a human decided the answer lay, so the correlation is at least partly mechanical
+and no experiment here can separate the mechanical part from the real one. It is reported as a
+description of how this collection was assembled, which is worth knowing when reading any
+channel-level result on it, and nothing in the study rests on it.
 
 The failure mode this exposes is the one the selectors already show. The queries where the wrong
 channel costs most are near-total: in the widest cases one channel returns 1.000 and the other
@@ -662,58 +688,53 @@ mid-sentence at the captioner's 2,048-token generation cap, and about 42% carry 
 preamble, uniform noise in both cases. A 30B-captioner rerun waits on supervision, who may already
 have those captions generated.
 
-**MVEB, a fourth decision and a second test bed (added 2026-09-16, in progress).** Supervision asked
-for one more collection for ECIR and supplied MVEB: nine subsets with 9B captions, and for seven
-pools a pair of finished first-stage runs, her MultiVENT-specialised system and a generic base.
-Neither dominates, with the base ahead on five of seven, so which system to run is a live per-query
-decision of the same shape as the other three and a different kind. The runs exist, so nothing is
-retrieved (`mv2_mveb_selection.py`).
+**MVEB, a fourth decision and a second test bed (added 2026-09-16).** Supervision asked for one
+more collection for ECIR and supplied MVEB: nine subsets with 9B captions, and for seven pools a
+pair of finished first-stage runs, her MultiVENT-specialised system and a generic base. Neither
+dominates, with the base ahead on five of seven, so which system to run is a live per-query decision
+of the same shape as the other three and a different kind. The runs exist, so nothing is retrieved
+(`mv2_mveb_selection.py`). She then released the query text, the id bridge and the judgments for all
+seven pools, which is what made both predictor families testable.
 
-The judgments had to be reconstructed. They are single-gold identity, one relevant video per query,
-and the gold is the entry at the query's own index in the pool id list. The script refuses to
-compute anything until that reconstruction reproduces supervision's own reported nDCG, and on both
-pools where an id list exists it reproduces all four numbers exactly: base 0.6969 and specialised
-0.6913 on MSR-VTT, base 0.5615 and specialised 0.5851 on DiDeMo.
+The judgments are single-gold: one relevant video per query. The script refuses to compute anything
+until its reconstruction reproduces supervision's own reported nDCG for both systems, and on all
+seven pools it reproduces all fourteen numbers exactly. Two joins had to be got right first. Query
+ids are read from the run rather than built from a prefix, because VGGSound writes
+`vggsound_a_q000000` and `vggsound_v_q000000` over one video set. And her id lists are prefixed by
+pool where the runs are prefixed by dataset, so the two VGGSound pools need their gold ids bridged
+from `vgga_` and `vggv_` to `vggsound_`, after which 690 of 696 and 696 of 696 golds are retrieved
+against none unbridged.
 
-| pool | queries | base | specialised | best fixed | oracle | score family above fixed |
-|---|---|---|---|---|---|---|
-| MSR-VTT | 879 | 0.6969 | 0.6913 | 0.6969 | 0.7655 | 1 of 10 |
-| DiDeMo | 999 | 0.5615 | 0.5851 | 0.5851 | 0.6529 | 0 of 10 |
+| pool | queries | best fixed | oracle | headroom | corpus statistics | score family | control |
+|---|---|---|---|---|---|---|---|
+| acaps | 665 | 0.4446 | 0.5164 | +7.2 | 0 of 11 | 0 of 10 | p = 1.000 |
+| anet | 4,884 | 0.6715 | 0.7127 | +4.1 | 0 of 11 | 0 of 10 | p = 0.404 |
+| didemo | 999 | 0.5851 | 0.6529 | +6.8 | 0 of 11 | 0 of 10 | p = 0.372 |
+| mrvmteb | 879 | 0.6969 | 0.7655 | +6.9 | 0 of 11 | 0 of 10 | p = 0.377 |
+| vatex | 1,000 | 0.7928 | 0.8462 | +5.3 | 0 of 11 | 0 of 10 | p = 0.025 |
+| vgga | 696 | 0.3567 | 0.4269 | +7.0 | 0 of 11 | 0 of 10 | p = 0.258 |
+| vggv | 696 | 0.9686 | 0.9833 | +1.5 | 0 of 11 | 0 of 10 | p = 0.552 |
 
-The decision is real and the predictors mostly miss it. Headroom is about seven points on both pools,
-and the systems genuinely disagree: the specialised system wins on 19% of MSR-VTT queries and the
-base on 20%, with the rest tied. The score-only family, which converted the channel decision on
-MultiVENT, clears the best fixed system once in twenty tests here, and its strongest rank
-correlation with the true gain is 0.035. The released runs are top-100 rather than the top-1000 the
-MultiVENT protocol scores over, so the top-k window scales with them and stays at a tenth of the
-list; at the unscaled default the top-k mean would equal the list mean, which empties WIG_norm and
-collapses RSD onto SMV, and the family would have been eight members and two ghosts. Before reading that as a stronger null, the positive control
-has to be checked, and it fails too. One learner over both systems' score distributions and their
-rank agreement, the analogue of the selector that converts the channel decision on MultiVENT, gains
-+0.0050 of +0.0686 headroom on MSR-VTT and +0.0030 of +0.0679 on DiDeMo, neither significant
-(two-sided p = 0.377 and 0.372, rank correlation with the true gain +0.069 and +0.073).
+Nothing converts the decision. The corpus-statistic family is 0 of 77 and the score family 0 of 70,
+each tested against the best fixed system with the sign-flip test and Holm correction the rest of
+this study uses. The positive control, one learner over both systems' score distributions and their
+rank agreement, is the analogue of the selector that converts the channel decision on MultiVENT, and
+it fails on all seven: its best pool is vatex at an uncorrected p = 0.025, which does not survive
+correction across seven pools, and elsewhere it ranges from p = 0.26 to p = 1.00.
 
-That changes what MVEB can be used for. Where nothing converts a decision, the corpus-statistic
+That decides what MVEB can be used for. Where nothing converts a decision, the corpus-statistic
 failure carries no information about the family boundary, because a predictor that misses cannot be
-distinguished from a decision nothing predicts. What MVEB does speak to is the oracle. These pools
-are single-gold, so a query's entire score is whether one video landed high, and the apparent seven
-points of headroom is exactly the quantity our label-splitting audit showed to be almost entirely
-label luck on three axes of MultiVENT. Here the audit cannot even be run, because a single gold
-cannot be halved. The symptom is consistent: a large apparent oracle that no predictor, cheap or
-outcome-reading, can convert. More than half the queries are ties, 61% on MSR-VTT and 56% on
-DiDeMo, so most of the remaining spread is one system getting lucky on one document.
+distinguished from a decision nothing predicts. So we do not claim the boundary result here and the
+0 of 77 is not offered as corroboration.
 
-We therefore do not plan to claim the boundary result on MVEB. It enters as a second test bed for
-the oracle caution, and as the honest report that a fourth decision type looked available and turned
-out not to be.
-
-The pre-retrieval family is not testable yet. It needs the query text, and the released pools carry
-document captions rather than queries; the run ids are natural video ids while the caption
-directories key on a content hash, and supervision's row order differs from the public source's, so
-the text cannot be recovered from the release alone. Five of the seven pools also have no id list,
-so their judgments cannot be reconstructed the way MSR-VTT's and DiDeMo's were. Both gaps are one
-request to supervision rather than a computation, and they are the only thing between here and the
-full seven-pool table.
+What MVEB does speak to is the oracle. Every pool shows headroom, from 1.5 to 7.2 points, that no
+predictor of any family reaches. These are single-gold pools, so a query's whole score is whether
+one video landed high, and between 41% and 88% of queries are ties where the two systems are
+indistinguishable. The apparent headroom is concentrated in the remaining queries and behaves
+exactly like the label luck the splitting audit measured on three axes of MultiVENT, except that
+here the audit cannot be run at all, because a single gold cannot be halved. A large apparent
+oracle that nothing converts is the same finding approached from the other side, and on a second
+collection.
 
 **The video-embedding index, supervision's other half (added 2026-09-12).** Her objection had two
 halves. A caption is a lossy compression of the video, so the index should carry the video
@@ -1022,4 +1043,4 @@ in-sample version is exactly the number a less careful paper would have publishe
   calibrated cross-encoder is the first learned row to clear fixed there, by 0.0006. So it is a
   low-base-rate cell rather than a degenerate one, and it is where calibration matters most.
 - **The second paper.** The efficiency material (measured joules, the p99 tail, risk-coverage, and the
-  ρ = 0.943 heterogeneity result) has its own scope note in `paper2_scope.md`.
+  ρ = 0.943 heterogeneity result) has its own scope note, which lives in the paper repository.

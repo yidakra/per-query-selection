@@ -14,6 +14,11 @@ Three questions, each answered by a breakdown rather than a single number.
 3. What does a losing query look like? The largest individual losses are printed with their text so
    the failure can be read rather than inferred.
 
+One caution about `video_modality`. It records which system surfaced a document for judging, not
+where a human found the answer, so a judgment pooled from an on-screen-text system is one an
+on-screen-text channel ranks highly by construction. The breakdown over that field describes how the
+collection was assembled and must not be read as independent validation of a channel decision.
+
 CPU only, reads the committed runs.
 
   python src/multivent2/mv2_error_analysis.py
@@ -68,6 +73,15 @@ def main():
 
     sp = load_run(os.path.join(DATA, a.speech))
     sc = load_run(os.path.join(DATA, a.screen))
+    # a channel can return nothing for a query, and comparing two channels is only meaningful where
+    # both answered, so the query set is the intersection and the drop is reported rather than hidden
+    present = [q for q in qids if q in sp and q in sc]
+    if len(present) != len(qids):
+        missing_sp = sum(1 for q in qids if q not in sp)
+        missing_sc = sum(1 for q in qids if q not in sc)
+        print(f"dropping {len(qids) - len(present)} of {len(qids)} queries absent from a channel "
+              f"run ({missing_sp} from speech, {missing_sc} from screen text)", flush=True)
+    qids = present
     y_sp = per_query_ndcg(qrels, {q: sp[q] for q in qids})
     y_sc = per_query_ndcg(qrels, {q: sc[q] for q in qids})
 
@@ -91,11 +105,16 @@ def main():
             g_live = [q for q in group if abs(gain[q]) > a.tie]
             if len(group) < 20:                       # too small to read anything into
                 continue
+            # the two percentages have different denominators on purpose: a tie rate is only
+            # meaningful over the whole group, and a win rate is only meaningful over the queries
+            # where a win is possible. The key names carry the denominator so the pair cannot be
+            # read as a partition of one set.
             rows[label] = {
                 "queries": len(group),
-                "tied_pct": 100 * (len(group) - len(g_live)) / len(group),
-                "screen_wins_pct": (100 * sum(1 for q in g_live if gain[q] > 0) / len(g_live))
-                                   if g_live else None,
+                "live": len(g_live),
+                "tied_pct_of_group": 100 * (len(group) - len(g_live)) / len(group),
+                "screen_wins_pct_of_live": (100 * sum(1 for q in g_live if gain[q] > 0) / len(g_live))
+                                           if g_live else None,
                 "speech_ndcg": float(np.mean([y_sp.get(q, 0.0) for q in group])),
                 "screen_ndcg": float(np.mean([y_sc.get(q, 0.0) for q in group])),
                 "headroom": float(np.mean([max(y_sp.get(q, 0.0), y_sc.get(q, 0.0)) for q in group])
@@ -104,9 +123,9 @@ def main():
         breakdown[field] = rows
         print(f"\n[{field}]", flush=True)
         for label, r in rows.items():
-            sw = "--" if r["screen_wins_pct"] is None else f"{r['screen_wins_pct']:.0f}%"
-            print(f"  {label:24s} n={r['queries']:5d} tied={r['tied_pct']:4.0f}% "
-                  f"screen wins={sw:>4s} speech={r['speech_ndcg']:.3f} "
+            sw = "--" if r["screen_wins_pct_of_live"] is None else f"{r['screen_wins_pct_of_live']:.0f}%"
+            print(f"  {label:24s} n={r['queries']:5d} tied={r['tied_pct_of_group']:4.0f}% of group "
+                  f"screen wins={sw:>4s} of live speech={r['speech_ndcg']:.3f} "
                   f"screen={r['screen_ndcg']:.3f} headroom={100*r['headroom']:+.2f}", flush=True)
 
     # the queries where choosing screen text over speech would cost the most, and the reverse

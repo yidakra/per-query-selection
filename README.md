@@ -30,7 +30,7 @@ experiments, the generated tables under `results/ablations/`, and the evidence d
 that those tables are verified against. Prose lives over there. Numbers are re-derived here.
 
 The mapping from a claim in the paper to the artifact behind it is the evidence map in the paper
-repository.
+repository. No part of the paper lives here.
 
 `reports/task_definition.md` states what this project evaluates and under which protocol: the
 decision tasks, the collections and judgments, the query sets, the evaluation protocol and the
