@@ -387,6 +387,35 @@ margin that survives the significance test. We continue to report no percentage 
 anywhere. The variant axis carries the same warning and still has no number, because its 31 options
 have no stored runs and re-scoring them needs the shared GPU.
 
+**Does the channel decision survive reranking (added 2026-09-19).** The standing objection to any
+first-stage finding is that a strong second stage might absorb it. Reranking is also one of the three
+research lines this project registered, and until now it existed here as a single control rather than
+a line. Both are answered by the same experiment: rerank each channel's top 100 with a multilingual
+cross-encoder (`BAAI/bge-reranker-v2-m3`, 384 tokens), then ask what is left of the decision.
+
+| | Speech | On-screen text | Best fixed | Oracle | Headroom | Queries with a decision |
+|---|---|---|---|---|---|---|
+| First stage | 0.3134 | 0.1330 | 0.3134 | 0.3543 | +4.10 | 1,609 |
+| Reranked | 0.3925 | 0.1339 | 0.3925 | 0.4283 | +3.58 | 1,801 |
+
+The second stage is real and it is asymmetric. Speech gains 7.91 nDCG from reranking and on-screen
+text gains 0.10, which is nothing. A cross-encoder reading a transcript has sentences to work with; a
+cross-encoder reading the words burnt into a frame has a bag of fragments, and reordering them buys
+almost nothing.
+
+The decision survives. Against a baseline raised by nearly eight points, the two-channel headroom
+falls only from +4.10 to +3.58, so **87% of it is retained**. The finding is therefore not an
+artefact of weak first-stage retrieval, which is the form the objection usually takes. Two smaller
+movements are worth recording because they run in opposite directions: reranking breaks ties, so the
+number of queries carrying a decision rises from 1,609 to 1,801, while screen text wins a smaller
+share of them, 16.0% against 20.4%. More queries have a decision to make and fewer of them are
+decided in favour of the weaker channel.
+
+Run on Snellius rather than the lab box: one A100, 17 minutes 49 seconds for both channels, about
+128 SBU. The same job was measured at roughly 40 hours on the shared box's CPU and the box's single
+GPU never had enough free memory to take it. Three submissions were needed, the first two failing in
+seconds on a missing import and on a stale copy of the script.
+
 **Qualitative error analysis of the channel decision (added 2026-09-17).** Everything else measures
 whether the decision can be made. This asks where it goes wrong and whether the failures have
 structure a practitioner could act on. The material is the judgment metadata the benchmark ships and
