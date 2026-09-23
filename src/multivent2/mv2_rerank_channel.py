@@ -41,11 +41,18 @@ def main():
     ap.add_argument("--batch", type=int, default=64)
     ap.add_argument("--max-len", type=int, default=384)
     ap.add_argument("--out", default=os.path.join(DATA, "asr_rerank_v2m3_mt.json"))
+    ap.add_argument("--device", default="cuda", choices=["cuda", "cpu"],
+                    help="cpu keeps the shared GPU free; the cross-encoder scores identically, "
+                         "in float32 and slower")
+    ap.add_argument("--limit", type=int, default=0, help="stop after N new queries, for timing")
     a = ap.parse_args()
     ckpt = a.out + ".partial.jsonl"
 
-    if os.environ.get("CUDA_VISIBLE_DEVICES", "") in ("", "0"):
-        sys.exit("refusing to run: set CUDA_VISIBLE_DEVICES to a nonzero physical GPU")
+    # The box once had a GPU 0 belonging to another project and this refused to touch it. It now has
+    # a single shared device, which is GPU 0, so the refusal only applies to the CUDA path and only
+    # when no device has been named at all.
+    if a.device == "cuda" and "CUDA_VISIBLE_DEVICES" not in os.environ:
+        sys.exit("refusing to run: name a GPU in CUDA_VISIBLE_DEVICES, or pass --device cpu")
 
     from sentence_transformers import CrossEncoder
 
@@ -71,8 +78,8 @@ def main():
                     pass
         print(f"resuming: {len(done)} queries already reranked", flush=True)
 
-    model = CrossEncoder(a.model, max_length=a.max_len, device="cuda",
-                         automodel_args={"torch_dtype": "float16"})
+    kwargs = {"automodel_args": {"torch_dtype": "float16"}} if a.device == "cuda" else {}
+    model = CrossEncoder(a.model, max_length=a.max_len, device=a.device, **kwargs)
     t0 = time.time()
     n_new = 0
     with open(ckpt, "a", buffering=1) as fh:
@@ -86,6 +93,12 @@ def main():
             fh.write(json.dumps({"qid": q, "scores": rec}) + "\n")
             done[q] = rec
             n_new += 1
+            if a.limit and n_new >= a.limit:
+                rate = n_new / (time.time() - t0)
+                todo = len(qids) - len(done)
+                print(f"timing: {rate:.2f} queries/s, {todo} left, "
+                      f"eta {todo / max(rate, 1e-9) / 3600:.1f} h", flush=True)
+                return
             if n_new % 200 == 0:
                 rate = n_new / (time.time() - t0)
                 eta = (len(qids) - len(done)) / max(rate, 1e-9) / 3600

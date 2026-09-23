@@ -1,0 +1,33 @@
+{
+  "model": "BAAI/bge-reranker-v2-m3",
+  "topk": 100,
+  "max_len": 384,
+  "hardware": "Snellius gpu_a100, one GPU, 17m49s wall",
+  "stages": {
+    "first_stage": {
+      "n_queries": 2546,
+      "speech": 0.31336306446775974,
+      "screen_text": 0.1329536628415092,
+      "best_fixed": 0.31336306446775974,
+      "oracle": 0.35431675129897716,
+      "headroom": 4.095368683121742,
+      "tied": 937,
+      "live": 1609,
+      "screen_wins_of_live": 329
+    },
+    "reranked": {
+      "n_queries": 2546,
+      "speech": 0.3924660272084594,
+      "screen_text": 0.13394938917514193,
+      "best_fixed": 0.3924660272084594,
+      "oracle": 0.4282671494875021,
+      "headroom": 3.5801122279042694,
+      "tied": 745,
+      "live": 1801,
+      "screen_wins_of_live": 288
+    }
+  },
+  "headroom_retained_pct": 87.4185575198394,
+  "speech_gain_from_reranking": 7.9102962740699665,
+  "screen_gain_from_reranking": 0.09957263336327349
+}
