@@ -46,6 +46,10 @@ def main():
     ap.add_argument("--channel", default="asr", choices=["asr", "ocr"])
     ap.add_argument("--drop", default="", help="languages to exclude, e.g. zh")
     ap.add_argument("--out", default=os.path.join(ABL, "mv2_language_select_learned.json"))
+    ap.add_argument("--feature-set", default="outcome", choices=["outcome", "corpus"],
+                    help="outcome: each version's score-distribution features and result overlaps "
+                         "(the positive control); corpus: each version's eleven pre-retrieval "
+                         "corpus-statistic features instead, same learner, folds and test")
     a = ap.parse_args()
 
     from sklearn.model_selection import GroupKFold
@@ -64,17 +68,38 @@ def main():
         cols.append(np.array([pq.get(q, 0.0) for q in qids]))
     Y = np.stack(cols, axis=1)
 
+    if a.feature_set == "corpus":
+        # the matched control for the family claim: the same multi-feature learner, reading only
+        # what a pre-retrieval predictor may read, the query text and corpus term statistics
+        from mv2_io import load_queries
+        from mv2_language_selection import QCSV
+        from mv2_qpp_predictors import Index, PRE_RETRIEVAL, pre_retrieval_suite
+        qtext = {L: load_queries(os.path.join(DATA, QCSV[L])) for L in langs}
+        idx_texts = []
+        with open(os.path.join(DATA, "asr_text.jsonl")) as f:
+            for line in f:
+                t = json.loads(line).get("text", "")
+                if t.strip():
+                    idx_texts.append(t)
+        index = Index(idx_texts)
+        print(f"corpus features over a lexical index of {len(idx_texts)} transcripts", flush=True)
+
     X = []
     for i, q in enumerate(qids):
         row = []
         tops = {}
         for L in langs:
+            if a.feature_set == "corpus":
+                pre = pre_retrieval_suite(qtext[L][q].lower().split(), index)
+                row += [pre[k] for k in PRE_RETRIEVAL]
+                continue
             r = runs[L][q]
             tops[L] = sorted(r, key=r.get, reverse=True)[:100]
             cf = conf_features(list(r.values()))
             row += [cf[k] for k in FEATURE_ORDER]
-        for L1, L2 in itertools.combinations(langs, 2):
-            row += [overlap(tops[L1], tops[L2], 10), overlap(tops[L1], tops[L2], 100)]
+        if a.feature_set == "outcome":
+            for L1, L2 in itertools.combinations(langs, 2):
+                row += [overlap(tops[L1], tops[L2], 10), overlap(tops[L1], tops[L2], 100)]
         X.append(row)
         if (i + 1) % 500 == 0:
             print(f"  features {i+1}/{len(qids)}", flush=True)
@@ -96,6 +121,7 @@ def main():
     oracle = Y.max(axis=1)
 
     out = {"channel": a.channel, "languages": langs, "n_queries": len(qids),
+           "feature_set": a.feature_set,
            "n_features": int(X.shape[1]),
            "fixed_per_language": {L: float(Y[:, j].mean()) for j, L in enumerate(langs)},
            "fixed_nested": float(fixed.mean()), "routed": float(routed.mean()),
