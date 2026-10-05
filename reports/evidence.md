@@ -416,6 +416,29 @@ Run on Snellius rather than the lab box: one A100, 17 minutes 49 seconds for bot
 GPU never had enough free memory to take it. Three submissions were needed, the first two failing in
 seconds on a missing import and on a stale copy of the script.
 
+**The matched-learner control on all three decisions (added 2026-09-27).** A simulated review panel
+raised one critical objection: the losers are single-feature calibrated predictors and the winners
+multi-feature learners, so "reads an outcome" is confounded with "has more features". The channel
+decision already had the matched control, a learner over every corpus-statistic feature on every
+index gaining +0.86 against +7.59. The two query-side decisions did not. Both learners now take a
+feature switch and run once on each input with nothing else changed: same model, folds, centring
+and test (`mv2_language_select_learned.py --feature-set corpus`, `mv2_variant_corpus_features.py`).
+
+| Decision | Corpus-statistic features | Retrieval-outcome features |
+|---|---|---|
+| Evidence channel | +0.86 | +7.59 |
+| Query rewriting | −0.89 (p = 0.945, 11 features) | +2.30 (p ≤ 0.0005, 8 features) |
+| Query language | −0.15 (p = 0.843, 55 features) | +2.16 (p ≤ 0.0005, 60 features) |
+
+The confound does not hold. On rewriting the corpus-statistic learner has more features than the
+outcome learner, eleven against eight, and still loses to the original query. Two further checks
+answer the other half of the objection. The rewriting learner without its method-identity indicator
+gains +2.30 against +2.39 with it, so method identity adds about a tenth of a point
+(`mv2_variant_select_learned_centred_nomethod.json`; the older uncentred ablation at +0.52 was not
+the comparable run). And no fixed option beats the default on either query-side decision: the
+original query is the best fixed rewriting and English the best fixed language, so both gains are
+per-query rather than a better global setting.
+
 **Qualitative error analysis of the channel decision (added 2026-09-17).** Everything else measures
 whether the decision can be made. This asks where it goes wrong and whether the failures have
 structure a practitioner could act on. The material is the judgment metadata the benchmark ships and
