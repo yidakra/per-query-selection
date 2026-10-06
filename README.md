@@ -1,10 +1,16 @@
-# adaptive-q2e
+# per-query-selection
 
-**Per-query adaptive routing for zero-shot multilingual text-to-video retrieval.** Q2E decomposes
-every query with an LLM and fuses all five similarity components at a fixed cost. This project muxes
-Q2E's fusion tiers with an Adaptive-RAG-style complexity router that spends *per query* (visual-only
-for easy queries, full event decomposition only where it pays), targeting the **accuracy–compute
-frontier** rather than a single operating point.
+**Per-query selection in multilingual video retrieval.** A retrieval system fixes choices such as
+which evidence channel to search, which rewriting of the query to run and which language to ask in.
+This repository measures what each choice is worth when it is made per query on MultiVENT 2.0, and
+which query performance predictors can make it: corpus-statistic and score-only predictors,
+supervised predictors, learned selectors over retrieval outcomes with matched controls, and a
+query-only LLM router. It also holds the robustness checks (indexes, captions, query formulations,
+MSR-VTT-1kA, MVEB) and the evaluation audits behind the ECIR 2027 paper.
+
+The project started as `adaptive-q2e`: adaptive routing across the fusion tiers of a reproduced Q2E,
+described in the next sections. That line produced the channel-routing result the current work grew
+from, and its record is kept below.
 
 The router is built on a **faithful reproduction of Q2E** (Dipta & Ferraro, IJCNLP-AACL 2025,
 [arXiv:2506.10202](https://arxiv.org/abs/2506.10202)) as its validated base. Official code:
