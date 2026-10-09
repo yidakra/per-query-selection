@@ -1,0 +1,22 @@
+{
+  "model": "qwen2.5:7b-instruct",
+  "prompt_hash": "4e91e43a62bc",
+  "n_queries": 2546,
+  "default": 0.3133156763273221,
+  "achieved": 0.31209711612594976,
+  "gain": -0.0012185602013723292,
+  "p_signflip_group": 0.8765617191404298,
+  "ci95": [
+    -0.0033172691744181625,
+    0.0006907227441768272
+  ],
+  "off_menu": 0,
+  "picks_by_method": {
+    "original": 2440,
+    "genqr_ensemble": 22,
+    "qa_expand": 63,
+    "genqr": 14,
+    "mugi": 6,
+    "query2doc": 1
+  }
+}

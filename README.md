@@ -24,13 +24,16 @@ Every number in the paper is computed by a script in `src/multivent2/` and store
 | Single predictors on the channel cells (0 of 33, equivalence, score-only, BERT-QPP) | `mv2_qpp_table.py`, `mv2_row_inference.py` | `mv2_row_inference.json`, `mv2_table1_nested_grouped.md` |
 | Single predictors on the language decision | `mv2_axis_inference.py` | `mv2_axis_inference.json` |
 | Single predictors and fusion baselines on the rewriting decision | `mv2_variant_selection.py` | `mv2_variant_selection_full.json` |
+| Test of the best single post-retrieval predictor on the rewriting decision | `mv2_variant_single_test.py` | `mv2_variant_single_test.json` |
+| Query-only LLM on the rewriting decision | `mv2_llm_formulation.py` | `mv2_llm_formulation.json` |
 | Fusing all languages | `mv2_plan_additions.py` | `mv2_plan_additions.json` |
 | Answer quality of the rewriting picks | `mv2_rag_nuggets.py`, `mv2_variant_nugget_tests.py` | `rag/variant_vs_original_tests.json` |
 | Robustness: translated, caption and union indexes | `mv2_qpp_table.py`, `mv2_row_inference.py` | `mv2_row_inference_{en,supcap,supcap27b,supcap_plus}.json` |
 | Robustness: seven query formulations | `mv2_variant_task_a.py` | `mv2_row_inference_va_*.json` |
 | Robustness: MSR-VTT-1kA | `mv2_msrvtt_source_replication.py` | `mv2_msrvtt_source_replication*.json` |
 | Robustness: MVEB | `mv2_mveb_selection.py` | `mv2_mveb_selection.json` |
-| Robustness: stronger speech channel | `mv2_rerank_channel.py`, `mv2_plaidx_channel.py`, `mv2_channel_select.py` | `mv2_channel_select_{rr,plaidx,plaidx_ocrm3}_grouped.json` |
+| Robustness: stronger speech channel | `mv2_rerank_channel.py`, `mv2_plaidx_channel.py`, `mv2_channel_select.py` | `mv2_channel_select_{mt,rr,plaidx,plaidx_ocrm3}_grouped.json` |
+| Robustness: corpus statistics on the stronger speech channels | `mv2_qpp_prechannel.py --single --channel ...` | `mv2_qpp_prechannel_single_{mt,rr,plaidx,plaidx_ocrm3}.json` |
 | Query-only LLM router | `mv2_llm_router.py` | `mv2_llm_router{,_binary}.json` |
 | Oracle audit (split labels) | `mv2_axis_goldsplit.py`, `mv2_variant_goldsplit.py` | `mv2_axis_goldsplit_*.json` |
 

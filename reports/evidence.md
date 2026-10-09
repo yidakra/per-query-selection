@@ -1125,3 +1125,17 @@ settings (each query its own group; Holm across the eight). Ridge values are unc
 significant in 2 of 8: choose-source with ASR for both encoders (multiclip 0.6298 against 0.5972,
 Holm p=0.004; InternVideo2 0.6759 against 0.6600, Holm p=0.025). The other six, including all four
 add-caption settings, are not.
+
+**Remaining cells, run (added 2026-10-09).**
+
+- *Formulation, best single post-retrieval predictor* (`mv2_variant_single_test.py`,
+  `mv2_variant_single_test.json`): NQC_norm picks reach 0.3320 against 0.3133 for the original query,
+  +1.87, grouped sign-flip p=0.0005. Holm over the ten score predictors is at most 0.005. The main
+  table's dagger becomes a star.
+- *Pre-retrieval on the stronger speech channels* (`mv2_qpp_prechannel.py --single` with the
+  channel overrides; `mv2_qpp_prechannel_single_{mt,rr,plaidx,plaidx_ocrm3}.json`). Ridge over all 33
+  corpus features: mt +0.38 (p=0.26), rr **+1.59 (p=0.003)**, plaidx +0.04 (p=0.47), plaidx_ocrm3
+  +0.28 (p=0.30). Single predictors significant after Holm: 0, **5**, 0, 0 of 11 (rr: SCQ_avg +1.94,
+  SCQ_sum +1.74, IDF_sum +1.73, QL +1.63, IDF_std +1.46). The post-retrieval ridge on the same cells
+  gains +8.0, +8.7, +7.4, +7.7, and maxp alone +5.7 to +7.0. This is the one check where corpus
+  statistics clear the test; they reach about a fifth of the post-retrieval gain.
