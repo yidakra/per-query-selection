@@ -17,7 +17,7 @@ Every number in the paper is computed by a script in `src/multivent2/` and store
 | Result in the paper | Script | Artifact |
 |---|---|---|
 | Main table, channel decision: learner over retrieval-outcome features (0.4131, +7.59) | `mv2_channel_select.py` | `mv2_channel_select_dense_m3_grouped.json` |
-| Main table, channel decision: same learner over corpus statistics (+0.81, same run as +7.59) | `mv2_qpp_prechannel.py` | `mv2_qpp_prechannel.json` |
+| Main table, channel decision: same learner over corpus statistics (+0.74), and the best single pre- and post-retrieval predictor | `mv2_qpp_prechannel.py --single` | `mv2_qpp_prechannel_single.json` |
 | Main table, rewriting decision (outcome; with and without method indicator) | `mv2_variant_select_learned.py` | `mv2_variant_select_learned_centred{,_nomethod}.json` |
 | Main table, rewriting decision (corpus statistics) | `mv2_variant_corpus_features.py` | `mv2_variant_select_learned_corpus.json` |
 | Main table, language decision (outcome / corpus statistics) | `mv2_language_select_learned.py` | `mv2_language_select_learned{,_corpus}.json` |

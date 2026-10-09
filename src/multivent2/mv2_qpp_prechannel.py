@@ -67,6 +67,9 @@ def main():
     ap.add_argument("--channel", action="append", default=["asr=asr_dense_bge-m3.json"],
                     metavar="NAME=FILE")
     ap.add_argument("--out", default=os.path.join(ABL, "mv2_qpp_prechannel.json"))
+    ap.add_argument("--single", action="store_true",
+                    help="also run every single predictor alone through the same 7-policy learner, "
+                         "with group sign-flip tests (Holm within the pre and the post family)")
     a = ap.parse_args()
 
     channels, names, policies, qids, Xconf, Y, feat_order = load_cell(a.channel)
@@ -116,11 +119,48 @@ def main():
            "cross_channel_spread": spread, "sets": {}}
     print(f"\n{'feature set':<38} {'nested gap':>12} {'sem':>7}  {'features':>9}")
     print("-" * 72)
+    from mv2_row_inference import group_stats, holm
+    grp_arr = np.asarray(grp)
     for label, X in sets.items():
-        gap, sem, folds, *_ = nested_selection(X, Y, splits=splits)
+        gap, sem, folds, ach_q, fix_q = nested_selection(X, Y, splits=splits)
+        p, _, lo, hi = group_stats(ach_q - fix_q, grp_arr)
         out["sets"][label] = {"nested_gap": gap, "nested_sem": sem, "n_features": int(X.shape[1]),
-                             "folds": folds}
-        print(f"{label:<38} {gap:>+11.2f} {sem:>7.2f}  {X.shape[1]:>9}")
+                             "achieved": float(ach_q.mean()), "fixed": float(fix_q.mean()),
+                             "p_signflip_group": p, "ci95": [lo, hi], "folds": folds}
+        print(f"{label:<38} {gap:>+11.2f} {sem:>7.2f}  {X.shape[1]:>9}  p={p:.4f}")
+
+    if a.single:
+        # One predictor at a time, given to the same learner as its value on each channel: three
+        # columns per predictor (one per channel index for pre-retrieval, one per channel ranking
+        # for post-retrieval), so the single-predictor rows differ from the ridge rows only in
+        # how many signals the learner sees.
+        fams = {"pre": {n: np.stack([blocks[k][:, j] for k in ("asr", "ocr", "cap")], axis=1)
+                        for j, n in enumerate(pre_names)},
+                "post": {}}
+        for k in sorted({lab.split(":", 1)[1] for lab in feat_order if not lab.startswith("overlap")}):
+            cols = [feat_order.index(f"{n}:{k}") for n in names]
+            fams["post"][k] = Xconf[:, cols]
+        for kk in (10, 100):
+            cols = [i for i, lab in enumerate(feat_order) if lab.startswith(f"overlap{kk}:")]
+            fams["post"][f"overlap{kk}"] = Xconf[:, cols]
+        out["single"] = {}
+        for fam, preds in fams.items():
+            rows = {}
+            for n, X in preds.items():
+                gap, sem, _, ach_q, fix_q = nested_selection(X, Y, splits=splits)
+                p, _, lo, hi = group_stats(ach_q - fix_q, grp_arr)
+                rows[n] = {"nested_gap": gap, "nested_sem": sem, "achieved": float(ach_q.mean()),
+                           "fixed": float(fix_q.mean()), "p_signflip_group": p, "ci95": [lo, hi]}
+            adj = holm(np.array([r["p_signflip_group"] for r in rows.values()]))
+            for r, ap_ in zip(rows.values(), adj):
+                r["p_holm"] = float(ap_)
+            out["single"][fam] = rows
+            best = max(rows, key=lambda n: rows[n]["nested_gap"])
+            print(f"\nsingle {fam}-retrieval predictors ({len(rows)}), best = {best}:")
+            for n in sorted(rows, key=lambda n: -rows[n]["nested_gap"]):
+                r = rows[n]
+                print(f"  {n:<14} gap {r['nested_gap']:+6.2f}  achieved {r['achieved']:.4f}  "
+                      f"p {r['p_signflip_group']:.4f}  holm {r['p_holm']:.4f}")
 
     print("\ncross-channel spread of each pre-retrieval predictor "
           "(mean relative range across the three indices; 0 = same value whichever channel):")

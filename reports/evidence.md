@@ -424,6 +424,20 @@ Run on Snellius rather than the lab box: one A100, 17 minutes 49 seconds for bot
 GPU never had enough free memory to take it. Three submissions were needed, the first two failing in
 seconds on a missing import and on a stale copy of the script.
 
+**Single predictors on the seven-subset channel decision (added 2026-10-09).** The main table needed
+one cell that had never been measured: the best single predictor on the seven-alternative channel
+decision, which earlier work had tested only as binary fuse-or-not cells. `mv2_qpp_prechannel.py
+--single` gives each predictor alone to the same multi-target ridge, as its value on the three channel
+indices (pre-retrieval) or the three channel rankings (post-retrieval), with the same event-grouped
+folds, a group sign-flip test and Holm correction within each family
+(`mv2_qpp_prechannel_single.json`). The best single pre-retrieval predictor is SCQ_sum at +0.93
+(0.3464; Holm p = 0.21, not significant). The best single post-retrieval signal is maxp at +6.82
+(0.4053; Holm p = 0.005), with the next six score-shape signals all significant between +2.3 and +6.2.
+The run reproduces the outcome ridge exactly (+7.59, p ≤ 0.0005). The corpus-statistic ridge now reads
++0.74 (p = 0.095) rather than the +0.81 of the earlier run, because the predictor suite has since gained
+QL, a token count with zero spread across channels, so the learner sees eleven predictors per index as
+the paper states; the earlier ten-predictor run is kept in `mv2_qpp_prechannel.json`.
+
 **The matched-learner control on all three decisions (added 2026-09-27).** A simulated review panel
 raised one critical objection: the losers are single-feature calibrated predictors and the winners
 multi-feature learners, so "reads an outcome" is confounded with "has more features". The channel
