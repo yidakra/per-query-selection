@@ -1,0 +1,27 @@
+{
+  "n_queries": 2546,
+  "baseline": 0.3133156763273221,
+  "policies": {
+    "sel_pre_QL": {
+      "achieved": 0.2980239093912405,
+      "gain": -0.0152917669360816,
+      "p_signflip_group": 0.9950024987506247,
+      "ci95": [
+        -0.02661107828714535,
+        -0.004416908955908362
+      ],
+      "p_holm_stored": 0.9950024987506247
+    },
+    "sel_post_NQC_norm": {
+      "achieved": 0.332023705898355,
+      "gain": 0.018708029571032937,
+      "p_signflip_group": 0.0004997501249375312,
+      "ci95": [
+        0.009601346668450897,
+        0.02867540042537564
+      ],
+      "p_holm_stored": 0.0009995002498750624
+    }
+  },
+  "note": "Holm here runs over the two predictors whose picks are stored. The paper's family has ten post-retrieval predictors; with p=0.0005 the Holm-adjusted value over ten is at most 0.005."
+}
