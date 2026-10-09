@@ -34,6 +34,7 @@ from mv2_qpp_predictors import (PRE_RETRIEVAL, SCORE_ONLY, Index,  # noqa: E402
 from oracle_router_headroom import LADDER, fuse, per_query          # noqa: E402
 from router_hetero import comps_msrvtt                              # noqa: E402
 from retrieve import FEATURE_ORDER, conf_features                   # noqa: E402
+from mv2_row_inference import group_stats, holm                     # noqa: E402
 
 ABL = os.path.join(ROOT, "results", "ablations")
 DATASET = os.path.join(
@@ -137,6 +138,12 @@ def one_cell(encoder, setting, index, task):
     control_decision = control_pred > 0
     fixed = max(float(cheap.mean()), float(expensive.mean()))
     margin = 5e-4
+    # one-sided sign-flip against the better fixed option; each query is its own group, since
+    # MSR-VTT has one phrasing per information need
+    fixed_per_query = expensive if expensive.mean() >= cheap.mean() else cheap
+    control_diff = np.where(control_decision, expensive, cheap) - fixed_per_query
+    control_p, _, lo, hi = group_stats(control_diff, np.arange(len(queries)))
+    control_ci = [lo, hi]
 
     def summary(rows):
         return {
@@ -166,6 +173,8 @@ def one_cell(encoder, setting, index, task):
             "tau": float(kendalltau(control_pred, gain).statistic),
             "routed_ndcg10": float(np.where(control_decision, expensive, cheap).mean()),
             "frac_escalated": float(control_decision.mean()),
+            "p_signflip": control_p,
+            "ci95": control_ci,
         },
         "oracle": {
             "routed_ndcg10": float(np.where(gain > 0, expensive, cheap).mean()),
@@ -231,6 +240,12 @@ def main():
                   f"control={row['control']['routed_ndcg10']:.4f}, "
                   f"pre={row['pre_summary']['above_fixed']}/11, "
                   f"score={row['score_summary']['above_fixed']}/10", flush=True)
+
+    keys = list(results)
+    adj = holm([results[k]["control"]["p_signflip"] for k in keys])
+    for k, p in zip(keys, adj):
+        results[k]["control"]["p_holm"] = float(p)
+        print(f"{k}: control p={results[k]['control']['p_signflip']:.4f}, holm={p:.4f}", flush=True)
 
     payload = {
         "protocol": "five-fold OOF; visual versus visual+caption and visual versus caption; 5e-4 above-fixed margin",
