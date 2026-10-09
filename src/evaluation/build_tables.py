@@ -16,7 +16,7 @@ ALL5 = ["query_vs_video", "query_vs_captions", "prequel_vs_captions",
         "during_vs_captions", "sequel_vs_captions"]
 TEXT4 = ALL5[1:]
 
-# Paper targets (NDCG, R1, R5, R10, MRR, MAP) — from reproduction_spec.md Table 1.
+# Paper targets (NDCG, R1, R5, R10, MRR, MAP) — from legacy/reports/reproduction_spec.md Table 1.
 PAPER = {
  ("MSR-VTT-1kA","multiclip","baseline"):     dict(NDCG=59.72,R1=43.52,R5=69.05,R10=76.88,MRR=0.54,MAP=54.27),
  ("MSR-VTT-1kA","multiclip","Q2E"):          dict(NDCG=61.51,R1=44.52,R5=71.26,R10=79.40,MRR=0.56,MAP=55.84),

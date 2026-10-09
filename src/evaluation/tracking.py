@@ -29,9 +29,10 @@ DESIGN NOTES (this machine is shared -- read before trusting any number):
   CODECARBON_COUNTRY_ISO is set.  That is an outbound request.  Set the env var to avoid it.
 
 W&B defaults to offline (writes to runs/wandb/) unless credentials exist or WANDB_MODE is set,
-so nothing leaves the box by accident -- this repo is private and pre-publication.
-Runs are stamped with entity=natlang, project=adaptive-q2e (wandb.ai/natlang/adaptive-q2e), so
-offline runs land in the right place when synced. Run `wandb login` once to enable online mode,
+so nothing leaves the box by accident.
+Runs go to the W&B project named by WANDB_PROJECT (default "adaptive-q2e", the project's original
+name, kept so old and new runs stay together) and to the entity named by WANDB_ENTITY (default:
+the logged-in account's own entity). Run `wandb login` once to enable online mode,
 then backfill everything recorded so far with `wandb sync runs/wandb/offline-*`.
 """
 import os, sys, time, json, socket, subprocess, contextlib
@@ -39,7 +40,7 @@ import os, sys, time, json, socket, subprocess, contextlib
 _ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))   # repo root, wherever it is checked out
 REPO = _ROOT
 PROJECT = os.environ.get("WANDB_PROJECT", "adaptive-q2e")
-ENTITY = os.environ.get("WANDB_ENTITY", "natlang")   # wandb.ai/natlang/adaptive-q2e
+ENTITY = os.environ.get("WANDB_ENTITY") or None   # None: W&B uses the account default
 ENERGY_DIR = os.path.join(REPO, "results", "energy")
 
 

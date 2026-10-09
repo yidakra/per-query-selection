@@ -1,8 +1,16 @@
-# Adaptive Q2E: the evidence behind the one-pager
+# Evidence record
 
-Working document. Everything that supports a claim in `one_pager.md`, at the length it takes to state
-honestly, including the caveats and the failures. The one-pager is the supervision deliverable. This is
-what it is standing on. If the two ever disagree, this file is right and the one-pager is stale.
+> **Read this first.** This is a chronological lab record: every result is entered with its date,
+> caveats and artifact, and earlier framings are kept as they were written. Some were revised later,
+> notably the claim that the dividing line is "not the pre/post split" (the paper says it mostly is,
+> and explains why) and "label luck" for the oracles (the paper says the oracle cannot be estimated
+> at this judgment density). Where this file and the paper differ in wording, the paper is the final
+> statement; the numbers are the same.
+
+
+Working document. Everything that supports a claim in the paper and in `legacy/reports/one_pager.md`, at the length it takes to state
+honestly, including the caveats and the failures. The one-pager was an earlier
+supervision summary. If the two disagree, this file is right and the one-pager is stale.
 
 **Claim: QPP-based selection has a boundary, and it is not the one the literature's pre/post-retrieval
 split would suggest. Predictors built on corpus-aggregate term statistics carry roughly an order of
