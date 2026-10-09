@@ -762,19 +762,19 @@ mid-sentence at the captioner's 2,048-token generation cap, and about 42% carry 
 preamble, uniform noise in both cases. A 30B-captioner rerun waits on the caption provider, who may already
 have those captions generated.
 
-**MVEB, a fourth decision and a second test bed (added 2026-09-16).** A reviewer asked for one
-more collection for ECIR and supplied MVEB: nine subsets with 9B captions, and for seven pools a
-pair of finished first-stage runs, her MultiVENT-specialised system and a generic base. Neither
+**MVEB, a fourth decision and a second test bed (added 2026-09-16).** We added one
+more collection for ECIR, MVEB: nine subsets with 9B captions, and for seven pools a
+pair of finished first-stage runs, a MultiVENT-specialised system and a generic base. Neither
 dominates, with the base ahead on five of seven, so which system to run is a live per-query decision
 of the same shape as the other three and a different kind. The runs exist, so nothing is retrieved
-(`mv2_mveb_selection.py`). She then released the query text, the id bridge and the judgments for all
-seven pools, which is what made both predictor families testable.
+(`mv2_mveb_selection.py`). The query text, the id bridge and the judgments for all
+seven pools were released later, which is what made both predictor families testable.
 
 The judgments are single-gold: one relevant video per query. The script refuses to compute anything
 until its reconstruction reproduces the reported nDCG for both systems, and on all
 seven pools it reproduces all fourteen numbers exactly. Two joins had to be got right first. Query
 ids are read from the run rather than built from a prefix, because VGGSound writes
-`vggsound_a_q000000` and `vggsound_v_q000000` over one video set. And her id lists are prefixed by
+`vggsound_a_q000000` and `vggsound_v_q000000` over one video set. And the released id lists are prefixed by
 pool where the runs are prefixed by dataset, so the two VGGSound pools need their gold ids bridged
 from `vgga_` and `vggv_` to `vggsound_`, after which 690 of 696 and 696 of 696 golds are retrieved
 against none unbridged.
@@ -814,12 +814,12 @@ collection.
 halves. A caption is a lossy compression of the video, so the index should carry the video
 representation and not only caption text. The text half is closed: a union index holding each
 video's caption, transcript and on-screen text together is 0 of 33. The video half was open because
-we had no video vectors and no way to put a query in their space. Both resolved this week. Her 9B
+we had no video vectors and no way to put a query in their space. Both resolved this week. The 9B
 release ships three pooled vectors per video for the full 55,388-video test split, complete by its
-own metadata, at 4,096 dimensions, and her video ids are our judgment doc ids. We put our queries in
+own metadata, at 4,096 dimensions, and its video ids are our judgment doc ids. We put our queries in
 that space by running the same model over the query text and pooling the same way, then scored every
 video by cosine (`mv2_video_channel.py`). CPU only, because a 9B model in bf16 needs about 18 GB and
-the shared GPU has about 2 free. The vectors stay outside the repo like her captions.
+the shared GPU has about 2 free. The vectors stay outside the repo like the released captions.
 
 Coverage is not the issue: 4,120 of 4,222 judged documents are in the release, 97.6%, the same as
 the caption text we already indexed. The channel does not retrieve.
@@ -828,14 +828,14 @@ the caption text we already indexed. The channel does not retrieve.
 |---|---|
 | Dense speech, the default channel | 0.3134 |
 | On-screen text | 0.1330 |
-| Her caption vectors, query scored zero-shot | 0.0185 |
-| Her video vectors, query scored zero-shot | 0.0147 |
+| Released caption vectors, query scored zero-shot | 0.0185 |
+| Released video vectors, query scored zero-shot | 0.0147 |
 
-Before reading that as a fact about her representation we checked it was not a fact about our
-reconstruction. If our pooling matches hers, a video's own caption must retrieve that video's own
+Before reading that as a fact about the released representation we checked it was not a fact about our
+reconstruction. If our pooling matches the release, a video's own caption must retrieve that video's own
 vector. It does: over 64 videos against all 55,388, the caption ranks its own `mean_caption` vector
 first 58 times, in the top ten 63 times, median rank 1. The pooling is faithful, so the retrieval
-numbers are hers and not ours.
+numbers describe the release and not our reconstruction.
 
 The same test against the video vectors is the more interesting one, because it asks whether text
 and video sit in one space inside the model at all. A video's own caption ranks that video's
@@ -843,7 +843,7 @@ and video sit in one space inside the model at all. A video's own caption ranks 
 That is far above chance, which would put the median near 27,694, and far below retrieval. Text and
 video occupy loosely related regions of the same hidden space rather than a shared one.
 
-So the answer to the objection is specific rather than a shrug. Her space is an excellent identity
+So the answer to the objection is specific rather than a shrug. The released space is an excellent identity
 space for text and not a query-to-video retrieval space, and nothing in it was trained to be one:
 these are generative hidden states with no contrastive objective tying a query to a caption or to a
 video. Even the caption side, which resolves identity almost perfectly, collapses for queries,
@@ -851,10 +851,10 @@ because a query looks nothing like a claim-style caption and nothing bridges tha
 video representation directly would need a learned projection trained on relevance data, which is a
 different paper and one whose selector would read retrieval outcomes anyway. The caption text we
 already index is the usable form of that representation, and the caption ladder answers the question
-her objection was really about.
+the objection was really about.
 
 **The 27B captioner rung (added 2026-08-31).** The remaining caption question was whether a
-larger captioner changes the verdict, and she generated the captions herself (Qwen3.5-27B, same
+larger captioner changes the verdict, and new captions were generated (Qwen3.5-27B, same
 claim-style prompt). Same swap, same protocol, both collections
 (`mv2_qpp_table_supcap27b_sym_grouped.*`, `mv2_row_inference_supcap27b.json`,
 `mv2_msrvtt_source_replication_supcap27b.*`): 0 of 33 significant on MultiVENT 2.0 with 22 of 33
