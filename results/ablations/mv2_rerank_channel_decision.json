@@ -2,7 +2,7 @@
   "model": "BAAI/bge-reranker-v2-m3",
   "topk": 100,
   "max_len": 384,
-  "hardware": "Snellius gpu_a100, one GPU, 17m49s wall",
+  "hardware": "HPC cluster, A100, one GPU, 17m49s wall",
   "stages": {
     "first_stage": {
       "n_queries": 2546,

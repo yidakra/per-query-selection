@@ -1,8 +1,8 @@
-"""The video-embedding channel: supervision's own objection, made runnable.
+"""The video-embedding channel: a reviewer's objection, made runnable.
 
 A caption is a lossy compression of the video, so the retrieval index should carry the video
 representation and not only caption text. The text half of that objection is closed (a union index
-holding caption, transcript and on-screen text is 0 of 33). This is the other half. Supervision's
+holding caption, transcript and on-screen text is 0 of 33). This is the other half. The reviewer's
 Qwen3.5-9B release ships a pooled vector per video for the 55,388-video test split, in three
 poolings, and the ids are our judgment doc ids. We put our queries into the same space by running
 the same model over the query text and pooling the same way, then score every video by cosine.
@@ -29,8 +29,10 @@ HERE = os.path.dirname(os.path.abspath(__file__)); sys.path.insert(0, HERE)
 _ROOT = os.path.dirname(os.path.dirname(HERE))
 DATA = os.path.join(_ROOT, "data", "multivent2")
 ABL = os.path.join(_ROOT, "results", "ablations")
-VEC = os.path.expanduser("~/supervisor_captions/vectors9b/eval/mv2_test")
-IDS = os.path.expanduser("~/supervisor_captions/eval/mv2_test/ids.json")
+# Caption release (not redistributed); set MV2_CAPTIONS_DIR to where it is unpacked.
+CAP_DIR = os.path.expanduser(os.environ.get("MV2_CAPTIONS_DIR", "~/captions"))
+VEC = os.path.join(CAP_DIR, "vectors9b", "eval", "mv2_test")
+IDS = os.path.join(CAP_DIR, "eval", "mv2_test", "ids.json")
 
 
 def encode_queries(texts, model_id, device, batch, max_len):
@@ -59,7 +61,7 @@ def self_test(a):
     """Encode a video's own caption and look for that video's row. If the pooling matches the one
     the release used, a caption must retrieve its own vector; if it does not, any retrieval number
     from this script is measuring our reconstruction rather than the release."""
-    caps = os.path.expanduser("~/supervisor_captions/eval/mv2_test/captions.jsonl")
+    caps = os.path.join(CAP_DIR, "eval", "mv2_test", "captions.jsonl")
     ids = json.load(open(IDS))["ids"]
     row = {v: i for i, v in enumerate(ids)}
     picked, texts, rows = [], [], []

@@ -209,7 +209,7 @@ of practical size. And QL makes the structural point on its own, since QPP-4-RAG
 `len(qtokens)`, a number identical across channels by construction, asked to choose between speech,
 text and frames.
 
-**The language-matched control (added 2026-08-13).** A second objection, raised in supervision:
+**The language-matched control (added 2026-08-13).** A second objection, raised in review:
 the queries are English and the transcripts are mostly not, so term statistics computed across that
 divide may fail for vocabulary-mismatch reasons that say nothing about the family. The control is to
 rebuild the lexical index over the NLLB-translated English transcripts (`asr_text_en.jsonl`, 109,488
@@ -233,7 +233,7 @@ and +0.03, no ordering signal). The score family does it 7 of 10 times (best NQC
 τ +0.24). The per-query headroom is real: the oracle over seven candidates reaches 0.4079 against
 the original's 0.3133, and no reformulation method beats the original on average (best, Query2Doc,
 −0.003), so variant value on this benchmark is entirely per-query spread, the same structure as the
-channel result. The two use-everything baselines, added at supervision's request, complete the
+channel result. The two use-everything baselines, added on request, complete the
 policy table (`mv2_variant_selection_s1.md`): concatenating all six expansions into one query loses
 −0.031 against the original (median 1,908 tokens, untruncated through the encoder's 8,192 limit),
 and fusing all seven candidates' result lists with RRF ties it at +0.002. Selection is the only
@@ -419,7 +419,7 @@ number of queries carrying a decision rises from 1,609 to 1,801, while screen te
 share of them, 16.0% against 20.4%. More queries have a decision to make and fewer of them are
 decided in favour of the weaker channel.
 
-Run on Snellius rather than the lab box: one A100, 17 minutes 49 seconds for both channels, about
+Run on an HPC cluster rather than the lab box: one A100, 17 minutes 49 seconds for both channels, about
 128 SBU. The same job was measured at roughly 40 hours on the shared box's CPU and the box's single
 GPU never had enough free memory to take it. Three submissions were needed, the first two failing in
 seconds on a missing import and on a stale copy of the script.
@@ -610,7 +610,7 @@ dedicated runs (+2.16, +1.43) because this script's overlap features use a share
 protocol is otherwise identical and the differences sit inside the intervals.
 
 **How accurate a selector must be, measured with simulated error (added 2026-09-01).** The
-centrepiece of the supervision research plan's RQ2, run on all three axes
+centrepiece of the research plan's RQ2, run on all three axes
 (`mv2_error_tolerance.py`, `mv2_error_tolerance.json`): start from the oracle, replace its pick
 with a uniformly drawn alternative at a controlled rate, and find where the delivered gain crosses
 zero. The break-even oracle-agreement rates are 75.4% for the two-channel decision (3 options),
@@ -724,7 +724,7 @@ pre-retrieval advantage lives on the generation axis (nugget quality), which we 
 existing nugget pipeline. Generator is 7B open-weights rather than GPT-4o, pinned in the committed
 config, consistent with the toolkit's own reproducibility runs.
 
-**Route-by-language (added 2026-08-17).** Supervision asked whether the channel choice should depend
+**Route-by-language (added 2026-08-17).** A reviewer asked whether the channel choice should depend
 on the query language. Measured with the four NLLB query translations against the two re-runnable
 channels (`mv2_route_by_language.py`): it should not. The best fixed channel is speech in every query
 language, the oracle's headroom over it is nearly constant (+5.5 to +6.2 nDCG), and the oracle's pick
@@ -738,9 +738,9 @@ retrieval lever on this benchmark; which language to ask in is a per-query decis
 framework could target, and it is recorded here as future work, not claimed.
 
 **The caption-quality control (added 2026-08-17).** The strongest form of the index objection, raised
-in supervision: the shipped captions are one to two years old, from a weak model, and pre-retrieval
-needs high-quality document text, so the null could be a caption artifact. Supervision provided newly
-generated captions (Qwen3.5-9B, temperature 0, claim-style, one enumerated caption per video;
+in review: the shipped captions are one to two years old, from a weak model, and pre-retrieval
+needs high-quality document text, so the null could be a caption artifact. Newly
+generated captions were provided (Qwen3.5-9B, temperature 0, claim-style, one enumerated caption per video;
 unpublished, held outside the repo and not redistributed). Coverage on MultiVENT 2.0: 55,388 videos,
 97.6% of judged and 99.1% of relevant documents. Rebuilding the lexical index over these captions and
 rerunning the full symmetric protocol changes nothing: the corpus-statistic family is 0 of 33
@@ -749,7 +749,7 @@ significant, 23 of 33 equivalent to doing nothing (`mv2_qpp_table_supcap_sym_gro
 document side, gives 0 of 11 in all eight cells, 0 of 88 total, identical to the old-caption result
 (`mv2_msrvtt_source_replication_supcap.*`, new `--index-captions` flag). Better captions do not
 rescue corpus statistics on either collection; the caption-quality explanation is closed in both
-directions the supervision meeting asked about. Two follow-ups from the 2026-08-18 sync, both run
+directions the review asked about. Two follow-ups from the 2026-08-18 sync, both run
 the same day. The union index, everything the video says about itself in one document per video
 (caption plus transcript plus on-screen text, 109,681 documents), is the strongest document side
 this family can be handed: 0 of 33 significant, 24 of 33 equivalent
@@ -759,10 +759,10 @@ tokens indexed), ids topically aligned with the transcripts on judged documents,
 coverage, and the caption index demonstrably changed the features (9% of escalation decisions
 flipped against the ASR-index run). Two footnotes rather than bugs: 10.8% of captions end
 mid-sentence at the captioner's 2,048-token generation cap, and about 42% carry a boilerplate
-preamble, uniform noise in both cases. A 30B-captioner rerun waits on supervision, who may already
+preamble, uniform noise in both cases. A 30B-captioner rerun waits on the caption provider, who may already
 have those captions generated.
 
-**MVEB, a fourth decision and a second test bed (added 2026-09-16).** Supervision asked for one
+**MVEB, a fourth decision and a second test bed (added 2026-09-16).** A reviewer asked for one
 more collection for ECIR and supplied MVEB: nine subsets with 9B captions, and for seven pools a
 pair of finished first-stage runs, her MultiVENT-specialised system and a generic base. Neither
 dominates, with the base ahead on five of seven, so which system to run is a live per-query decision
@@ -771,7 +771,7 @@ of the same shape as the other three and a different kind. The runs exist, so no
 seven pools, which is what made both predictor families testable.
 
 The judgments are single-gold: one relevant video per query. The script refuses to compute anything
-until its reconstruction reproduces supervision's own reported nDCG for both systems, and on all
+until its reconstruction reproduces the reported nDCG for both systems, and on all
 seven pools it reproduces all fourteen numbers exactly. Two joins had to be got right first. Query
 ids are read from the run rather than built from a prefix, because VGGSound writes
 `vggsound_a_q000000` and `vggsound_v_q000000` over one video set. And her id lists are prefixed by
@@ -810,7 +810,7 @@ here the audit cannot be run at all, because a single gold cannot be halved. A l
 oracle that nothing converts is the same finding approached from the other side, and on a second
 collection.
 
-**The video-embedding index, supervision's other half (added 2026-09-12).** Her objection had two
+**The video-embedding index, the objection's other half (added 2026-09-12).** The objection had two
 halves. A caption is a lossy compression of the video, so the index should carry the video
 representation and not only caption text. The text half is closed: a union index holding each
 video's caption, transcript and on-screen text together is 0 of 33. The video half was open because
@@ -853,7 +853,7 @@ different paper and one whose selector would read retrieval outcomes anyway. The
 already index is the usable form of that representation, and the caption ladder answers the question
 her objection was really about.
 
-**The 27B captioner rung (added 2026-08-31).** Supervision's remaining caption question was whether a
+**The 27B captioner rung (added 2026-08-31).** The remaining caption question was whether a
 larger captioner changes the verdict, and she generated the captions herself (Qwen3.5-27B, same
 claim-style prompt). Same swap, same protocol, both collections
 (`mv2_qpp_table_supcap27b_sym_grouped.*`, `mv2_row_inference_supcap27b.json`,
@@ -862,7 +862,7 @@ equivalent to doing nothing, and 0 of 88 on MSR-VTT, identical to the 9B result 
 captions before that. The caption axis is now a two-rung captioner ladder, 9B and 27B, and neither
 rung moves a single cell. This verdict is now on the finished batch. The first delivery was partial,
 37,581 captions of 55,388, which we confirmed from the release's own `meta.json` rather than
-inferring it from our coverage count. Supervision regenerated and re-uploaded it on 2026-09-16, and
+inferring it from our coverage count. The provider regenerated and re-uploaded it on 2026-09-16, and
 the index now covers 97.6% of judged and 99.1% of relevant documents, matching the 9B set exactly.
 Rerunning the full symmetric protocol over the completed captions moves the individual numbers and
 leaves the verdict where it was: 0 of 33 significant, 22 of 33 equivalent to doing nothing. The

@@ -1,13 +1,13 @@
-"""Per-query system selection on MVEB, supervision's additional test bed.
+"""Per-query system selection on MVEB, an additional test bed.
 
 The three axes so far decide what to search, how to phrase it, and which language to ask in. MVEB
 supplies a fourth decision of the same shape and a different kind: two finished retrieval systems per
-pool, a MultiVENT-specialised one and a generic base, with neither dominating. Supervision's own
+pool, a MultiVENT-specialised one and a generic base, with neither dominating. The released
 summary has the base ahead on five of seven pools, so choosing per query is a live decision rather
 than a formality. The runs already exist, so nothing is retrieved here.
 
 Judgments are single-gold identity: query i's one relevant video is the i-th entry of the pool's id
-list. That reconstruction is checked against supervision's own reported nDCG before anything is
+list. That reconstruction is checked against the reported nDCG before anything is
 computed on top of it, and the check has to pass exactly.
 
 Two predictor families, the same ones the rest of the study uses. Score-only predictors read the
@@ -33,7 +33,7 @@ MVEB = "/mnt/data/q2e/mveb"
 MARGIN = 5e-4      # how far above the best fixed system a router must land to count, fixed so that
                    # loosening the reconstruction tolerance cannot loosen the conclusion
 
-# pool -> (caption directory, suffix on the run filename, supervision's reported nDCG per system)
+# pool -> (caption directory, suffix on the run filename, the reported nDCG per system)
 POOLS = {
     "mrvmteb": ("MSR-VTT", "", {"base": 0.6969, "01mv": 0.6913}),
     "didemo": ("DiDeMo", "", {"base": 0.5615, "01mv": 0.5851}),
@@ -82,7 +82,7 @@ def load_pool(pool, root):
     The delivery keys everything by id and never by row order. The run files still address queries
     positionally, so the one ordering assumption left is that the i-th query of a pool is the i-th
     line of its id list and of its query file, and the reconstruction check below is what licenses
-    it: nDCG computed this way has to reproduce supervision's own number for both systems."""
+    it: nDCG computed this way has to reproduce the reported number for both systems."""
     d, sfx, _ = POOLS[pool]
     run_prefix = "vggsound" if pool in ("vggv", "vgga") else pool
     ids_file = os.path.join(root, "retrieval_queries", f"{pool}_video_ids.txt")
@@ -140,7 +140,7 @@ def main():
     ap.add_argument("--index", action="append", default=[], metavar="POOL=FILE",
                     help="JSONL of {text: ...} for the lexical index; defaults to the pool's captions")
     ap.add_argument("--tol", type=float, default=5e-4,
-                    help="how far the reconstructed nDCG may sit from supervision's own number; it "
+                    help="how far the reconstructed nDCG may sit from the reported number; it "
                          "gates the reconstruction only and never the above-fixed comparison")
     ap.add_argument("--tag", default="")
     a = ap.parse_args()
@@ -164,7 +164,7 @@ def main():
             print(f"[{pool}] skipped: {e}", flush=True)
             continue
 
-        # the reconstruction is only usable if it reproduces supervision's own numbers
+        # the reconstruction is only usable if it reproduces the reported numbers
         reported = POOLS[pool][2]
         means, bad = {}, []
         yq = {}
@@ -174,7 +174,7 @@ def main():
             if abs(means[sysname] - reported[sysname]) > a.tol:
                 bad.append(f"{sysname} {means[sysname]:.4f} vs reported {reported[sysname]:.4f}")
         if bad:
-            raise SystemExit(f"[{pool}] reconstruction does not match supervision: {'; '.join(bad)}")
+            raise SystemExit(f"[{pool}] reconstruction does not match the reported numbers: {'; '.join(bad)}")
         print(f"[{pool}] {len(qids)} queries; base {means['base']:.4f} 01mv {means['01mv']:.4f} "
               f"(both match the reported numbers within {a.tol})", flush=True)
 
@@ -322,7 +322,7 @@ def main():
     out = os.path.join(ABL, f"mv2_mveb_selection{a.tag}.json")
     json.dump(results, open(out, "w"), indent=2)
     lines = ["# MVEB per-query system selection", "",
-             "Choose between supervision's two first-stage systems per query. Single-gold identity "
+             "Choose between the pool's two first-stage systems per query. Single-gold identity "
              "judgments, five-fold out-of-fold calibration, no retrieval run here.", "",
              "| pool | n | base | 01mv | best fixed | oracle | pre above | score above | control |",
              "|---|---:|---:|---:|---:|---:|---:|---:|---:|"]

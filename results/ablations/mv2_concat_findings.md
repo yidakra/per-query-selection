@@ -1,6 +1,6 @@
 # Extension beats decomposition: concatenating the LLM events wins on both effectiveness and variance
 
-Supervision (22 Jul) raised a finding from the JHU SCALE project: **query extension** (concatenate the
+Review (22 Jul) raised a finding from the JHU SCALE project: **query extension** (concatenate the
 expansions into one enriched query, score once) tends to beat **query decomposition** (score each
 expansion separately, then fuse), because fusion produces a "some queries great, some terrible" spread
 that concatenation flattens. We tested it directly on MultiVENT 2.0, CPU-only, reusing shipped assets
