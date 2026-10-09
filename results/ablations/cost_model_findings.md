@@ -2,7 +2,7 @@
 
 > **Scope:** this cost model was measured on the **original Q2E pipeline** (ViT-H similarity,
 > `mx_q=30` padding, the paper's own corpora). It does **not** describe the MultiVENT 2.0 cascade,
-> whose measured latency and energy are in [`legacy/reports/efficiency_metrics.md`](../../legacy/reports/efficiency_metrics.md);
+> whose measured latency and energy are in an efficiency report from the project's first phase (in the git history);
 > there, tiers A and B are CPU-only and cost ~0.01 J and ~1 J per query. Do not mix the two tables.
 
 

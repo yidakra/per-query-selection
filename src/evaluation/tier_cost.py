@@ -2,7 +2,7 @@
 
 SCOPE: the ORIGINAL Q2E pipeline only. The MultiVENT 2.0 cascade is a different system with its own
 cost profile -- tiers A and B there are CPU-only and cost ~0.01 J and ~1 J per query. Its numbers live
-in `src/multivent2/mv2_efficiency.py` and `legacy/reports/efficiency_metrics.md`. Do not import these joules
+in `src/multivent2/mv2_efficiency.py` and the first-phase efficiency report (in the git history). Do not import these joules
 into MultiVENT 2.0 reporting.
 
 Supersedes the component-count proxy `{A_visual:1, -Events:2, Full:5}` -> normalized

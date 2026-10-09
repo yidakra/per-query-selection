@@ -8,9 +8,9 @@
 > statement; the numbers are the same.
 
 
-Working document. Everything that supports a claim in the paper and in `legacy/reports/one_pager.md`, at the length it takes to state
-honestly, including the caveats and the failures. The one-pager was an earlier
-supervision summary. If the two disagree, this file is right and the one-pager is stale.
+Working document. Everything that supports a claim in the paper, at the length it takes to state
+honestly, including the caveats and the failures. An earlier one-page summary
+(now only in the git history) is superseded by this file.
 
 **Claim: QPP-based selection has a boundary, and it is not the one the literature's pre/post-retrieval
 split would suggest. Predictors built on corpus-aggregate term statistics carry roughly an order of

@@ -2,7 +2,7 @@
 the derived green-AI / cost-per-correct numbers.
 
 We had measured joules but no measured *latency distribution* and no *throughput*, the two numbers
-every IR efficiency paper reports (see legacy/reports/efficiency_metrics_review.md). This times every stage of
+every IR efficiency paper reports (see the first-phase efficiency review in the git history). This times every stage of
 the cascade separately on real queries, warm, one query at a time (the serving regime), and reports
 mean / median / p95 / p99 per tier -- tails matter here because escalation is exactly what inflates the
 upper percentiles.

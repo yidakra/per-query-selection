@@ -62,5 +62,5 @@ Experiments log to Weights & Biases offline by default (`src/evaluation/tracking
 - `src/evaluation/`: shared evaluation code, tracking, and the earlier Q2E reproduction.
 - `results/ablations/`: result artifacts (JSON) and per-experiment notes.
 - `reports/`: task definition, evidence record, predictor notes, figures.
-- `legacy/`: the project's first phase (adaptive routing over a reproduced Q2E pipeline) with its
-  README, reports and server scripts, kept for the record. The paper does not depend on it.
+The project's first phase (adaptive routing over a reproduced Q2E pipeline) had its own README,
+reports and server scripts. The paper does not depend on them, and they remain in the git history.
