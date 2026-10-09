@@ -1118,3 +1118,10 @@ in-sample version is exactly the number a less careful paper would have publishe
   low-base-rate cell rather than a degenerate one, and it is where calibration matters most.
 - **The second paper.** The efficiency material (measured joules, the p99 tail, risk-coverage, and the
   ρ = 0.943 heterogeneity result) has its own scope note, which lives in the paper repository.
+
+**MSR-VTT ridge, tested (added 2026-10-09).** `mv2_msrvtt_source_replication.py` now runs a one-sided
+sign-flip test of the post-retrieval ridge against the better fixed option in each of the eight
+settings (each query its own group; Holm across the eight). Ridge values are unchanged. The ridge is
+significant in 2 of 8: choose-source with ASR for both encoders (multiclip 0.6298 against 0.5972,
+Holm p=0.004; InternVideo2 0.6759 against 0.6600, Holm p=0.025). The other six, including all four
+add-caption settings, are not.
