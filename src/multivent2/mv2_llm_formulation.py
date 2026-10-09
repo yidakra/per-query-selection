@@ -124,7 +124,10 @@ def main():
             if (i + 1) % 100 == 0:
                 print(f"  {i + 1}/{len(todo)}", flush=True)
 
-    qids = [q for q in qids if q in done]
+    missing = [q for q in qids if q not in done]
+    if missing:                     # never score a partial run as if it were the full one
+        raise SystemExit(f"{len(missing)} queries have no answer (endpoint failures); rerun to "
+                         f"ask them before scoring")
     picks = [done[q]["pick"] for q in qids]
     chosen = [labels[k] if k is not None else "original" for k in picks]
     sel = np.array([nd[(q, c)] for q, c in zip(qids, chosen)])
