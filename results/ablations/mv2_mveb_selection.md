@@ -1,6 +1,6 @@
 # MVEB per-query system selection
 
-Choose between supervision's two first-stage systems per query. Single-gold identity judgments, five-fold out-of-fold calibration, no retrieval run here.
+Choose between the pool's two first-stage systems per query. Single-gold identity judgments, five-fold out-of-fold calibration, no retrieval run here.
 
 | pool | n | base | 01mv | best fixed | oracle | pre above | score above | control |
 |---|---:|---:|---:|---:|---:|---:|---:|---:|

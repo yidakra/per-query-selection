@@ -1,6 +1,6 @@
 """Route-by-language: does the channel choice depend on the query language?
 
-Supervision's question from the 2026-08-13 sync. The same 2,546 queries exist in English and in the
+A question from the 2026-08-13 review. The same 2,546 queries exist in English and in the
 four largest corpus languages (NLLB translations); each version was retrieved against the same two
 re-runnable channels (dense speech, dense OCR). This measures, per query language: each channel's
 nDCG@10, the best fixed channel, the per-query oracle over {speech, OCR, both}, and the oracle's

@@ -1,6 +1,6 @@
 # Pre-registration: the query-variant experiments
 
-Written and committed before any variant is generated or scored (2026-08-16). Supervision raised
+Written and committed before any variant is generated or scored (2026-08-16). Review raised
 two confounds against the pre-retrieval null: the queries are one fixed formulation, and the source
 study varied formulation across six generation methods. These experiments answer that, and the
 readings of every outcome are fixed here, in advance, so no result gets to choose its own story.
@@ -52,7 +52,7 @@ whether the best channel and the routing gap move with query language.
    commit to this rewrite in advance.
 5. **Route-by-language**: if the picked channel distribution or the routing gap shifts materially
    by query language (differences beyond the cluster-bootstrap CIs), language enters the selector
-   as a feature and the one-pager gains a language paragraph; if not, the answer to supervision is
+   as a feature and the one-pager gains a language paragraph; if not, the answer is
    "channel choice is not language-driven on this benchmark," with the table as evidence.
 
 ## Fixed protocol details

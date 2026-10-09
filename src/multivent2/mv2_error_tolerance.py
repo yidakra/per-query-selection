@@ -1,6 +1,6 @@
 """How accurate must a selector be before acting on it beats the fixed policy?
 
-The centrepiece of the supervision research plan's RQ2: build simulated selectors with controlled
+The centrepiece of the research plan's RQ2: build simulated selectors with controlled
 error, sweep the error rate, and find where the delivered gain crosses zero. One curve per axis,
 because the axes price mistakes differently: the channel decision escalates a fraction and degrades
 gracefully, while the language and variant decisions commit to one option whose alternatives differ

@@ -1,6 +1,6 @@
 """Extension vs decomposition on MultiVENT 2.0 (CPU, reuses shipped assets).
 
-Supervision question (22 Jul): query EXTENSION (concatenate the expansions into one enriched query and
+Review question (22 Jul): query EXTENSION (concatenate the expansions into one enriched query and
 score once) vs query DECOMPOSITION (score each expansion separately, then fuse). The SCALE-project
 finding is that concatenation removes the "some queries great, some terrible" variance that fusion
 produces -- so it should shrink the per-query gain heterogeneity the router feeds on, and may raise

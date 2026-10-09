@@ -1,4 +1,4 @@
-"""Three additions from the supervision research plan, on runs that already exist.
+"""Three additions from the research plan, on runs that already exist.
 
 One: the fixed-fusion baseline the language axis was missing (RRF over all five language lists),
 and the same for the two-channel decision. Two: query-conditioned fusion, the plan's fourth
